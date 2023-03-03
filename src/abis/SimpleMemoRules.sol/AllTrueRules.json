@@ -1,0 +1,4151 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "drawer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "module",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mintTimestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.Cheq",
+          "name": "",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "canApprove",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "drawer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "module",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mintTimestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.Cheq",
+          "name": "cheq",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "canCash",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "drawer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "module",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mintTimestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.Cheq",
+          "name": "cheq",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "canFund",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "drawer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "module",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mintTimestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.Cheq",
+          "name": "cheq",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "canTransfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "currency",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "escrowed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "drawer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "module",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "mintTimestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct DataTypes.Cheq",
+          "name": "cheq",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "canWrite",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x608060405234801561001057600080fd5b506107ad806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c8063275ecee11461005c5780634405dbb01461008357806353ba2df3146100965780638a114975146100a9578063bd7dbde8146100bc575b600080fd5b61006f61006a36600461042d565b6100cf565b604051901515815260200160405180910390f35b61006f6100913660046104c0565b6100dd565b61006f6100a4366004610542565b610226565b61006f6100b73660046105de565b610283565b61006f6100ca366004610644565b610338565b60015b979650505050505050565b600083602001356000036100f35750600061021c565b61010360a0850160808601610755565b6001600160a01b031661011c6080860160608701610755565b6001600160a01b0316036101325750600061021c565b6101426080850160608601610755565b6001600160a01b0316866001600160a01b031614158015610184575061016e60a0850160808601610755565b6001600160a01b0316866001600160a01b031614155b156101915750600061021c565b6101a16080850160608601610755565b6001600160a01b0316876001600160a01b0316141580156101e357506101cd60a0850160808601610755565b6001600160a01b0316876001600160a01b031614155b156101f05750600061021c565b60408401351580159061020b57508360200135846040013514155b156102185750600061021c565b5060015b9695505050505050565b6000876001600160a01b0316896001600160a01b03161461024957506000610277565b8360400135861461025c57506000610277565b836020013584604001351461027357506000610277565b5060015b98975050505050505050565b6000866001600160a01b0316886001600160a01b0316036102a6575060006100d2565b6040840135156102b8575060006100d2565b836020013586146102cb575060006100d2565b6102db6080850160608601610755565b6001600160a01b0316886001600160a01b03161415801561031d575061030760a0850160808601610755565b6001600160a01b0316886001600160a01b031614155b1561032a575060006100d2565b506001979650505050505050565b6000866001600160a01b0316886001600160a01b0316148015610277575061036660a0840160808501610755565b6001600160a01b0316856001600160a01b0316148061027757506103906080840160608501610755565b6001600160a01b0316856001600160a01b03161498975050505050505050565b80356001600160a01b03811681146103c757600080fd5b919050565b600060e082840312156103de57600080fd5b50919050565b60008083601f8401126103f657600080fd5b50813567ffffffffffffffff81111561040e57600080fd5b60208301915083602082850101111561042657600080fd5b9250929050565b6000806000806000806000610180888a03121561044957600080fd5b610452886103b0565b9650610460602089016103b0565b955061046e604089016103b0565b9450606088013593506104848960808a016103cc565b925061016088013567ffffffffffffffff8111156104a157600080fd5b6104ad8a828b016103e4565b989b979a50959850939692959293505050565b60008060008060008061016087890312156104da57600080fd5b6104e3876103b0565b95506104f1602088016103b0565b94506040870135935061050788606089016103cc565b925061014087013567ffffffffffffffff81111561052457600080fd5b61053089828a016103e4565b979a9699509497509295939492505050565b6000806000806000806000806101a0898b03121561055f57600080fd5b610568896103b0565b975061057660208a016103b0565b965061058460408a016103b0565b955060608901359450608089013593506105a18a60a08b016103cc565b925061018089013567ffffffffffffffff8111156105be57600080fd5b6105ca8b828c016103e4565b999c989b5096995094979396929594505050565b6000806000806000806000610180888a0312156105fa57600080fd5b610603886103b0565b9650610611602089016103b0565b955060408801359450606088013593506104848960808a016103cc565b634e487b7160e01b600052604160045260246000fd5b60008060008060008060006101a0888a03121561066057600080fd5b610669886103b0565b9650610677602089016103b0565b9550610685604089016103b0565b9450610693606089016103b0565b9350608088013592506106a98960a08a016103cc565b915061018088013567ffffffffffffffff808211156106c757600080fd5b818a0191508a601f8301126106db57600080fd5b8135818111156106ed576106ed61062e565b604051601f8201601f19908116603f011681019083821181831017156107155761071561062e565b816040528281528d602084870101111561072e57600080fd5b82602086016020830137600060208483010152809550505050505092959891949750929550565b60006020828403121561076757600080fd5b610770826103b0565b939250505056fea26469706673582212200673ff94c449f86b694d2b29428074467b51d4f8e7ec255138693dcf3429498564736f6c63430008100033",
+    "sourceMap": "225:3072:49:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c8063275ecee11461005c5780634405dbb01461008357806353ba2df3146100965780638a114975146100a9578063bd7dbde8146100bc575b600080fd5b61006f61006a36600461042d565b6100cf565b604051901515815260200160405180910390f35b61006f6100913660046104c0565b6100dd565b61006f6100a4366004610542565b610226565b61006f6100b73660046105de565b610283565b61006f6100ca366004610644565b610338565b60015b979650505050505050565b600083602001356000036100f35750600061021c565b61010360a0850160808601610755565b6001600160a01b031661011c6080860160608701610755565b6001600160a01b0316036101325750600061021c565b6101426080850160608601610755565b6001600160a01b0316866001600160a01b031614158015610184575061016e60a0850160808601610755565b6001600160a01b0316866001600160a01b031614155b156101915750600061021c565b6101a16080850160608601610755565b6001600160a01b0316876001600160a01b0316141580156101e357506101cd60a0850160808601610755565b6001600160a01b0316876001600160a01b031614155b156101f05750600061021c565b60408401351580159061020b57508360200135846040013514155b156102185750600061021c565b5060015b9695505050505050565b6000876001600160a01b0316896001600160a01b03161461024957506000610277565b8360400135861461025c57506000610277565b836020013584604001351461027357506000610277565b5060015b98975050505050505050565b6000866001600160a01b0316886001600160a01b0316036102a6575060006100d2565b6040840135156102b8575060006100d2565b836020013586146102cb575060006100d2565b6102db6080850160608601610755565b6001600160a01b0316886001600160a01b03161415801561031d575061030760a0850160808601610755565b6001600160a01b0316886001600160a01b031614155b1561032a575060006100d2565b506001979650505050505050565b6000866001600160a01b0316886001600160a01b0316148015610277575061036660a0840160808501610755565b6001600160a01b0316856001600160a01b0316148061027757506103906080840160608501610755565b6001600160a01b0316856001600160a01b03161498975050505050505050565b80356001600160a01b03811681146103c757600080fd5b919050565b600060e082840312156103de57600080fd5b50919050565b60008083601f8401126103f657600080fd5b50813567ffffffffffffffff81111561040e57600080fd5b60208301915083602082850101111561042657600080fd5b9250929050565b6000806000806000806000610180888a03121561044957600080fd5b610452886103b0565b9650610460602089016103b0565b955061046e604089016103b0565b9450606088013593506104848960808a016103cc565b925061016088013567ffffffffffffffff8111156104a157600080fd5b6104ad8a828b016103e4565b989b979a50959850939692959293505050565b60008060008060008061016087890312156104da57600080fd5b6104e3876103b0565b95506104f1602088016103b0565b94506040870135935061050788606089016103cc565b925061014087013567ffffffffffffffff81111561052457600080fd5b61053089828a016103e4565b979a9699509497509295939492505050565b6000806000806000806000806101a0898b03121561055f57600080fd5b610568896103b0565b975061057660208a016103b0565b965061058460408a016103b0565b955060608901359450608089013593506105a18a60a08b016103cc565b925061018089013567ffffffffffffffff8111156105be57600080fd5b6105ca8b828c016103e4565b999c989b5096995094979396929594505050565b6000806000806000806000610180888a0312156105fa57600080fd5b610603886103b0565b9650610611602089016103b0565b955060408801359450606088013593506104848960808a016103cc565b634e487b7160e01b600052604160045260246000fd5b60008060008060008060006101a0888a03121561066057600080fd5b610669886103b0565b9650610677602089016103b0565b9550610685604089016103b0565b9450610693606089016103b0565b9350608088013592506106a98960a08a016103cc565b915061018088013567ffffffffffffffff808211156106c757600080fd5b818a0191508a601f8301126106db57600080fd5b8135818111156106ed576106ed61062e565b604051601f8201601f19908116603f011681019083821181831017156107155761071561062e565b816040528281528d602084870101111561072e57600080fd5b82602086016020830137600060208483010152809550505050505092959891949750929550565b60006020828403121561076757600080fd5b610770826103b0565b939250505056fea26469706673582212200673ff94c449f86b694d2b29428074467b51d4f8e7ec255138693dcf3429498564736f6c63430008100033",
+    "sourceMap": "225:3072:49:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3020:275;;;;;;:::i;:::-;;:::i;:::-;;;1695:14:52;;1688:22;1670:41;;1658:2;1643:18;3020:275:49;;;;;;;318:929;;;;;;:::i;:::-;;:::i;2428:586::-;;;;;;:::i;:::-;;:::i;1693:729::-;;;;;;:::i;:::-;;:::i;1253:434::-;;;;;;:::i;:::-;;:::i;3020:275::-;3283:4;3020:275;;;;;;;;;;:::o;318:929::-;518:4;539;:11;;;554:1;539:16;535:618;;-1:-1:-1;596:5:49;589:12;;535:618;637:14;;;;;;;;:::i;:::-;-1:-1:-1;;;;;622:29:49;:11;;;;;;;;:::i;:::-;-1:-1:-1;;;;;622:29:49;;618:535;;-1:-1:-1;712:5:49;705:12;;618:535;747:11;;;;;;;;:::i;:::-;-1:-1:-1;;;;;738:20:49;:5;-1:-1:-1;;;;;738:20:49;;;:47;;;;-1:-1:-1;771:14:49;;;;;;;;:::i;:::-;-1:-1:-1;;;;;762:23:49;:5;-1:-1:-1;;;;;762:23:49;;;738:47;734:419;;;-1:-1:-1;853:5:49;846:12;;734:419;889:11;;;;;;;;:::i;:::-;-1:-1:-1;;;;;879:21:49;:6;-1:-1:-1;;;;;879:21:49;;;:49;;;;-1:-1:-1;914:14:49;;;;;;;;:::i;:::-;-1:-1:-1;;;;;904:24:49;:6;-1:-1:-1;;;;;904:24:49;;;879:49;875:278;;;-1:-1:-1;992:5:49;985:12;;875:278;1018:13;;;;:18;;;;:50;;;1057:4;:11;;;1040:4;:13;;;:28;;1018:50;1014:139;;;-1:-1:-1;1137:5:49;1130:12;;1014:139;-1:-1:-1;1169:4:49;318:929;;;;;;;;;:::o;2428:586::-;2677:4;2708:5;-1:-1:-1;;;;;2698:15:49;:6;-1:-1:-1;;;;;2698:15:49;;2694:292;;-1:-1:-1;2760:5:49;2753:12;;2694:292;2796:4;:13;;;2786:6;:23;2782:204;;-1:-1:-1;2868:5:49;2861:12;;2782:204;2911:4;:11;;;2894:4;:13;;;:28;2890:96;;-1:-1:-1;2970:5:49;2963:12;;2890:96;-1:-1:-1;3002:4:49;2428:586;;;;;;;;;;;:::o;1693:729::-;1919:4;1950:5;-1:-1:-1;;;;;1940:15:49;:6;-1:-1:-1;;;;;1940:15:49;;1936:458;;-1:-1:-1;2023:5:49;2016:12;;1936:458;2049:13;;;;:18;2045:349;;-1:-1:-1;2117:5:49;2110:12;;2045:349;2153:4;:11;;;2143:6;:21;2139:255;;-1:-1:-1;2209:5:49;2202:12;;2139:255;2245:11;;;;;;;;:::i;:::-;-1:-1:-1;;;;;2235:21:49;:6;-1:-1:-1;;;;;2235:21:49;;;:49;;;;-1:-1:-1;2270:14:49;;;;;;;;:::i;:::-;-1:-1:-1;;;;;2260:24:49;:6;-1:-1:-1;;;;;2260:24:49;;;2235:49;2231:163;;;-1:-1:-1;2378:5:49;2371:12;;2231:163;-1:-1:-1;2410:4:49;1693:729;;;;;;;;;:::o;1253:434::-;1493:4;1527:5;-1:-1:-1;;;;;1517:15:49;:6;-1:-1:-1;;;;;1517:15:49;;:62;;;;-1:-1:-1;1543:14:49;;;;;;;;:::i;:::-;-1:-1:-1;;;;;1537:20:49;:2;-1:-1:-1;;;;;1537:20:49;;:41;;;-1:-1:-1;1567:11:49;;;;;;;;:::i;:::-;-1:-1:-1;;;;;1561:17:49;:2;-1:-1:-1;;;;;1561:17:49;;1510:69;1253:434;-1:-1:-1;;;;;;;;1253:434:49:o;14:173:52:-;82:20;;-1:-1:-1;;;;;131:31:52;;121:42;;111:70;;177:1;174;167:12;111:70;14:173;;;:::o;192:153::-;249:5;294:3;285:6;280:3;276:16;272:26;269:46;;;311:1;308;301:12;269:46;-1:-1:-1;333:6:52;192:153;-1:-1:-1;192:153:52:o;350:347::-;401:8;411:6;465:3;458:4;450:6;446:17;442:27;432:55;;483:1;480;473:12;432:55;-1:-1:-1;506:20:52;;549:18;538:30;;535:50;;;581:1;578;571:12;535:50;618:4;610:6;606:17;594:29;;670:3;663:4;654:6;646;642:19;638:30;635:39;632:59;;;687:1;684;677:12;632:59;350:347;;;;;:::o;702:823::-;842:6;850;858;866;874;882;890;943:3;931:9;922:7;918:23;914:33;911:53;;;960:1;957;950:12;911:53;983:29;1002:9;983:29;:::i;:::-;973:39;;1031:38;1065:2;1054:9;1050:18;1031:38;:::i;:::-;1021:48;;1088:38;1122:2;1111:9;1107:18;1088:38;:::i;:::-;1078:48;;1173:2;1162:9;1158:18;1145:32;1135:42;;1196:61;1249:7;1243:3;1232:9;1228:19;1196:61;:::i;:::-;1186:71;;1308:3;1297:9;1293:19;1280:33;1336:18;1328:6;1325:30;1322:50;;;1368:1;1365;1358:12;1322:50;1407:58;1457:7;1448:6;1437:9;1433:22;1407:58;:::i;:::-;702:823;;;;-1:-1:-1;702:823:52;;-1:-1:-1;702:823:52;;;;1381:84;;-1:-1:-1;;;702:823:52:o;1722:748::-;1853:6;1861;1869;1877;1885;1893;1946:3;1934:9;1925:7;1921:23;1917:33;1914:53;;;1963:1;1960;1953:12;1914:53;1986:29;2005:9;1986:29;:::i;:::-;1976:39;;2034:38;2068:2;2057:9;2053:18;2034:38;:::i;:::-;2024:48;;2119:2;2108:9;2104:18;2091:32;2081:42;;2142:60;2194:7;2189:2;2178:9;2174:18;2142:60;:::i;:::-;2132:70;;2253:3;2242:9;2238:19;2225:33;2281:18;2273:6;2270:30;2267:50;;;2313:1;2310;2303:12;2267:50;2352:58;2402:7;2393:6;2382:9;2378:22;2352:58;:::i;:::-;1722:748;;;;-1:-1:-1;1722:748:52;;-1:-1:-1;1722:748:52;;2429:8;;1722:748;-1:-1:-1;;;1722:748:52:o;2475:892::-;2624:6;2632;2640;2648;2656;2664;2672;2680;2733:3;2721:9;2712:7;2708:23;2704:33;2701:53;;;2750:1;2747;2740:12;2701:53;2773:29;2792:9;2773:29;:::i;:::-;2763:39;;2821:38;2855:2;2844:9;2840:18;2821:38;:::i;:::-;2811:48;;2878:38;2912:2;2901:9;2897:18;2878:38;:::i;:::-;2868:48;;2963:2;2952:9;2948:18;2935:32;2925:42;;3014:3;3003:9;2999:19;2986:33;2976:43;;3038:61;3091:7;3085:3;3074:9;3070:19;3038:61;:::i;:::-;3028:71;;3150:3;3139:9;3135:19;3122:33;3178:18;3170:6;3167:30;3164:50;;;3210:1;3207;3200:12;3164:50;3249:58;3299:7;3290:6;3279:9;3275:22;3249:58;:::i;:::-;2475:892;;;;-1:-1:-1;2475:892:52;;-1:-1:-1;2475:892:52;;;;;;3326:8;-1:-1:-1;;;2475:892:52:o;3372:817::-;3512:6;3520;3528;3536;3544;3552;3560;3613:3;3601:9;3592:7;3588:23;3584:33;3581:53;;;3630:1;3627;3620:12;3581:53;3653:29;3672:9;3653:29;:::i;:::-;3643:39;;3701:38;3735:2;3724:9;3720:18;3701:38;:::i;:::-;3691:48;;3786:2;3775:9;3771:18;3758:32;3748:42;;3837:2;3826:9;3822:18;3809:32;3799:42;;3860:61;3913:7;3907:3;3896:9;3892:19;3860:61;:::i;4194:127::-;4255:10;4250:3;4246:20;4243:1;4236:31;4286:4;4283:1;4276:15;4310:4;4307:1;4300:15;4326:1410;4473:6;4481;4489;4497;4505;4513;4521;4574:3;4562:9;4553:7;4549:23;4545:33;4542:53;;;4591:1;4588;4581:12;4542:53;4614:29;4633:9;4614:29;:::i;:::-;4604:39;;4662:38;4696:2;4685:9;4681:18;4662:38;:::i;:::-;4652:48;;4719:38;4753:2;4742:9;4738:18;4719:38;:::i;:::-;4709:48;;4776:38;4810:2;4799:9;4795:18;4776:38;:::i;:::-;4766:48;;4861:3;4850:9;4846:19;4833:33;4823:43;;4885:61;4938:7;4932:3;4921:9;4917:19;4885:61;:::i;:::-;4875:71;;4997:3;4986:9;4982:19;4969:33;5021:18;5062:2;5054:6;5051:14;5048:34;;;5078:1;5075;5068:12;5048:34;5116:6;5105:9;5101:22;5091:32;;5161:7;5154:4;5150:2;5146:13;5142:27;5132:55;;5183:1;5180;5173:12;5132:55;5219:2;5206:16;5241:2;5237;5234:10;5231:36;;;5247:18;;:::i;:::-;5322:2;5316:9;5290:2;5376:13;;-1:-1:-1;;5372:22:52;;;5396:2;5368:31;5364:40;5352:53;;;5420:18;;;5440:22;;;5417:46;5414:72;;;5466:18;;:::i;:::-;5506:10;5502:2;5495:22;5541:2;5533:6;5526:18;5581:7;5576:2;5571;5567;5563:11;5559:20;5556:33;5553:53;;;5602:1;5599;5592:12;5553:53;5658:2;5653;5649;5645:11;5640:2;5632:6;5628:15;5615:46;5703:1;5698:2;5693;5685:6;5681:15;5677:24;5670:35;5724:6;5714:16;;;;;;;4326:1410;;;;;;;;;;:::o;5741:186::-;5800:6;5853:2;5841:9;5832:7;5828:23;5824:32;5821:52;;;5869:1;5866;5859:12;5821:52;5892:29;5911:9;5892:29;:::i;:::-;5882:39;5741:186;-1:-1:-1;;;5741:186:52:o",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "canApprove(address,address,address,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "275ecee1",
+    "canCash(address,address,address,uint256,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "53ba2df3",
+    "canFund(address,address,uint256,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "8a114975",
+    "canTransfer(address,address,address,address,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "bd7dbde8",
+    "canWrite(address,address,uint256,(address,uint256,uint256,address,address,address,uint256),bytes)": "4405dbb0"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"canApprove\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"canCash\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"canFund\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"canTransfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"drawer\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"mintTimestamp\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"canWrite\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/rules/SimpleMemoRules.sol\":\"AllTrueRules\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=node_modules/hardhat/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"src/contracts/interfaces/IWTFCRules.sol\":{\"keccak256\":\"0x9dc3f50800c2f6a7801cc23e5207efa120c6cb19fb12ffeefe6456d112590187\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://64fe79868c6fe6707a1cf491498762ab8a8223854274925068a802453f426401\",\"dweb:/ipfs/QmPssfFtNSvmHm53vVpEokiq3g6ZF6Pqvx1gfWUSNUcEo8\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0xd533b1465dc8cbc190e87a4476fb36d3ef7a2f85440f84fb040673008920592e\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd81486d8deb7b4af5cbc1f10a998d644c60b16282ab9c20092642b6c597e1a3\",\"dweb:/ipfs/QmctyoGmHHPjFUEnQ6NWP2zJRLG2tjXPHpoYWmLaUFiZah\"]},\"src/contracts/rules/SimpleMemoRules.sol\":{\"keccak256\":\"0xc476add7cec01127392ded3b4a8dc348efb60719b3a2c400cb46fae91e7fbae0\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://eb0866dfd8f114b99a8a1f38391517b8227ada13ae524023d43e84d860d4fce9\",\"dweb:/ipfs/QmUBfnBQaFCjFXfnx3wp8nXDZVc8aKKCNDBDZTpZaL4AqW\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.16+commit.07a7930e"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "struct DataTypes.Cheq",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "escrowed",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "drawer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "module",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "mintTimestamp",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canApprove",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "struct DataTypes.Cheq",
+              "name": "cheq",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "escrowed",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "drawer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "module",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "mintTimestamp",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canCash",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "struct DataTypes.Cheq",
+              "name": "cheq",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "escrowed",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "drawer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "module",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "mintTimestamp",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canFund",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "struct DataTypes.Cheq",
+              "name": "cheq",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "escrowed",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "drawer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "module",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "mintTimestamp",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canTransfer",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "caller",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "struct DataTypes.Cheq",
+              "name": "cheq",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "currency",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "escrowed",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "drawer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "module",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "mintTimestamp",
+                  "type": "uint256"
+                }
+              ]
+            },
+            {
+              "internalType": "bytes",
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "pure",
+          "type": "function",
+          "name": "canWrite",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@graphprotocol/=node_modules/@graphprotocol/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=node_modules/hardhat/",
+        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/contracts/rules/SimpleMemoRules.sol": "AllTrueRules"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol": {
+        "keccak256": "0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b",
+        "urls": [
+          "bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34",
+          "dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr"
+        ],
+        "license": "MIT"
+      },
+      "src/contracts/interfaces/IWTFCRules.sol": {
+        "keccak256": "0x9dc3f50800c2f6a7801cc23e5207efa120c6cb19fb12ffeefe6456d112590187",
+        "urls": [
+          "bzz-raw://64fe79868c6fe6707a1cf491498762ab8a8223854274925068a802453f426401",
+          "dweb:/ipfs/QmPssfFtNSvmHm53vVpEokiq3g6ZF6Pqvx1gfWUSNUcEo8"
+        ],
+        "license": "BUSL-1.1"
+      },
+      "src/contracts/libraries/DataTypes.sol": {
+        "keccak256": "0xd533b1465dc8cbc190e87a4476fb36d3ef7a2f85440f84fb040673008920592e",
+        "urls": [
+          "bzz-raw://fd81486d8deb7b4af5cbc1f10a998d644c60b16282ab9c20092642b6c597e1a3",
+          "dweb:/ipfs/QmctyoGmHHPjFUEnQ6NWP2zJRLG2tjXPHpoYWmLaUFiZah"
+        ],
+        "license": "BUSL-1.1"
+      },
+      "src/contracts/rules/SimpleMemoRules.sol": {
+        "keccak256": "0xc476add7cec01127392ded3b4a8dc348efb60719b3a2c400cb46fae91e7fbae0",
+        "urls": [
+          "bzz-raw://eb0866dfd8f114b99a8a1f38391517b8227ada13ae524023d43e84d860d4fce9",
+          "dweb:/ipfs/QmUBfnBQaFCjFXfnx3wp8nXDZVc8aKKCNDBDZTpZaL4AqW"
+        ],
+        "license": "BUSL-1.1"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/contracts/rules/SimpleMemoRules.sol",
+    "id": 33308,
+    "exportedSymbols": {
+      "AllTrueRules": [
+        33307
+      ],
+      "DataTypes": [
+        31106
+      ],
+      "IApproveRule": [
+        30973
+      ],
+      "ICashRule": [
+        30954
+      ],
+      "IFundRule": [
+        30933
+      ],
+      "ITransferRule": [
+        30914
+      ],
+      "IWriteRule": [
+        30893
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "37:3261:49",
+    "nodes": [
+      {
+        "id": 33051,
+        "nodeType": "PragmaDirective",
+        "src": "37:24:49",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".16"
+        ]
+      },
+      {
+        "id": 33053,
+        "nodeType": "ImportDirective",
+        "src": "62:53:49",
+        "nodes": [],
+        "absolutePath": "src/contracts/libraries/DataTypes.sol",
+        "file": "../libraries/DataTypes.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 33308,
+        "sourceUnit": 31107,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 33052,
+              "name": "DataTypes",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 31106,
+              "src": "70:9:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 33059,
+        "nodeType": "ImportDirective",
+        "src": "116:107:49",
+        "nodes": [],
+        "absolutePath": "src/contracts/interfaces/IWTFCRules.sol",
+        "file": "../interfaces/IWTFCRules.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 33308,
+        "sourceUnit": 30974,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 33054,
+              "name": "IWriteRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 30893,
+              "src": "124:10:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 33055,
+              "name": "ITransferRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 30914,
+              "src": "136:13:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 33056,
+              "name": "IFundRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 30933,
+              "src": "151:9:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 33057,
+              "name": "ICashRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 30954,
+              "src": "162:9:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 33058,
+              "name": "IApproveRule",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 30973,
+              "src": "173:12:49",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 33307,
+        "nodeType": "ContractDefinition",
+        "src": "225:3072:49",
+        "nodes": [
+          {
+            "id": 33145,
+            "nodeType": "FunctionDefinition",
+            "src": "318:929:49",
+            "nodes": [],
+            "body": {
+              "id": 33144,
+              "nodeType": "Block",
+              "src": "524:723:49",
+              "nodes": [],
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    },
+                    "id": 33088,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "expression": {
+                        "id": 33085,
+                        "name": "cheq",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 33078,
+                        "src": "539:4:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                          "typeString": "struct DataTypes.Cheq calldata"
+                        }
+                      },
+                      "id": 33086,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "544:6:49",
+                      "memberName": "amount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 31094,
+                      "src": "539:11:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "hexValue": "30",
+                      "id": 33087,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "554:1:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_0_by_1",
+                        "typeString": "int_const 0"
+                      },
+                      "value": "0"
+                    },
+                    "src": "539:16:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "condition": {
+                      "commonType": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "id": 33096,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "expression": {
+                          "id": 33092,
+                          "name": "cheq",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 33078,
+                          "src": "622:4:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                            "typeString": "struct DataTypes.Cheq calldata"
+                          }
+                        },
+                        "id": 33093,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "627:6:49",
+                        "memberName": "drawer",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 31098,
+                        "src": "622:11:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "==",
+                      "rightExpression": {
+                        "expression": {
+                          "id": 33094,
+                          "name": "cheq",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 33078,
+                          "src": "637:4:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                            "typeString": "struct DataTypes.Cheq calldata"
+                          }
+                        },
+                        "id": 33095,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "642:9:49",
+                        "memberName": "recipient",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 31100,
+                        "src": "637:14:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "src": "622:29:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "falseBody": {
+                      "condition": {
+                        "commonType": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "id": 33108,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 33103,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "id": 33100,
+                            "name": "owner",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 33073,
+                            "src": "738:5:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "!=",
+                          "rightExpression": {
+                            "expression": {
+                              "id": 33101,
+                              "name": "cheq",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33078,
+                              "src": "747:4:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                "typeString": "struct DataTypes.Cheq calldata"
+                              }
+                            },
+                            "id": 33102,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "752:6:49",
+                            "memberName": "drawer",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 31098,
+                            "src": "747:11:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "src": "738:20:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "&&",
+                        "rightExpression": {
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 33107,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "id": 33104,
+                            "name": "owner",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 33073,
+                            "src": "762:5:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "!=",
+                          "rightExpression": {
+                            "expression": {
+                              "id": 33105,
+                              "name": "cheq",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33078,
+                              "src": "771:4:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                "typeString": "struct DataTypes.Cheq calldata"
+                              }
+                            },
+                            "id": 33106,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "776:9:49",
+                            "memberName": "recipient",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 31100,
+                            "src": "771:14:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "src": "762:23:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "src": "738:47:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "falseBody": {
+                        "condition": {
+                          "commonType": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "id": 33120,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33115,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33112,
+                              "name": "caller",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33071,
+                              "src": "879:6:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "!=",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33113,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33078,
+                                "src": "889:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33114,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "894:6:49",
+                              "memberName": "drawer",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31098,
+                              "src": "889:11:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "879:21:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "&&",
+                          "rightExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33119,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33116,
+                              "name": "caller",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33071,
+                              "src": "904:6:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "!=",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33117,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33078,
+                                "src": "914:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33118,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "919:9:49",
+                              "memberName": "recipient",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31100,
+                              "src": "914:14:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "904:24:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "src": "879:49:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "falseBody": {
+                          "condition": {
+                            "commonType": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "id": 33133,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "commonType": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              },
+                              "id": 33127,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "leftExpression": {
+                                "expression": {
+                                  "id": 33124,
+                                  "name": "cheq",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 33078,
+                                  "src": "1018:4:49",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                    "typeString": "struct DataTypes.Cheq calldata"
+                                  }
+                                },
+                                "id": 33125,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberLocation": "1023:8:49",
+                                "memberName": "escrowed",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": 31096,
+                                "src": "1018:13:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "nodeType": "BinaryOperation",
+                              "operator": "!=",
+                              "rightExpression": {
+                                "hexValue": "30",
+                                "id": 33126,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "kind": "number",
+                                "lValueRequested": false,
+                                "nodeType": "Literal",
+                                "src": "1035:1:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_rational_0_by_1",
+                                  "typeString": "int_const 0"
+                                },
+                                "value": "0"
+                              },
+                              "src": "1018:18:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "&&",
+                            "rightExpression": {
+                              "commonType": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              },
+                              "id": 33132,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "leftExpression": {
+                                "expression": {
+                                  "id": 33128,
+                                  "name": "cheq",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 33078,
+                                  "src": "1040:4:49",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                    "typeString": "struct DataTypes.Cheq calldata"
+                                  }
+                                },
+                                "id": 33129,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberLocation": "1045:8:49",
+                                "memberName": "escrowed",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": 31096,
+                                "src": "1040:13:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "nodeType": "BinaryOperation",
+                              "operator": "!=",
+                              "rightExpression": {
+                                "expression": {
+                                  "id": 33130,
+                                  "name": "cheq",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 33078,
+                                  "src": "1057:4:49",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                    "typeString": "struct DataTypes.Cheq calldata"
+                                  }
+                                },
+                                "id": 33131,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberLocation": "1062:6:49",
+                                "memberName": "amount",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": 31094,
+                                "src": "1057:11:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "src": "1040:28:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              }
+                            },
+                            "src": "1018:50:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "id": 33137,
+                          "nodeType": "IfStatement",
+                          "src": "1014:139:49",
+                          "trueBody": {
+                            "id": 33136,
+                            "nodeType": "Block",
+                            "src": "1070:83:49",
+                            "statements": [
+                              {
+                                "expression": {
+                                  "hexValue": "66616c7365",
+                                  "id": 33134,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": true,
+                                  "kind": "bool",
+                                  "lValueRequested": false,
+                                  "nodeType": "Literal",
+                                  "src": "1137:5:49",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bool",
+                                    "typeString": "bool"
+                                  },
+                                  "value": "false"
+                                },
+                                "functionReturnParameters": 33084,
+                                "id": 33135,
+                                "nodeType": "Return",
+                                "src": "1130:12:49"
+                              }
+                            ]
+                          }
+                        },
+                        "id": 33138,
+                        "nodeType": "IfStatement",
+                        "src": "875:278:49",
+                        "trueBody": {
+                          "id": 33123,
+                          "nodeType": "Block",
+                          "src": "930:78:49",
+                          "statements": [
+                            {
+                              "expression": {
+                                "hexValue": "66616c7365",
+                                "id": 33121,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "kind": "bool",
+                                "lValueRequested": false,
+                                "nodeType": "Literal",
+                                "src": "992:5:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                },
+                                "value": "false"
+                              },
+                              "functionReturnParameters": 33084,
+                              "id": 33122,
+                              "nodeType": "Return",
+                              "src": "985:12:49"
+                            }
+                          ]
+                        }
+                      },
+                      "id": 33139,
+                      "nodeType": "IfStatement",
+                      "src": "734:419:49",
+                      "trueBody": {
+                        "id": 33111,
+                        "nodeType": "Block",
+                        "src": "787:82:49",
+                        "statements": [
+                          {
+                            "expression": {
+                              "hexValue": "66616c7365",
+                              "id": 33109,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "bool",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "853:5:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "value": "false"
+                            },
+                            "functionReturnParameters": 33084,
+                            "id": 33110,
+                            "nodeType": "Return",
+                            "src": "846:12:49"
+                          }
+                        ]
+                      }
+                    },
+                    "id": 33140,
+                    "nodeType": "IfStatement",
+                    "src": "618:535:49",
+                    "trueBody": {
+                      "id": 33099,
+                      "nodeType": "Block",
+                      "src": "653:75:49",
+                      "statements": [
+                        {
+                          "expression": {
+                            "hexValue": "66616c7365",
+                            "id": 33097,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "bool",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "712:5:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "value": "false"
+                          },
+                          "functionReturnParameters": 33084,
+                          "id": 33098,
+                          "nodeType": "Return",
+                          "src": "705:12:49"
+                        }
+                      ]
+                    }
+                  },
+                  "id": 33141,
+                  "nodeType": "IfStatement",
+                  "src": "535:618:49",
+                  "trueBody": {
+                    "id": 33091,
+                    "nodeType": "Block",
+                    "src": "557:55:49",
+                    "statements": [
+                      {
+                        "expression": {
+                          "hexValue": "66616c7365",
+                          "id": 33089,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "596:5:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "false"
+                        },
+                        "functionReturnParameters": 33084,
+                        "id": 33090,
+                        "nodeType": "Return",
+                        "src": "589:12:49"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "hexValue": "74727565",
+                    "id": 33142,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1169:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 33084,
+                  "id": 33143,
+                  "nodeType": "Return",
+                  "src": "1162:11:49"
+                }
+              ]
+            },
+            "baseFunctions": [
+              30892
+            ],
+            "functionSelector": "4405dbb0",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canWrite",
+            "nameLocation": "327:8:49",
+            "parameters": {
+              "id": 33081,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33071,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "353:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "345:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33070,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "345:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33073,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "378:5:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "370:13:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33072,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "370:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33075,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "394:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33074,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "394:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33078,
+                  "mutability": "mutable",
+                  "name": "cheq",
+                  "nameLocation": "447:4:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "423:28:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                    "typeString": "struct DataTypes.Cheq"
+                  },
+                  "typeName": {
+                    "id": 33077,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 33076,
+                      "name": "DataTypes.Cheq",
+                      "nameLocations": [
+                        "423:9:49",
+                        "433:4:49"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31105,
+                      "src": "423:14:49"
+                    },
+                    "referencedDeclaration": 31105,
+                    "src": "423:14:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Cheq_$31105_storage_ptr",
+                      "typeString": "struct DataTypes.Cheq"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33080,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "462:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 33079,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "462:5:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "335:160:49"
+            },
+            "returnParameters": {
+              "id": 33084,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33083,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33145,
+                  "src": "518:4:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 33082,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "518:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "517:6:49"
+            },
+            "scope": 33307,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33181,
+            "nodeType": "FunctionDefinition",
+            "src": "1253:434:49",
+            "nodes": [],
+            "body": {
+              "id": 33180,
+              "nodeType": "Block",
+              "src": "1499:188:49",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 33178,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "id": 33167,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 33165,
+                        "name": "caller",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 33147,
+                        "src": "1517:6:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "==",
+                      "rightExpression": {
+                        "id": 33166,
+                        "name": "owner",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 33149,
+                        "src": "1527:5:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "src": "1517:15:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "&&",
+                    "rightExpression": {
+                      "components": [
+                        {
+                          "commonType": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "id": 33176,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33171,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33168,
+                              "name": "to",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33153,
+                              "src": "1537:2:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "==",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33169,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33158,
+                                "src": "1543:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33170,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "1548:9:49",
+                              "memberName": "recipient",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31100,
+                              "src": "1543:14:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "1537:20:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "||",
+                          "rightExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33175,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33172,
+                              "name": "to",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33153,
+                              "src": "1561:2:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "==",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33173,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33158,
+                                "src": "1567:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33174,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "1572:6:49",
+                              "memberName": "drawer",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31098,
+                              "src": "1567:11:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "1561:17:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "src": "1537:41:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        }
+                      ],
+                      "id": 33177,
+                      "isConstant": false,
+                      "isInlineArray": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "nodeType": "TupleExpression",
+                      "src": "1536:43:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "1517:62:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 33164,
+                  "id": 33179,
+                  "nodeType": "Return",
+                  "src": "1510:69:49"
+                }
+              ]
+            },
+            "baseFunctions": [
+              30913
+            ],
+            "functionSelector": "bd7dbde8",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canTransfer",
+            "nameLocation": "1262:11:49",
+            "parameters": {
+              "id": 33161,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33147,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "1291:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1283:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33146,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1283:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33149,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "1316:5:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1308:13:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33148,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1308:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33151,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1332:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33150,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1332:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33153,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nameLocation": "1367:2:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1359:10:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33152,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1359:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33155,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1371:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33154,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1371:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33158,
+                  "mutability": "mutable",
+                  "name": "cheq",
+                  "nameLocation": "1424:4:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1400:28:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                    "typeString": "struct DataTypes.Cheq"
+                  },
+                  "typeName": {
+                    "id": 33157,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 33156,
+                      "name": "DataTypes.Cheq",
+                      "nameLocations": [
+                        "1400:9:49",
+                        "1410:4:49"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31105,
+                      "src": "1400:14:49"
+                    },
+                    "referencedDeclaration": 31105,
+                    "src": "1400:14:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Cheq_$31105_storage_ptr",
+                      "typeString": "struct DataTypes.Cheq"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33160,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1439:12:49",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 33159,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1439:5:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1273:197:49"
+            },
+            "returnParameters": {
+              "id": 33164,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33163,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33181,
+                  "src": "1493:4:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 33162,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1493:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1492:6:49"
+            },
+            "scope": 33307,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33238,
+            "nodeType": "FunctionDefinition",
+            "src": "1693:729:49",
+            "nodes": [],
+            "body": {
+              "id": 33237,
+              "nodeType": "Block",
+              "src": "1925:497:49",
+              "nodes": [],
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 33201,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 33199,
+                      "name": "caller",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 33183,
+                      "src": "1940:6:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "id": 33200,
+                      "name": "owner",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 33185,
+                      "src": "1950:5:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "1940:15:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "condition": {
+                      "commonType": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      },
+                      "id": 33208,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "expression": {
+                          "id": 33205,
+                          "name": "cheq",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 33192,
+                          "src": "2049:4:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                            "typeString": "struct DataTypes.Cheq calldata"
+                          }
+                        },
+                        "id": 33206,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2054:8:49",
+                        "memberName": "escrowed",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 31096,
+                        "src": "2049:13:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "!=",
+                      "rightExpression": {
+                        "hexValue": "30",
+                        "id": 33207,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2066:1:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      "src": "2049:18:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "falseBody": {
+                      "condition": {
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 33215,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "id": 33212,
+                          "name": "amount",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 33187,
+                          "src": "2143:6:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "!=",
+                        "rightExpression": {
+                          "expression": {
+                            "id": 33213,
+                            "name": "cheq",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 33192,
+                            "src": "2153:4:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                              "typeString": "struct DataTypes.Cheq calldata"
+                            }
+                          },
+                          "id": 33214,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberLocation": "2158:6:49",
+                          "memberName": "amount",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 31094,
+                          "src": "2153:11:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "src": "2143:21:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "falseBody": {
+                        "condition": {
+                          "commonType": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "id": 33227,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33222,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33219,
+                              "name": "caller",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33183,
+                              "src": "2235:6:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "!=",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33220,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33192,
+                                "src": "2245:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33221,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "2250:6:49",
+                              "memberName": "drawer",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31098,
+                              "src": "2245:11:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "2235:21:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "&&",
+                          "rightExpression": {
+                            "commonType": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            },
+                            "id": 33226,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "id": 33223,
+                              "name": "caller",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 33183,
+                              "src": "2260:6:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "!=",
+                            "rightExpression": {
+                              "expression": {
+                                "id": 33224,
+                                "name": "cheq",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 33192,
+                                "src": "2270:4:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                                  "typeString": "struct DataTypes.Cheq calldata"
+                                }
+                              },
+                              "id": 33225,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "2275:9:49",
+                              "memberName": "recipient",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 31100,
+                              "src": "2270:14:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "src": "2260:24:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "src": "2235:49:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "id": 33231,
+                        "nodeType": "IfStatement",
+                        "src": "2231:163:49",
+                        "trueBody": {
+                          "id": 33230,
+                          "nodeType": "Block",
+                          "src": "2286:108:49",
+                          "statements": [
+                            {
+                              "expression": {
+                                "hexValue": "66616c7365",
+                                "id": 33228,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "kind": "bool",
+                                "lValueRequested": false,
+                                "nodeType": "Literal",
+                                "src": "2378:5:49",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                },
+                                "value": "false"
+                              },
+                              "functionReturnParameters": 33198,
+                              "id": 33229,
+                              "nodeType": "Return",
+                              "src": "2371:12:49"
+                            }
+                          ]
+                        }
+                      },
+                      "id": 33232,
+                      "nodeType": "IfStatement",
+                      "src": "2139:255:49",
+                      "trueBody": {
+                        "id": 33218,
+                        "nodeType": "Block",
+                        "src": "2166:59:49",
+                        "statements": [
+                          {
+                            "expression": {
+                              "hexValue": "66616c7365",
+                              "id": 33216,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "bool",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2209:5:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "value": "false"
+                            },
+                            "functionReturnParameters": 33198,
+                            "id": 33217,
+                            "nodeType": "Return",
+                            "src": "2202:12:49"
+                          }
+                        ]
+                      }
+                    },
+                    "id": 33233,
+                    "nodeType": "IfStatement",
+                    "src": "2045:349:49",
+                    "trueBody": {
+                      "id": 33211,
+                      "nodeType": "Block",
+                      "src": "2069:64:49",
+                      "statements": [
+                        {
+                          "expression": {
+                            "hexValue": "66616c7365",
+                            "id": 33209,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "bool",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "2117:5:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "value": "false"
+                          },
+                          "functionReturnParameters": 33198,
+                          "id": 33210,
+                          "nodeType": "Return",
+                          "src": "2110:12:49"
+                        }
+                      ]
+                    }
+                  },
+                  "id": 33234,
+                  "nodeType": "IfStatement",
+                  "src": "1936:458:49",
+                  "trueBody": {
+                    "id": 33204,
+                    "nodeType": "Block",
+                    "src": "1957:82:49",
+                    "statements": [
+                      {
+                        "expression": {
+                          "hexValue": "66616c7365",
+                          "id": 33202,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "2023:5:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "false"
+                        },
+                        "functionReturnParameters": 33198,
+                        "id": 33203,
+                        "nodeType": "Return",
+                        "src": "2016:12:49"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "hexValue": "74727565",
+                    "id": 33235,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "2410:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 33198,
+                  "id": 33236,
+                  "nodeType": "Return",
+                  "src": "2403:11:49"
+                }
+              ]
+            },
+            "baseFunctions": [
+              30932
+            ],
+            "functionSelector": "8a114975",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canFund",
+            "nameLocation": "1702:7:49",
+            "parameters": {
+              "id": 33195,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33183,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "1727:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1719:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33182,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1719:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33185,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "1752:5:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1744:13:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33184,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1744:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33187,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "1776:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1768:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33186,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1768:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33189,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1793:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33188,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1793:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33192,
+                  "mutability": "mutable",
+                  "name": "cheq",
+                  "nameLocation": "1847:4:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1823:28:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                    "typeString": "struct DataTypes.Cheq"
+                  },
+                  "typeName": {
+                    "id": 33191,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 33190,
+                      "name": "DataTypes.Cheq",
+                      "nameLocations": [
+                        "1823:9:49",
+                        "1833:4:49"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31105,
+                      "src": "1823:14:49"
+                    },
+                    "referencedDeclaration": 31105,
+                    "src": "1823:14:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Cheq_$31105_storage_ptr",
+                      "typeString": "struct DataTypes.Cheq"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33194,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1863:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 33193,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1863:5:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1709:187:49"
+            },
+            "returnParameters": {
+              "id": 33198,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33197,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33238,
+                  "src": "1919:4:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 33196,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1919:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1918:6:49"
+            },
+            "scope": 33307,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33285,
+            "nodeType": "FunctionDefinition",
+            "src": "2428:586:49",
+            "nodes": [],
+            "body": {
+              "id": 33284,
+              "nodeType": "Block",
+              "src": "2683:331:49",
+              "nodes": [],
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 33260,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 33258,
+                      "name": "caller",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 33240,
+                      "src": "2698:6:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "!=",
+                    "rightExpression": {
+                      "id": 33259,
+                      "name": "owner",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 33242,
+                      "src": "2708:5:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "2698:15:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "condition": {
+                      "commonType": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      },
+                      "id": 33267,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 33264,
+                        "name": "amount",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 33246,
+                        "src": "2786:6:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "!=",
+                      "rightExpression": {
+                        "expression": {
+                          "id": 33265,
+                          "name": "cheq",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 33251,
+                          "src": "2796:4:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                            "typeString": "struct DataTypes.Cheq calldata"
+                          }
+                        },
+                        "id": 33266,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2801:8:49",
+                        "memberName": "escrowed",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 31096,
+                        "src": "2796:13:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "src": "2786:23:49",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "falseBody": {
+                      "condition": {
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 33275,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "expression": {
+                            "id": 33271,
+                            "name": "cheq",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 33251,
+                            "src": "2894:4:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                              "typeString": "struct DataTypes.Cheq calldata"
+                            }
+                          },
+                          "id": 33272,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberLocation": "2899:8:49",
+                          "memberName": "escrowed",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 31096,
+                          "src": "2894:13:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "!=",
+                        "rightExpression": {
+                          "expression": {
+                            "id": 33273,
+                            "name": "cheq",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 33251,
+                            "src": "2911:4:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                              "typeString": "struct DataTypes.Cheq calldata"
+                            }
+                          },
+                          "id": 33274,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberLocation": "2916:6:49",
+                          "memberName": "amount",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 31094,
+                          "src": "2911:11:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "src": "2894:28:49",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "id": 33279,
+                      "nodeType": "IfStatement",
+                      "src": "2890:96:49",
+                      "trueBody": {
+                        "id": 33278,
+                        "nodeType": "Block",
+                        "src": "2924:62:49",
+                        "statements": [
+                          {
+                            "expression": {
+                              "hexValue": "66616c7365",
+                              "id": 33276,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "bool",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2970:5:49",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "value": "false"
+                            },
+                            "functionReturnParameters": 33257,
+                            "id": 33277,
+                            "nodeType": "Return",
+                            "src": "2963:12:49"
+                          }
+                        ]
+                      }
+                    },
+                    "id": 33280,
+                    "nodeType": "IfStatement",
+                    "src": "2782:204:49",
+                    "trueBody": {
+                      "id": 33270,
+                      "nodeType": "Block",
+                      "src": "2811:73:49",
+                      "statements": [
+                        {
+                          "expression": {
+                            "hexValue": "66616c7365",
+                            "id": 33268,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "bool",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "2868:5:49",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "value": "false"
+                          },
+                          "functionReturnParameters": 33257,
+                          "id": 33269,
+                          "nodeType": "Return",
+                          "src": "2861:12:49"
+                        }
+                      ]
+                    }
+                  },
+                  "id": 33281,
+                  "nodeType": "IfStatement",
+                  "src": "2694:292:49",
+                  "trueBody": {
+                    "id": 33263,
+                    "nodeType": "Block",
+                    "src": "2715:61:49",
+                    "statements": [
+                      {
+                        "expression": {
+                          "hexValue": "66616c7365",
+                          "id": 33261,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "2760:5:49",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "false"
+                        },
+                        "functionReturnParameters": 33257,
+                        "id": 33262,
+                        "nodeType": "Return",
+                        "src": "2753:12:49"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "hexValue": "74727565",
+                    "id": 33282,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "3002:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 33257,
+                  "id": 33283,
+                  "nodeType": "Return",
+                  "src": "2995:11:49"
+                }
+              ]
+            },
+            "baseFunctions": [
+              30953
+            ],
+            "functionSelector": "53ba2df3",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canCash",
+            "nameLocation": "2437:7:49",
+            "parameters": {
+              "id": 33254,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33240,
+                  "mutability": "mutable",
+                  "name": "caller",
+                  "nameLocation": "2462:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2454:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33239,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2454:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33242,
+                  "mutability": "mutable",
+                  "name": "owner",
+                  "nameLocation": "2487:5:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2479:13:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33241,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2479:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33244,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2503:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33243,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2503:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33246,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nameLocation": "2536:6:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2528:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33245,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2528:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33248,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2553:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33247,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2553:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33251,
+                  "mutability": "mutable",
+                  "name": "cheq",
+                  "nameLocation": "2606:4:49",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2582:28:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                    "typeString": "struct DataTypes.Cheq"
+                  },
+                  "typeName": {
+                    "id": 33250,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 33249,
+                      "name": "DataTypes.Cheq",
+                      "nameLocations": [
+                        "2582:9:49",
+                        "2592:4:49"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31105,
+                      "src": "2582:14:49"
+                    },
+                    "referencedDeclaration": 31105,
+                    "src": "2582:14:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Cheq_$31105_storage_ptr",
+                      "typeString": "struct DataTypes.Cheq"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33253,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2621:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 33252,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2621:5:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2444:210:49"
+            },
+            "returnParameters": {
+              "id": 33257,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33256,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33285,
+                  "src": "2677:4:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 33255,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2677:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2676:6:49"
+            },
+            "scope": 33307,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 33306,
+            "nodeType": "FunctionDefinition",
+            "src": "3020:275:49",
+            "nodes": [],
+            "body": {
+              "id": 33305,
+              "nodeType": "Block",
+              "src": "3265:30:49",
+              "nodes": [],
+              "statements": [
+                {
+                  "expression": {
+                    "hexValue": "74727565",
+                    "id": 33303,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "3283:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 33302,
+                  "id": 33304,
+                  "nodeType": "Return",
+                  "src": "3276:11:49"
+                }
+              ]
+            },
+            "baseFunctions": [
+              30972
+            ],
+            "functionSelector": "275ecee1",
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "canApprove",
+            "nameLocation": "3029:10:49",
+            "parameters": {
+              "id": 33299,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33287,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3049:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33286,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3049:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33289,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3078:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33288,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3078:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33291,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3106:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 33290,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3106:7:49",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33293,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3131:7:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 33292,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3131:7:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33296,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3160:23:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Cheq_$31105_calldata_ptr",
+                    "typeString": "struct DataTypes.Cheq"
+                  },
+                  "typeName": {
+                    "id": 33295,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 33294,
+                      "name": "DataTypes.Cheq",
+                      "nameLocations": [
+                        "3160:9:49",
+                        "3170:4:49"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 31105,
+                      "src": "3160:14:49"
+                    },
+                    "referencedDeclaration": 31105,
+                    "src": "3160:14:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Cheq_$31105_storage_ptr",
+                      "typeString": "struct DataTypes.Cheq"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 33298,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3203:14:49",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 33297,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3203:5:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3039:197:49"
+            },
+            "returnParameters": {
+              "id": 33302,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 33301,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 33306,
+                  "src": "3259:4:49",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 33300,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3259:4:49",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3258:6:49"
+            },
+            "scope": 33307,
+            "stateMutability": "pure",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 33060,
+              "name": "IWriteRule",
+              "nameLocations": [
+                "250:10:49"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 30893,
+              "src": "250:10:49"
+            },
+            "id": 33061,
+            "nodeType": "InheritanceSpecifier",
+            "src": "250:10:49"
+          },
+          {
+            "baseName": {
+              "id": 33062,
+              "name": "ITransferRule",
+              "nameLocations": [
+                "262:13:49"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 30914,
+              "src": "262:13:49"
+            },
+            "id": 33063,
+            "nodeType": "InheritanceSpecifier",
+            "src": "262:13:49"
+          },
+          {
+            "baseName": {
+              "id": 33064,
+              "name": "IFundRule",
+              "nameLocations": [
+                "277:9:49"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 30933,
+              "src": "277:9:49"
+            },
+            "id": 33065,
+            "nodeType": "InheritanceSpecifier",
+            "src": "277:9:49"
+          },
+          {
+            "baseName": {
+              "id": 33066,
+              "name": "ICashRule",
+              "nameLocations": [
+                "288:9:49"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 30954,
+              "src": "288:9:49"
+            },
+            "id": 33067,
+            "nodeType": "InheritanceSpecifier",
+            "src": "288:9:49"
+          },
+          {
+            "baseName": {
+              "id": 33068,
+              "name": "IApproveRule",
+              "nameLocations": [
+                "299:12:49"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 30973,
+              "src": "299:12:49"
+            },
+            "id": 33069,
+            "nodeType": "InheritanceSpecifier",
+            "src": "299:12:49"
+          }
+        ],
+        "canonicalName": "AllTrueRules",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          33307,
+          30973,
+          30954,
+          30933,
+          30914,
+          30893
+        ],
+        "name": "AllTrueRules",
+        "nameLocation": "234:12:49",
+        "scope": 33308,
+        "usedErrors": []
+      }
+    ],
+    "license": "BUSL-1.1"
+  },
+  "id": 49
+}

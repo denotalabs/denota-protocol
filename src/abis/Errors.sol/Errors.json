@@ -1,0 +1,252 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "InitParamsInvalid",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotGovernance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotRegistrar",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Paused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PublishingPaused",
+      "type": "error"
+    }
+  ],
+  "bytecode": {
+    "object": "0x60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212205d0c4250d4b572c89016c3bb8f5747ddc5b61c04486bed0d22642decf7cf5dba64736f6c63430008100033",
+    "sourceMap": "63:1522:43:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;63:1522:43;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212205d0c4250d4b572c89016c3bb8f5747ddc5b61c04486bed0d22642decf7cf5dba64736f6c63430008100033",
+    "sourceMap": "63:1522:43:-:0;;;;;;;;",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {},
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotGovernance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotRegistrar\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Paused\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PublishingPaused\",\"type\":\"error\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/libraries/Errors.sol\":\"Errors\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"src/contracts/libraries/Errors.sol\":{\"keccak256\":\"0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1\",\"dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.16+commit.07a7930e"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "InitParamsInvalid"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NotGovernance"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NotRegistrar"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "Paused"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "PublishingPaused"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@graphprotocol/=node_modules/@graphprotocol/",
+        ":@openzeppelin/=node_modules/@openzeppelin/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        ":openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        ":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/contracts/libraries/Errors.sol": "Errors"
+      },
+      "libraries": {
+        "src/contracts/libraries/CheqBase64Encoding.sol:CheqBase64Encoding": "0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d",
+        "src/contracts/libraries/DataTypes.sol:DataTypes": "0x912ef5c235c22f09ec98d476e52a0725d54abc11",
+        "src/contracts/libraries/Errors.sol:Errors": "0x0e49a5311cdccd7ec733710686da89b6c7b48f3c",
+        "src/contracts/libraries/Events.sol:Events": "0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3"
+      }
+    },
+    "sources": {
+      "src/contracts/libraries/Errors.sol": {
+        "keccak256": "0x868252443effd2fc7e652df6382d82b693b155e2ca8517dcf987d0ee33265e5c",
+        "urls": [
+          "bzz-raw://c06a40e107680578e9cdf5ee8e03aa4f3a373414f4eaf4d77ff6ebf2311d56f1",
+          "dweb:/ipfs/QmfWMv9t5CZpkzwsRDjSBCLMXzmUxNh7zz4DSyGcZwLv9y"
+        ],
+        "license": "BUSL-1.1"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/contracts/libraries/Errors.sol",
+    "id": 29549,
+    "exportedSymbols": {
+      "Errors": [
+        29548
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "37:1549:43",
+    "nodes": [
+      {
+        "id": 29537,
+        "nodeType": "PragmaDirective",
+        "src": "37:24:43",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".16"
+        ]
+      },
+      {
+        "id": 29548,
+        "nodeType": "ContractDefinition",
+        "src": "63:1522:43",
+        "nodes": [
+          {
+            "id": 29539,
+            "nodeType": "ErrorDefinition",
+            "src": "282:21:43",
+            "nodes": [],
+            "errorSelector": "2ad95351",
+            "name": "NotRegistrar",
+            "nameLocation": "288:12:43",
+            "parameters": {
+              "id": 29538,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "300:2:43"
+            }
+          },
+          {
+            "id": 29541,
+            "nodeType": "ErrorDefinition",
+            "src": "342:22:43",
+            "nodes": [],
+            "errorSelector": "b56f932c",
+            "name": "NotGovernance",
+            "nameLocation": "348:13:43",
+            "parameters": {
+              "id": 29540,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "361:2:43"
+            }
+          },
+          {
+            "id": 29543,
+            "nodeType": "ErrorDefinition",
+            "src": "1283:26:43",
+            "nodes": [],
+            "errorSelector": "48be0eb3",
+            "name": "InitParamsInvalid",
+            "nameLocation": "1289:17:43",
+            "parameters": {
+              "id": 29542,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1306:2:43"
+            }
+          },
+          {
+            "id": 29545,
+            "nodeType": "ErrorDefinition",
+            "src": "1538:15:43",
+            "nodes": [],
+            "errorSelector": "9e87fac8",
+            "name": "Paused",
+            "nameLocation": "1544:6:43",
+            "parameters": {
+              "id": 29544,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1550:2:43"
+            }
+          },
+          {
+            "id": 29547,
+            "nodeType": "ErrorDefinition",
+            "src": "1558:25:43",
+            "nodes": [],
+            "errorSelector": "79c951d8",
+            "name": "PublishingPaused",
+            "nameLocation": "1564:16:43",
+            "parameters": {
+              "id": 29546,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1580:2:43"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "Errors",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          29548
+        ],
+        "name": "Errors",
+        "nameLocation": "71:6:43",
+        "scope": 29549,
+        "usedErrors": [
+          29539,
+          29541,
+          29543,
+          29545,
+          29547
+        ]
+      }
+    ],
+    "license": "BUSL-1.1"
+  },
+  "id": 43
+}
