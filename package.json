@@ -6,6 +6,11 @@
   "license": "ISC",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "ethers": "^5.7.0",
+    "axios": "^1.2.3",
+    "@apollo/client": "^3.6.9"
+  },
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build"
