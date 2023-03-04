@@ -1,5 +1,5 @@
 # Denota JS SDK Documentation
-The Denota JS SDK provides a simple interface for sending and querying "notas", which are NFTs that represent invoices, payments, or escrows with attached metadata. The SDK currently supports Polygon Testnet Mumbai and Celo Testnet Alfajores
+The Denota JS SDK provides a simple interface for sending and querying "notas", which are NFTs that represent invoices, payments, or escrows with attached metadata. The SDK currently supports **Polygon Testnet Mumbai** and **Celo Testnet Alfajores**
 
 ## Installation
 To use the Denota JS SDK in your project, install it using NPM:
