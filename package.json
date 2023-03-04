@@ -7,9 +7,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "ethers": "^5.7.0",
+    "@apollo/client": "^3.6.9",
     "axios": "^1.2.3",
-    "@apollo/client": "^3.6.9"
+    "ethers": "^5.7.2"
   },
   "scripts": {
     "build": "tsc",

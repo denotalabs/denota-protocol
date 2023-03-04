@@ -1,8 +1,58 @@
+import { ethers } from "ethers";
+import { contractMappingForChainId } from "./chainInfo";
+
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
-export const DENOTA_SUPPORTED_CHAIN_IDS = [];
+import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 
-export function setProvider(provider: any) {}
+export const DENOTA_SUPPORTED_CHAIN_IDS = [80001];
+
+interface BlockchainState {
+  signer: ethers.providers.JsonRpcSigner | null;
+  registrar: ethers.Contract | null;
+  account: string;
+  chainId: number;
+  directPayAddress: string;
+  registrarAddress: string;
+}
+
+interface State {
+  blockchainState: BlockchainState;
+}
+
+const state: State = {
+  blockchainState: {
+    account: "",
+    registrar: null,
+    registrarAddress: "",
+    signer: null,
+    directPayAddress: "",
+    chainId: 0,
+  },
+};
+
+export async function setProvider(web3Connection: any) {
+  const provider = new ethers.providers.Web3Provider(web3Connection);
+  const signer = provider.getSigner();
+  const account = await signer.getAddress();
+  const { chainId } = await provider.getNetwork();
+  const contractMapping = contractMappingForChainId(chainId);
+  if (contractMapping) {
+    const registrar = new ethers.Contract(
+      contractMapping.cheq,
+      CheqRegistrar.abi,
+      signer
+    );
+    state.blockchainState = {
+      signer,
+      account,
+      registrarAddress: contractMapping.cheq,
+      registrar,
+      directPayAddress: contractMapping.directPayModule,
+      chainId,
+    };
+  }
+}
 
 interface ApproveTokenProps {
   token: string;
