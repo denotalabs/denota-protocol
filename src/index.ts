@@ -132,4 +132,20 @@ interface MilestonePaymentProps extends MilestoneProps {
 
 export function sendMilestonePayment({}: MilestonePaymentProps) {}
 
+interface BatchPaymentItem {
+  amount: number;
+  token: string;
+  recipient: string;
+  note?: string;
+}
+
+interface BatchPayment {
+  file?: File;
+  items: BatchPaymentItem[];
+}
+
+export function sendBatchPayment({}: BatchPayment) {}
+
+export function sendBatchPaymentFromCSV(csv: File) {}
+
 export function fetchNotas(query: string) {}

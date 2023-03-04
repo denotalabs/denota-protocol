@@ -108,6 +108,116 @@ const reversePaymentProps = {
 reversePayment(reversePaymentProps);
 ```
 
+## Milestones
+The Milestone interface represents a milestone that can be associated with a payment. It has the following properties:
+
+amount: a number representing the amount of tokens associated with the milestone.
+note: a string representing a note associated with the milestone.
+targetCompletion: a Date representing the date the milestone is expected to be completed.
+
+### sendMilestoneInvoice
+The sendMilestoneInvoice function creates a new milestone invoice for the recipient. The function takes a MilestoneProps object as its argument, which has the following properties:
+
+milestones: an array of Milestone objects representing the milestones associated with the payment.
+token: a string representing the Ethereum token used for payment.
+recipient: a string representing the Ethereum address of the recipient.
+file: a File object representing a file attachment to the NFT.
+
+```typescript
+import { sendMilestoneInvoice, MilestoneProps } from 'denota-js-sdk';
+
+const milestones = [
+  { amount: 100, note: 'Milestone 1', targetCompletion: new Date('2023-03-03') },
+  { amount: 200, note: 'Milestone 2', targetCompletion: new Date('2023-04-03') },
+];
+
+const milestoneProps: MilestoneProps = {
+  milestones,
+  token: '0x...',
+  recipient: '0x...',
+  file: new File([], 'filename'),
+};
+
+sendMilestoneInvoice(milestoneProps).then((nota) => {
+  console.log(nota);
+});
+```
+
+### sendMilestonePayment
+The sendMilestonePayment function sends a payment for a previously created milestone invoice. The function takes a MilestonePaymentProps object as its argument, which has the following properties:
+
+milestones: an array of Milestone objects representing the milestones associated with the payment.
+token: a string representing the Ethereum token used for payment.
+recipient: a string representing the Ethereum address of the recipient.
+file: a File object representing a file attachment to the NFT.
+fundedMilestones: an array of milestone indexes (starting at 0) that have been funded.
+
+```typescript
+import { sendMilestonePayment, MilestonePaymentProps } from 'denota-js-sdk';
+
+const milestones = [
+  { amount: 100, note: 'Milestone 1', targetCompletion: new Date('2023-03-03') },
+  { amount: 200, note: 'Milestone 2', targetCompletion: new Date('2023-04-03') },
+];
+
+const milestonePaymentProps: MilestonePaymentProps = {
+  milestones,
+  token: '0x...',
+  recipient: '0x...',
+  file: new File([], 'filename'),
+  fundedMilestones: [0],
+};
+
+sendMilestonePayment(milestonePaymentProps).then((nota) => {
+  console.log(nota);
+});
+```
+
+## Batch Payments 
+
+The sendBatchPayment function allows you to send a batch of payments in a single transaction. The function takes a single argument, an object of type BatchPayment, which contains an optional file and an array of payment items. Each payment item has an amount, token, recipient, and an optional note.
+
+Example usage:
+
+```javascript
+sendBatchPayment({
+  file: myFile,
+  items: [
+    {
+      amount: 100,
+      token: "ETH",
+      recipient: "0x1234...",
+      note: "Payment for services rendered"
+    },
+    {
+      amount: 50,
+      token: "DAI",
+      recipient: "0x5678...",
+      note: "Payment for products purchased"
+    },
+    // add more payment items as needed
+  ]
+});
+```
+
+### sendBatchPaymentFromCSV
+
+The sendBatchPaymentFromCSV function allows you to send a batch of payments from a CSV file. The CSV file must have a header row with the following column names: amount, token, recipient, and note. Each row after the header row represents a payment item.
+
+Example usage:
+
+```javascript
+sendBatchPaymentFromCSV(myCSVFile);
+```
+
+Note: The CSV file should be of the format:
+
+```
+amount,token,recipient,note
+100,ETH,0x1234...,Payment for services rendered
+50,DAI,0x5678...,Payment for products purchased
+```
+
 ## Query Notas 
 [GraphQL schema](schema.graphql)
 
@@ -174,4 +284,3 @@ fetchNotas(query).then((notas) => {
   console.log(notas);
 });
 ```
-
