@@ -66,7 +66,7 @@ interface DirectPayProps {
   token: string;
   amount: number;
   note?: string;
-  file?: any; // TODO: use correct type
+  file?: File; // TODO: use correct type
 }
 
 export function sendDirectPayment({
@@ -96,8 +96,9 @@ interface ReversiblePaymentProps {
   token: string;
   amount: number;
   note?: string;
-  file?: any; // TODO: use correct type
+  file?: File; // TODO: use correct type
   inspectionPeriod: number;
+  fundedPercentage: number;
 }
 
 export function sendReversiblePayent({}: ReversiblePaymentProps) {}
@@ -111,3 +112,24 @@ interface ReversePaymentProps {
 export function reversePayment({}: ReversePaymentProps) {}
 
 export function fetchNotas(query: string) {}
+
+interface Milestone {
+  amount: number;
+  note: string;
+  targetCompletion: Date;
+}
+
+interface MilestoneProps {
+  milestones: Milestone[];
+  token: string;
+  recipient: string;
+  file: File;
+}
+
+export function sendMilestoneInvoice({}: MilestoneProps) {}
+
+interface MilestonePaymentProps extends MilestoneProps {
+  fundedMilestones: number[];
+}
+
+export function sendMilestonePayment({}: MilestonePaymentProps) {}
