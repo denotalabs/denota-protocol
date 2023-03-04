@@ -111,8 +111,6 @@ interface ReversePaymentProps {
 
 export function reversePayment({}: ReversePaymentProps) {}
 
-export function fetchNotas(query: string) {}
-
 interface Milestone {
   amount: number;
   note: string;
@@ -133,3 +131,5 @@ interface MilestonePaymentProps extends MilestoneProps {
 }
 
 export function sendMilestonePayment({}: MilestonePaymentProps) {}
+
+export function fetchNotas(query: string) {}
