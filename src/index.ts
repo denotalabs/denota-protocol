@@ -66,7 +66,7 @@ interface DirectPayProps {
   token: string;
   amount: number;
   note?: string;
-  file?: File; // TODO: use correct type
+  file?: File;
 }
 
 export function sendDirectPayment({
@@ -96,7 +96,7 @@ interface ReversiblePaymentProps {
   token: string;
   amount: number;
   note?: string;
-  file?: File; // TODO: use correct type
+  file?: File;
   inspectionPeriod: number;
   fundedPercentage: number;
 }
