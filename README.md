@@ -47,7 +47,7 @@ sendDirectPayment(directPayProps);
 sendDirectPayInvoice(directPayProps);
 ```
 
-## Fund Direct Payment Invoice
+### Fund Direct Payment Invoice
 You can fund a direct payment invoice using the fundDirectPayInvoice function. This function takes a FundDirectPayProps object as an argument. The FundDirectPayProps object has the following properties:
 
 **cheqId**: the ID of the direct payment invoice to fund
@@ -93,7 +93,7 @@ const reversiblePaymentProps = {
 sendReversiblePayment(reversiblePayment)
 ```
 
-## Reverse Payment
+### Reverse Payment
 You can reverse a reversible payment using the reversePayment function. This function takes a ReversePaymentProps object as an argument. The ReversePaymentProps object has the following properties:
 
 **cheqId**: the ID of the reversible payment to reverse
@@ -108,7 +108,7 @@ const reversePaymentProps = {
 reversePayment(reversePaymentProps);
 ```
 
-## Fetch Notas
+## Query Notas 
 You can fetch notas using the fetchNotas function. This function takes a GraphQL query string as an argument and returns a Promise that resolves to an array of Nota objects. The Nota object has the following properties:
 
 **id**: the ID of the nota
