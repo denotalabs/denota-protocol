@@ -109,6 +109,10 @@ reversePayment(reversePaymentProps);
 ```
 
 ## Query Notas 
+[GraphQL schema](schema.graphql)
+
+[GraphiQL playground](TODO)
+
 You can fetch notas using the fetchNotas function. This function takes a GraphQL query string as an argument and returns a Promise that resolves to an array of Nota objects. The Nota object has the following properties:
 
 **id**: the ID of the nota
