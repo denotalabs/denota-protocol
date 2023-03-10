@@ -1,12 +1,11 @@
 export declare const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 export declare const DENOTA_SUPPORTED_CHAIN_IDS: number[];
 export declare function setProvider(web3Connection: any): Promise<void>;
-export declare function getProvider(): void;
 interface ApproveTokenProps {
-    token: string;
+    currency: string;
     approvalAmount: number;
 }
-export declare function approveToken({}: ApproveTokenProps): void;
+export declare function approveToken({ currency, approvalAmount, }: ApproveTokenProps): Promise<void>;
 export interface DirectPayData {
     moduleName: "Direct";
     type: "invoice" | "payment";
@@ -14,6 +13,7 @@ export interface DirectPayData {
     debitor: string;
     notes?: string;
     file?: File;
+    ipfsHash?: string;
 }
 export interface EscrowData {
     moduleName: "Escrow";
@@ -25,7 +25,12 @@ export interface WriteProps {
     amount: number;
     module: ModuleData;
 }
-export declare function write({ module }: WriteProps): void;
+export declare function write({ module, amount, currency }: WriteProps): Promise<any>;
+export interface WriteDirectPayProps {
+    currency: string;
+    amount: number;
+    module: DirectPayData;
+}
 interface BatchPaymentItem {
     amount: number;
     token: string;

@@ -39,8 +39,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchNotas = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.write = exports.approveToken = exports.getProvider = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.fetchNotas = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.write = exports.approveToken = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
 var ethers_1 = require("ethers");
+var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"));
 var chainInfo_1 = require("./chainInfo");
 exports.DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
@@ -53,11 +54,13 @@ var state = {
         signer: null,
         directPayAddress: "",
         chainId: 0,
+        dai: null,
+        weth: null,
     },
 };
 function setProvider(web3Connection) {
     return __awaiter(this, void 0, void 0, function () {
-        var provider, signer, account, chainId, contractMapping, registrar;
+        var provider, signer, account, chainId, contractMapping, registrar, dai, weth;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -72,6 +75,8 @@ function setProvider(web3Connection) {
                     contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
                         registrar = new ethers_1.ethers.Contract(contractMapping.cheq, CheqRegistrar_json_1.default.abi, signer);
+                        dai = new ethers_1.ethers.Contract(contractMapping.dai, TestERC20_json_1.default.abi, signer);
+                        weth = new ethers_1.ethers.Contract(contractMapping.weth, TestERC20_json_1.default.abi, signer);
                         state.blockchainState = {
                             signer: signer,
                             account: account,
@@ -79,29 +84,99 @@ function setProvider(web3Connection) {
                             registrar: registrar,
                             directPayAddress: contractMapping.directPayModule,
                             chainId: chainId,
+                            dai: dai,
+                            weth: weth,
                         };
                     }
-                    console.log({ contract: contractMapping });
                     return [2 /*return*/];
             }
         });
     });
 }
 exports.setProvider = setProvider;
-function getProvider() {
-    console.log(state.blockchainState.directPayAddress);
+function tokenForCurrency(currency) {
+    switch (currency) {
+        case "DAI":
+            return state.blockchainState.dai;
+        case "WETH":
+            return state.blockchainState.weth;
+    }
 }
-exports.getProvider = getProvider;
-function approveToken(_a) { }
+function approveToken(_a) {
+    var currency = _a.currency, approvalAmount = _a.approvalAmount;
+    return __awaiter(this, void 0, void 0, function () {
+        var token, amountWei, tx;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    token = tokenForCurrency(currency);
+                    amountWei = ethers_1.ethers.utils.parseEther(String(approvalAmount));
+                    return [4 /*yield*/, (token === null || token === void 0 ? void 0 : token.functions.approve(state.blockchainState.registrar, amountWei))];
+                case 1:
+                    tx = _b.sent();
+                    return [4 /*yield*/, tx.wait()];
+                case 2:
+                    _b.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 exports.approveToken = approveToken;
 function write(_a) {
-    var module = _a.module;
-    if (module.moduleName == "Direct") {
-    }
-    else {
-    }
+    var module = _a.module, amount = _a.amount, currency = _a.currency;
+    return __awaiter(this, void 0, void 0, function () {
+        var hash;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    if (!(module.moduleName == "Direct")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, writeDirectPay({ module: module, amount: amount, currency: currency })];
+                case 1:
+                    hash = _b.sent();
+                    return [2 /*return*/, hash];
+                case 2: return [2 /*return*/];
+            }
+        });
+    });
 }
 exports.write = write;
+function writeDirectPay(_a) {
+    var _b, _c, _d;
+    var module = _a.module, amount = _a.amount, currency = _a.currency;
+    return __awaiter(this, void 0, void 0, function () {
+        var receiver, owner, amountWei, payload, token, tokenAddress, tx, receipt;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
+                case 0:
+                    owner = module.creditor;
+                    if (module.type === "invoice") {
+                        receiver = module.debitor;
+                    }
+                    else {
+                        receiver = module.creditor;
+                    }
+                    amountWei = ethers_1.ethers.utils.parseEther(String(amount));
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string"], [
+                        receiver,
+                        amountWei,
+                        0,
+                        state.blockchainState.account,
+                        (_b = module.ipfsHash) !== null && _b !== void 0 ? _b : "",
+                    ]);
+                    token = tokenForCurrency(currency);
+                    tokenAddress = (_c = token === null || token === void 0 ? void 0 : token.address) !== null && _c !== void 0 ? _c : "";
+                    return [4 /*yield*/, ((_d = state.blockchainState.registrar) === null || _d === void 0 ? void 0 : _d.write(tokenAddress, 0, module.type === "invoice" ? 0 : amountWei, owner, state.blockchainState.directPayAddress, payload))];
+                case 1:
+                    tx = _e.sent();
+                    return [4 /*yield*/, tx.wait()];
+                case 2:
+                    receipt = _e.sent();
+                    return [2 /*return*/, receipt.transactionHash];
+            }
+        });
+    });
+}
 function sendBatchPayment(_a) { }
 exports.sendBatchPayment = sendBatchPayment;
 function sendBatchPaymentFromCSV(csv) { }

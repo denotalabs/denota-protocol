@@ -116,7 +116,8 @@ export interface WriteProps {
 
 export async function write({ module, amount, currency }: WriteProps) {
   if (module.moduleName == "Direct") {
-    return writeDirectPay({ module, amount, currency });
+    const hash = await writeDirectPay({ module, amount, currency });
+    return hash;
   } else {
   }
 }

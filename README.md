@@ -30,22 +30,24 @@ init();
 After setting up the web3 connection, you can use the Denota-SDK to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
 
 ```javascript
-import { write } from 'denota-sdk';
+import Denota from 'denota-sdk';
 
 const amount = 1;
 const currency = 'DAI';
-const module = {
-  moduleName: "Direct",
-  type: "invoice",
-  creditor: "0x...",
-  debitor: "0x...",
-  notes: "Example invoice",
-  file: null,
-  ipfsHash: null,
-};
 
 async function createNota() {
-  const receipt = await write({ module, amount, currency });
+  const receipt = await Denota.write({
+    amount: 1,
+    currency: "DAI",
+    module: {
+      moduleName: "Direct",
+      type: "invoice",
+      creditor: "0x...",
+      debitor: "0x...",
+      notes: "Example invoice",
+    },
+  });
+
   console.log(receipt);
 }
 
