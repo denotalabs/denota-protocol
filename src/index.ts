@@ -3,7 +3,7 @@ import { contractMappingForChainId } from "./chainInfo";
 
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
-import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+// import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001];
 
@@ -38,11 +38,7 @@ export async function setProvider(web3Connection: any) {
   const { chainId } = await provider.getNetwork();
   const contractMapping = contractMappingForChainId(chainId);
   if (contractMapping) {
-    const registrar = new ethers.Contract(
-      contractMapping.cheq,
-      CheqRegistrar.abi,
-      signer
-    );
+    const registrar = new ethers.Contract(contractMapping.cheq, "", signer);
     state.blockchainState = {
       signer,
       account,
@@ -53,6 +49,37 @@ export async function setProvider(web3Connection: any) {
     };
   }
 }
+
+// DeNota.write({
+//   Currency:
+//   Amount:
+//   Module:
+//   })
+
+// DeNota.write({
+//   Currency: DAI
+//   Amount: 1000
+//   Module: {
+//     moduleName: 'Direct',
+//     creditor: 0x23,
+//     debitor: 0x043,
+//   }
+//   })
+
+export interface DirectPayData {
+  creditor: string;
+  debitor: string;
+}
+
+type ModuleData = DirectPayData;
+
+export interface WriteProps {
+  currency: string;
+  amount: number;
+  module: ModuleData;
+}
+
+export function write({}: WriteProps) {}
 
 interface ApproveTokenProps {
   token: string;

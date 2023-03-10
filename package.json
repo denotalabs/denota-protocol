@@ -9,7 +9,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "axios": "^1.2.3",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.0"
   },
   "scripts": {
     "build": "tsc",
