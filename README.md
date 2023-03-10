@@ -1,286 +1,81 @@
-# Denota JS SDK Documentation
-The Denota JS SDK provides a simple interface for sending and querying "notas", which are NFTs that represent invoices, payments, or escrows with attached metadata. The SDK currently supports **Polygon Testnet Mumbai** and **Celo Testnet Alfajores**
+# Denota-SDK Documentation:
 
-## Installation
-To use the Denota JS SDK in your project, install it using NPM:
+## Introduction:
+
+Denota-SDK is a JavaScript library that allows you to write "notas," NFTs that represent invoices or escrows. The library is built using Ethereum blockchain technology and requires a web3 connection to function. It provides an interface to interact with the Ethereum blockchain to create, approve, and write invoices and escrows. In this documentation, we will explain how to use the Denota-SDK to write notas.
+
+## Installation:
+
+You can install the Denota-SDK using the npm package manager with the following command:
 
 ```bash
 npm install denota-sdk
 ```
 
-## Setup
-Before using the Denota JS SDK, you must set the provider using the setProvider function. This function takes a provider object that conforms to the Web3 provider API.
+## Usage:
 
-```typescript
-import { setProvider } from 'denota-js-sdk';
-setProvider(web3.currentProvider);
-```
-
-## Direct Payments
-You can send a direct payment or direct payment invoice using the sendDirectPayment and sendDirectPayInvoice functions, respectively. Both functions take a DirectPayProps object as an argument. The DirectPayProps object has the following properties:
-
-**recipient**: the Ethereum address of the recipient
-
-**token**: the Ethereum token address or symbol to use for payment
-
-**amount**: the amount of the token to send
-
-**note**: a string note to attach to the NFT
-
-**file**: a file object to attach to the NFT
-
-```typescript
-import { sendDirectPayment, sendDirectPayInvoice } from 'denota-js-sdk';
-
-const directPayProps = {
-  recipient: '0x1234567890abcdef1234567890abcdef1234567',
-  token: 'ETH',
-  amount: 1,
-  note: 'This is a note.',
-  file: myFile
-};
-
-// Send a direct payment
-sendDirectPayment(directPayProps);
-
-// Send a direct payment invoice
-sendDirectPayInvoice(directPayProps);
-```
-
-### Fund Direct Payment Invoice
-You can fund a direct payment invoice using the fundDirectPayInvoice function. This function takes a FundDirectPayProps object as an argument. The FundDirectPayProps object has the following properties:
-
-**cheqId**: the ID of the direct payment invoice to fund
-
-```typescript
-import { fundDirectPayInvoice } from 'denota-js-sdk';
-
-const fundDirectPayProps = {
-  cheqId: 1
-};
-
-fundDirectPayInvoice(fundDirectPayProps);
-```
-
-## Reversible Payments
-You can send a reversible payment or reversible payment invoice using the sendReversiblePayment and sendReversibleInvoice functions, respectively. Both functions take a ReversiblePaymentProps object as an argument. The ReversiblePaymentProps object has the following properties:
-
-**recipient**: the Ethereum address of the recipient
-
-**token**: the Ethereum token address or symbol to use for payment
-
-**amount**: the amount of the token to send
-
-**note**: a string note to attach to the NFT
-
-**file**: a file object to attach to the NFT
-
-**inspectionPeriod**: the number of seconds for the inspection period (default: 60 days)
-
-```typescript
-import { sendReversiblePayment, sendReversibleInvoice } from 'denota-js-sdk';
-
-const reversiblePaymentProps = {
-  recipient: '0x1234567890abcdef1234567890abcdef1234567',
-  token: 'ETH',
-  amount: 1,
-  note: 'This is a note.',
-  file: myFile,
-  inspectionPeriod: 120
-};
-
-// Send a reversible payment
-sendReversiblePayment(reversiblePayment)
-```
-
-### Reverse Payment
-You can reverse a reversible payment using the reversePayment function. This function takes a ReversePaymentProps object as an argument. The ReversePaymentProps object has the following properties:
-
-**cheqId**: the ID of the reversible payment to reverse
-
-```typescript
-import { reversePayment } from 'denota-js-sdk';
-
-const reversePaymentProps = {
-  cheqId: 123
-};
-
-reversePayment(reversePaymentProps);
-```
-
-## Milestones
-The Milestone interface represents a milestone that can be associated with a payment. It has the following properties:
-
-amount: a number representing the amount of tokens associated with the milestone.
-note: a string representing a note associated with the milestone.
-targetCompletion: a Date representing the date the milestone is expected to be completed.
-
-### sendMilestoneInvoice
-The sendMilestoneInvoice function creates a new milestone invoice for the recipient. The function takes a MilestoneProps object as its argument, which has the following properties:
-
-milestones: an array of Milestone objects representing the milestones associated with the payment.
-token: a string representing the Ethereum token used for payment.
-recipient: a string representing the Ethereum address of the recipient.
-file: a File object representing a file attachment to the NFT.
-
-```typescript
-import { sendMilestoneInvoice, MilestoneProps } from 'denota-js-sdk';
-
-const milestones = [
-  { amount: 100, note: 'Milestone 1', targetCompletion: new Date('2023-03-03') },
-  { amount: 200, note: 'Milestone 2', targetCompletion: new Date('2023-04-03') },
-];
-
-const milestoneProps: MilestoneProps = {
-  milestones,
-  token: '0x...',
-  recipient: '0x...',
-  file: new File([], 'filename'),
-};
-
-sendMilestoneInvoice(milestoneProps).then((nota) => {
-  console.log(nota);
-});
-```
-
-### sendMilestonePayment
-The sendMilestonePayment function sends a payment for a previously created milestone invoice. The function takes a MilestonePaymentProps object as its argument, which has the following properties:
-
-milestones: an array of Milestone objects representing the milestones associated with the payment.
-token: a string representing the Ethereum token used for payment.
-recipient: a string representing the Ethereum address of the recipient.
-file: a File object representing a file attachment to the NFT.
-fundedMilestones: an array of milestone indexes (starting at 0) that have been funded.
-
-```typescript
-import { sendMilestonePayment, MilestonePaymentProps } from 'denota-js-sdk';
-
-const milestones = [
-  { amount: 100, note: 'Milestone 1', targetCompletion: new Date('2023-03-03') },
-  { amount: 200, note: 'Milestone 2', targetCompletion: new Date('2023-04-03') },
-];
-
-const milestonePaymentProps: MilestonePaymentProps = {
-  milestones,
-  token: '0x...',
-  recipient: '0x...',
-  file: new File([], 'filename'),
-  fundedMilestones: [0],
-};
-
-sendMilestonePayment(milestonePaymentProps).then((nota) => {
-  console.log(nota);
-});
-```
-
-## Batch Payments 
-
-The sendBatchPayment function allows you to send a batch of payments in a single transaction. The function takes a single argument, an object of type BatchPayment, which contains an optional file and an array of payment items. Each payment item has an amount, token, recipient, and an optional note.
-
-Example usage:
+Before you can use the Denota-SDK, you need to set up a web3 connection. You can do this by calling the setProvider function and passing in your web3 connection. This function initializes the Ethereum provider, signer, and the contracts required to write notas.
 
 ```javascript
-sendBatchPayment({
-  file: myFile,
-  items: [
-    {
-      amount: 100,
-      token: "ETH",
-      recipient: "0x1234...",
-      note: "Payment for services rendered"
-    },
-    {
-      amount: 50,
-      token: "DAI",
-      recipient: "0x5678...",
-      note: "Payment for products purchased"
-    },
-    // add more payment items as needed
-  ]
-});
+Copy code
+import { setProvider } from 'denota-sdk';
+
+async function init() {
+  const web3Connection = // your web3 connection here
+  await setProvider(web3Connection);
+}
+
+init();
 ```
 
-### sendBatchPaymentFromCSV
-
-The sendBatchPaymentFromCSV function allows you to send a batch of payments from a CSV file. The CSV file must have a header row with the following column names: amount, token, recipient, and note. Each row after the header row represents a payment item.
-
-Example usage:
+After setting up the web3 connection, you can use the Denota-SDK to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
 
 ```javascript
-sendBatchPaymentFromCSV(myCSVFile);
+Copy code
+import { write } from 'denota-sdk';
+
+const amount = 1;
+const currency = 'DAI';
+const module = {
+  moduleName: "Direct",
+  type: "invoice",
+  creditor: "0x...",
+  debitor: "0x...",
+  notes: "Example invoice",
+  file: null,
+  ipfsHash: null,
+};
+
+async function createNota() {
+  const receipt = await write({ module, amount, currency });
+  console.log(receipt);
+}
+
+createNota();
 ```
 
-Note: The CSV file should be of the format:
+In the above code, we pass in the module object, which contains the details of the nota. We also pass in the amount and currency parameters, which represent the amount and the currency in which the nota is written.
 
+To create an invoice, set the type property of the module object to "invoice" and provide the Ethereum addresses of the creditor and debitor. You can also provide optional notes or a file for the invoice. If you have an IPFS hash for the invoice, you can provide it using the ipfsHash property.
+
+To create an escrow, set the moduleName property of the module object to "Escrow" and provide the inspectionPeriod property.
+
+You can also use the approveToken function to approve a token for use in writing notas.
+
+```javascript
+import { approveToken } from 'denota-sdk';
+
+async function approve() {
+  const currency = 'DAI';
+  const approvalAmount = 100;
+  await approveToken({ currency, approvalAmount });
+}
+
+approve();
 ```
-amount,token,recipient,note
-100,ETH,0x1234...,Payment for services rendered
-50,DAI,0x5678...,Payment for products purchased
-```
 
-## Query Notas 
-[GraphQL schema](schema.graphql)
+In the above code, we pass in the currency and approvalAmount parameters to approve the specified token for use in writing notas.
 
-[GraphiQL playground](TODO)
+Conclusion:
 
-You can fetch notas using the fetchNotas function. This function takes a GraphQL query string as an argument and returns a Promise that resolves to an array of Nota objects. The Nota object has the following properties:
-
-**id**: the ID of the nota
-
-**type**: the type of the nota (invoice, payment, or escrow)
-
-**status**: the status of the nota (pending, paid, or canceled)
-
-**sender**: the Ethereum address of the sender
-
-**recipient**: the Ethereum address of the recipient
-
-**token**: the Ethereum token address or symbol used for payment
-
-**amount**: the amount of the token paid
-
-**note**: a string note attached to the NFT
-
-**file**: a file object attached to the NFT
-
-**createdAt**: the timestamp when the nota was created
-
-**updatedAt**: the timestamp when the nota was last updated
-
-Here is an example query you can use with the fetchNotas function:
-
-```typescript
-import { fetchNotas } from 'denota-js-sdk';
-
-const query = `query {
-  account(where: { id: $account }) {
-    chegs {
-      id
-      amount
-      timestamp
-      status
-      erc20 {
-        id
-        payer {
-          id
-        }
-        recipient {
-          id
-        }
-        metadata {
-          id
-          note
-          files {
-            id
-            uri
-          }
-        }
-      }
-    }
-  }
-}`;
-
-fetchNotas(query).then((notas) => {
-  console.log(notas);
-});
-```
+Denota-SDK is a powerful tool that allows you to write notas on the Ethereum blockchain. With the library's simple interface, you can create, approve, and write invoices and escrows with ease. We hope that this documentation has provided you with the necessary information to use the Denota-SDK in your projects.
