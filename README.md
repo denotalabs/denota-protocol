@@ -17,7 +17,6 @@ npm install denota-sdk
 Before you can use the Denota-SDK, you need to set up a web3 connection. You can do this by calling the setProvider function and passing in your web3 connection. This function initializes the Ethereum provider, signer, and the contracts required to write notas.
 
 ```javascript
-Copy code
 import { setProvider } from 'denota-sdk';
 
 async function init() {
@@ -31,7 +30,6 @@ init();
 After setting up the web3 connection, you can use the Denota-SDK to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
 
 ```javascript
-Copy code
 import { write } from 'denota-sdk';
 
 const amount = 1;
