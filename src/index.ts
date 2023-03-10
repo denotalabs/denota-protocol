@@ -50,28 +50,21 @@ export async function setProvider(web3Connection: any) {
   }
 }
 
-// DeNota.write({
-//   Currency:
-//   Amount:
-//   Module:
-//   })
-
-// DeNota.write({
-//   Currency: DAI
-//   Amount: 1000
-//   Module: {
-//     moduleName: 'Direct',
-//     creditor: 0x23,
-//     debitor: 0x043,
-//   }
-//   })
-
 export interface DirectPayData {
+  moduleName: "Direct";
+  type: "invoice" | "payment";
   creditor: string;
   debitor: string;
+  notes?: string;
+  file?: File;
 }
 
-type ModuleData = DirectPayData;
+export interface EscrowData {
+  moduleName: "Escrow";
+  inspectionPeriod: number;
+}
+
+type ModuleData = DirectPayData | EscrowData;
 
 export interface WriteProps {
   currency: string;
@@ -79,7 +72,11 @@ export interface WriteProps {
   module: ModuleData;
 }
 
-export function write({}: WriteProps) {}
+export function write({ module }: WriteProps) {
+  if (module.moduleName == "Direct") {
+  } else {
+  }
+}
 
 interface ApproveTokenProps {
   token: string;
@@ -96,68 +93,68 @@ interface DirectPayProps {
   file?: File;
 }
 
-export function sendDirectPayment({
-  recipient,
-  token,
-  amount,
-  note,
-  file,
-}: DirectPayProps) {}
+// export function sendDirectPayment({
+//   recipient,
+//   token,
+//   amount,
+//   note,
+//   file,
+// }: DirectPayProps) {}
 
-export function sendDirectPayInvoice({
-  recipient,
-  token,
-  amount,
-  note,
-  file,
-}: DirectPayProps) {}
+// export function sendDirectPayInvoice({
+//   recipient,
+//   token,
+//   amount,
+//   note,
+//   file,
+// }: DirectPayProps) {}
 
-interface FundDirectPayProps {
-  cheqId: number;
-}
+// interface FundDirectPayProps {
+//   cheqId: number;
+// }
 
-export function fundDirectPayInvoice({}: FundDirectPayProps) {}
+// export function fundDirectPayInvoice({}: FundDirectPayProps) {}
 
-interface ReversiblePaymentProps {
-  recipient: string;
-  token: string;
-  amount: number;
-  note?: string;
-  file?: File;
-  inspectionPeriod: number;
-  fundedPercentage: number;
-}
+// interface ReversiblePaymentProps {
+//   recipient: string;
+//   token: string;
+//   amount: number;
+//   note?: string;
+//   file?: File;
+//   inspectionPeriod: number;
+//   fundedPercentage: number;
+// }
 
-export function sendReversiblePayent({}: ReversiblePaymentProps) {}
+// export function sendReversiblePayent({}: ReversiblePaymentProps) {}
 
-export function sendReversibleInvoice({}: ReversiblePaymentProps) {}
+// export function sendReversibleInvoice({}: ReversiblePaymentProps) {}
 
-interface ReversePaymentProps {
-  cheqId: number;
-}
+// interface ReversePaymentProps {
+//   cheqId: number;
+// }
 
-export function reversePayment({}: ReversePaymentProps) {}
+// export function reversePayment({}: ReversePaymentProps) {}
 
-interface Milestone {
-  amount: number;
-  note: string;
-  targetCompletion: Date;
-}
+// interface Milestone {
+//   amount: number;
+//   note: string;
+//   targetCompletion: Date;
+// }
 
-interface MilestoneProps {
-  milestones: Milestone[];
-  token: string;
-  recipient: string;
-  file: File;
-}
+// interface MilestoneProps {
+//   milestones: Milestone[];
+//   token: string;
+//   recipient: string;
+//   file: File;
+// }
 
-export function sendMilestoneInvoice({}: MilestoneProps) {}
+// export function sendMilestoneInvoice({}: MilestoneProps) {}
 
-interface MilestonePaymentProps extends MilestoneProps {
-  fundedMilestones: number[];
-}
+// interface MilestonePaymentProps extends MilestoneProps {
+//   fundedMilestones: number[];
+// }
 
-export function sendMilestonePayment({}: MilestonePaymentProps) {}
+// export function sendMilestonePayment({}: MilestonePaymentProps) {}
 
 interface BatchPaymentItem {
   amount: number;
