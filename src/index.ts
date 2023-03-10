@@ -44,7 +44,7 @@ export async function setProvider(web3Connection: any) {
   const contractMapping = contractMappingForChainId(chainId);
   if (contractMapping) {
     const registrar = new ethers.Contract(
-      contractMapping.cheq,
+      contractMapping.registrar,
       CheqRegistrar.abi,
       signer
     );
@@ -53,9 +53,9 @@ export async function setProvider(web3Connection: any) {
     state.blockchainState = {
       signer,
       account,
-      registrarAddress: contractMapping.cheq,
+      registrarAddress: contractMapping.registrar,
       registrar,
-      directPayAddress: contractMapping.directPayModule,
+      directPayAddress: contractMapping.directPay,
       chainId,
       dai,
       weth,

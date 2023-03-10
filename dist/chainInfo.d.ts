@@ -1,23 +1,32 @@
 export declare const ContractAddressMapping: {
     mumbai: {
-        cheq: string;
+        CheqBase64Encoding: string;
+        DataTypes: string;
+        Errors: string;
+        Events: string;
+        registrar: string;
+        directPay: string;
         dai: string;
         weth: string;
-        selfSignedBroker: string;
-        directPayModule: string;
     };
-    local: {
-        cheq: string;
+    alfajores: {
+        CheqBase64Encoding: string;
+        DataTypes: string;
+        Errors: string;
+        Events: string;
+        registrar: string;
+        directPay: string;
         dai: string;
         weth: string;
-        selfSignedBroker: string;
-        directPayModule: string;
     };
 };
 export declare const contractMappingForChainId: (chainId: number) => {
-    cheq: string;
+    CheqBase64Encoding: string;
+    DataTypes: string;
+    Errors: string;
+    Events: string;
+    registrar: string;
+    directPay: string;
     dai: string;
     weth: string;
-    selfSignedBroker: string;
-    directPayModule: string;
 } | undefined;

@@ -74,15 +74,15 @@ function setProvider(web3Connection) {
                     chainId = (_a.sent()).chainId;
                     contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
-                        registrar = new ethers_1.ethers.Contract(contractMapping.cheq, CheqRegistrar_json_1.default.abi, signer);
+                        registrar = new ethers_1.ethers.Contract(contractMapping.registrar, CheqRegistrar_json_1.default.abi, signer);
                         dai = new ethers_1.ethers.Contract(contractMapping.dai, TestERC20_json_1.default.abi, signer);
                         weth = new ethers_1.ethers.Contract(contractMapping.weth, TestERC20_json_1.default.abi, signer);
                         state.blockchainState = {
                             signer: signer,
                             account: account,
-                            registrarAddress: contractMapping.cheq,
+                            registrarAddress: contractMapping.registrar,
                             registrar: registrar,
-                            directPayAddress: contractMapping.directPayModule,
+                            directPayAddress: contractMapping.directPay,
                             chainId: chainId,
                             dai: dai,
                             weth: weth,
