@@ -9,7 +9,9 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "axios": "^1.2.3",
-    "ethers": "^5.7.0"
+    "bufferutil": "^4.0.7",
+    "ethers": "^5.7.0",
+    "utf-8-validate": "^5.0.10"
   },
   "scripts": {
     "build": "tsc",

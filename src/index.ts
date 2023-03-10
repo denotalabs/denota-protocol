@@ -1,9 +1,10 @@
 import { ethers } from "ethers";
+import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId } from "./chainInfo";
 
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
-// import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001];
 
@@ -14,6 +15,8 @@ interface BlockchainState {
   chainId: number;
   directPayAddress: string;
   registrarAddress: string;
+  dai: ethers.Contract | null;
+  weth: ethers.Contract | null;
 }
 
 interface State {
@@ -28,6 +31,8 @@ const state: State = {
     signer: null,
     directPayAddress: "",
     chainId: 0,
+    dai: null,
+    weth: null,
   },
 };
 
@@ -38,7 +43,13 @@ export async function setProvider(web3Connection: any) {
   const { chainId } = await provider.getNetwork();
   const contractMapping = contractMappingForChainId(chainId);
   if (contractMapping) {
-    const registrar = new ethers.Contract(contractMapping.cheq, "", signer);
+    const registrar = new ethers.Contract(
+      contractMapping.cheq,
+      CheqRegistrar.abi,
+      signer
+    );
+    const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
+    const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
     state.blockchainState = {
       signer,
       account,
@@ -46,8 +57,38 @@ export async function setProvider(web3Connection: any) {
       registrar,
       directPayAddress: contractMapping.directPayModule,
       chainId,
+      dai,
+      weth,
     };
   }
+}
+
+interface ApproveTokenProps {
+  currency: string;
+  approvalAmount: number;
+}
+
+function tokenForCurrency(currency: string) {
+  switch (currency) {
+    case "DAI":
+      return state.blockchainState.dai;
+    case "WETH":
+      return state.blockchainState.weth;
+  }
+}
+
+export async function approveToken({
+  currency,
+  approvalAmount,
+}: ApproveTokenProps) {
+  const token = tokenForCurrency(currency);
+  const amountWei = ethers.utils.parseEther(String(approvalAmount));
+
+  const tx = await token?.functions.approve(
+    state.blockchainState.registrar,
+    amountWei
+  );
+  await tx.wait();
 }
 
 export interface DirectPayData {
@@ -57,6 +98,7 @@ export interface DirectPayData {
   debitor: string;
   notes?: string;
   file?: File;
+  ipfsHash?: string;
 }
 
 export interface EscrowData {
@@ -72,42 +114,58 @@ export interface WriteProps {
   module: ModuleData;
 }
 
-export function write({ module }: WriteProps) {
+export async function write({ module, amount, currency }: WriteProps) {
   if (module.moduleName == "Direct") {
+    return writeDirectPay({ module, amount, currency });
   } else {
   }
 }
 
-interface ApproveTokenProps {
-  token: string;
-  approvalAmount: number;
-}
-
-export function approveToken({}: ApproveTokenProps) {}
-
-interface DirectPayProps {
-  recipient: string;
-  token: string;
+export interface WriteDirectPayProps {
+  currency: string;
   amount: number;
-  note?: string;
-  file?: File;
+  module: DirectPayData;
 }
 
-// export function sendDirectPayment({
-//   recipient,
-//   token,
-//   amount,
-//   note,
-//   file,
-// }: DirectPayProps) {}
+async function writeDirectPay({
+  module,
+  amount,
+  currency,
+}: WriteDirectPayProps) {
+  let receiver;
+  const owner = module.creditor;
+  if (module.type === "invoice") {
+    receiver = module.debitor;
+  } else {
+    receiver = module.creditor;
+  }
+  const amountWei = ethers.utils.parseEther(String(amount));
 
-// export function sendDirectPayInvoice({
-//   recipient,
-//   token,
-//   amount,
-//   note,
-//   file,
-// }: DirectPayProps) {}
+  const payload = ethers.utils.defaultAbiCoder.encode(
+    ["address", "uint256", "uint256", "address", "string"],
+    [
+      receiver,
+      amountWei,
+      0,
+      state.blockchainState.account,
+      module.ipfsHash ?? "",
+    ]
+  );
+
+  const token = tokenForCurrency(currency);
+  const tokenAddress = token?.address ?? "";
+
+  const tx = await state.blockchainState.registrar?.write(
+    tokenAddress,
+    0,
+    module.type === "invoice" ? 0 : amountWei,
+    owner,
+    state.blockchainState.directPayAddress,
+    payload
+  );
+  const receipt = await tx.wait();
+  return receipt.transactionHash;
+}
 
 // interface FundDirectPayProps {
 //   cheqId: number;

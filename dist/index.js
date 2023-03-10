@@ -35,12 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchNotas = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.sendMilestonePayment = exports.sendMilestoneInvoice = exports.reversePayment = exports.sendReversibleInvoice = exports.sendReversiblePayent = exports.fundDirectPayInvoice = exports.sendDirectPayInvoice = exports.sendDirectPayment = exports.approveToken = exports.write = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.fetchNotas = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.write = exports.approveToken = exports.getProvider = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
 var ethers_1 = require("ethers");
 var chainInfo_1 = require("./chainInfo");
 exports.DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
-// import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
 exports.DENOTA_SUPPORTED_CHAIN_IDS = [80001];
 var state = {
     blockchainState: {
@@ -68,7 +71,7 @@ function setProvider(web3Connection) {
                     chainId = (_a.sent()).chainId;
                     contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
-                        registrar = new ethers_1.ethers.Contract(contractMapping.cheq, "", signer);
+                        registrar = new ethers_1.ethers.Contract(contractMapping.cheq, CheqRegistrar_json_1.default.abi, signer);
                         state.blockchainState = {
                             signer: signer,
                             account: account,
@@ -78,12 +81,19 @@ function setProvider(web3Connection) {
                             chainId: chainId,
                         };
                     }
+                    console.log({ contract: contractMapping });
                     return [2 /*return*/];
             }
         });
     });
 }
 exports.setProvider = setProvider;
+function getProvider() {
+    console.log(state.blockchainState.directPayAddress);
+}
+exports.getProvider = getProvider;
+function approveToken(_a) { }
+exports.approveToken = approveToken;
 function write(_a) {
     var module = _a.module;
     if (module.moduleName == "Direct") {
@@ -92,28 +102,6 @@ function write(_a) {
     }
 }
 exports.write = write;
-function approveToken(_a) { }
-exports.approveToken = approveToken;
-function sendDirectPayment(_a) {
-    var recipient = _a.recipient, token = _a.token, amount = _a.amount, note = _a.note, file = _a.file;
-}
-exports.sendDirectPayment = sendDirectPayment;
-function sendDirectPayInvoice(_a) {
-    var recipient = _a.recipient, token = _a.token, amount = _a.amount, note = _a.note, file = _a.file;
-}
-exports.sendDirectPayInvoice = sendDirectPayInvoice;
-function fundDirectPayInvoice(_a) { }
-exports.fundDirectPayInvoice = fundDirectPayInvoice;
-function sendReversiblePayent(_a) { }
-exports.sendReversiblePayent = sendReversiblePayent;
-function sendReversibleInvoice(_a) { }
-exports.sendReversibleInvoice = sendReversibleInvoice;
-function reversePayment(_a) { }
-exports.reversePayment = reversePayment;
-function sendMilestoneInvoice(_a) { }
-exports.sendMilestoneInvoice = sendMilestoneInvoice;
-function sendMilestonePayment(_a) { }
-exports.sendMilestonePayment = sendMilestonePayment;
 function sendBatchPayment(_a) { }
 exports.sendBatchPayment = sendBatchPayment;
 function sendBatchPaymentFromCSV(csv) { }
