@@ -31,6 +31,14 @@ export interface WriteDirectPayProps {
     amount: number;
     module: DirectPayData;
 }
+interface FundProps {
+    cheqId: string;
+}
+export declare function fund({ cheqId }: FundProps): Promise<void>;
+interface ReversePaymentProps {
+    cheqId: string;
+}
+export declare function reverse({ cheqId }: ReversePaymentProps): Promise<void>;
 interface BatchPaymentItem {
     amount: number;
     token: string;
@@ -43,5 +51,5 @@ interface BatchPayment {
 }
 export declare function sendBatchPayment({}: BatchPayment): void;
 export declare function sendBatchPaymentFromCSV(csv: File): void;
-export declare function fetchNotas(query: string): void;
+export declare function getNotasQueryURL(): "https://denota.klymr.me/graph/mumbai" | "https://denota.klymr.me/graph/alfajores" | undefined;
 export {};

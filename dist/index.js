@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchNotas = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.write = exports.approveToken = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.reverse = exports.fund = exports.write = exports.approveToken = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
 var ethers_1 = require("ethers");
 var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"));
 var chainInfo_1 = require("./chainInfo");
@@ -177,9 +177,32 @@ function writeDirectPay(_a) {
         });
     });
 }
+function fund(_a) {
+    var cheqId = _a.cheqId;
+    return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_b) {
+        return [2 /*return*/];
+    }); });
+}
+exports.fund = fund;
+function reverse(_a) {
+    var cheqId = _a.cheqId;
+    return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_b) {
+        return [2 /*return*/];
+    }); });
+}
+exports.reverse = reverse;
 function sendBatchPayment(_a) { }
 exports.sendBatchPayment = sendBatchPayment;
 function sendBatchPaymentFromCSV(csv) { }
 exports.sendBatchPaymentFromCSV = sendBatchPaymentFromCSV;
-function fetchNotas(query) { }
-exports.fetchNotas = fetchNotas;
+function getNotasQueryURL() {
+    switch (state.blockchainState.chainId) {
+        case 80001:
+            return "https://denota.klymr.me/graph/mumbai";
+        case 44787:
+            return "https://denota.klymr.me/graph/alfajores";
+        default:
+            return undefined;
+    }
+}
+exports.getNotasQueryURL = getNotasQueryURL;

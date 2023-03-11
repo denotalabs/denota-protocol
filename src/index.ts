@@ -168,52 +168,17 @@ async function writeDirectPay({
   return receipt.transactionHash;
 }
 
-// interface FundDirectPayProps {
-//   cheqId: number;
-// }
+interface FundProps {
+  cheqId: string;
+}
 
-// export function fundDirectPayInvoice({}: FundDirectPayProps) {}
+export async function fund({ cheqId }: FundProps) {}
 
-// interface ReversiblePaymentProps {
-//   recipient: string;
-//   token: string;
-//   amount: number;
-//   note?: string;
-//   file?: File;
-//   inspectionPeriod: number;
-//   fundedPercentage: number;
-// }
+interface ReversePaymentProps {
+  cheqId: string;
+}
 
-// export function sendReversiblePayent({}: ReversiblePaymentProps) {}
-
-// export function sendReversibleInvoice({}: ReversiblePaymentProps) {}
-
-// interface ReversePaymentProps {
-//   cheqId: number;
-// }
-
-// export function reversePayment({}: ReversePaymentProps) {}
-
-// interface Milestone {
-//   amount: number;
-//   note: string;
-//   targetCompletion: Date;
-// }
-
-// interface MilestoneProps {
-//   milestones: Milestone[];
-//   token: string;
-//   recipient: string;
-//   file: File;
-// }
-
-// export function sendMilestoneInvoice({}: MilestoneProps) {}
-
-// interface MilestonePaymentProps extends MilestoneProps {
-//   fundedMilestones: number[];
-// }
-
-// export function sendMilestonePayment({}: MilestonePaymentProps) {}
+export async function reverse({ cheqId }: ReversePaymentProps) {}
 
 interface BatchPaymentItem {
   amount: number;
@@ -231,4 +196,13 @@ export function sendBatchPayment({}: BatchPayment) {}
 
 export function sendBatchPaymentFromCSV(csv: File) {}
 
-export function fetchNotas(query: string) {}
+export function getNotasQueryURL() {
+  switch (state.blockchainState.chainId) {
+    case 80001:
+      return "https://denota.klymr.me/graph/mumbai";
+    case 44787:
+      return "https://denota.klymr.me/graph/alfajores";
+    default:
+      return undefined;
+  }
+}
