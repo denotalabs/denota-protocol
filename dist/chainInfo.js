@@ -3,24 +3,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.contractMappingForChainId = exports.ContractAddressMapping = void 0;
 exports.ContractAddressMapping = {
     mumbai: {
-        CheqBase64Encoding: "0xe615b37696Eb4C2c1ca22375D69847d1607325D9",
-        DataTypes: "0x8E9FC639Aa68924b9e39f9A19c6abDa18896C249",
-        Errors: "0xD10b482e09160C33eea09ce976b88caD5CD7032e",
-        Events: "0xBb8c2Bc5e5AEDC4AB652c551D418980013FA76e7",
-        registrar: "0xF85D83258CD1D8beb5998439C73C11a6b820d6B9",
-        directPay: "0x9e59aCBB489599D4Fd1D3EbbFb5320f918F50F19",
+        DataTypes: "0x4287f38FecFC24Bd80F643f682E727bD6407F484",
+        Errors: "0x2418EF1Dab6A0Db2F05ea0A03221d19708388F26",
+        Events: "0x0faCA1284C7D037120D5D7C66Cd655B777c8807D",
+        registrar: "0x3D8B0f18a9456ecB5403ED2910773910BdA1ffD9",
+        escrow: "0x5EeBfCDCb192B71Efc497D240bbD3994b21a5E4e",
+        directPay: "0x54A011b3770752Bf24ca05B53fdc6A45d8d68307",
         dai: "0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b",
         weth: "0xe37F99b03C7B4f4d71eE20e8eF3AC4E138D47F80",
     },
     alfajores: {
-        CheqBase64Encoding: "0x66f90099f96143d58e2Ed2fD306006439731197E",
-        DataTypes: "0xB0420096BF61Bd79A37108aA7e1F654A7c4a5f2b",
-        Errors: "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
-        Events: "0x8296aEc2E9Ad887B8a47980Db2Fa4F675F011567",
-        registrar: "0x41a3D11eC4dE4eaa3A6b0fD584693F86fB85E0EB",
-        directPay: "0x6Cf359a427Fd90BcDD53FcB4A0518C3fb72529b0",
+        DataTypes: "0xC6612B00C0f64b4866880fd863290337D66b0796",
+        Errors: "0x6E3cFc8ded54fcBA3C59b1c749B77AD8bF9DC00f",
+        Events: "0x2531A31a31C9f306F2aa3a7AF5F5b09E49Bd0A28",
+        registrar: "0xCc7a0cE9E0411BF5083491Fe502261319a19201d",
+        directPay: "0x1ddc87BdEEdb29ef6d1C6C7Fa7cEeA1a7F3c098b",
         dai: "0xe314158969CCa87E88350196308f96D879D18b83",
         weth: "0x722D4CED724b69A416AfA50860cEd7B71a1bf689",
+        escrow: "0x3773f4ef0A9b0C5d49dfb2b3cA3C6FbE293a5926",
     },
 };
 var contractMappingForChainId = function (chainId) {

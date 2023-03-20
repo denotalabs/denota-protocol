@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId } from "./chainInfo";
 
@@ -99,6 +99,8 @@ export interface DirectPayData {
   notes?: string;
   file?: File;
   ipfsHash?: string;
+  imageHash?: string;
+  dueDate?: string;
 }
 
 export interface EscrowData {
@@ -133,6 +135,21 @@ async function writeDirectPay({
   amount,
   currency,
 }: WriteDirectPayProps) {
+  const { dueDate, imageHash, ipfsHash } = module;
+  const utcOffset = new Date().getTimezoneOffset();
+
+  let dueTimestamp: number;
+
+  if (dueDate) {
+    dueTimestamp = Date.parse(`${dueDate}T00:00:00Z`) / 1000 + utcOffset * 60;
+  } else {
+    const d = new Date();
+    const today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 10);
+    dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
+  }
+
   let receiver;
   const owner = module.creditor;
   if (module.type === "invoice") {
@@ -143,23 +160,30 @@ async function writeDirectPay({
   const amountWei = ethers.utils.parseEther(String(amount));
 
   const payload = ethers.utils.defaultAbiCoder.encode(
-    ["address", "uint256", "uint256", "address", "string"],
+    ["address", "uint256", "uint256", "address", "string", "string"],
     [
       receiver,
       amountWei,
-      0,
+      dueTimestamp,
       state.blockchainState.account,
-      module.ipfsHash ?? "",
+      imageHash,
+      ipfsHash,
     ]
   );
 
   const token = tokenForCurrency(currency);
   const tokenAddress = token?.address ?? "";
 
+  const msgValue =
+    tokenAddress === "0x0000000000000000000000000000000000000000" &&
+    module.type !== "invoice"
+      ? amountWei
+      : BigNumber.from(0);
+
   const tx = await state.blockchainState.registrar?.write(
-    tokenAddress,
-    0,
-    module.type === "invoice" ? 0 : amountWei,
+    tokenAddress, //currency
+    0, //escrowed
+    module.type === "invoice" ? 0 : amountWei, //instant
     owner,
     state.blockchainState.directPayAddress,
     payload

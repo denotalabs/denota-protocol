@@ -14,6 +14,8 @@ export interface DirectPayData {
     notes?: string;
     file?: File;
     ipfsHash?: string;
+    imageHash?: string;
+    dueDate?: string;
 }
 export interface EscrowData {
     moduleName: "Escrow";

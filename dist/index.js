@@ -142,13 +142,25 @@ function write(_a) {
 }
 exports.write = write;
 function writeDirectPay(_a) {
-    var _b, _c, _d;
+    var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var receiver, owner, amountWei, payload, token, tokenAddress, tx, receipt;
-        return __generator(this, function (_e) {
-            switch (_e.label) {
+        var dueDate, imageHash, ipfsHash, utcOffset, dueTimestamp, d, today, receiver, owner, amountWei, payload, token, tokenAddress, msgValue, tx, receipt;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
+                    dueDate = module.dueDate, imageHash = module.imageHash, ipfsHash = module.ipfsHash;
+                    utcOffset = new Date().getTimezoneOffset();
+                    if (dueDate) {
+                        dueTimestamp = Date.parse("".concat(dueDate, "T00:00:00Z")) / 1000 + utcOffset * 60;
+                    }
+                    else {
+                        d = new Date();
+                        today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 10);
+                        dueTimestamp = Date.parse("".concat(today, "T00:00:00Z")) / 1000 + utcOffset * 60;
+                    }
                     owner = module.creditor;
                     if (module.type === "invoice") {
                         receiver = module.debitor;
@@ -157,21 +169,29 @@ function writeDirectPay(_a) {
                         receiver = module.creditor;
                     }
                     amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string"], [
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string", "string"], [
                         receiver,
                         amountWei,
-                        0,
+                        dueTimestamp,
                         state.blockchainState.account,
-                        (_b = module.ipfsHash) !== null && _b !== void 0 ? _b : "",
+                        imageHash,
+                        ipfsHash,
                     ]);
                     token = tokenForCurrency(currency);
-                    tokenAddress = (_c = token === null || token === void 0 ? void 0 : token.address) !== null && _c !== void 0 ? _c : "";
-                    return [4 /*yield*/, ((_d = state.blockchainState.registrar) === null || _d === void 0 ? void 0 : _d.write(tokenAddress, 0, module.type === "invoice" ? 0 : amountWei, owner, state.blockchainState.directPayAddress, payload))];
+                    tokenAddress = (_b = token === null || token === void 0 ? void 0 : token.address) !== null && _b !== void 0 ? _b : "";
+                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
+                        module.type !== "invoice"
+                        ? amountWei
+                        : ethers_1.BigNumber.from(0);
+                    return [4 /*yield*/, ((_c = state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
+                        0, //escrowed
+                        module.type === "invoice" ? 0 : amountWei, //instant
+                        owner, state.blockchainState.directPayAddress, payload))];
                 case 1:
-                    tx = _e.sent();
+                    tx = _d.sent();
                     return [4 /*yield*/, tx.wait()];
                 case 2:
-                    receipt = _e.sent();
+                    receipt = _d.sent();
                     return [2 /*return*/, receipt.transactionHash];
             }
         });
