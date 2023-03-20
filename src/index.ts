@@ -77,6 +77,17 @@ function tokenForCurrency(currency: string) {
   }
 }
 
+function tokenAddressForCurrency(currency: string) {
+  switch (currency) {
+    case "DAI":
+      return state.blockchainState.dai?.address;
+    case "WETH":
+      return state.blockchainState.weth?.address;
+    case "NATIVE":
+      return "0x0000000000000000000000000000000000000000";
+  }
+}
+
 export async function approveToken({
   currency,
   approvalAmount,
@@ -166,13 +177,12 @@ async function writeDirectPay({
       amountWei,
       dueTimestamp,
       state.blockchainState.account,
-      imageHash,
-      ipfsHash,
+      imageHash ?? "",
+      ipfsHash ?? "",
     ]
   );
 
-  const token = tokenForCurrency(currency);
-  const tokenAddress = token?.address ?? "";
+  const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
   const msgValue =
     tokenAddress === "0x0000000000000000000000000000000000000000" &&
@@ -189,7 +199,7 @@ async function writeDirectPay({
     payload
   );
   const receipt = await tx.wait();
-  return receipt.transactionHash;
+  return receipt.transactionHash as string;
 }
 
 interface FundProps {
@@ -198,11 +208,12 @@ interface FundProps {
 
 export async function fund({ cheqId }: FundProps) {}
 
-interface ReversePaymentProps {
+interface CashPaymentProps {
   cheqId: string;
+  type: "reversal" | "release";
 }
 
-export async function reverse({ cheqId }: ReversePaymentProps) {}
+export async function cash({ cheqId }: CashPaymentProps) {}
 
 interface BatchPaymentItem {
   amount: number;
@@ -230,3 +241,13 @@ export function getNotasQueryURL() {
       return undefined;
   }
 }
+
+export default {
+  approveToken,
+  write,
+  fund,
+  cash,
+  sendBatchPayment,
+  sendBatchPaymentFromCSV,
+  getNotasQueryURL,
+};

@@ -27,7 +27,7 @@ export interface WriteProps {
     amount: number;
     module: ModuleData;
 }
-export declare function write({ module, amount, currency }: WriteProps): Promise<any>;
+export declare function write({ module, amount, currency }: WriteProps): Promise<string | undefined>;
 export interface WriteDirectPayProps {
     currency: string;
     amount: number;
@@ -54,4 +54,7 @@ interface BatchPayment {
 export declare function sendBatchPayment({}: BatchPayment): void;
 export declare function sendBatchPaymentFromCSV(csv: File): void;
 export declare function getNotasQueryURL(): "https://denota.klymr.me/graph/mumbai" | "https://denota.klymr.me/graph/alfajores" | undefined;
-export {};
+declare const _default: {
+    write: typeof write;
+};
+export default _default;

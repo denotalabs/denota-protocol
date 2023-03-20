@@ -102,6 +102,17 @@ function tokenForCurrency(currency) {
             return state.blockchainState.weth;
     }
 }
+function tokenAddressForCurrency(currency) {
+    var _a, _b;
+    switch (currency) {
+        case "DAI":
+            return (_a = state.blockchainState.dai) === null || _a === void 0 ? void 0 : _a.address;
+        case "WETH":
+            return (_b = state.blockchainState.weth) === null || _b === void 0 ? void 0 : _b.address;
+        case "NATIVE":
+            return "0x0000000000000000000000000000000000000000";
+    }
+}
 function approveToken(_a) {
     var currency = _a.currency, approvalAmount = _a.approvalAmount;
     return __awaiter(this, void 0, void 0, function () {
@@ -145,7 +156,7 @@ function writeDirectPay(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var dueDate, imageHash, ipfsHash, utcOffset, dueTimestamp, d, today, receiver, owner, amountWei, payload, token, tokenAddress, msgValue, tx, receipt;
+        var dueDate, imageHash, ipfsHash, utcOffset, dueTimestamp, d, today, receiver, owner, amountWei, payload, tokenAddress, msgValue, tx, receipt;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
@@ -174,11 +185,10 @@ function writeDirectPay(_a) {
                         amountWei,
                         dueTimestamp,
                         state.blockchainState.account,
-                        imageHash,
-                        ipfsHash,
+                        imageHash !== null && imageHash !== void 0 ? imageHash : "",
+                        ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "",
                     ]);
-                    token = tokenForCurrency(currency);
-                    tokenAddress = (_b = token === null || token === void 0 ? void 0 : token.address) !== null && _b !== void 0 ? _b : "";
+                    tokenAddress = (_b = tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
                         module.type !== "invoice"
                         ? amountWei
@@ -226,3 +236,4 @@ function getNotasQueryURL() {
     }
 }
 exports.getNotasQueryURL = getNotasQueryURL;
+exports.default = { write: write };
