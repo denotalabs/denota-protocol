@@ -24,7 +24,7 @@ export async function writeDirectPay({
   amount,
   currency,
 }: WriteDirectPayProps) {
-  const { dueDate, imageHash, ipfsHash } = module;
+  const { dueDate, imageHash, ipfsHash, type, creditor, debitor } = module;
   const utcOffset = new Date().getTimezoneOffset();
 
   let dueTimestamp: number;
@@ -39,13 +39,9 @@ export async function writeDirectPay({
     dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
   }
 
-  let receiver;
-  const owner = module.creditor;
-  if (module.type === "invoice") {
-    receiver = module.debitor;
-  } else {
-    receiver = module.creditor;
-  }
+  const owner = creditor;
+  const receiver = type === "invoice" ? debitor : creditor;
+
   const amountWei = ethers.utils.parseEther(String(amount));
 
   const payload = ethers.utils.defaultAbiCoder.encode(
@@ -64,7 +60,7 @@ export async function writeDirectPay({
 
   const msgValue =
     tokenAddress === "0x0000000000000000000000000000000000000000" &&
-    module.type !== "invoice"
+    module.type === "payment"
       ? amountWei
       : BigNumber.from(0);
 
@@ -74,7 +70,8 @@ export async function writeDirectPay({
     module.type === "invoice" ? 0 : amountWei, //instant
     owner,
     state.blockchainState.directPayAddress,
-    payload
+    payload,
+    { value: msgValue }
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
