@@ -2,7 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { state, tokenAddressForCurrency } from "..";
 
 export interface DirectPayData {
-  moduleName: "Direct";
+  moduleName: "direct";
   type: "invoice" | "payment";
   creditor: string;
   debitor: string;

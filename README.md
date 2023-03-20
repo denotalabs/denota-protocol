@@ -40,7 +40,7 @@ async function createNota() {
     amount: 1,
     currency: "DAI",
     module: {
-      moduleName: "Direct",
+      moduleName: "direct",
       type: "invoice",
       creditor: "0x...",
       debitor: "0x...",
@@ -58,7 +58,7 @@ In the above code, we pass in the module object, which contains the details of t
 
 To create an invoice, set the type property of the module object to "invoice" and provide the Ethereum addresses of the creditor and debitor. You can also provide optional notes or a file for the invoice. If you have an IPFS hash for the invoice, you can provide it using the ipfsHash property.
 
-To create an escrow, set the moduleName property of the module object to "Escrow" and provide the inspectionPeriod property.
+To create an escrow, set the moduleName property of the module object to "reversibleRelease" and provide the inspector property.
 
 You can also use the approveToken function to approve a token for use in writing notas.
 

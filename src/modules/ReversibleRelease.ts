@@ -2,7 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import { state, tokenAddressForCurrency } from "..";
 
 export interface ReversibleReleaseData {
-  moduleName: "ReversibleRelease";
+  moduleName: "reversibleRelease";
   type: "invoice" | "payment";
   creditor: string;
   debitor: string;

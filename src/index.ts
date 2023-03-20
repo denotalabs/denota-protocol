@@ -120,9 +120,9 @@ export interface WriteProps {
 
 export async function write({ module, amount, currency }: WriteProps) {
   switch (module.moduleName) {
-    case "Direct":
+    case "direct":
       return await writeDirectPay({ module, amount, currency });
-    case "ReversibleRelease":
+    case "reversibleRelease":
       return await writeReversiblePay({ module, amount, currency });
   }
 }
