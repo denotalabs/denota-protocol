@@ -39,14 +39,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.reverse = exports.fund = exports.write = exports.approveToken = exports.setProvider = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.cash = exports.fund = exports.write = exports.approveToken = exports.tokenAddressForCurrency = exports.setProvider = exports.state = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
 var ethers_1 = require("ethers");
 var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"));
 var chainInfo_1 = require("./chainInfo");
 exports.DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
+var DirectPay_1 = require("./modules/DirectPay");
 exports.DENOTA_SUPPORTED_CHAIN_IDS = [80001];
-var state = {
+exports.state = {
     blockchainState: {
         account: "",
         registrar: null,
@@ -77,7 +78,7 @@ function setProvider(web3Connection) {
                         registrar = new ethers_1.ethers.Contract(contractMapping.registrar, CheqRegistrar_json_1.default.abi, signer);
                         dai = new ethers_1.ethers.Contract(contractMapping.dai, TestERC20_json_1.default.abi, signer);
                         weth = new ethers_1.ethers.Contract(contractMapping.weth, TestERC20_json_1.default.abi, signer);
-                        state.blockchainState = {
+                        exports.state.blockchainState = {
                             signer: signer,
                             account: account,
                             registrarAddress: contractMapping.registrar,
@@ -97,22 +98,23 @@ exports.setProvider = setProvider;
 function tokenForCurrency(currency) {
     switch (currency) {
         case "DAI":
-            return state.blockchainState.dai;
+            return exports.state.blockchainState.dai;
         case "WETH":
-            return state.blockchainState.weth;
+            return exports.state.blockchainState.weth;
     }
 }
 function tokenAddressForCurrency(currency) {
     var _a, _b;
     switch (currency) {
         case "DAI":
-            return (_a = state.blockchainState.dai) === null || _a === void 0 ? void 0 : _a.address;
+            return (_a = exports.state.blockchainState.dai) === null || _a === void 0 ? void 0 : _a.address;
         case "WETH":
-            return (_b = state.blockchainState.weth) === null || _b === void 0 ? void 0 : _b.address;
+            return (_b = exports.state.blockchainState.weth) === null || _b === void 0 ? void 0 : _b.address;
         case "NATIVE":
             return "0x0000000000000000000000000000000000000000";
     }
 }
+exports.tokenAddressForCurrency = tokenAddressForCurrency;
 function approveToken(_a) {
     var currency = _a.currency, approvalAmount = _a.approvalAmount;
     return __awaiter(this, void 0, void 0, function () {
@@ -122,7 +124,7 @@ function approveToken(_a) {
                 case 0:
                     token = tokenForCurrency(currency);
                     amountWei = ethers_1.ethers.utils.parseEther(String(approvalAmount));
-                    return [4 /*yield*/, (token === null || token === void 0 ? void 0 : token.functions.approve(state.blockchainState.registrar, amountWei))];
+                    return [4 /*yield*/, (token === null || token === void 0 ? void 0 : token.functions.approve(exports.state.blockchainState.registrar, amountWei))];
                 case 1:
                     tx = _b.sent();
                     return [4 /*yield*/, tx.wait()];
@@ -142,7 +144,7 @@ function write(_a) {
             switch (_b.label) {
                 case 0:
                     if (!(module.moduleName == "Direct")) return [3 /*break*/, 2];
-                    return [4 /*yield*/, writeDirectPay({ module: module, amount: amount, currency: currency })];
+                    return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)({ module: module, amount: amount, currency: currency })];
                 case 1:
                     hash = _b.sent();
                     return [2 /*return*/, hash];
@@ -152,61 +154,6 @@ function write(_a) {
     });
 }
 exports.write = write;
-function writeDirectPay(_a) {
-    var _b, _c;
-    var module = _a.module, amount = _a.amount, currency = _a.currency;
-    return __awaiter(this, void 0, void 0, function () {
-        var dueDate, imageHash, ipfsHash, utcOffset, dueTimestamp, d, today, receiver, owner, amountWei, payload, tokenAddress, msgValue, tx, receipt;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
-                case 0:
-                    dueDate = module.dueDate, imageHash = module.imageHash, ipfsHash = module.ipfsHash;
-                    utcOffset = new Date().getTimezoneOffset();
-                    if (dueDate) {
-                        dueTimestamp = Date.parse("".concat(dueDate, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
-                    else {
-                        d = new Date();
-                        today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 10);
-                        dueTimestamp = Date.parse("".concat(today, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
-                    owner = module.creditor;
-                    if (module.type === "invoice") {
-                        receiver = module.debitor;
-                    }
-                    else {
-                        receiver = module.creditor;
-                    }
-                    amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string", "string"], [
-                        receiver,
-                        amountWei,
-                        dueTimestamp,
-                        state.blockchainState.account,
-                        imageHash !== null && imageHash !== void 0 ? imageHash : "",
-                        ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "",
-                    ]);
-                    tokenAddress = (_b = tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
-                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
-                        module.type !== "invoice"
-                        ? amountWei
-                        : ethers_1.BigNumber.from(0);
-                    return [4 /*yield*/, ((_c = state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
-                        0, //escrowed
-                        module.type === "invoice" ? 0 : amountWei, //instant
-                        owner, state.blockchainState.directPayAddress, payload))];
-                case 1:
-                    tx = _d.sent();
-                    return [4 /*yield*/, tx.wait()];
-                case 2:
-                    receipt = _d.sent();
-                    return [2 /*return*/, receipt.transactionHash];
-            }
-        });
-    });
-}
 function fund(_a) {
     var cheqId = _a.cheqId;
     return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_b) {
@@ -214,19 +161,19 @@ function fund(_a) {
     }); });
 }
 exports.fund = fund;
-function reverse(_a) {
+function cash(_a) {
     var cheqId = _a.cheqId;
     return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_b) {
         return [2 /*return*/];
     }); });
 }
-exports.reverse = reverse;
+exports.cash = cash;
 function sendBatchPayment(_a) { }
 exports.sendBatchPayment = sendBatchPayment;
 function sendBatchPaymentFromCSV(csv) { }
 exports.sendBatchPaymentFromCSV = sendBatchPaymentFromCSV;
 function getNotasQueryURL() {
-    switch (state.blockchainState.chainId) {
+    switch (exports.state.blockchainState.chainId) {
         case 80001:
             return "https://denota.klymr.me/graph/mumbai";
         case 44787:
@@ -236,4 +183,12 @@ function getNotasQueryURL() {
     }
 }
 exports.getNotasQueryURL = getNotasQueryURL;
-exports.default = { write: write };
+exports.default = {
+    approveToken: approveToken,
+    write: write,
+    fund: fund,
+    cash: cash,
+    sendBatchPayment: sendBatchPayment,
+    sendBatchPaymentFromCSV: sendBatchPaymentFromCSV,
+    getNotasQueryURL: getNotasQueryURL,
+};
