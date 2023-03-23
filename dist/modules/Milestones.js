@@ -36,57 +36,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDirectPay = void 0;
+exports.writeMilestones = void 0;
 var ethers_1 = require("ethers");
 var __1 = require("..");
-function writeDirectPay(_a) {
+function writeMilestones(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var dueDate, imageHash, ipfsHash, type, creditor, debitor, utcOffset, dueTimestamp, d, today, owner, receiver, amountWei, payload, tokenAddress, msgValue, tx, receipt;
+        var ipfsHash, milestones, client, worker, type, receiver, amountWei, payload, tokenAddress, owner, msgValue, tx;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    dueDate = module.dueDate, imageHash = module.imageHash, ipfsHash = module.ipfsHash, type = module.type, creditor = module.creditor, debitor = module.debitor;
-                    utcOffset = new Date().getTimezoneOffset();
-                    if (dueDate) {
-                        dueTimestamp = Date.parse("".concat(dueDate, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
-                    else {
-                        d = new Date();
-                        today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 10);
-                        dueTimestamp = Date.parse("".concat(today, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
-                    owner = creditor;
-                    receiver = type === "invoice" ? debitor : creditor;
+                    ipfsHash = module.ipfsHash, milestones = module.milestones, client = module.client, worker = module.worker, type = module.type;
+                    receiver = type === "invoice" ? client : worker;
                     amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string", "string"], [
-                        receiver,
-                        amountWei,
-                        dueTimestamp,
-                        __1.state.blockchainState.account,
-                        imageHash !== null && imageHash !== void 0 ? imageHash : "",
-                        ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "",
-                    ]);
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "address", "bytes32", "uint256[]"], [receiver, __1.state.blockchainState.account, ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "", milestones]);
                     tokenAddress = (_b = (0, __1.tokenAddressForCurrency)(currency)) !== null && _b !== void 0 ? _b : "";
+                    owner = worker;
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
                         module.type === "payment"
                         ? amountWei
                         : ethers_1.BigNumber.from(0);
                     return [4 /*yield*/, ((_c = __1.state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
-                        0, //escrowed
-                        module.type === "invoice" ? 0 : amountWei, //instant
+                        module.type === "invoice" ? 0 : amountWei, //escrowed
+                        0, //instant
                         owner, __1.state.blockchainState.directPayAddress, payload, { value: msgValue }))];
                 case 1:
                     tx = _d.sent();
-                    return [4 /*yield*/, tx.wait()];
-                case 2:
-                    receipt = _d.sent();
-                    return [2 /*return*/, receipt.transactionHash];
+                    return [2 /*return*/];
             }
         });
     });
 }
-exports.writeDirectPay = writeDirectPay;
+exports.writeMilestones = writeMilestones;

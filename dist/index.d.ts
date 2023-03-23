@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 export declare const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 import { DirectPayData } from "./modules/DirectPay";
+import { MilestonesData } from "./modules/Milestones";
+import { ReversibleReleaseData } from "./modules/ReversibleRelease";
 export declare const DENOTA_SUPPORTED_CHAIN_IDS: number[];
 interface BlockchainState {
     signer: ethers.providers.JsonRpcSigner | null;
@@ -8,9 +10,11 @@ interface BlockchainState {
     account: string;
     chainId: number;
     directPayAddress: string;
+    reversibleReleaseAddress: string;
     registrarAddress: string;
     dai: ethers.Contract | null;
     weth: ethers.Contract | null;
+    milestonesAddress: string;
 }
 interface State {
     blockchainState: BlockchainState;
@@ -23,17 +27,13 @@ interface ApproveTokenProps {
 }
 export declare function tokenAddressForCurrency(currency: string): string | undefined;
 export declare function approveToken({ currency, approvalAmount, }: ApproveTokenProps): Promise<void>;
-export interface EscrowData {
-    moduleName: "Escrow";
-    inspectionPeriod: number;
-}
-type ModuleData = DirectPayData | EscrowData;
+type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData;
 export interface WriteProps {
     currency: string;
     amount: number;
     module: ModuleData;
 }
-export declare function write({ module, amount, currency }: WriteProps): Promise<string | undefined>;
+export declare function write({ module, ...props }: WriteProps): Promise<string | void>;
 interface FundProps {
     cheqId: string;
 }

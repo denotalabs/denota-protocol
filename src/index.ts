@@ -6,6 +6,7 @@ export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
+import { MilestonesData, writeMilestones } from "./modules/Milestones";
 import {
   ReversibleReleaseData,
   writeReversiblePay,
@@ -23,6 +24,7 @@ interface BlockchainState {
   registrarAddress: string;
   dai: ethers.Contract | null;
   weth: ethers.Contract | null;
+  milestonesAddress: string;
 }
 
 interface State {
@@ -40,6 +42,7 @@ export const state: State = {
     dai: null,
     weth: null,
     reversibleReleaseAddress: "",
+    milestonesAddress: "",
   },
 };
 
@@ -67,6 +70,7 @@ export async function setProvider(web3Connection: any) {
       dai,
       weth,
       reversibleReleaseAddress: contractMapping.escrow,
+      milestonesAddress: contractMapping.milestones,
     };
   }
 }
@@ -110,7 +114,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData;
+type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData;
 
 export interface WriteProps {
   currency: string;
@@ -118,12 +122,14 @@ export interface WriteProps {
   module: ModuleData;
 }
 
-export async function write({ module, amount, currency }: WriteProps) {
+export async function write({ module, ...props }: WriteProps) {
   switch (module.moduleName) {
     case "direct":
-      return await writeDirectPay({ module, amount, currency });
+      return await writeDirectPay({ module, ...props });
     case "reversibleRelease":
-      return await writeReversiblePay({ module, amount, currency });
+      return await writeReversiblePay({ module, ...props });
+    case "milestones":
+      return writeMilestones({ module, ...props });
   }
 }
 

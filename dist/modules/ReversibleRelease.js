@@ -36,39 +36,29 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDirectPay = void 0;
+exports.writeReversiblePay = void 0;
 var ethers_1 = require("ethers");
 var __1 = require("..");
-function writeDirectPay(_a) {
+function writeReversiblePay(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var dueDate, imageHash, ipfsHash, type, creditor, debitor, utcOffset, dueTimestamp, d, today, owner, receiver, amountWei, payload, tokenAddress, msgValue, tx, receipt;
+        var imageHash, ipfsHash, type, creditor, debitor, inspector, notaInspector, amountWei, owner, receiver, payload, tokenAddress, msgValue, tx, receipt;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    dueDate = module.dueDate, imageHash = module.imageHash, ipfsHash = module.ipfsHash, type = module.type, creditor = module.creditor, debitor = module.debitor;
-                    utcOffset = new Date().getTimezoneOffset();
-                    if (dueDate) {
-                        dueTimestamp = Date.parse("".concat(dueDate, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
-                    else {
-                        d = new Date();
-                        today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 10);
-                        dueTimestamp = Date.parse("".concat(today, "T00:00:00Z")) / 1000 + utcOffset * 60;
-                    }
+                    imageHash = module.imageHash, ipfsHash = module.ipfsHash, type = module.type, creditor = module.creditor, debitor = module.debitor, inspector = module.inspector;
+                    notaInspector = inspector !== null && inspector !== void 0 ? inspector : debitor;
+                    amountWei = ethers_1.ethers.utils.parseEther(String(amount));
                     owner = creditor;
                     receiver = type === "invoice" ? debitor : creditor;
-                    amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "uint256", "uint256", "address", "string", "string"], [
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "address", "address", "uint256", "string", "string"], [
                         receiver,
-                        amountWei,
-                        dueTimestamp,
+                        notaInspector,
                         __1.state.blockchainState.account,
-                        imageHash !== null && imageHash !== void 0 ? imageHash : "",
+                        amountWei,
                         ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "",
+                        imageHash !== null && imageHash !== void 0 ? imageHash : "",
                     ]);
                     tokenAddress = (_b = (0, __1.tokenAddressForCurrency)(currency)) !== null && _b !== void 0 ? _b : "";
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
@@ -76,9 +66,12 @@ function writeDirectPay(_a) {
                         ? amountWei
                         : ethers_1.BigNumber.from(0);
                     return [4 /*yield*/, ((_c = __1.state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
-                        0, //escrowed
-                        module.type === "invoice" ? 0 : amountWei, //instant
-                        owner, __1.state.blockchainState.directPayAddress, payload, { value: msgValue }))];
+                        module.type === "invoice" ? 0 : amountWei, //escrowed
+                        0, //instant
+                        owner, //owner
+                        __1.state.blockchainState.reversibleReleaseAddress, //module
+                        payload, //moduleWriteData
+                        { value: msgValue }))];
                 case 1:
                     tx = _d.sent();
                     return [4 /*yield*/, tx.wait()];
@@ -89,4 +82,4 @@ function writeDirectPay(_a) {
         });
     });
 }
-exports.writeDirectPay = writeDirectPay;
+exports.writeReversiblePay = writeReversiblePay;

@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,6 +46,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -46,6 +68,8 @@ var chainInfo_1 = require("./chainInfo");
 exports.DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
 var DirectPay_1 = require("./modules/DirectPay");
+var Milestones_1 = require("./modules/Milestones");
+var ReversibleRelease_1 = require("./modules/ReversibleRelease");
 exports.DENOTA_SUPPORTED_CHAIN_IDS = [80001];
 exports.state = {
     blockchainState: {
@@ -57,6 +81,8 @@ exports.state = {
         chainId: 0,
         dai: null,
         weth: null,
+        reversibleReleaseAddress: "",
+        milestonesAddress: "",
     },
 };
 function setProvider(web3Connection) {
@@ -87,6 +113,8 @@ function setProvider(web3Connection) {
                             chainId: chainId,
                             dai: dai,
                             weth: weth,
+                            reversibleReleaseAddress: contractMapping.escrow,
+                            milestonesAddress: contractMapping.milestones,
                         };
                     }
                     return [2 /*return*/];
@@ -137,18 +165,25 @@ function approveToken(_a) {
 }
 exports.approveToken = approveToken;
 function write(_a) {
-    var module = _a.module, amount = _a.amount, currency = _a.currency;
+    var module = _a.module, props = __rest(_a, ["module"]);
     return __awaiter(this, void 0, void 0, function () {
-        var hash;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
-                    if (!(module.moduleName == "Direct")) return [3 /*break*/, 2];
-                    return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)({ module: module, amount: amount, currency: currency })];
-                case 1:
-                    hash = _b.sent();
-                    return [2 /*return*/, hash];
-                case 2: return [2 /*return*/];
+                    _b = module.moduleName;
+                    switch (_b) {
+                        case "direct": return [3 /*break*/, 1];
+                        case "reversibleRelease": return [3 /*break*/, 3];
+                        case "milestones": return [3 /*break*/, 5];
+                    }
+                    return [3 /*break*/, 6];
+                case 1: return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)(__assign({ module: module }, props))];
+                case 2: return [2 /*return*/, _c.sent()];
+                case 3: return [4 /*yield*/, (0, ReversibleRelease_1.writeReversiblePay)(__assign({ module: module }, props))];
+                case 4: return [2 /*return*/, _c.sent()];
+                case 5: return [2 /*return*/, (0, Milestones_1.writeMilestones)(__assign({ module: module }, props))];
+                case 6: return [2 /*return*/];
             }
         });
     });

@@ -1,5 +1,5 @@
 export interface DirectPayData {
-    moduleName: "Direct";
+    moduleName: "direct";
     type: "invoice" | "payment";
     creditor: string;
     debitor: string;
