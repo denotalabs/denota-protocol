@@ -19,7 +19,7 @@ export interface WriteReversibleReleaseyProps {
   module: ReversibleReleaseData;
 }
 
-export async function writeReversiblePay({
+export async function writeReversibleRelease({
   module,
   amount,
   currency,
@@ -64,6 +64,38 @@ export async function writeReversiblePay({
   return receipt.transactionHash as string;
 }
 
+export interface FundReversibleReleaseyProps {
+  cheqId: string;
+  amount: BigNumber;
+  tokenAddress: string;
+}
+
+export async function fundReversibleRelease({
+  cheqId,
+  amount,
+  tokenAddress,
+}: FundReversibleReleaseyProps) {
+  const payload = ethers.utils.defaultAbiCoder.encode(
+    ["address"],
+    [state.blockchainState.account]
+  );
+
+  const msgValue =
+    tokenAddress === "0x0000000000000000000000000000000000000000"
+      ? amount
+      : BigNumber.from(0);
+
+  const tx = await state.blockchainState.registrar?.fund(
+    cheqId,
+    amount, // escrow
+    0, // instant
+    payload,
+    { value: msgValue }
+  );
+  const receipt = await tx.wait();
+  return receipt.transactionHash as string;
+}
+
 export interface CashReversibleReleaseyProps {
   creditor: string;
   debtor: string;
@@ -72,7 +104,7 @@ export interface CashReversibleReleaseyProps {
   type: "reversal" | "release";
 }
 
-export async function cashReversiblePay({
+export async function cashReversibleRelease({
   creditor,
   debtor,
   cheqId,

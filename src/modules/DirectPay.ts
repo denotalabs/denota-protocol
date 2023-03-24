@@ -76,3 +76,35 @@ export async function writeDirectPay({
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
 }
+
+export interface FundDirectPayProps {
+  cheqId: string;
+  amount: BigNumber;
+  tokenAddress: string;
+}
+
+export async function fundDirectPay({
+  cheqId,
+  amount,
+  tokenAddress,
+}: FundDirectPayProps) {
+  const payload = ethers.utils.defaultAbiCoder.encode(
+    ["address"],
+    [state.blockchainState.account]
+  );
+
+  const msgValue =
+    tokenAddress === "0x0000000000000000000000000000000000000000"
+      ? amount
+      : BigNumber.from(0);
+
+  const tx = await state.blockchainState.registrar?.fund(
+    cheqId,
+    0, // escrow
+    amount, // instant
+    payload,
+    { value: msgValue }
+  );
+  const receipt = await tx.wait();
+  return receipt.transactionHash as string;
+}

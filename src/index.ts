@@ -6,12 +6,17 @@ export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
-import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
+import {
+  DirectPayData,
+  fundDirectPay,
+  writeDirectPay,
+} from "./modules/DirectPay";
 import { MilestonesData, writeMilestones } from "./modules/Milestones";
 import {
-  cashReversiblePay,
+  cashReversibleRelease,
+  fundReversibleRelease,
   ReversibleReleaseData,
-  writeReversiblePay,
+  writeReversibleRelease,
 } from "./modules/ReversibleRelease";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001];
@@ -129,7 +134,7 @@ export async function write({ module, ...props }: WriteProps) {
     case "direct":
       return await writeDirectPay({ module, ...props });
     case "reversibleRelease":
-      return await writeReversiblePay({ module, ...props });
+      return await writeReversibleRelease({ module, ...props });
     case "milestones":
       return writeMilestones({ module, ...props });
   }
@@ -139,7 +144,57 @@ interface FundProps {
   cheqId: string;
 }
 
-export async function fund({ cheqId }: FundProps) {}
+export async function fund({ cheqId }: FundProps) {
+  const notaQuery = `
+  query cheqs($cheq: String ){
+    cheqs(where: { id: $cheq }, first: 1)  {
+      erc20 {
+        id
+      }
+      moduleData {
+        ... on DirectPayData {
+          __typename
+          amount
+        }
+        ... on ReversiblePaymentData {
+          __typename
+          amount
+        }
+      }
+    }
+  }
+`;
+
+  const client = new ApolloClient({
+    uri: getNotasQueryURL(),
+    cache: new InMemoryCache(),
+  });
+
+  const data = await client.query({
+    query: gql(notaQuery),
+    variables: {
+      cheq: cheqId,
+    },
+  });
+
+  const nota = data["data"]["accounts"][0];
+  const amount = BigNumber.from(nota.moduleData.amount);
+
+  switch (nota.moduleData.__typename) {
+    case "DirectPayData":
+      return await fundDirectPay({
+        cheqId,
+        amount,
+        tokenAddress: nota.erc20.id,
+      });
+    case "ReversiblePaymentData":
+      return await fundReversibleRelease({
+        cheqId,
+        amount,
+        tokenAddress: nota.erc20.id,
+      });
+  }
+}
 
 interface CashPaymentProps {
   cheqId: string;
@@ -194,7 +249,7 @@ export async function cash({ cheqId, type }: CashPaymentProps) {
 
   switch (nota.moduleData.__typename) {
     case "ReversiblePaymentData":
-      return await cashReversiblePay({
+      return await cashReversibleRelease({
         cheqId,
         creditor: nota.moduleData.creditor.id,
         debtor: nota.moduleData.debtor.id,
