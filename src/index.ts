@@ -1,13 +1,15 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId } from "./chainInfo";
 
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
 import { MilestonesData, writeMilestones } from "./modules/Milestones";
 import {
+  cashReversiblePay,
   ReversibleReleaseData,
   writeReversiblePay,
 } from "./modules/ReversibleRelease";
@@ -144,7 +146,63 @@ interface CashPaymentProps {
   type: "reversal" | "release";
 }
 
-export async function cash({ cheqId }: CashPaymentProps) {}
+export async function cash({ cheqId, type }: CashPaymentProps) {
+  const notaQuery = `
+    query cheqs($cheq: String ){
+      cheqs(where: { id: $cheq }, first: 1)  {
+        moduleData {
+          ... on DirectPayData {
+            __typename
+            amount
+            creditor {
+              id
+            }
+            debtor {
+              id
+            }
+            dueDate
+          }
+          ... on ReversiblePaymentData {
+            __typename
+            amount
+            creditor {
+              id
+            }
+            debtor {
+              id
+            }
+          }
+        }
+    }
+    }
+  `;
+
+  const client = new ApolloClient({
+    uri: getNotasQueryURL(),
+    cache: new InMemoryCache(),
+  });
+
+  const data = await client.query({
+    query: gql(notaQuery),
+    variables: {
+      cheq: cheqId,
+    },
+  });
+
+  const nota = data["data"]["accounts"][0];
+  const amount = BigNumber.from(nota.moduleData.amount);
+
+  switch (nota.moduleData.__typename) {
+    case "ReversiblePaymentData":
+      return await cashReversiblePay({
+        cheqId,
+        creditor: nota.moduleData.creditor.id,
+        debtor: nota.moduleData.debtor.id,
+        amount,
+        type,
+      });
+  }
+}
 
 interface BatchPaymentItem {
   amount: number;

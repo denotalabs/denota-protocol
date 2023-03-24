@@ -63,3 +63,35 @@ export async function writeReversiblePay({
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
 }
+
+export interface CashReversibleReleaseyProps {
+  creditor: string;
+  debtor: string;
+  cheqId: string;
+  amount: BigNumber;
+  type: "reversal" | "release";
+}
+
+export async function cashReversiblePay({
+  creditor,
+  debtor,
+  cheqId,
+  type,
+  amount,
+}: CashReversibleReleaseyProps) {
+  const to = type === "release" ? creditor : debtor;
+
+  const payload = ethers.utils.defaultAbiCoder.encode(
+    ["address"],
+    [state.blockchainState.account]
+  );
+
+  const tx = await state.blockchainState.registrar?.cash(
+    cheqId,
+    amount,
+    to,
+    payload
+  );
+  const receipt = await tx.wait();
+  return receipt.transactionHash as string;
+}
