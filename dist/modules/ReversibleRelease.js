@@ -36,10 +36,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cashReversiblePay = exports.writeReversiblePay = void 0;
+exports.cashReversibleRelease = exports.fundReversibleRelease = exports.writeReversibleRelease = void 0;
 var ethers_1 = require("ethers");
 var __1 = require("..");
-function writeReversiblePay(_a) {
+function writeReversibleRelease(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
@@ -82,8 +82,34 @@ function writeReversiblePay(_a) {
         });
     });
 }
-exports.writeReversiblePay = writeReversiblePay;
-function cashReversiblePay(_a) {
+exports.writeReversibleRelease = writeReversibleRelease;
+function fundReversibleRelease(_a) {
+    var _b;
+    var cheqId = _a.cheqId, amount = _a.amount, tokenAddress = _a.tokenAddress;
+    return __awaiter(this, void 0, void 0, function () {
+        var payload, msgValue, tx, receipt;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address"], [__1.state.blockchainState.account]);
+                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
+                        ? amount
+                        : ethers_1.BigNumber.from(0);
+                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(cheqId, amount, // escrow
+                        0, // instant
+                        payload, { value: msgValue }))];
+                case 1:
+                    tx = _c.sent();
+                    return [4 /*yield*/, tx.wait()];
+                case 2:
+                    receipt = _c.sent();
+                    return [2 /*return*/, receipt.transactionHash];
+            }
+        });
+    });
+}
+exports.fundReversibleRelease = fundReversibleRelease;
+function cashReversibleRelease(_a) {
     var _b;
     var creditor = _a.creditor, debtor = _a.debtor, cheqId = _a.cheqId, type = _a.type, amount = _a.amount;
     return __awaiter(this, void 0, void 0, function () {
@@ -104,4 +130,4 @@ function cashReversiblePay(_a) {
         });
     });
 }
-exports.cashReversiblePay = cashReversiblePay;
+exports.cashReversibleRelease = cashReversibleRelease;

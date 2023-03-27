@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 export interface DirectPayData {
     moduleName: "direct";
     type: "invoice" | "payment";
@@ -15,3 +16,9 @@ export interface WriteDirectPayProps {
     module: DirectPayData;
 }
 export declare function writeDirectPay({ module, amount, currency, }: WriteDirectPayProps): Promise<string>;
+export interface FundDirectPayProps {
+    cheqId: string;
+    amount: BigNumber;
+    tokenAddress: string;
+}
+export declare function fundDirectPay({ cheqId, amount, tokenAddress, }: FundDirectPayProps): Promise<string>;

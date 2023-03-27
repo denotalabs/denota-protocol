@@ -2,22 +2,22 @@
 
 ## Introduction:
 
-Denota-SDK is a JavaScript library that allows you to write "notas," NFTs that represent invoices or escrows. The library is built using EVM blockchain technology and requires a web3 connection to function. It provides an interface to create, approve, and write invoices and escrows. In this documentation, we will explain how to use the Denota-SDK to write notas. Denota is currently available on Polygon Mumbai Testnet and Celo Alfajores Testnet.
+@denota-labs/denota-sdk is a JavaScript library that allows you to write "notas," NFTs that represent invoices or escrows. The library is built using EVM blockchain technology and requires a web3 connection to function. It provides an interface to create, approve, and write invoices and escrows. In this documentation, we will explain how to use the @denota-labs/denota-sdk to write notas. Denota is currently available on Polygon Mumbai Testnet and Celo Alfajores Testnet.
 
 ## Installation:
 
-You can install the Denota-SDK using the npm package manager with the following command:
+You can install the @denota-labs/denota-sdk using the npm package manager with the following command:
 
 ```bash
-npm install denota-sdk
+npm install @denota-labs/denota-sdk
 ```
 
 ## Usage:
 
-Before you can use the Denota-SDK, you need to set up a web3 connection. You can do this by calling the setProvider function and passing in your web3 connection. This function initializes the Ethereum provider, signer, and the contracts required to write notas.
+Before you can use the @denota-labs/denota-sdk, you need to set up a web3 connection. You can do this by calling the setProvider function and passing in your web3 connection. This function initializes the Ethereum provider, signer, and the contracts required to write notas.
 
 ```javascript
-import { setProvider } from 'denota-sdk';
+import { setProvider } from '@denota-labs/denota-sdk';
 
 async function init() {
   const web3Connection = // your web3 connection here
@@ -27,10 +27,10 @@ async function init() {
 init();
 ```
 
-After setting up the web3 connection, you can use the Denota-SDK to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
+After setting up the web3 connection, you can use the @denota-labs/denota-sdk to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
 
 ```javascript
-import Denota from 'denota-sdk';
+import Denota from '@denota-labs/denota-sdk';
 
 const amount = 1;
 const currency = 'DAI';
@@ -63,7 +63,7 @@ To create an escrow, set the moduleName property of the module object to "revers
 You can also use the approveToken function to approve a token for use in writing notas.
 
 ```javascript
-import { approveToken } from 'denota-sdk';
+import { approveToken } from '@denota-labs/denota-sdk';
 
 async function approve() {
   const currency = 'DAI';

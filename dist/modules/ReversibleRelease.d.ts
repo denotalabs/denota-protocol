@@ -15,7 +15,13 @@ export interface WriteReversibleReleaseyProps {
     amount: number;
     module: ReversibleReleaseData;
 }
-export declare function writeReversiblePay({ module, amount, currency, }: WriteReversibleReleaseyProps): Promise<string>;
+export declare function writeReversibleRelease({ module, amount, currency, }: WriteReversibleReleaseyProps): Promise<string>;
+export interface FundReversibleReleaseyProps {
+    cheqId: string;
+    amount: BigNumber;
+    tokenAddress: string;
+}
+export declare function fundReversibleRelease({ cheqId, amount, tokenAddress, }: FundReversibleReleaseyProps): Promise<string>;
 export interface CashReversibleReleaseyProps {
     creditor: string;
     debtor: string;
@@ -23,4 +29,4 @@ export interface CashReversibleReleaseyProps {
     amount: BigNumber;
     type: "reversal" | "release";
 }
-export declare function cashReversiblePay({ creditor, debtor, cheqId, type, amount, }: CashReversibleReleaseyProps): Promise<string>;
+export declare function cashReversibleRelease({ creditor, debtor, cheqId, type, amount, }: CashReversibleReleaseyProps): Promise<string>;

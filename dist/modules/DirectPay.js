@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDirectPay = void 0;
+exports.fundDirectPay = exports.writeDirectPay = void 0;
 var ethers_1 = require("ethers");
 var __1 = require("..");
 function writeDirectPay(_a) {
@@ -90,3 +90,29 @@ function writeDirectPay(_a) {
     });
 }
 exports.writeDirectPay = writeDirectPay;
+function fundDirectPay(_a) {
+    var _b;
+    var cheqId = _a.cheqId, amount = _a.amount, tokenAddress = _a.tokenAddress;
+    return __awaiter(this, void 0, void 0, function () {
+        var payload, msgValue, tx, receipt;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address"], [__1.state.blockchainState.account]);
+                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
+                        ? amount
+                        : ethers_1.BigNumber.from(0);
+                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(cheqId, 0, // escrow
+                        amount, // instant
+                        payload, { value: msgValue }))];
+                case 1:
+                    tx = _c.sent();
+                    return [4 /*yield*/, tx.wait()];
+                case 2:
+                    receipt = _c.sent();
+                    return [2 /*return*/, receipt.transactionHash];
+            }
+        });
+    });
+}
+exports.fundDirectPay = fundDirectPay;

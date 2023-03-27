@@ -37,7 +37,7 @@ export declare function write({ module, ...props }: WriteProps): Promise<string 
 interface FundProps {
     cheqId: string;
 }
-export declare function fund({ cheqId }: FundProps): Promise<void>;
+export declare function fund({ cheqId }: FundProps): Promise<string | undefined>;
 interface CashPaymentProps {
     cheqId: string;
     type: "reversal" | "release";

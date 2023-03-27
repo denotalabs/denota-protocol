@@ -181,7 +181,7 @@ function write(_a) {
                     return [3 /*break*/, 6];
                 case 1: return [4 /*yield*/, DirectPay_1.writeDirectPay(__assign({ module: module }, props))];
                 case 2: return [2 /*return*/, _c.sent()];
-                case 3: return [4 /*yield*/, ReversibleRelease_1.writeReversiblePay(__assign({ module: module }, props))];
+                case 3: return [4 /*yield*/, ReversibleRelease_1.writeReversibleRelease(__assign({ module: module }, props))];
                 case 4: return [2 /*return*/, _c.sent()];
                 case 5: return [2 /*return*/, Milestones_1.writeMilestones(__assign({ module: module }, props))];
                 case 6: return [2 /*return*/];
@@ -192,9 +192,48 @@ function write(_a) {
 exports.write = write;
 function fund(_a) {
     var cheqId = _a.cheqId;
-    return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_b) {
-        return [2 /*return*/];
-    }); });
+    return __awaiter(this, void 0, void 0, function () {
+        var notaQuery, client, data, nota, amount, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    notaQuery = "\n  query cheqs($cheq: String ){\n    cheqs(where: { id: $cheq }, first: 1)  {\n      erc20 {\n        id\n      }\n      moduleData {\n        ... on DirectPayData {\n          __typename\n          amount\n        }\n        ... on ReversiblePaymentData {\n          __typename\n          amount\n        }\n      }\n    }\n  }\n";
+                    client = new client_1.ApolloClient({
+                        uri: getNotasQueryURL(),
+                        cache: new client_1.InMemoryCache(),
+                    });
+                    return [4 /*yield*/, client.query({
+                            query: client_1.gql(notaQuery),
+                            variables: {
+                                cheq: cheqId,
+                            },
+                        })];
+                case 1:
+                    data = _c.sent();
+                    nota = data["data"]["accounts"][0];
+                    amount = ethers_1.BigNumber.from(nota.moduleData.amount);
+                    _b = nota.moduleData.__typename;
+                    switch (_b) {
+                        case "DirectPayData": return [3 /*break*/, 2];
+                        case "ReversiblePaymentData": return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 6];
+                case 2: return [4 /*yield*/, DirectPay_1.fundDirectPay({
+                        cheqId: cheqId,
+                        amount: amount,
+                        tokenAddress: nota.erc20.id,
+                    })];
+                case 3: return [2 /*return*/, _c.sent()];
+                case 4: return [4 /*yield*/, ReversibleRelease_1.fundReversibleRelease({
+                        cheqId: cheqId,
+                        amount: amount,
+                        tokenAddress: nota.erc20.id,
+                    })];
+                case 5: return [2 /*return*/, _c.sent()];
+                case 6: return [2 /*return*/];
+            }
+        });
+    });
 }
 exports.fund = fund;
 function cash(_a) {
@@ -224,7 +263,7 @@ function cash(_a) {
                         case "ReversiblePaymentData": return [3 /*break*/, 2];
                     }
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, ReversibleRelease_1.cashReversiblePay({
+                case 2: return [4 /*yield*/, ReversibleRelease_1.cashReversibleRelease({
                         cheqId: cheqId,
                         creditor: nota.moduleData.creditor.id,
                         debtor: nota.moduleData.debtor.id,
