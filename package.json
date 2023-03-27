@@ -1,8 +1,8 @@
 {
-  "name": "denota-sdk",
+  "name": "@denota-labs/denota-sdk",
   "version": "1.0.0",
-  "description": "SDK for Denota Protocol ",
-  "author": "",
+  "description": "SDK for Denota Protocol",
+  "author": "Denota Labs",
   "license": "ISC",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
