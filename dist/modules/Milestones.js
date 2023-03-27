@@ -43,7 +43,7 @@ function writeMilestones(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var ipfsHash, milestones, client, worker, type, receiver, amountWei, payload, tokenAddress, owner, msgValue, tx;
+        var ipfsHash, milestones, client, worker, type, receiver, amountWei, payload, tokenAddress, owner, msgValue, tx, receipt;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
@@ -63,7 +63,10 @@ function writeMilestones(_a) {
                         owner, __1.state.blockchainState.directPayAddress, payload, { value: msgValue }))];
                 case 1:
                     tx = _d.sent();
-                    return [2 /*return*/];
+                    return [4 /*yield*/, tx.wait()];
+                case 2:
+                    receipt = _d.sent();
+                    return [2 /*return*/, receipt.transactionHash];
             }
         });
     });

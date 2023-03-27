@@ -33,7 +33,7 @@ export interface WriteProps {
     amount: number;
     module: ModuleData;
 }
-export declare function write({ module, ...props }: WriteProps): Promise<string | void>;
+export declare function write({ module, ...props }: WriteProps): Promise<string>;
 interface FundProps {
     cheqId: string;
 }

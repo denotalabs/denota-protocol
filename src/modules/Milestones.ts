@@ -51,4 +51,7 @@ export async function writeMilestones({
     payload,
     { value: msgValue }
   );
+
+  const receipt = await tx.wait();
+  return receipt.transactionHash as string;
 }

@@ -11,4 +11,4 @@ export interface MilestoneProps {
     amount: number;
     module: MilestonesData;
 }
-export declare function writeMilestones({ module, amount, currency, }: MilestoneProps): Promise<void>;
+export declare function writeMilestones({ module, amount, currency, }: MilestoneProps): Promise<string>;
