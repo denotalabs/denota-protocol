@@ -210,7 +210,7 @@ function fund(_a) {
                         })];
                 case 1:
                     data = _c.sent();
-                    nota = data["data"]["accounts"][0];
+                    nota = data["data"]["cheqs"][0];
                     amount = ethers_1.BigNumber.from(nota.moduleData.amount);
                     _b = nota.moduleData.__typename;
                     switch (_b) {
@@ -256,7 +256,7 @@ function cash(_a) {
                         })];
                 case 1:
                     data = _c.sent();
-                    nota = data["data"]["accounts"][0];
+                    nota = data["data"]["cheqs"][0];
                     amount = ethers_1.BigNumber.from(nota.moduleData.amount);
                     _b = nota.moduleData.__typename;
                     switch (_b) {

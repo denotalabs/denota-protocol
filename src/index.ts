@@ -177,7 +177,7 @@ export async function fund({ cheqId }: FundProps) {
     },
   });
 
-  const nota = data["data"]["accounts"][0];
+  const nota = data["data"]["cheqs"][0];
   const amount = BigNumber.from(nota.moduleData.amount);
 
   switch (nota.moduleData.__typename) {
@@ -244,7 +244,7 @@ export async function cash({ cheqId, type }: CashPaymentProps) {
     },
   });
 
-  const nota = data["data"]["accounts"][0];
+  const nota = data["data"]["cheqs"][0];
   const amount = BigNumber.from(nota.moduleData.amount);
 
   switch (nota.moduleData.__typename) {

@@ -1,6 +1,6 @@
 {
   "name": "@denota-labs/denota-sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "SDK for Denota Protocol",
   "author": "Denota Labs",
   "license": "ISC",
@@ -11,7 +11,8 @@
     "axios": "^1.2.3",
     "bufferutil": "^4.0.7",
     "ethers": "^5.7.0",
-    "utf-8-validate": "^5.0.10"
+    "utf-8-validate": "^5.0.10",
+    "graphql": "^16.6.0"
   },
   "scripts": {
     "build": "tsc",
