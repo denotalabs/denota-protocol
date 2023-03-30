@@ -6,9 +6,9 @@ export declare const ContractAddressMapping: {
         registrar: string;
         escrow: string;
         directPay: string;
-        milestones: string;
         dai: string;
         weth: string;
+        milestones: string;
     };
     alfajores: {
         DataTypes: string;
@@ -16,10 +16,10 @@ export declare const ContractAddressMapping: {
         Events: string;
         registrar: string;
         directPay: string;
-        milestones: string;
+        escrow: string;
         dai: string;
         weth: string;
-        escrow: string;
+        milestones: string;
     };
 };
 export declare const contractMappingForChainId: (chainId: number) => {
@@ -29,7 +29,7 @@ export declare const contractMappingForChainId: (chainId: number) => {
     registrar: string;
     escrow: string;
     directPay: string;
-    milestones: string;
     dai: string;
     weth: string;
+    milestones: string;
 } | undefined;
