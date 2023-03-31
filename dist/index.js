@@ -61,7 +61,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.cash = exports.fund = exports.write = exports.approveToken = exports.tokenAddressForCurrency = exports.setProvider = exports.state = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.contractMappingForChainId = exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.cash = exports.fund = exports.write = exports.approveToken = exports.tokenAddressForCurrency = exports.setProvider = exports.state = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
 var ethers_1 = require("ethers");
 var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"));
 var chainInfo_1 = require("./chainInfo");
@@ -292,6 +292,7 @@ function getNotasQueryURL() {
     }
 }
 exports.getNotasQueryURL = getNotasQueryURL;
+exports.contractMappingForChainId = chainInfo_1.contractMappingForChainId;
 exports.default = {
     approveToken: approveToken,
     write: write,
@@ -300,4 +301,5 @@ exports.default = {
     sendBatchPayment: sendBatchPayment,
     sendBatchPaymentFromCSV: sendBatchPaymentFromCSV,
     getNotasQueryURL: getNotasQueryURL,
+    contractMappingForChainId: exports.contractMappingForChainId,
 };

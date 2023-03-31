@@ -56,6 +56,17 @@ interface BatchPayment {
 export declare function sendBatchPayment({}: BatchPayment): void;
 export declare function sendBatchPaymentFromCSV(csv: File): void;
 export declare function getNotasQueryURL(): "https://denota.klymr.me/graph/mumbai" | "https://denota.klymr.me/graph/alfajores" | undefined;
+export declare const contractMappingForChainId: (chainId: number) => {
+    DataTypes: string;
+    Errors: string;
+    Events: string;
+    registrar: string;
+    escrow: string;
+    directPay: string;
+    dai: string;
+    weth: string;
+    milestones: string;
+} | undefined;
 declare const _default: {
     approveToken: typeof approveToken;
     write: typeof write;
@@ -64,5 +75,16 @@ declare const _default: {
     sendBatchPayment: typeof sendBatchPayment;
     sendBatchPaymentFromCSV: typeof sendBatchPaymentFromCSV;
     getNotasQueryURL: typeof getNotasQueryURL;
+    contractMappingForChainId: (chainId: number) => {
+        DataTypes: string;
+        Errors: string;
+        Events: string;
+        registrar: string;
+        escrow: string;
+        directPay: string;
+        dai: string;
+        weth: string;
+        milestones: string;
+    } | undefined;
 };
 export default _default;

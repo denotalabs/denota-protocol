@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
-import { contractMappingForChainId } from "./chainInfo";
+import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
@@ -58,7 +58,7 @@ export async function setProvider(web3Connection: any) {
   const signer = provider.getSigner();
   const account = await signer.getAddress();
   const { chainId } = await provider.getNetwork();
-  const contractMapping = contractMappingForChainId(chainId);
+  const contractMapping = contractMappingForChainId_(chainId);
   if (contractMapping) {
     const registrar = new ethers.Contract(
       contractMapping.registrar,
@@ -286,6 +286,8 @@ export function getNotasQueryURL() {
   }
 }
 
+export const contractMappingForChainId = contractMappingForChainId_;
+
 export default {
   approveToken,
   write,
@@ -294,4 +296,5 @@ export default {
   sendBatchPayment,
   sendBatchPaymentFromCSV,
   getNotasQueryURL,
+  contractMappingForChainId,
 };
