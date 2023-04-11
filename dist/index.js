@@ -25,7 +25,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -100,7 +100,7 @@ function setProvider(web3Connection) {
                     return [4 /*yield*/, provider.getNetwork()];
                 case 2:
                     chainId = (_a.sent()).chainId;
-                    contractMapping = chainInfo_1.contractMappingForChainId(chainId);
+                    contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
                         registrar = new ethers_1.ethers.Contract(contractMapping.registrar, CheqRegistrar_json_1.default.abi, signer);
                         dai = new ethers_1.ethers.Contract(contractMapping.dai, TestERC20_json_1.default.abi, signer);
@@ -179,11 +179,11 @@ function write(_a) {
                         case "milestones": return [3 /*break*/, 5];
                     }
                     return [3 /*break*/, 6];
-                case 1: return [4 /*yield*/, DirectPay_1.writeDirectPay(__assign({ module: module }, props))];
+                case 1: return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)(__assign({ module: module }, props))];
                 case 2: return [2 /*return*/, _c.sent()];
-                case 3: return [4 /*yield*/, ReversibleRelease_1.writeReversibleRelease(__assign({ module: module }, props))];
+                case 3: return [4 /*yield*/, (0, ReversibleRelease_1.writeReversibleRelease)(__assign({ module: module }, props))];
                 case 4: return [2 /*return*/, _c.sent()];
-                case 5: return [2 /*return*/, Milestones_1.writeMilestones(__assign({ module: module }, props))];
+                case 5: return [2 /*return*/, (0, Milestones_1.writeMilestones)(__assign({ module: module }, props))];
                 case 6: return [2 /*return*/];
             }
         });
@@ -203,7 +203,7 @@ function fund(_a) {
                         cache: new client_1.InMemoryCache(),
                     });
                     return [4 /*yield*/, client.query({
-                            query: client_1.gql(notaQuery),
+                            query: (0, client_1.gql)(notaQuery),
                             variables: {
                                 cheq: cheqId,
                             },
@@ -218,13 +218,13 @@ function fund(_a) {
                         case "ReversiblePaymentData": return [3 /*break*/, 4];
                     }
                     return [3 /*break*/, 6];
-                case 2: return [4 /*yield*/, DirectPay_1.fundDirectPay({
+                case 2: return [4 /*yield*/, (0, DirectPay_1.fundDirectPay)({
                         cheqId: cheqId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
                     })];
                 case 3: return [2 /*return*/, _c.sent()];
-                case 4: return [4 /*yield*/, ReversibleRelease_1.fundReversibleRelease({
+                case 4: return [4 /*yield*/, (0, ReversibleRelease_1.fundReversibleRelease)({
                         cheqId: cheqId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
@@ -249,7 +249,7 @@ function cash(_a) {
                         cache: new client_1.InMemoryCache(),
                     });
                     return [4 /*yield*/, client.query({
-                            query: client_1.gql(notaQuery),
+                            query: (0, client_1.gql)(notaQuery),
                             variables: {
                                 cheq: cheqId,
                             },
@@ -263,7 +263,7 @@ function cash(_a) {
                         case "ReversiblePaymentData": return [3 /*break*/, 2];
                     }
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, ReversibleRelease_1.cashReversibleRelease({
+                case 2: return [4 /*yield*/, (0, ReversibleRelease_1.cashReversibleRelease)({
                         cheqId: cheqId,
                         creditor: nota.moduleData.creditor.id,
                         debtor: nota.moduleData.debtor.id,

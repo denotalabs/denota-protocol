@@ -27,7 +27,7 @@ interface ApproveTokenProps {
 }
 export declare function tokenAddressForCurrency(currency: string): string | undefined;
 export declare function approveToken({ currency, approvalAmount, }: ApproveTokenProps): Promise<void>;
-declare type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData;
+type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData;
 export interface WriteProps {
     currency: string;
     amount: number;
