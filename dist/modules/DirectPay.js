@@ -92,7 +92,7 @@ function writeDirectPay(_a) {
 exports.writeDirectPay = writeDirectPay;
 function fundDirectPay(_a) {
     var _b;
-    var cheqId = _a.cheqId, amount = _a.amount, tokenAddress = _a.tokenAddress;
+    var notaId = _a.notaId, amount = _a.amount, tokenAddress = _a.tokenAddress;
     return __awaiter(this, void 0, void 0, function () {
         var payload, msgValue, tx, receipt;
         return __generator(this, function (_c) {
@@ -102,7 +102,7 @@ function fundDirectPay(_a) {
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
                         ? amount
                         : ethers_1.BigNumber.from(0);
-                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(cheqId, 0, // escrow
+                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(notaId, 0, // escrow
                         amount, // instant
                         payload, { value: msgValue }))];
                 case 1:

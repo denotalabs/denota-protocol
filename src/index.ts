@@ -157,10 +157,10 @@ export async function write({ module, ...props }: WriteProps) {
 }
 
 interface FundProps {
-  cheqId: string;
+  notaId: string;
 }
 
-export async function fund({ cheqId }: FundProps) {
+export async function fund({ notaId }: FundProps) {
   const notaQuery = `
   query cheqs($cheq: String ){
     cheqs(where: { id: $cheq }, first: 1)  {
@@ -189,7 +189,7 @@ export async function fund({ cheqId }: FundProps) {
   const data = await client.query({
     query: gql(notaQuery),
     variables: {
-      cheq: cheqId,
+      cheq: notaId,
     },
   });
 
@@ -199,13 +199,13 @@ export async function fund({ cheqId }: FundProps) {
   switch (nota.moduleData.__typename) {
     case "DirectPayData":
       return await fundDirectPay({
-        cheqId,
+        notaId,
         amount,
         tokenAddress: nota.erc20.id,
       });
     case "ReversiblePaymentData":
       return await fundReversibleRelease({
-        cheqId,
+        notaId,
         amount,
         tokenAddress: nota.erc20.id,
       });
@@ -213,11 +213,11 @@ export async function fund({ cheqId }: FundProps) {
 }
 
 interface CashPaymentProps {
-  cheqId: string;
+  notaId: string;
   type: "reversal" | "release";
 }
 
-export async function cash({ cheqId, type }: CashPaymentProps) {
+export async function cash({ notaId, type }: CashPaymentProps) {
   const notaQuery = `
     query cheqs($cheq: String ){
       cheqs(where: { id: $cheq }, first: 1)  {
@@ -256,7 +256,7 @@ export async function cash({ cheqId, type }: CashPaymentProps) {
   const data = await client.query({
     query: gql(notaQuery),
     variables: {
-      cheq: cheqId,
+      cheq: notaId,
     },
   });
 
@@ -266,7 +266,7 @@ export async function cash({ cheqId, type }: CashPaymentProps) {
   switch (nota.moduleData.__typename) {
     case "ReversiblePaymentData":
       return await cashReversibleRelease({
-        cheqId,
+        notaId,
         creditor: nota.moduleData.creditor.id,
         debtor: nota.moduleData.debtor.id,
         amount,

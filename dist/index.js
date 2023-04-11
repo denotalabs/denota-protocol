@@ -198,7 +198,7 @@ function write(_a) {
 }
 exports.write = write;
 function fund(_a) {
-    var cheqId = _a.cheqId;
+    var notaId = _a.notaId;
     return __awaiter(this, void 0, void 0, function () {
         var notaQuery, client, data, nota, amount, _b;
         return __generator(this, function (_c) {
@@ -212,7 +212,7 @@ function fund(_a) {
                     return [4 /*yield*/, client.query({
                             query: client_1.gql(notaQuery),
                             variables: {
-                                cheq: cheqId,
+                                cheq: notaId,
                             },
                         })];
                 case 1:
@@ -226,13 +226,13 @@ function fund(_a) {
                     }
                     return [3 /*break*/, 6];
                 case 2: return [4 /*yield*/, DirectPay_1.fundDirectPay({
-                        cheqId: cheqId,
+                        notaId: notaId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
                     })];
                 case 3: return [2 /*return*/, _c.sent()];
                 case 4: return [4 /*yield*/, ReversibleRelease_1.fundReversibleRelease({
-                        cheqId: cheqId,
+                        notaId: notaId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
                     })];
@@ -244,7 +244,7 @@ function fund(_a) {
 }
 exports.fund = fund;
 function cash(_a) {
-    var cheqId = _a.cheqId, type = _a.type;
+    var notaId = _a.notaId, type = _a.type;
     return __awaiter(this, void 0, void 0, function () {
         var notaQuery, client, data, nota, amount, _b;
         return __generator(this, function (_c) {
@@ -258,7 +258,7 @@ function cash(_a) {
                     return [4 /*yield*/, client.query({
                             query: client_1.gql(notaQuery),
                             variables: {
-                                cheq: cheqId,
+                                cheq: notaId,
                             },
                         })];
                 case 1:
@@ -271,7 +271,7 @@ function cash(_a) {
                     }
                     return [3 /*break*/, 4];
                 case 2: return [4 /*yield*/, ReversibleRelease_1.cashReversibleRelease({
-                        cheqId: cheqId,
+                        notaId: notaId,
                         creditor: nota.moduleData.creditor.id,
                         debtor: nota.moduleData.debtor.id,
                         amount: amount,

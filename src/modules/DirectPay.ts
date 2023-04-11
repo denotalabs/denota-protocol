@@ -78,13 +78,13 @@ export async function writeDirectPay({
 }
 
 export interface FundDirectPayProps {
-  cheqId: string;
+  notaId: string;
   amount: BigNumber;
   tokenAddress: string;
 }
 
 export async function fundDirectPay({
-  cheqId,
+  notaId,
   amount,
   tokenAddress,
 }: FundDirectPayProps) {
@@ -99,7 +99,7 @@ export async function fundDirectPay({
       : BigNumber.from(0);
 
   const tx = await state.blockchainState.registrar?.fund(
-    cheqId,
+    notaId,
     0, // escrow
     amount, // instant
     payload,

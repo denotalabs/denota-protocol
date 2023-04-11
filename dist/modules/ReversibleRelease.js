@@ -85,7 +85,7 @@ function writeReversibleRelease(_a) {
 exports.writeReversibleRelease = writeReversibleRelease;
 function fundReversibleRelease(_a) {
     var _b;
-    var cheqId = _a.cheqId, amount = _a.amount, tokenAddress = _a.tokenAddress;
+    var notaId = _a.notaId, amount = _a.amount, tokenAddress = _a.tokenAddress;
     return __awaiter(this, void 0, void 0, function () {
         var payload, msgValue, tx, receipt;
         return __generator(this, function (_c) {
@@ -95,7 +95,7 @@ function fundReversibleRelease(_a) {
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
                         ? amount
                         : ethers_1.BigNumber.from(0);
-                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(cheqId, amount, // escrow
+                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.fund(notaId, amount, // escrow
                         0, // instant
                         payload, { value: msgValue }))];
                 case 1:
@@ -111,7 +111,7 @@ function fundReversibleRelease(_a) {
 exports.fundReversibleRelease = fundReversibleRelease;
 function cashReversibleRelease(_a) {
     var _b;
-    var creditor = _a.creditor, debtor = _a.debtor, cheqId = _a.cheqId, type = _a.type, amount = _a.amount;
+    var creditor = _a.creditor, debtor = _a.debtor, notaId = _a.notaId, type = _a.type, amount = _a.amount;
     return __awaiter(this, void 0, void 0, function () {
         var to, payload, tx, receipt;
         return __generator(this, function (_c) {
@@ -119,7 +119,7 @@ function cashReversibleRelease(_a) {
                 case 0:
                     to = type === "release" ? creditor : debtor;
                     payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address"], [__1.state.blockchainState.account]);
-                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.cash(cheqId, amount, to, payload))];
+                    return [4 /*yield*/, ((_b = __1.state.blockchainState.registrar) === null || _b === void 0 ? void 0 : _b.cash(notaId, amount, to, payload))];
                 case 1:
                     tx = _c.sent();
                     return [4 /*yield*/, tx.wait()];

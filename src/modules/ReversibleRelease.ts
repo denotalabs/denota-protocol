@@ -65,13 +65,13 @@ export async function writeReversibleRelease({
 }
 
 export interface FundReversibleReleaseyProps {
-  cheqId: string;
+  notaId: string;
   amount: BigNumber;
   tokenAddress: string;
 }
 
 export async function fundReversibleRelease({
-  cheqId,
+  notaId,
   amount,
   tokenAddress,
 }: FundReversibleReleaseyProps) {
@@ -86,7 +86,7 @@ export async function fundReversibleRelease({
       : BigNumber.from(0);
 
   const tx = await state.blockchainState.registrar?.fund(
-    cheqId,
+    notaId,
     amount, // escrow
     0, // instant
     payload,
@@ -99,7 +99,7 @@ export async function fundReversibleRelease({
 export interface CashReversibleReleaseyProps {
   creditor: string;
   debtor: string;
-  cheqId: string;
+  notaId: string;
   amount: BigNumber;
   type: "reversal" | "release";
 }
@@ -107,7 +107,7 @@ export interface CashReversibleReleaseyProps {
 export async function cashReversibleRelease({
   creditor,
   debtor,
-  cheqId,
+  notaId,
   type,
   amount,
 }: CashReversibleReleaseyProps) {
@@ -119,7 +119,7 @@ export async function cashReversibleRelease({
   );
 
   const tx = await state.blockchainState.registrar?.cash(
-    cheqId,
+    notaId,
     amount,
     to,
     payload

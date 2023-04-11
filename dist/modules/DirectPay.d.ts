@@ -17,8 +17,8 @@ export interface WriteDirectPayProps {
 }
 export declare function writeDirectPay({ module, amount, currency, }: WriteDirectPayProps): Promise<string>;
 export interface FundDirectPayProps {
-    cheqId: string;
+    notaId: string;
     amount: BigNumber;
     tokenAddress: string;
 }
-export declare function fundDirectPay({ cheqId, amount, tokenAddress, }: FundDirectPayProps): Promise<string>;
+export declare function fundDirectPay({ notaId, amount, tokenAddress, }: FundDirectPayProps): Promise<string>;

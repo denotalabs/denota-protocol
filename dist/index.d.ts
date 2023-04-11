@@ -37,14 +37,14 @@ export interface WriteProps {
 }
 export declare function write({ module, ...props }: WriteProps): Promise<string>;
 interface FundProps {
-    cheqId: string;
+    notaId: string;
 }
-export declare function fund({ cheqId }: FundProps): Promise<string | undefined>;
+export declare function fund({ notaId }: FundProps): Promise<string | undefined>;
 interface CashPaymentProps {
-    cheqId: string;
+    notaId: string;
     type: "reversal" | "release";
 }
-export declare function cash({ cheqId, type }: CashPaymentProps): Promise<string | undefined>;
+export declare function cash({ notaId, type }: CashPaymentProps): Promise<string | undefined>;
 interface BatchPaymentItem {
     amount: number;
     token: string;
