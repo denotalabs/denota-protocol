@@ -5,7 +5,9 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
+import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
   DirectPayData,
   fundDirectPay,
@@ -32,6 +34,7 @@ interface BlockchainState {
   dai: ethers.Contract | null;
   weth: ethers.Contract | null;
   milestonesAddress: string;
+  axelarBridgeSender: null | ethers.Contract;
 }
 
 interface State {
@@ -50,6 +53,7 @@ export const state: State = {
     weth: null,
     reversibleReleaseAddress: "",
     milestonesAddress: "",
+    axelarBridgeSender: null,
   },
 };
 
@@ -65,6 +69,11 @@ export async function setProvider(web3Connection: any) {
       CheqRegistrar.abi,
       signer
     );
+    const axelarBridgeSender = new ethers.Contract(
+      contractMapping.bridgeSender,
+      BridgeSender.abi,
+      signer
+    );
     const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
     const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
     state.blockchainState = {
@@ -78,6 +87,7 @@ export async function setProvider(web3Connection: any) {
       weth,
       reversibleReleaseAddress: contractMapping.escrow,
       milestonesAddress: contractMapping.milestones,
+      axelarBridgeSender,
     };
   }
 }
@@ -121,7 +131,11 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData;
+type ModuleData =
+  | DirectPayData
+  | ReversibleReleaseData
+  | MilestonesData
+  | AxelarBridgeData;
 
 export interface WriteProps {
   currency: string;
@@ -137,6 +151,8 @@ export async function write({ module, ...props }: WriteProps) {
       return await writeReversibleRelease({ module, ...props });
     case "milestones":
       return writeMilestones({ module, ...props });
+    case "crosschain":
+      return writeCrossChainNota({ module, ...props });
   }
 }
 

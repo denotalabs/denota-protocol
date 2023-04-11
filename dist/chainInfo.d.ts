@@ -9,6 +9,9 @@ export declare const ContractAddressMapping: {
         dai: string;
         weth: string;
         milestones: string;
+        bridgeReceiver: string;
+        bridgeSender: string;
+        directPayAxelar: string;
     };
     alfajores: {
         DataTypes: string;
@@ -20,6 +23,9 @@ export declare const ContractAddressMapping: {
         dai: string;
         weth: string;
         milestones: string;
+        bridgeReceiver: string;
+        bridgeSender: string;
+        directPayAxelar: string;
     };
 };
 export declare const contractMappingForChainId: (chainId: number) => {
@@ -32,4 +38,7 @@ export declare const contractMappingForChainId: (chainId: number) => {
     dai: string;
     weth: string;
     milestones: string;
+    bridgeReceiver: string;
+    bridgeSender: string;
+    directPayAxelar: string;
 } | undefined;
