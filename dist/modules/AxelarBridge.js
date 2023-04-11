@@ -36,39 +36,45 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeMilestones = void 0;
+exports.writeCrossChainNota = void 0;
+var axelarjs_sdk_1 = require("@axelar-network/axelarjs-sdk");
 var ethers_1 = require("ethers");
 var __1 = require("..");
-function writeMilestones(_a) {
+var chainInfo_1 = require("../chainInfo");
+function writeCrossChainNota(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var ipfsHash, milestones, client, worker, type, receiver, amountWei, payload, tokenAddress, owner, msgValue, tx, receipt;
+        var imageHash, ipfsHash, creditor, amountWei, api, axelarFeeString, axelarFee, tokenAddress, msgValue, tx, receipt;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
-                    ipfsHash = module.ipfsHash, milestones = module.milestones, client = module.client, worker = module.worker, type = module.type;
-                    receiver = type === "invoice" ? client : worker;
+                    imageHash = module.imageHash, ipfsHash = module.ipfsHash, creditor = module.creditor;
                     amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "address", "bytes32", "uint256[]"], [receiver, __1.state.blockchainState.account, ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "", milestones]);
-                    tokenAddress = (_b = __1.tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
-                    owner = worker;
-                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
-                        module.type === "payment"
-                        ? amountWei
-                        : ethers_1.BigNumber.from(0);
-                    return [4 /*yield*/, ((_c = __1.state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
-                        module.type === "invoice" ? 0 : amountWei, //escrowed
-                        0, //instant
-                        owner, __1.state.blockchainState.directPayAddress, payload, { value: msgValue }))];
+                    api = new axelarjs_sdk_1.AxelarQueryAPI({ environment: axelarjs_sdk_1.Environment.TESTNET });
+                    return [4 /*yield*/, api.estimateGasFee(axelarjs_sdk_1.CHAINS.TESTNET["CELO"], axelarjs_sdk_1.CHAINS.TESTNET["POLYGON"], "CELO", 300000, // gas limit
+                        1.2 // gas multiplier
+                        )];
                 case 1:
+                    axelarFeeString = _d.sent();
+                    axelarFee = ethers_1.BigNumber.from(axelarFeeString);
+                    tokenAddress = (_b = __1.tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
+                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
+                        ? amountWei.add(axelarFee)
+                        : axelarFee;
+                    return [4 /*yield*/, ((_c = __1.state.blockchainState.axelarBridgeSender) === null || _c === void 0 ? void 0 : _c.createRemoteNota(tokenAddress, //currency
+                        amountWei, //amount
+                        creditor, //owner
+                        ipfsHash, imageHash, "Polygon", //destinationChain
+                        chainInfo_1.ContractAddressMapping.mumbai.bridgeReceiver, { value: msgValue }))];
+                case 2:
                     tx = _d.sent();
                     return [4 /*yield*/, tx.wait()];
-                case 2:
+                case 3:
                     receipt = _d.sent();
                     return [2 /*return*/, receipt.transactionHash];
             }
         });
     });
 }
-exports.writeMilestones = writeMilestones;
+exports.writeCrossChainNota = writeCrossChainNota;
