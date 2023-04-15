@@ -27,13 +27,10 @@ async function init() {
 init();
 ```
 
-After setting up the web3 connection, you can use the @denota-labs/denota-sdk to write notas. There are two types of notas that you can write, invoices and escrows. You can use the write function to write both types of notas.
+After setting up the web3 connection, you can use the @denota-labs/denota-sdk to write notas. 
 
 ```javascript
 import Denota from '@denota-labs/denota-sdk';
-
-const amount = 1;
-const currency = 'DAI';
 
 async function createNota() {
   const receipt = await Denota.write({
