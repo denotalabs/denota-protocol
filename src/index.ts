@@ -2,8 +2,6 @@ import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
-export const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
-
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
@@ -21,7 +19,7 @@ import {
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
 
-export const DENOTA_SUPPORTED_CHAIN_IDS = [80001];
+export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
 interface BlockchainState {
   signer: ethers.providers.JsonRpcSigner | null;
