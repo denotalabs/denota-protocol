@@ -61,7 +61,10 @@ export async function writeReversibleRelease({
     { value: msgValue }
   );
   const receipt = await tx.wait();
-  return receipt.transactionHash as string;
+  return {
+    txHash: receipt.transactionHash as string,
+    notaId: notaIdFromLog(receipt),
+  };
 }
 
 export interface FundReversibleReleaseyProps {
@@ -125,8 +128,5 @@ export async function cashReversibleRelease({
     payload
   );
   const receipt = await tx.wait();
-  return {
-    txHash: receipt.transactionHash as string,
-    notaId: notaIdFromLog(receipt),
-  };
+  return receipt.transactionHash as string;
 }

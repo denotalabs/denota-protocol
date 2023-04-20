@@ -15,7 +15,10 @@ export interface WriteReversibleReleaseyProps {
     amount: number;
     module: ReversibleReleaseData;
 }
-export declare function writeReversibleRelease({ module, amount, currency, }: WriteReversibleReleaseyProps): Promise<string>;
+export declare function writeReversibleRelease({ module, amount, currency, }: WriteReversibleReleaseyProps): Promise<{
+    txHash: string;
+    notaId: string;
+}>;
 export interface FundReversibleReleaseyProps {
     notaId: string;
     amount: BigNumber;

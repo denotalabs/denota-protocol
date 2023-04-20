@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -45,7 +45,7 @@ function writeCrossChainNota(_a) {
     var _b, _c;
     var module = _a.module, amount = _a.amount, currency = _a.currency;
     return __awaiter(this, void 0, void 0, function () {
-        var imageHash, ipfsHash, creditor, amountWei, api, axelarFeeString, axelarFee, tokenAddress, msgValue, tx, receipt;
+        var imageHash, ipfsHash, creditor, amountWei, api, axelarFeeString, axelarFee, tokenAddress, msgValue, tx, receipt, txHash;
         return __generator(this, function (_d) {
             switch (_d.label) {
                 case 0:
@@ -58,7 +58,7 @@ function writeCrossChainNota(_a) {
                 case 1:
                     axelarFeeString = _d.sent();
                     axelarFee = ethers_1.BigNumber.from(axelarFeeString);
-                    tokenAddress = (_b = __1.tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
+                    tokenAddress = (_b = (0, __1.tokenAddressForCurrency)(currency)) !== null && _b !== void 0 ? _b : "";
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000"
                         ? amountWei.add(axelarFee)
                         : axelarFee;
@@ -72,7 +72,9 @@ function writeCrossChainNota(_a) {
                     return [4 /*yield*/, tx.wait()];
                 case 3:
                     receipt = _d.sent();
-                    return [2 /*return*/, receipt.transactionHash];
+                    txHash = receipt.transactionHash;
+                    // Nota hasn't been minted yet so use tx hash as temp nota id
+                    return [2 /*return*/, { txHash: txHash, notaId: txHash }];
             }
         });
     });

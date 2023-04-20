@@ -25,7 +25,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -61,19 +61,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.contractMappingForChainId = exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.cash = exports.fund = exports.write = exports.approveToken = exports.tokenAddressForCurrency = exports.setProvider = exports.state = exports.DENOTA_SUPPORTED_CHAIN_IDS = exports.DENOTA_APIURL_REMOTE_MUMBAI = void 0;
+exports.contractMappingForChainId = exports.getNotasQueryURL = exports.sendBatchPaymentFromCSV = exports.sendBatchPayment = exports.cash = exports.fund = exports.write = exports.approveToken = exports.notaIdFromLog = exports.tokenAddressForCurrency = exports.setProvider = exports.state = exports.DENOTA_SUPPORTED_CHAIN_IDS = void 0;
 var ethers_1 = require("ethers");
 var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"));
 var chainInfo_1 = require("./chainInfo");
-exports.DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 var client_1 = require("@apollo/client");
 var BridgeSender_json_1 = __importDefault(require("./abis/BridgeSender.sol/BridgeSender.json"));
 var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
+var Events_json_1 = __importDefault(require("./abis/Events.sol/Events.json"));
 var AxelarBridge_1 = require("./modules/AxelarBridge");
 var DirectPay_1 = require("./modules/DirectPay");
 var Milestones_1 = require("./modules/Milestones");
 var ReversibleRelease_1 = require("./modules/ReversibleRelease");
-exports.DENOTA_SUPPORTED_CHAIN_IDS = [80001];
+exports.DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 exports.state = {
     blockchainState: {
         account: "",
@@ -103,7 +103,7 @@ function setProvider(web3Connection) {
                     return [4 /*yield*/, provider.getNetwork()];
                 case 2:
                     chainId = (_a.sent()).chainId;
-                    contractMapping = chainInfo_1.contractMappingForChainId(chainId);
+                    contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
                         registrar = new ethers_1.ethers.Contract(contractMapping.registrar, CheqRegistrar_json_1.default.abi, signer);
                         axelarBridgeSender = new ethers_1.ethers.Contract(contractMapping.bridgeSender, BridgeSender_json_1.default.abi, signer);
@@ -149,6 +149,24 @@ function tokenAddressForCurrency(currency) {
     }
 }
 exports.tokenAddressForCurrency = tokenAddressForCurrency;
+function notaIdFromLog(receipt) {
+    var iface = new ethers_1.ethers.utils.Interface(Events_json_1.default.abi);
+    var writtenLog = receipt.logs
+        .map(function (log) {
+        try {
+            return iface.parseLog(log);
+        }
+        catch (_a) {
+            return {};
+        }
+    })
+        .filter(function (log) {
+        return log.name === "Written";
+    });
+    var id = writtenLog[0].args[1];
+    return id.toString();
+}
+exports.notaIdFromLog = notaIdFromLog;
 function approveToken(_a) {
     var currency = _a.currency, approvalAmount = _a.approvalAmount;
     return __awaiter(this, void 0, void 0, function () {
@@ -185,12 +203,12 @@ function write(_a) {
                         case "crosschain": return [3 /*break*/, 6];
                     }
                     return [3 /*break*/, 7];
-                case 1: return [4 /*yield*/, DirectPay_1.writeDirectPay(__assign({ module: module }, props))];
+                case 1: return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)(__assign({ module: module }, props))];
                 case 2: return [2 /*return*/, _c.sent()];
-                case 3: return [4 /*yield*/, ReversibleRelease_1.writeReversibleRelease(__assign({ module: module }, props))];
+                case 3: return [4 /*yield*/, (0, ReversibleRelease_1.writeReversibleRelease)(__assign({ module: module }, props))];
                 case 4: return [2 /*return*/, _c.sent()];
-                case 5: return [2 /*return*/, Milestones_1.writeMilestones(__assign({ module: module }, props))];
-                case 6: return [2 /*return*/, AxelarBridge_1.writeCrossChainNota(__assign({ module: module }, props))];
+                case 5: return [2 /*return*/, (0, Milestones_1.writeMilestones)(__assign({ module: module }, props))];
+                case 6: return [2 /*return*/, (0, AxelarBridge_1.writeCrossChainNota)(__assign({ module: module }, props))];
                 case 7: return [2 /*return*/];
             }
         });
@@ -210,7 +228,7 @@ function fund(_a) {
                         cache: new client_1.InMemoryCache(),
                     });
                     return [4 /*yield*/, client.query({
-                            query: client_1.gql(notaQuery),
+                            query: (0, client_1.gql)(notaQuery),
                             variables: {
                                 cheq: notaId,
                             },
@@ -225,13 +243,13 @@ function fund(_a) {
                         case "ReversiblePaymentData": return [3 /*break*/, 4];
                     }
                     return [3 /*break*/, 6];
-                case 2: return [4 /*yield*/, DirectPay_1.fundDirectPay({
+                case 2: return [4 /*yield*/, (0, DirectPay_1.fundDirectPay)({
                         notaId: notaId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
                     })];
                 case 3: return [2 /*return*/, _c.sent()];
-                case 4: return [4 /*yield*/, ReversibleRelease_1.fundReversibleRelease({
+                case 4: return [4 /*yield*/, (0, ReversibleRelease_1.fundReversibleRelease)({
                         notaId: notaId,
                         amount: amount,
                         tokenAddress: nota.erc20.id,
@@ -256,7 +274,7 @@ function cash(_a) {
                         cache: new client_1.InMemoryCache(),
                     });
                     return [4 /*yield*/, client.query({
-                            query: client_1.gql(notaQuery),
+                            query: (0, client_1.gql)(notaQuery),
                             variables: {
                                 cheq: notaId,
                             },
@@ -270,7 +288,7 @@ function cash(_a) {
                         case "ReversiblePaymentData": return [3 /*break*/, 2];
                     }
                     return [3 /*break*/, 4];
-                case 2: return [4 /*yield*/, ReversibleRelease_1.cashReversibleRelease({
+                case 2: return [4 /*yield*/, (0, ReversibleRelease_1.cashReversibleRelease)({
                         notaId: notaId,
                         creditor: nota.moduleData.creditor.id,
                         debtor: nota.moduleData.debtor.id,

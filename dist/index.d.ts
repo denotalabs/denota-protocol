@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-export declare const DENOTA_APIURL_REMOTE_MUMBAI = "https://klymr.me/graph-mumbai";
 import { AxelarBridgeData } from "./modules/AxelarBridge";
 import { DirectPayData } from "./modules/DirectPay";
 import { MilestonesData } from "./modules/Milestones";
@@ -28,14 +27,18 @@ interface ApproveTokenProps {
     approvalAmount: number;
 }
 export declare function tokenAddressForCurrency(currency: string): string | undefined;
+export declare function notaIdFromLog(receipt: any): string;
 export declare function approveToken({ currency, approvalAmount, }: ApproveTokenProps): Promise<void>;
-declare type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData | AxelarBridgeData;
+type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData | AxelarBridgeData;
 export interface WriteProps {
     currency: string;
     amount: number;
     module: ModuleData;
 }
-export declare function write({ module, ...props }: WriteProps): Promise<string>;
+export declare function write({ module, ...props }: WriteProps): Promise<{
+    txHash: string;
+    notaId: string;
+}>;
 interface FundProps {
     notaId: string;
 }

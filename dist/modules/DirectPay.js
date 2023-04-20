@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -50,14 +50,14 @@ function writeDirectPay(_a) {
                     dueDate = module.dueDate, imageHash = module.imageHash, ipfsHash = module.ipfsHash, type = module.type, creditor = module.creditor, debitor = module.debitor;
                     utcOffset = new Date().getTimezoneOffset();
                     if (dueDate) {
-                        dueTimestamp = Date.parse(dueDate + "T00:00:00Z") / 1000 + utcOffset * 60;
+                        dueTimestamp = Date.parse("".concat(dueDate, "T00:00:00Z")) / 1000 + utcOffset * 60;
                     }
                     else {
                         d = new Date();
                         today = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
                             .toISOString()
                             .slice(0, 10);
-                        dueTimestamp = Date.parse(today + "T00:00:00Z") / 1000 + utcOffset * 60;
+                        dueTimestamp = Date.parse("".concat(today, "T00:00:00Z")) / 1000 + utcOffset * 60;
                     }
                     owner = creditor;
                     receiver = type === "invoice" ? debitor : creditor;
@@ -70,7 +70,7 @@ function writeDirectPay(_a) {
                         imageHash !== null && imageHash !== void 0 ? imageHash : "",
                         ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "",
                     ]);
-                    tokenAddress = (_b = __1.tokenAddressForCurrency(currency)) !== null && _b !== void 0 ? _b : "";
+                    tokenAddress = (_b = (0, __1.tokenAddressForCurrency)(currency)) !== null && _b !== void 0 ? _b : "";
                     msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
                         module.type === "payment"
                         ? amountWei
@@ -84,7 +84,10 @@ function writeDirectPay(_a) {
                     return [4 /*yield*/, tx.wait()];
                 case 2:
                     receipt = _d.sent();
-                    return [2 /*return*/, receipt.transactionHash];
+                    return [2 /*return*/, {
+                            txHash: receipt.transactionHash,
+                            notaId: (0, __1.notaIdFromLog)(receipt),
+                        }];
             }
         });
     });

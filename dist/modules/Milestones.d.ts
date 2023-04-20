@@ -11,4 +11,7 @@ export interface MilestoneProps {
     amount: number;
     module: MilestonesData;
 }
-export declare function writeMilestones({ module, amount, currency, }: MilestoneProps): Promise<string>;
+export declare function writeMilestones({ module, amount, currency, }: MilestoneProps): Promise<{
+    txHash: string;
+    notaId: string;
+}>;

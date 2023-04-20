@@ -118,11 +118,21 @@ export function tokenAddressForCurrency(currency: string) {
 
 export function notaIdFromLog(receipt: any) {
   const iface = new ethers.utils.Interface(Events.abi);
-  const writtenLog = receipt.logs
-    .map((log: any) => iface.parseLog(log))
-    .filter((log: any) => log.name === "Written");
 
-  return writtenLog.args[1];
+  const writtenLog = receipt.logs
+    .map((log: any) => {
+      try {
+        return iface.parseLog(log);
+      } catch {
+        return {};
+      }
+    })
+    .filter((log: any) => {
+      return log.name === "Written";
+    });
+
+  const id = writtenLog[0].args[1] as BigNumber;
+  return id.toString();
 }
 
 export async function approveToken({

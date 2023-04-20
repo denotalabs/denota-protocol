@@ -9,4 +9,7 @@ export interface AxelarBridgeProps {
     amount: number;
     module: AxelarBridgeData;
 }
-export declare function writeCrossChainNota({ module, amount, currency, }: AxelarBridgeProps): Promise<string>;
+export declare function writeCrossChainNota({ module, amount, currency, }: AxelarBridgeProps): Promise<{
+    txHash: string;
+    notaId: string;
+}>;
