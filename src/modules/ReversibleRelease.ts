@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { state, tokenAddressForCurrency } from "..";
+import { notaIdFromLog, state, tokenAddressForCurrency } from "..";
 
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
@@ -125,5 +125,8 @@ export async function cashReversibleRelease({
     payload
   );
   const receipt = await tx.wait();
-  return receipt.transactionHash as string;
+  return {
+    txHash: receipt.transactionHash as string,
+    notaId: notaIdFromLog(receipt),
+  };
 }

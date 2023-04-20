@@ -58,5 +58,7 @@ export async function writeCrossChainNota({
     { value: msgValue }
   );
   const receipt = await tx.wait();
-  return receipt.transactionHash as string;
+  const txHash = receipt.transactionHash as string;
+  // Nota hasn't been minted yet so use tx hash as temp nota id
+  return { txHash, notaId: txHash };
 }

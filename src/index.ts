@@ -5,6 +5,7 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+import Events from "./abis/Events.sol/Events.json";
 import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
   DirectPayData,
@@ -113,6 +114,15 @@ export function tokenAddressForCurrency(currency: string) {
     case "NATIVE":
       return "0x0000000000000000000000000000000000000000";
   }
+}
+
+export function notaIdFromLog(receipt: any) {
+  const iface = new ethers.utils.Interface(Events.abi);
+  const writtenLog = receipt.logs
+    .map((log: any) => iface.parseLog(log))
+    .filter((log: any) => log.name === "Written");
+
+  return writtenLog.args[1];
 }
 
 export async function approveToken({
