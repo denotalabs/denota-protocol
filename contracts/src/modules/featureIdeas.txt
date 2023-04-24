@@ -1,0 +1,97 @@
+Scratch pad for psuedo code and feature ideas
+
+General Features:
+* Global or Address Pausability
+    function pauseWTFC(bool, bool, bool, bool) external onlyOwner {}
+* Differing Contract Roles
+    function addAccountRole(address) external onlyOwner {isArbitor[address], etc} allow/disallow
+* Fee Structures
+    function processX() returns(uint256 moduleFee);
+* Token Rewards
+    contract PayModule is ERC20 {}
+    function tokenRewards(w,t,f,c,a) {rewardW = w; rewardT = t; rewardF = f; rewardC = c;} 
+    function rewardUser(Action action) {if (action==Action.Write){ _mint(_msgSender(), rewardW);}else if(...){} }
+* Reputation Blacklisting
+    function blacklistUser(address, bool) onlyOwner { blacklisted[address] == bool }
+    function ownerOf() { require(cheqId.module.processOwnerOf(cheqId), "MODULE_REVOKED_OWNERSHIP");}
+    function processX() { require(!blacklisted[cheqId.owner]) }
+* Yield Generation
+    function yieldWrite() {AAVE.deposit(token); REGISTRAR.write(aToken, address(this), ...)}
+* Cheq Buy-Backs
+    function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
+* ZK proving of past payments
+    function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
+* Dynamically charging fees based on caller, cheqId, or other (if intervention was needed for ex)
+Admin role abilities: 
+1. Global pausing of WTFCA
+2. Operator-like transfer ability
+3. Setting/taking fees and fee structures
+4. Setting/minting token rewards
+5. Pausing/blacklisting adresses
+6. Allowlisting users
+7. Setting tokenURIs
+8. Whitelisting payment tokens
+9. Setting arbitors
+10. Setting NFT gated addresses
+
+
+Writing Features:
+* Proof-of-Funds
+    require(cheq.amount == cheq.escrowed)
+* Proof-of-Reserves
+    require(IERC20(cheq.currency).balanceOf(cheq.drawer) > cheq.amount)
+* Token Allowlists (by module or by user)
+    require(tokenWhitelist[cheq.currency])
+* Payment Delegation
+    require(cheq.drawer == cheq.payer)
+* Setting NFT Contract address
+    function processWrite() { nftGate[cheqId] = NFTAddress}
+    require(NFTAddress.balanceOf(to) > 0, "Only token holders can trade this cheq");
+
+Transferring:
+* Timelocks
+    require(cheq.timeCreated + inspectionPeriod[cheqID] >= block.timestamp, "");
+* Sender-approvals
+    function approveRecipient(address, bool) { senderApproves[msg.sender][address] = bool; }
+    require(senderApproves[msg.sender][address], "")
+* Recipient-approvals
+    function approveSender(address, bool) { recipientApproves[msg.sender][address] = bool; }
+    require(recipientApproves[msg.sender][address] , "")
+* Arbitrary External Contract Conditions (view functions)
+    function onlyOnExternalState(address, string) { require(Contract(address).functionSelector(string), "FAILED") } OR
+    function onlyOnExternalState(address, string, Comparison comparison, uint) { require(comparison(Contract(address).functionSelector(string), uint), "FAILED") } 
+* (Non)-tranferability (static from module or dynamic set by writer/admin)
+
+Funding:
+* Allowed Funding Amount
+    require(cheq.milestones[currentMilestone].fundTime < block.timestamp, "") (delinquent payment)
+* Late-funding Interest
+    function setLatePaymentInterestRate() onlyOwner {}
+    function fund();
+* Delinquent Account Paused (can't WTFC without paying the delinquent charge)
+    function isDelinquent(address) { return _isDilinquent[address] }
+    modifier notDelinquent() { require(!_isDelinquent[msg.sender], ""); _; }
+    function ownerOf() notDelinquent {} # Their ownership is temporarily revoked
+
+Cashing
+* Cashing Amounts
+    require(cheq.milestones[currentMilestone].clientStatus == Finished, "")
+* Payment Splitting
+    function cashable() { cashable = 0xSplits.isAmountByMember[_msgSender()]; }
+* Spite Disputation
+    function spite() onlyCheqOwner { invoice.status == status.Spited; }
+    function cash() { cheq.module.processCash(msg.sender, ...) } (amount to cash is half for each caller)
+    function setSpitePercent(uint) onlyOwner { SPITE_BPS = uint; }
+    function cash() { if (msg.sender==drawer) {cheq.amount*SPIT_BPS} else if (msg.sender==recipient){SPITE_BPS} }
+* Spite + Spiter Timelock (recipient Timelocks (w/wo yield))
+    function setSpiteTimelock(uint) { SPITE_TIMELOCK = uint; }
+* Reversibility/Arbitration_Ruling_Payout
+    function settleDispute(cheqId, amount) onlyArbitor { require(amount<=cheq.amount, ""); cheq.currency.transfer(winner, amount) }
+
+URI
+* Setting by Role
+    function setTokenURI(cheqId) onlyDrawerRecipientDelegateOwner {}
+* Dynamicly Set
+    string memory URI = oracle(oracleAddress).state;
+* Randomly Set
+    string memory URI = imageGenerator(block.random);
