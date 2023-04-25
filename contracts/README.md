@@ -1,5 +1,5 @@
 ## Quickstart
-Install Foundry for compiling, deploying, and testing:
+Run the command below to install from scratch:
 ```
 make fresh-install
 ```
@@ -8,39 +8,35 @@ Build the contracts:
 ```
 forge build
 ```
-Test the contracts:
+## Testing
 ```
 forge test
 ```
-Run the local blockchain for deployment:
+Adding ```-m nameOfTestContract``` will run a specific test.
+## Deployments
+### Local
+Run a local blockchain:
 ```
 anvil
 ```
-Deploy the contracts to the blockchain (local)
+Deploy the contracts to the local blockchain
 ```
 make deploy-local
 ```
-
-Deploy the contracts to the blockchain (mumbai)
+### Testnets
+Deploy to all supported testnets (if not already deployed)
 ```
 export PRIVATE_KEY=YOUR_KEY
-make deploy-mumbai
+make deploy-testnets
 ```
+If you wish to redeploy to a specific testnet, delete the desired contract address in contractAddresses.json.
 
-Update dependencies:
-```
-forge update lib/forge-std
-forge update lib/openzeppelin-contracts
-forge update dapphub/ds-test --no-commit
-forge update OpenZeppelin/openzeppelin-contracts --no-commit
-forge update axelarnetwork/axelar-gmp-sdk-solidity --no-commit
-```
-## Foundry
+## Foundry Extras
+Foundry compiles, deploys, tests, and manages dependencies for your contracts. It also lets you interact with the chain from the command-line and via Solidity scripts.
 Check out the [Foundry Book](https://book.getfoundry.sh/) for more specifics.
 
 ### Updating Dependencies
 ```forge update``` will update all dependencies at once.
-
 
 ## Linting/Formatting
 (TODO: this currently doesn't work)

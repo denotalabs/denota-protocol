@@ -12,13 +12,13 @@ fresh-install:
 build  :; forge clean && forge build --optimize --optimizer-runs 1000000
 
 deploy-local:
-	python3 deployCheq.py ${PRIVATE_KEY} "local"
+	python3 deployDenota.py ${PRIVATE_KEY}
 	
-deploy-mumbai:
-	python3 deployCheq.py ${PRIVATE_KEY} "mumbai"
+deploy-testnets:
+	python3 deployDenota.py ${PRIVATE_KEY}
 
-create-mumbai-data: # write cheqs from different modules, transfer, fund, cash
-	python3 createCheq.py ${PRIVATE_KEY} "mumbai"
+create-mumbai-data: # write notas from different modules, transfer, fund, cash
+	python3 createNotas.py ${PRIVATE_KEY} "mumbai"
 
 
 
