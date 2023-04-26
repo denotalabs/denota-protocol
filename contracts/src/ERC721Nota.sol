@@ -15,7 +15,8 @@ import "openzeppelin/utils/introspection/ERC165.sol";
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
- * @custom:denota remove operators, remove approval owner/operator check, remove _before/_after hooks from mint/transfer/burn.
+ *
+ * @custom:denota remove operators, remove approval owner/operator check, remove _before/_after hooks from mint/transfer/burn. Changed requires to reverts
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
@@ -377,14 +378,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
-        // require(to != address(0), "ERC721: mint to the zero address");  // Changed: removed
-        //equire(!_exists(tokenId), "ERC721: token already minted");  // Changed: removed
+        //require(to != address(0), "ERC721: mint to the zero address");  // Changed: removed check
+        //require(!_exists(tokenId), "ERC721: token already minted");  // Changed: to revert
         if (_exists(tokenId)) revert AlreadyMinted();
 
-        // _beforeTokenTransfer(address(0), to, tokenId, 1);  // Changed: removed
+        // _beforeTokenTransfer(address(0), to, tokenId, 1);  // Changed: removed pre-hook
 
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
-        // require(!_exists(tokenId), "ERC721: token already minted");  // Changed: removed
+        // require(!_exists(tokenId), "ERC721: token already minted");  // Changed: removed pre-hook check
 
         unchecked {
             // Will not overflow unless all 2**256 token ids are minted to the same owner.
@@ -398,7 +399,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(address(0), to, tokenId);
 
-        // _afterTokenTransfer(address(0), to, tokenId, 1);  // Changed: removed
+        // _afterTokenTransfer(address(0), to, tokenId, 1);  // Changed: removed post-hook
     }
 
     /**
