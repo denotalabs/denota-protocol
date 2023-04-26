@@ -1,4 +1,5 @@
-# Denota v0.2
-Write notas (aka cheqs) to others that are time locked and can be reversed
+# Denota Protocol V1
+An asset wrapping protocol that upgrades tokens with data and custom logic, powered by Nota NFTs
 
-Contracts implementation located at [contracts/](contracts/)
+To view/test the contracts go to [contracts/](contracts/)
+
