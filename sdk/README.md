@@ -12,7 +12,7 @@ You can install the @denota-labs/denota-sdk using the npm package manager with t
 npm install @denota-labs/denota-sdk
 ```
 
-## Usage:
+## Setup:
 
 Before you can use the @denota-labs/denota-sdk, you need to set up a web3 connection. You can do this by calling the setProvider function and passing in your web3 connection. This function initializes the Ethereum provider, signer, and the contracts required to write notas.
 
@@ -29,35 +29,7 @@ init();
 
 After setting up the web3 connection, you can use the @denota-labs/denota-sdk to write notas. 
 
-```javascript
-import Denota from '@denota-labs/denota-sdk';
-
-async function createNota() {
-  const receipt = await Denota.write({
-    amount: 1,
-    currency: "DAI",
-    module: {
-      moduleName: "direct",
-      type: "invoice",
-      creditor: "0x...",
-      debitor: "0x...",
-      notes: "Example invoice",
-    },
-  });
-
-  console.log(receipt);
-}
-
-createNota();
-```
-
-In the above code, we pass in the module object, which contains the details of the nota. We also pass in the amount and currency parameters, which represent the amount and the currency in which the nota is written.
-
-To create an invoice, set the type property of the module object to "invoice" and provide the Ethereum addresses of the creditor and debitor. You can also provide optional notes or a file for the invoice. If you have an IPFS hash for the invoice, you can provide it using the ipfsHash property.
-
-To create an escrow, set the moduleName property of the module object to "reversibleRelease" and provide the inspector property.
-
-You can also use the approveToken function to approve a token for use in writing notas.
+Before sending funds, use the approveToken function to approve a token for use in writing notas.
 
 ```javascript
 import { approveToken } from '@denota-labs/denota-sdk';
@@ -71,4 +43,64 @@ async function approve() {
 approve();
 ```
 
-In the above code, we pass in the currency and approvalAmount parameters to approve the specified token for use in writing notas.
+## Direct Pay:
+
+```javascript
+import Denota from '@denota-labs/denota-sdk';
+
+async function createNota() {
+  const { txHash, notaId } = await Denota.write({
+    amount: 1,
+    currency: "DAI",
+    module: {
+      moduleName: "direct",
+      type: "invoice",
+      creditor: "0x...",
+      debitor: "0x...",
+      notes: "Example invoice",
+    },
+  });
+}
+
+createNota();
+```
+
+In the above code, we pass in the module object, which contains the details of the nota. We also pass in the amount and currency parameters, which represent the amount and the currency in which the nota is written.
+
+To create an invoice, set the type property of the module object to "invoice" and provide the Ethereum addresses of the creditor and debitor. You can also provide optional notes or a file for the invoice. If you have an IPFS hash for the invoice, you can provide it using the ipfsHash property.
+
+## Reversible Release (Escrow):
+
+To create an escrow, set the moduleName property of the module object to "reversibleRelease" and provide the inspector property. The inspector is the party in charge of releasing or reversing the payment. If not inspecto is provided, the payer is set as the inspector.  
+
+```javascript
+async function createNota() {
+  const { txHash, notaId } = await Denota.write({
+    amount: 1,
+    currency: "DAI",
+    module: {
+      moduleName: "reversibleRelease",
+      type: "invoice",
+      inspector: "0x...",
+      creditor: "0x...",
+      debitor: "0x...",
+      notes: "Example invoice",
+    },
+  });
+}
+
+createNota();
+```
+
+To release or reverse a payment, the inspector uses the cash function
+
+
+```javascript
+async function releaseNota() {
+  const receipt = await Denota.cash({ notaId: "0", type: "release" });
+}
+
+async function reverseNota() {
+  const receipt = await Denota.cash({ notaId: "0", type: "reverse" });
+}
+```
