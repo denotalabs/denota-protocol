@@ -67,11 +67,15 @@ createNota();
 
 In the above code, we pass in the module object, which contains the details of the nota. We also pass in the amount and currency parameters, which represent the amount and the currency in which the nota is written.
 
-To create an invoice, set the type property of the module object to "invoice" and provide the Ethereum addresses of the creditor and debitor. You can also provide optional notes or a file for the invoice. If you have an IPFS hash for the invoice, you can provide it using the ipfsHash property.
+To create an invoice, set the type property of the module object to "invoice". To send a payment, set it to "payment". Provide the Ethereum addresses of the debitor (payer) and creditor (payee). 
+
+You can also provide optional notes or a file for the nota. If you have an IPFS hash, you can provide it using the ipfsHash property.
 
 ## Reversible Release (Escrow):
 
-To create an escrow, set the moduleName property of the module object to "reversibleRelease" and provide the inspector property. The inspector is the party in charge of releasing or reversing the payment. If not inspecto is provided, the payer is set as the inspector.  
+To create an escrow, set the moduleName property of the module object to "reversibleRelease" and provide the inspector property. The inspector is the party in charge of releasing or reversing the payment. If no inspector is provided, the payer is set as the inspector.  
+
+ReversibleRelease supports the same metadata options as DirectPay.
 
 ```javascript
 async function createNota() {
