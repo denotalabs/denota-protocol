@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {ERC721} from "./ERC721.sol";
+import {ERC721} from "./ERC721Nota.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {Events} from "./libraries/Events.sol";
 import {RegistrarGov} from "./RegistrarGov.sol";
