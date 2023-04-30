@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/access/Ownable.sol";
+import "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {Events} from "./libraries/Events.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
-contract RegistrarGov is Ownable, IRegistrarGov {
+contract RegistrarGov is OwnableUpgradeable, IRegistrarGov {
     using SafeERC20 for IERC20;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
     mapping(bytes32 => bool) internal _bytecodeWhitelist; // Question Can these be done without two mappings? Having both redeployable and static modules?

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {ERC721} from "./ERC721Nota.sol";
+import "openzeppelin-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import {ERC721Upgradeable} from "./ERC721Nota.sol";
 import {Events} from "./libraries/Events.sol";
 import {RegistrarGov} from "./RegistrarGov.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
-import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {ICheqModule} from "./interfaces/ICheqModule.sol";
 import {ICheqRegistrar} from "./interfaces/ICheqRegistrar.sol";
 import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
@@ -24,7 +26,9 @@ import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
  * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules, and collects revenue.
  */
 contract CheqRegistrar is
-    ERC721,
+    Initializable,
+    UUPSUpgradeable,
+    ERC721Upgradeable,
     RegistrarGov,
     ICheqRegistrar,
     CheqBase64Encoding
@@ -44,7 +48,12 @@ contract CheqRegistrar is
         _;
     }
 
-    constructor() ERC721("denota", "NOTA") {}
+    function initialize() public initializer {
+        __ERC721_init("denote", "NOTA");
+       __Ownable_init();
+       __UUPSUpgradeable_init();
+    }
+    
 
     /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
@@ -104,7 +113,7 @@ contract CheqRegistrar is
         address from,
         address to,
         uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
+    ) public override(ERC721Upgradeable, ICheqRegistrar) isMinted(cheqId) {
         _transferHookTakeFee(from, to, cheqId, abi.encode(""));
         _transfer(from, to, cheqId);
     }
@@ -202,7 +211,7 @@ contract CheqRegistrar is
     function approve(
         address to,
         uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
+    ) public override(ERC721Upgradeable, ICheqRegistrar) isMinted(cheqId) {
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
@@ -454,10 +463,13 @@ contract CheqRegistrar is
         address to,
         uint256 cheqId,
         bytes memory moduleTransferData
-    ) public override(ERC721, ICheqRegistrar) {
+    ) public override(ERC721Upgradeable, ICheqRegistrar) {
         _transferHookTakeFee(from, to, cheqId, moduleTransferData);
         _safeTransfer(from, to, cheqId, moduleTransferData);
     }
+
+    /*//////////////////// UPGRADEABILITY ////////////////////////*/
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /*///////////////////////// VIEW ////////////////////////////*/
     function cheqInfo(
