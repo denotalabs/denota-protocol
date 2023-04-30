@@ -10,13 +10,13 @@ import { ContractAddressMapping } from "../chainInfo";
 export interface AxelarBridgeData {
   moduleName: "crosschain";
   creditor: string;
-  ipfsHash?: string;
-  imageHash?: string;
 }
 
 export interface AxelarBridgeProps {
   currency: string;
   amount: number;
+  ipfsHash?: string;
+  imageUrl?: string;
   module: AxelarBridgeData;
 }
 
@@ -24,8 +24,10 @@ export async function writeCrossChainNota({
   module,
   amount,
   currency,
+  imageUrl,
+  ipfsHash,
 }: AxelarBridgeProps) {
-  const { imageHash, ipfsHash, creditor } = module;
+  const { creditor } = module;
 
   const amountWei = ethers.utils.parseEther(String(amount));
 
@@ -52,7 +54,7 @@ export async function writeCrossChainNota({
     amountWei, //amount
     creditor, //owner
     ipfsHash,
-    imageHash,
+    imageUrl,
     "Polygon", //destinationChain
     ContractAddressMapping.mumbai.bridgeReceiver,
     { value: msgValue }

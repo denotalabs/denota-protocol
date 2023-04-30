@@ -7,15 +7,13 @@ export interface ReversibleReleaseData {
   creditor: string;
   debitor: string;
   inspector?: string;
-  notes?: string;
-  file?: File;
-  ipfsHash?: string;
-  imageHash?: string;
 }
 
 export interface WriteReversibleReleaseyProps {
   currency: string;
   amount: number;
+  ipfsHash?: string;
+  imageUrl?: string;
   module: ReversibleReleaseData;
 }
 
@@ -23,8 +21,10 @@ export async function writeReversibleRelease({
   module,
   amount,
   currency,
+  imageUrl,
+  ipfsHash,
 }: WriteReversibleReleaseyProps) {
-  const { imageHash, ipfsHash, type, creditor, debitor, inspector } = module;
+  const { type, creditor, debitor, inspector } = module;
   const notaInspector = inspector ?? debitor;
 
   const amountWei = ethers.utils.parseEther(String(amount));
@@ -40,7 +40,7 @@ export async function writeReversibleRelease({
       state.blockchainState.account,
       amountWei,
       ipfsHash ?? "",
-      imageHash ?? "",
+      imageUrl ?? "",
     ]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";

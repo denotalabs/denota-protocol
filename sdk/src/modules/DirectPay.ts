@@ -8,14 +8,14 @@ export interface DirectPayData {
   debitor: string;
   notes?: string;
   file?: File;
-  ipfsHash?: string;
-  imageHash?: string;
   dueDate?: string;
 }
 
 export interface WriteDirectPayProps {
   currency: string;
   amount: number;
+  ipfsHash?: string;
+  imageUrl?: string;
   module: DirectPayData;
 }
 
@@ -23,8 +23,10 @@ export async function writeDirectPay({
   module,
   amount,
   currency,
+  imageUrl,
+  ipfsHash,
 }: WriteDirectPayProps) {
-  const { dueDate, imageHash, ipfsHash, type, creditor, debitor } = module;
+  const { dueDate, type, creditor, debitor } = module;
   const utcOffset = new Date().getTimezoneOffset();
 
   let dueTimestamp: number;
@@ -51,7 +53,7 @@ export async function writeDirectPay({
       amountWei,
       dueTimestamp,
       state.blockchainState.account,
-      imageHash ?? "",
+      imageUrl ?? "",
       ipfsHash ?? "",
     ]
   );

@@ -6,6 +6,7 @@ import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
+import { uploadMetadata } from "./Metadata";
 import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
   DirectPayData,
@@ -155,22 +156,57 @@ type ModuleData =
   | MilestonesData
   | AxelarBridgeData;
 
+interface RawMetadata {
+  type: "raw";
+  notes?: string;
+  file?: File;
+  tags?: string;
+}
+
+interface UploadedMetadata {
+  type: "uploaded";
+  ipfsHash: string;
+  imageUrl?: string;
+}
+
 export interface WriteProps {
   currency: string;
   amount: number;
+  metadata?: RawMetadata | UploadedMetadata;
+
   module: ModuleData;
 }
 
-export async function write({ module, ...props }: WriteProps) {
+export async function write({ module, metadata, ...props }: WriteProps) {
+  let ipfsHash = "",
+    imageUrl = "";
+
+  if (metadata?.type === "uploaded") {
+    ipfsHash = metadata.ipfsHash;
+    imageUrl = metadata.imageUrl ?? "";
+  }
+
+  if (metadata?.type === "raw") {
+    const { imageUrl: uploadedImageUrl, ipfsHash: uploadedHash } =
+      await uploadMetadata(metadata.file, metadata.notes, metadata.tags);
+    imageUrl = uploadedImageUrl ?? "";
+    ipfsHash = uploadedHash ?? "";
+  }
+
   switch (module.moduleName) {
     case "direct":
-      return await writeDirectPay({ module, ...props });
+      return await writeDirectPay({ module, ipfsHash, imageUrl, ...props });
     case "reversibleRelease":
-      return await writeReversibleRelease({ module, ...props });
+      return await writeReversibleRelease({
+        module,
+        ipfsHash,
+        imageUrl,
+        ...props,
+      });
     case "milestones":
-      return writeMilestones({ module, ...props });
+      return writeMilestones({ module, ipfsHash, ...props });
     case "crosschain":
-      return writeCrossChainNota({ module, ...props });
+      return writeCrossChainNota({ module, ipfsHash, imageUrl, ...props });
   }
 }
 
