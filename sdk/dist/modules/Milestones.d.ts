@@ -4,14 +4,14 @@ export interface MilestonesData {
     worker: string;
     client: string;
     milestones: number[];
-    ipfsHash?: string;
 }
 export interface MilestoneProps {
     currency: string;
     amount: number;
+    ipfsHash?: string;
     module: MilestonesData;
 }
-export declare function writeMilestones({ module, amount, currency, }: MilestoneProps): Promise<{
+export declare function writeMilestones({ module, amount, currency, ipfsHash, }: MilestoneProps): Promise<{
     txHash: string;
     notaId: string;
 }>;

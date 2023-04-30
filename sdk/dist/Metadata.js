@@ -35,43 +35,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeMilestones = void 0;
-var ethers_1 = require("ethers");
-var __1 = require("..");
-function writeMilestones(_a) {
-    var _b, _c;
-    var module = _a.module, amount = _a.amount, currency = _a.currency, ipfsHash = _a.ipfsHash;
+exports.uploadMetadata = void 0;
+var axios_1 = __importDefault(require("axios"));
+var METADATA_SERVICE = "https://denota.klymr.me/nft-lighthouse";
+function uploadMetadata(file, note, tags) {
     return __awaiter(this, void 0, void 0, function () {
-        var milestones, client, worker, type, receiver, amountWei, payload, tokenAddress, owner, msgValue, tx, receipt;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var config, notaFormValues, rqData, json, blob, resp, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    milestones = module.milestones, client = module.client, worker = module.worker, type = module.type;
-                    receiver = type === "invoice" ? client : worker;
-                    amountWei = ethers_1.ethers.utils.parseEther(String(amount));
-                    payload = ethers_1.ethers.utils.defaultAbiCoder.encode(["address", "address", "bytes32", "uint256[]"], [receiver, __1.state.blockchainState.account, ipfsHash !== null && ipfsHash !== void 0 ? ipfsHash : "", milestones]);
-                    tokenAddress = (_b = (0, __1.tokenAddressForCurrency)(currency)) !== null && _b !== void 0 ? _b : "";
-                    owner = worker;
-                    msgValue = tokenAddress === "0x0000000000000000000000000000000000000000" &&
-                        module.type === "payment"
-                        ? amountWei
-                        : ethers_1.BigNumber.from(0);
-                    return [4 /*yield*/, ((_c = __1.state.blockchainState.registrar) === null || _c === void 0 ? void 0 : _c.write(tokenAddress, //currency
-                        module.type === "invoice" ? 0 : amountWei, //escrowed
-                        0, //instant
-                        owner, __1.state.blockchainState.directPayAddress, payload, { value: msgValue }))];
+                    config = {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    };
+                    notaFormValues = new FormData();
+                    if (file) {
+                        notaFormValues.append("file", file);
+                    }
+                    if (note || tags) {
+                        rqData = {};
+                        if (note) {
+                            rqData.desc = note;
+                        }
+                        if (tags) {
+                            rqData.tags = tags;
+                        }
+                        json = JSON.stringify(rqData);
+                        blob = new Blob([json], {
+                            type: "application/json",
+                        });
+                        notaFormValues.append("document", blob);
+                    }
+                    _a.label = 1;
                 case 1:
-                    tx = _d.sent();
-                    return [4 /*yield*/, tx.wait()];
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, axios_1.default.post(METADATA_SERVICE, notaFormValues, config)];
                 case 2:
-                    receipt = _d.sent();
+                    resp = _a.sent();
+                    console.log(resp.data);
                     return [2 /*return*/, {
-                            txHash: receipt.transactionHash,
-                            notaId: (0, __1.notaIdFromLog)(receipt),
+                            ipfsHash: resp.data.key,
+                            imageUrl: resp.data.imageUrl,
                         }];
+                case 3:
+                    error_1 = _a.sent();
+                    console.log(error_1);
+                    return [2 /*return*/, { ipfsHash: undefined, imageUrl: undefined }];
+                case 4: return [2 /*return*/];
             }
         });
     });
 }
-exports.writeMilestones = writeMilestones;
+exports.uploadMetadata = uploadMetadata;

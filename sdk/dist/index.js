@@ -69,6 +69,7 @@ var client_1 = require("@apollo/client");
 var BridgeSender_json_1 = __importDefault(require("./abis/BridgeSender.sol/BridgeSender.json"));
 var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
 var Events_json_1 = __importDefault(require("./abis/Events.sol/Events.json"));
+var Metadata_1 = require("./Metadata");
 var AxelarBridge_1 = require("./modules/AxelarBridge");
 var DirectPay_1 = require("./modules/DirectPay");
 var Milestones_1 = require("./modules/Milestones");
@@ -189,27 +190,41 @@ function approveToken(_a) {
 }
 exports.approveToken = approveToken;
 function write(_a) {
-    var module = _a.module, props = __rest(_a, ["module"]);
+    var _b;
+    var module = _a.module, metadata = _a.metadata, props = __rest(_a, ["module", "metadata"]);
     return __awaiter(this, void 0, void 0, function () {
-        var _b;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var ipfsHash, imageUrl, _c, uploadedImageUrl, uploadedHash, _d;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
-                    _b = module.moduleName;
-                    switch (_b) {
-                        case "direct": return [3 /*break*/, 1];
-                        case "reversibleRelease": return [3 /*break*/, 3];
-                        case "milestones": return [3 /*break*/, 5];
-                        case "crosschain": return [3 /*break*/, 6];
+                    ipfsHash = "", imageUrl = "";
+                    if ((metadata === null || metadata === void 0 ? void 0 : metadata.type) === "uploaded") {
+                        ipfsHash = metadata.ipfsHash;
+                        imageUrl = (_b = metadata.imageUrl) !== null && _b !== void 0 ? _b : "";
                     }
-                    return [3 /*break*/, 7];
-                case 1: return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)(__assign({ module: module }, props))];
-                case 2: return [2 /*return*/, _c.sent()];
-                case 3: return [4 /*yield*/, (0, ReversibleRelease_1.writeReversibleRelease)(__assign({ module: module }, props))];
-                case 4: return [2 /*return*/, _c.sent()];
-                case 5: return [2 /*return*/, (0, Milestones_1.writeMilestones)(__assign({ module: module }, props))];
-                case 6: return [2 /*return*/, (0, AxelarBridge_1.writeCrossChainNota)(__assign({ module: module }, props))];
-                case 7: return [2 /*return*/];
+                    if (!((metadata === null || metadata === void 0 ? void 0 : metadata.type) === "raw")) return [3 /*break*/, 2];
+                    return [4 /*yield*/, (0, Metadata_1.uploadMetadata)(metadata.file, metadata.notes, metadata.tags)];
+                case 1:
+                    _c = _e.sent(), uploadedImageUrl = _c.imageUrl, uploadedHash = _c.ipfsHash;
+                    imageUrl = uploadedImageUrl !== null && uploadedImageUrl !== void 0 ? uploadedImageUrl : "";
+                    ipfsHash = uploadedHash !== null && uploadedHash !== void 0 ? uploadedHash : "";
+                    _e.label = 2;
+                case 2:
+                    _d = module.moduleName;
+                    switch (_d) {
+                        case "direct": return [3 /*break*/, 3];
+                        case "reversibleRelease": return [3 /*break*/, 5];
+                        case "milestones": return [3 /*break*/, 7];
+                        case "crosschain": return [3 /*break*/, 8];
+                    }
+                    return [3 /*break*/, 9];
+                case 3: return [4 /*yield*/, (0, DirectPay_1.writeDirectPay)(__assign({ module: module, ipfsHash: ipfsHash, imageUrl: imageUrl }, props))];
+                case 4: return [2 /*return*/, _e.sent()];
+                case 5: return [4 /*yield*/, (0, ReversibleRelease_1.writeReversibleRelease)(__assign({ module: module, ipfsHash: ipfsHash, imageUrl: imageUrl }, props))];
+                case 6: return [2 /*return*/, _e.sent()];
+                case 7: return [2 /*return*/, (0, Milestones_1.writeMilestones)(__assign({ module: module, ipfsHash: ipfsHash }, props))];
+                case 8: return [2 /*return*/, (0, AxelarBridge_1.writeCrossChainNota)(__assign({ module: module, ipfsHash: ipfsHash, imageUrl: imageUrl }, props))];
+                case 9: return [2 /*return*/];
             }
         });
     });

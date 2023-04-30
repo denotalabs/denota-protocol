@@ -30,12 +30,24 @@ export declare function tokenAddressForCurrency(currency: string): string | unde
 export declare function notaIdFromLog(receipt: any): string;
 export declare function approveToken({ currency, approvalAmount, }: ApproveTokenProps): Promise<void>;
 type ModuleData = DirectPayData | ReversibleReleaseData | MilestonesData | AxelarBridgeData;
+interface RawMetadata {
+    type: "raw";
+    notes?: string;
+    file?: File;
+    tags?: string;
+}
+interface UploadedMetadata {
+    type: "uploaded";
+    ipfsHash: string;
+    imageUrl?: string;
+}
 export interface WriteProps {
     currency: string;
     amount: number;
+    metadata?: RawMetadata | UploadedMetadata;
     module: ModuleData;
 }
-export declare function write({ module, ...props }: WriteProps): Promise<{
+export declare function write({ module, metadata, ...props }: WriteProps): Promise<{
     txHash: string;
     notaId: string;
 }>;
