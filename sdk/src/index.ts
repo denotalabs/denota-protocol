@@ -58,7 +58,7 @@ export const state: State = {
 
 interface Web3ConnectionProps {
   type: "web3";
-  web3Connection: any;
+  web3Connection: ethers.providers.ExternalProvider;
 }
 
 interface PrivateKeyProps {
