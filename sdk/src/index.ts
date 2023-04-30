@@ -88,6 +88,8 @@ export async function setProvider(web3Connection: any) {
       milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
     };
+  } else {
+    throw new Error("Unsupported chain");
   }
 }
 
