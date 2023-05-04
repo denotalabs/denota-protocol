@@ -12,6 +12,10 @@ export async function uploadMetadata(
   note?: string,
   tags?: string
 ) {
+  if (!file && !note && !tags) {
+    return { ipfsHash: undefined, imageUrl: undefined };
+  }
+
   const config = {
     headers: {
       "Content-Type": "multipart/form-data",
