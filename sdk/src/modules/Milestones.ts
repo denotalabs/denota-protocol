@@ -7,12 +7,12 @@ export interface MilestonesData {
   worker: string;
   client: string;
   milestones: number[];
-  ipfsHash?: string;
 }
 
 export interface MilestoneProps {
   currency: string;
   amount: number;
+  ipfsHash?: string;
   module: MilestonesData;
 }
 
@@ -20,8 +20,9 @@ export async function writeMilestones({
   module,
   amount,
   currency,
+  ipfsHash,
 }: MilestoneProps) {
-  const { ipfsHash, milestones, client, worker, type } = module;
+  const { milestones, client, worker, type } = module;
 
   const receiver = type === "invoice" ? client : worker;
 
