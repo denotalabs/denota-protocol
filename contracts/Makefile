@@ -31,3 +31,4 @@ install :;
 	forge install dapphub/ds-test --no-commit
 	forge install OpenZeppelin/openzeppelin-contracts --no-commit
 	forge install axelarnetwork/axelar-gmp-sdk-solidity --no-commit
+	forge install kleros/erc-792
