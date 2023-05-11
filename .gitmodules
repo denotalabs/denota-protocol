@@ -10,3 +10,6 @@
 [submodule "contracts/lib/axelar-gmp-sdk-solidity"]
 	path = contracts/lib/axelar-gmp-sdk-solidity
 	url = https://github.com/axelarnetwork/axelar-gmp-sdk-solidity
+[submodule "contracts/lib/erc-792"]
+	path = contracts/lib/erc-792
+	url = https://github.com/kleros/erc-792
