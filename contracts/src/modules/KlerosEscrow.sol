@@ -111,7 +111,10 @@ contract KlerosEscrow is ModuleBase {
         if (caller == payments[cheqId].payee) {
             require(payments[cheqId].timelockEnd < block.timestamp, "TIMELOCK");
         } else if (caller == payments[cheqId].payer) {
-            require(to == payments[cheqId].payee, "TIMELOCK");
+            require(
+                to == payments[cheqId].payee,
+                "Payer can only release to payee"
+            );
         } else {
             require(caller == klerosReceiver, "KlerosReceiver only");
         }
