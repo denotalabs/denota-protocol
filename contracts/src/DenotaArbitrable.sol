@@ -9,7 +9,7 @@ import {AxelarExecutable} from "axelarnetwork/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
 
-contract Escrow is IArbitrable, IEvidence, AxelarExecutable {
+contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
     enum Status {
         Initial,
         Reclaimed,
