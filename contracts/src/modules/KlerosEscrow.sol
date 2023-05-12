@@ -148,6 +148,8 @@ contract KlerosEscrow is ModuleBase {
         uint256 notaId,
         uint256 _ruling
     ) external view returns (address to, uint256 amount) {
+        // TODO: have the registrar call this directly
+
         // TODO: handle 0 (RefusedToArbitrate)
         if (_ruling == 1) {
             // Payer wins
