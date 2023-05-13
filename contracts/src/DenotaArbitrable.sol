@@ -61,6 +61,7 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
     ) public payable {
         // TODO: who should pay for disputes: payer or payee? who should be able to create them?
 
+        // TODO: do we need to Polygon know that a dispute was created? What if the payment is released before the ruling?
         uint256 disputeID = arbitrator.createDispute{value: msg.value}(
             numberOfRulingOptions,
             ""
