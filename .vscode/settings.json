@@ -1,0 +1,20 @@
+{
+  "html.completion.attributeDefaultValue": "doublequotes",
+  "javascript.preferences.quoteStyle": "double",
+  "typescript.preferences.quoteStyle": "double",
+  "prettier.singleQuote": false,
+  "prettier.jsxSingleQuote": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true,
+    "source.sortMembers": true
+  },
+  "typescript.tsdk": "frontend/node_modules/typescript/lib",
+  "solidity.remappings": [
+    "ds-test/=contracts/lib/forge-std/lib/ds-test/src/",
+    "forge-std/=contracts/lib/forge-std/src/",
+    "openzeppelin/=contracts/lib/openzeppelin-contracts/contracts/",
+    "axelarnetwork/=contracts/lib/axelar-gmp-sdk-solidity/contracts/"
+  ]
+}

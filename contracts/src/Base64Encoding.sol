@@ -15,12 +15,7 @@ pragma solidity ^0.8.16;
     "youtube_url": A URL to a YT video
 }
  */
-
-contract CheqBase64Encoding {
-    // string constant MODULE = '},{"trait_type": "Module","value":"';
-    // string constant END = '"}]';
-    // string constant TOKENDATA_CLOSE = '"}';
-
+contract Base64Encoding {
     /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
     function itoa32(uint x) private pure returns (uint y) {
         unchecked {
@@ -140,36 +135,36 @@ contract CheqBase64Encoding {
         }
     }
 
-    function buildMetadata(
-        string memory currency,
-        string memory escrowed,
-        // string memory createdAt,
-        string memory module,
-        string memory _tokenData
-    ) internal pure returns (string memory) {
-        // 76460 with storage constants, 74861 without
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"attributes":[{"trait_type":"Currency","value":"',
-                                currency,
-                                '"},{"trait_type":"Escrowed","display_type":"number","value":',
-                                escrowed,
-                                '},{"trait_type":"Module","value":"',
-                                module,
-                                '"}]',
-                                _tokenData,
-                                '"}'
-                            )
-                        )
-                    )
-                )
-            );
-    }
+    // function buildMetadata(
+    //     string memory currency,
+    //     string memory escrowed,
+    //     // string memory createdAt,
+    //     string memory module,
+    //     string memory _tokenData
+    // ) internal pure returns (string memory) {
+    //     // 76460 with storage constants, 74861 without
+    //     return
+    //         string(
+    //             abi.encodePacked(
+    //                 "data:application/json;base64,",
+    //                 encode(
+    //                     bytes(
+    //                         abi.encodePacked(
+    //                             '{"attributes":[{"trait_type":"Currency","value":"',
+    //                             currency,
+    //                             '"},{"trait_type":"Escrowed","display_type":"number","value":',
+    //                             escrowed,
+    //                             '},{"trait_type":"Module","value":"',
+    //                             module,
+    //                             '"}]',
+    //                             _tokenData,
+    //                             '"}'
+    //                         )
+    //                     )
+    //                 )
+    //             )
+    //         );
+    // }
 
     /**
      * @dev Base64 Encoding/Decoding Table

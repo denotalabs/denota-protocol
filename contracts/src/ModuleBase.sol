@@ -1,28 +1,24 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {DataTypes} from "./libraries/DataTypes.sol";
 import {ICheqModule} from "./interfaces/ICheqModule.sol";
-import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
 abstract contract ModuleBase is ICheqModule {
-    address public immutable REGISTRAR;
-    mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
-    mapping(address => DataTypes.WTFCFees) public dappOperatorFees;
-    uint256 internal constant BPS_MAX = 10_000;
-    string public _URI;
-
-    event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
-
-    error FeeTooHigh();
-    error NotRegistrar();
-    error InitParamsInvalid();
-
-    modifier onlyRegistrar() {
-        if (msg.sender != REGISTRAR) revert NotRegistrar();
-        _;
+    struct WTFCFees {
+        uint256 writeBPS;
+        uint256 transferBPS;
+        uint256 fundBPS;
+        uint256 cashBPS;
     }
 
-    constructor(address registrar, DataTypes.WTFCFees memory _fees) {
+    uint256 internal constant BPS_MAX = 10_000;
+    address public immutable REGISTRAR;
+    mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
+    mapping(address => WTFCFees) public dappOperatorFees;
+
+    error FeeTooHigh();
+    error InitParamsInvalid();
+
+    constructor(address registrar, WTFCFees memory _fees) {
         if (registrar == address(0)) revert InitParamsInvalid();
         if (BPS_MAX < _fees.writeBPS) revert FeeTooHigh();
         if (BPS_MAX < _fees.transferBPS) revert FeeTooHigh();
@@ -35,11 +31,11 @@ abstract contract ModuleBase is ICheqModule {
         emit ModuleBaseConstructed(registrar, block.timestamp);
     }
 
-    function setFees(DataTypes.WTFCFees memory _fees) public {
+    function setFees(WTFCFees memory _fees) public {
         dappOperatorFees[msg.sender] = _fees;
     }
 
-    function takeReturnFee(
+    function _takeReturnFee(
         address currency,
         uint256 amount,
         address dappOperator,
@@ -61,7 +57,7 @@ abstract contract ModuleBase is ICheqModule {
         revenue[dappOperator][currency] += fee;
     }
 
-    function processWrite(
+    function _processWrite(
         address caller,
         address owner,
         uint256 cheqId,
@@ -69,13 +65,13 @@ abstract contract ModuleBase is ICheqModule {
         uint256 escrowed,
         uint256 instant,
         bytes calldata writeData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) internal virtual override returns (uint256) {
         address dappOperator = abi.decode(writeData, (address));
         // Add module logic here
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
-    function processTransfer(
+    function _processTransfer(
         address caller,
         address approved,
         address owner,
@@ -86,13 +82,17 @@ abstract contract ModuleBase is ICheqModule {
         uint256 escrowed,
         uint256 createdAt,
         bytes calldata transferData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) internal virtual override returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
+        require(
+            msg.sender == owner || msg.sender == approved,
+            "Sender not Owner or approved"
+        );
         return takeReturnFee(currency, escrowed, dappOperator, 1);
     }
 
-    function processFund(
+    function _processFund(
         address caller,
         address owner,
         uint256 amount,
@@ -100,13 +100,13 @@ abstract contract ModuleBase is ICheqModule {
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata fundData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) internal virtual override returns (uint256) {
         address dappOperator = abi.decode(fundData, (address));
         // Add module logic here
         return takeReturnFee(cheq.currency, amount + instant, dappOperator, 2);
     }
 
-    function processCash(
+    function _processCash(
         address caller,
         address owner,
         address to,
@@ -114,32 +114,33 @@ abstract contract ModuleBase is ICheqModule {
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes calldata cashData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) internal virtual override returns (uint256) {
         address dappOperator = abi.decode(cashData, (address));
         // Add module logic here
+        require(msg.sender == owner, "Casher not Owner");
         return takeReturnFee(cheq.currency, amount, dappOperator, 3);
     }
 
-    function processApproval(
+    function _processApproval(
         address caller,
         address owner,
         address to,
         uint256 cheqId,
         DataTypes.Cheq calldata cheq,
         bytes memory initData
-    ) external virtual override onlyRegistrar {
+    ) internal virtual override {
         // Add module logic here
     }
 
-    function processTokenURI(
+    function _processTokenURI(
         uint256 tokenId
-    ) external view virtual override returns (string memory) {
+    ) internal view virtual override returns (string memory) {
         return string(abi.encodePacked(_URI, tokenId));
     }
 
     function getFees(
         address dappOperator
-    ) public view virtual returns (DataTypes.WTFCFees memory) {
+    ) public view virtual returns (WTFCFees memory) {
         return dappOperatorFees[dappOperator];
     }
 

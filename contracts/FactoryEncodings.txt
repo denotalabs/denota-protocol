@@ -1,0 +1,54 @@
+
+GatingFactory:   getRegistrar(currency, tokenGate) OR getRegistrar(currency) w/ writer's tokenGate
+TimelockFactory: getRegistrar(currency, timeLock)  OR getRegistrar(currency) w/ writer's timeLock OR getRegistrar(timeLock) w/ writer's currency
+AdminFactory:    getRegistrar(currency, admin)     OR getRegistrar(admin)    w/ writer's currency
+
+Metadata?Factory: (mixed currencies?) w/ writer's metadata
+ReversalFactory? getRegistrar(currency, arbitrator) OR getRegistrar(currency) w/ writer's arbitrator
+Donation?Factory:
+
+RequestFactory?
+EscrowFactory?
+ProofFactory? ()
+
+
+
+Concepts: Escrow vs Instant, Metadata, Requests vs Payments.
+Defined: Currency, Upgrade, Currency + Upgrade
+
+Proposed Factory:
+    NONE
+        MetadataOnly ✅
+            Mint a Nota with attached image + doc
+        MetadataInstant [who owns NFT?] ✅
+            Send tokens + Nota with attached image + doc
+        DonationInstant
+            Send tokens + Nota (recipient sets URI, sender keeps Nota)
+
+    CURRENCY
+        Timelock- time is continuous ✅
+            Send CURRENCY + Nota
+        ReversalRelease- sender decides
+            Send CURRENCY (sender releases to you or themselves)
+        ReversalTimelock- sender decides and how long
+            Send CURRENCY (sender releases to you or themselves)
+    
+    UPGRADE
+        DonationInstant- Upgrade (recipient sets URI)
+            Send tokens to RECIPIENT sender keeps Nota (sender keeps Nota)
+    
+    BOTH
+        TokenBothGating
+            Send CURRENCY + Nota if sender and reciever has a token
+        ReceiveGating
+            Send CURRENCY + Nota if reciever has a token
+        SendGating
+            Send CURRENCY + Nota if sender has a token
+        Disputable- Currency + Upgrade
+            Send CURRENCY + Nota with DISPUTER
+        Admin- Currency + Upgrade
+
+
+
+Admin vs Reversal? 
+    Admin entails whitelist, WTFC pausability, permanant operator

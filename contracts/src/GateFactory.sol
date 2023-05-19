@@ -1,43 +1,34 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {ERC721} from "./ERC721.sol";
+import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
-import {Events} from "./libraries/Events.sol";
-import {RegistrarGov} from "./RegistrarGov.sol";
-import {DataTypes} from "./libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {ICheqModule} from "./interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "./interfaces/ICheqRegistrar.sol";
-import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
+import {Base64Encoding} from "./Base64Encoding.sol";
+import {ModuleBase} from "./ModuleBase.sol";
 
-/**
-     Ownable  IRegistrarGov
-          \      /
-        RegistrarGov ICheqRegistrar ERC721
-                    \      |       /
-                      CheqRegistrar
- */
-/**
- * @title  The Cheq Payment Registrar
- * @notice The main contract where users can WTFCA cheqs
- * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules, and collects revenue.
- */
-contract CheqRegistrar is
-    ERC721,
-    RegistrarGov,
-    ICheqRegistrar,
-    CheqBase64Encoding
-{
+contract TokenGateRegistrar is ERC721, Base64Encoding {
     using SafeERC20 for IERC20;
 
-    mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
+    struct Nota {
+        uint256 escrowed;
+        uint256 createdAt;
+        string docHash;
+        string imageURI;
+    }
+    address public tokenGate;
+    address public currency;
+    mapping(uint256 => Nota) private _cheqInfo;
     uint256 private _totalSupply;
 
-    error SendFailed();
-    error InvalidWrite(address, address);
+    // error SendFailed();
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
+    event Written(
+        uint256 cheqId,
+        address indexed owner,
+        uint256 escrowed,
+        uint256 createdAt
+    );
 
     modifier isMinted(uint256 cheqId) {
         if (cheqId >= _totalSupply) revert NotMinted();
@@ -50,33 +41,15 @@ contract CheqRegistrar is
     function write(
         address currency,
         uint256 escrowed,
-        uint256 instant,
         address owner,
         address module,
         bytes calldata moduleWriteData
     ) public payable returns (uint256) {
-        if (!validWrite(module, currency))
-            revert InvalidWrite(module, currency); // Module+token whitelist check
-        // if (msg.value < _writeFlatFee) {
-        //     revert InsufficientValue(msg.value, _writeFlatFee);
-        // } else {
-        //     if (_writeFlatFee > 0) registrarRevenue += _writeFlatFee;
-        // }
-        // Module hook (updates its storage, gets the fee)
-        uint256 moduleFee = ICheqModule(module).processWrite(
-            _msgSender(),
-            owner,
-            _totalSupply,
-            currency,
-            escrowed,
-            instant,
-            moduleWriteData
-        );
-
+        require(IERC20(tokenGate).balanceOf(account) > 0, "");
         _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
 
         _mint(owner, _totalSupply);
-        _cheqInfo[_totalSupply] = DataTypes.Cheq(
+        _cheqInfo[_totalSupply] = Nota(
             escrowed,
             block.timestamp,
             currency,
@@ -104,7 +77,7 @@ contract CheqRegistrar is
         address from,
         address to,
         uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
+    ) public override(ERC721, INotaRegistrar) isMinted(cheqId) {
         _transferHookTakeFee(from, to, cheqId, abi.encode(""));
         _transfer(from, to, cheqId);
     }
@@ -115,11 +88,11 @@ contract CheqRegistrar is
         uint256 instant,
         bytes calldata fundData
     ) public payable isMinted(cheqId) {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO module MUST check that token exists
+        DataTypes.Nota storage cheq = _cheqInfo[cheqId]; // TODO module MUST check that token exists
         address owner = ownerOf(cheqId); // Is used twice
 
         // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processFund(
+        uint256 moduleFee = processFund(
             _msgSender(),
             owner,
             amount,
@@ -158,10 +131,10 @@ contract CheqRegistrar is
         address to,
         bytes calldata cashData
     ) public payable isMinted(cheqId) {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
+        DataTypes.Nota storage cheq = _cheqInfo[cheqId];
 
         // Module Hook
-        uint256 moduleFee = ICheqModule(cheq.module).processCash(
+        uint256 moduleFee = processCash(
             _msgSender(),
             ownerOf(cheqId),
             to,
@@ -202,19 +175,12 @@ contract CheqRegistrar is
     function approve(
         address to,
         uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
+    ) public override(ERC721, INotaRegistrar) isMinted(cheqId) {
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
-        DataTypes.Cheq memory cheq = _cheqInfo[cheqId];
-        ICheqModule(cheq.module).processApproval(
-            _msgSender(),
-            ownerOf(cheqId),
-            to,
-            cheqId,
-            cheq,
-            ""
-        );
+        DataTypes.Nota memory cheq = _cheqInfo[cheqId];
+        processApproval(_msgSender(), ownerOf(cheqId), to, cheqId, cheq, "");
 
         // Approve
         _approve(to, cheqId);
@@ -223,8 +189,7 @@ contract CheqRegistrar is
     function tokenURI(
         uint256 cheqId
     ) public view override isMinted(cheqId) returns (string memory) {
-        string memory _tokenData = ICheqModule(_cheqInfo[cheqId].module)
-            .processTokenURI(cheqId);
+        string memory _tokenData = processTokenURI(cheqId);
 
         return
             buildMetadata(
@@ -234,23 +199,6 @@ contract CheqRegistrar is
                 _moduleName[_cheqInfo[cheqId].module],
                 _tokenData
             );
-    }
-
-    function payload(
-        uint256 cheqId,
-        string memory selector,
-        bytes calldata moduleData
-    ) external isMinted(cheqId) {
-        (bool success, ) = _cheqInfo[cheqId].module.call(
-            abi.encodeWithSignature(
-                selector, // all modules' specific function must follow this pattern
-                _msgSender(),
-                ownerOf(cheqId),
-                cheqId,
-                moduleData
-            )
-        );
-        if (!success) revert();
     }
 
     /*///////////////////// BATCH FUNCTIONS ///////////////////////*/
@@ -414,11 +362,11 @@ contract CheqRegistrar is
         if (moduleTransferData.length == 0)
             moduleTransferData = abi.encode(owner());
         address owner = ownerOf(cheqId); // require(from == owner,  "") ?
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // Better to assign than to index?
+        DataTypes.Nota storage cheq = _cheqInfo[cheqId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
         // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
+        uint256 moduleFee = processTransfer(
             _msgSender(),
             getApproved(cheqId),
             owner,
@@ -454,7 +402,7 @@ contract CheqRegistrar is
         address to,
         uint256 cheqId,
         bytes memory moduleTransferData
-    ) public override(ERC721, ICheqRegistrar) {
+    ) public override(ERC721, INotaRegistrar) {
         _transferHookTakeFee(from, to, cheqId, moduleTransferData);
         _safeTransfer(from, to, cheqId, moduleTransferData);
     }
@@ -462,7 +410,7 @@ contract CheqRegistrar is
     /*///////////////////////// VIEW ////////////////////////////*/
     function cheqInfo(
         uint256 cheqId
-    ) public view returns (DataTypes.Cheq memory) {
+    ) public view returns (DataTypes.Nota memory) {
         if (cheqId >= _totalSupply) revert NotMinted();
         return _cheqInfo[cheqId];
     }
@@ -489,5 +437,18 @@ contract CheqRegistrar is
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
+    }
+}
+
+contract GateFactory {
+    mapping(address => mapping(address => address)) public currencyGate;
+    address[] public currencyGates;
+
+    constructor() {}
+
+    function deploy(address currency, address gate) external {
+        Registrar registrar = new GateRegistrar();
+        deployerAddress[currency][gate] = address(registrar);
+        admins.push(address(registrar));
     }
 }
