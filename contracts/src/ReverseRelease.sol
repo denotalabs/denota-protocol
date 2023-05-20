@@ -3,10 +3,10 @@ pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {Base64Encoding} from "./Base64Encoding.sol";
-import {ModuleBase} from "./ModuleBase.sol";
+import "openzeppelin/utils/Base64.sol";
 
-contract TimelockRegistrar is ERC721, Base64Encoding {
+// Sender either releases to the recipient or back to themselves
+contract ReverseRelease is ERC721, Base64 {
     using SafeERC20 for IERC20;
 
     struct Nota {
@@ -21,8 +21,6 @@ contract TimelockRegistrar is ERC721, Base64Encoding {
     mapping(uint256 => Nota) public notaInfo;
     uint256 private _totalSupply;
 
-    // error SendFailed();
-    // error InsufficientEscrow(uint256, uint256);
     error InsufficientValue(uint256, uint256);
     event Timelocked(
         uint256 indexed notaId,
@@ -30,10 +28,6 @@ contract TimelockRegistrar is ERC721, Base64Encoding {
         uint256 maturationDate,
         uint256 createdAt
     );
-    modifier isMinted(uint256 notaId) {
-        if (notaId >= _totalSupply) revert NotMinted();
-        _;
-    }
 
     constructor(address _currency) ERC721("denota", "NOTA") {
         currency = _currency;
@@ -47,7 +41,7 @@ contract TimelockRegistrar is ERC721, Base64Encoding {
         string calldata docHash,
         string calldata imageURI
     ) public payable returns (uint256) {
-        require(maturationDate > block.timestamp, "Error");
+        require(maturationDate > block.timestamp, "INVALID_DATE");
         if (escrowed > 0) {
             if (currency == address(0)) {
                 if (msg.value < escrowed)
@@ -82,8 +76,9 @@ contract TimelockRegistrar is ERC721, Base64Encoding {
     }
 
     function tokenURI(
-        uint256 cheqId
-    ) public view override isMinted(cheqId) returns (string memory) {
+        uint256 notaId
+    ) public view override returns (string memory) {
+        _requireMinted(notaId);
         Nota memory nota = notaInfo[notaId];
         return
             _buildMetadata(
@@ -212,25 +207,58 @@ contract TimelockRegistrar is ERC721, Base64Encoding {
         return notaInfo[notaId].escrowed;
     }
 
+    function notaMaturationDate(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return notaInfo[notaId].maturationDate;
+    }
+
     function notaCreatedAt(uint256 notaId) public view returns (uint256) {
         if (notaId >= _totalSupply) revert NotMinted();
         return notaInfo[notaId].createdAt;
     }
+
+    /**
+        uint256 maturationDate;
+        uint256 createdAt;
+        string docHash;
+        string imageURI;
+ */
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
     }
 }
 
-contract TimelockFactory {
-    mapping(address => address) public currencyTimelock;
-    address[] public currencyTimelocks;
+contract ReverseReleaseTimelock is ERC721, Base64 {}
 
-    constructor() {}
+/// The contract has a single person that can reverse all notas
+contract ReverseReleaseStatic is ERC721, Base64 {
 
-    function deploy(address currency) external {
-        Registrar registrar = new TimelockRegistrar(currency); // TODO check that this succeeds
-        currencyTimelock[currency] = address(registrar);
-        currencyTimelocks.push(address(registrar));
-    }
 }
+
+/// Sender can set who is the reversing party
+contract ReverseReleaseSettable is ERC721, Base64 {
+
+}
+
+/// The contract has a single person that can reverse all notas, single settlement time
+contract ReverseReleaseStaticTimelock is ERC721, Base64 {
+
+}
+
+/// Sender can set who is the reversing party, single settlement time
+contract ReverseReleaseSettableTimelock is ERC721, Base64 {
+
+}
+// contract Factory {
+//     mapping(address => address) public currencyTimelock;
+//     address[] public currencyTimelocks;
+
+//     constructor() {}
+
+//     function deploy(address currency) external {
+//         Registrar registrar = new TimelockRegistrar(currency); // TODO check that this succeeds
+//         currencyTimelock[currency] = address(registrar);
+//         currencyTimelocks.push(address(registrar));
+//     }
+// }

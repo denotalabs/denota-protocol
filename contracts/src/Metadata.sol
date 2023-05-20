@@ -4,7 +4,8 @@ import "openzeppelin/token/ERC721/ERC721.sol";
 import {Base64Encoding} from "./Base64Encoding.sol";
 
 // QUESTION: should factory set the BaseURI? What about the docHash?
-contract MetadataRegistrar is ERC721, Base64Encoding {
+/// Anyone can issue an
+contract Metadata is ERC721, Base64Encoding {
     struct Nota {
         uint256 createdAt;
         address creator;
@@ -14,11 +15,6 @@ contract MetadataRegistrar is ERC721, Base64Encoding {
 
     mapping(uint256 => Nota) public notaInfo;
     uint256 private _totalSupply;
-
-    modifier isMinted(uint256 cheqId) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        _;
-    }
 
     constructor() ERC721("denota", "NOTA") {}
 
@@ -167,7 +163,8 @@ contract MetadataRegistrar is ERC721, Base64Encoding {
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
-contract InstantToMetadataRegistrar is ERC721, Base64Encoding {
+/// QUESTION: should the writer just be able to specify?
+contract InstantMetadataTo is ERC721, Base64Encoding {
     using SafeERC20 for IERC20;
     struct Nota {
         uint256 createdAt;
@@ -351,7 +348,7 @@ contract InstantToMetadataRegistrar is ERC721, Base64Encoding {
 }
 
 /// Let sender keep the Nota
-// contract InstantFromMetadataRegistrar is ERC721, Base64Encoding {
+// contract InstantMetadataFrom is ERC721, Base64Encoding {
 //     using SafeERC20 for IERC20;
 //     struct Nota {
 //         uint256 createdAt;
@@ -533,3 +530,16 @@ contract InstantToMetadataRegistrar is ERC721, Base64Encoding {
 //         return _totalSupply;
 //     }
 // }
+
+contract MetadataFactory {
+    mapping(address => address) public metadata;
+    address[] public metadatas;
+
+    constructor() {}
+
+    function deploy() external {
+        Registrar registrar = new Metadata(); // TODO
+        currencyTimelock[msg.sender] = address(registrar);
+        currencyTimelocks.push(address(registrar));
+    }
+}

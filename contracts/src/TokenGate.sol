@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin/utils/Base64.sol";
 import {Base64Encoding} from "./Base64Encoding.sol";
 import {ModuleBase} from "./ModuleBase.sol";
 
@@ -20,7 +21,6 @@ contract TokenGateRegistrar is ERC721, Base64Encoding {
     mapping(uint256 => Nota) private _cheqInfo;
     uint256 private _totalSupply;
 
-    // error SendFailed();
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
     event Written(

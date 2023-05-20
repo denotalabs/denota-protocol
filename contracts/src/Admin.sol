@@ -558,7 +558,7 @@ contract Registrar is ERC721, ICheqRegistrar, Base64Encoding {
     }
 }
 
-contract PayoutFactory {
+contract Factory {
     mapping(address => address) public deployerAddress;
     address[] public admins;
 
@@ -571,3 +571,8 @@ contract PayoutFactory {
         registrar.transferOwnership(msg.sender);
     }
 }
+
+/**
+    fee = (amount * fee) / BPS_MAX;
+    revenue[dappOperator][currency] += fee;
+*/
