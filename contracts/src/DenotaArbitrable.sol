@@ -25,16 +25,16 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
 
     error NotArbitrator();
 
-    struct Dispute {
+    struct DisputeInfo {
         uint256 txID;
         IArbitrator arbitrator;
         string destinationChain;
         string destinationAddress;
     }
 
-    Dispute[] public txs;
+    DisputeInfo[] public txs;
 
-    mapping(uint256 => Dispute) disputeIDtoDispute;
+    mapping(uint256 => DisputeInfo) disputeIDtoDispute;
 
     IAxelarGasService public immutable gasReceiver; // The same on all chains (minus Aurora)
 
@@ -59,7 +59,7 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
             ""
         );
 
-        disputeIDtoDispute[disputeID] = Dispute({
+        disputeIDtoDispute[disputeID] = DisputeInfo({
             txID: _txID,
             arbitrator: arbitrator,
             destinationChain: destinationChain,
@@ -69,7 +69,7 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
 
     function rule(uint256 _disputeID, uint256 _ruling) public override {
         // Send ruling to polygon via Axelar
-        Dispute storage dispute = disputeIDtoDispute[_disputeID];
+        DisputeInfo storage dispute = disputeIDtoDispute[_disputeID];
 
         if (msg.sender != address(dispute.arbitrator)) {
             revert NotArbitrator();
@@ -77,16 +77,19 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
 
         bytes memory payload = abi.encode(block.chainid, dispute.txID, _ruling);
 
-        if (msg.value > 0) {
-            // Question: How to determine how much gas to pay??
-            gasReceiver.payNativeGasForContractCall{value: msg.value}(
-                address(this),
-                dispute.destinationChain,
-                dispute.destinationAddress,
-                payload,
-                msg.sender
-            );
-        }
+        // TODO: This needs to be called separately since rule is nonpayable
+        // TODO: Figure out who calls the function/pays gas in that case
+
+        // if (msg.value > 0) {
+        //     // Question: How to determine how much gas to pay??
+        //     gasReceiver.payNativeGasForContractCall{value: msg.value}(
+        //         address(this),
+        //         dispute.destinationChain,
+        //         dispute.destinationAddress,
+        //         payload,
+        //         msg.sender
+        //     );
+        // }
 
         gateway.callContract(
             dispute.destinationChain,
@@ -101,7 +104,7 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
         uint256 _disputeID,
         string memory _evidence
     ) public {
-        Dispute storage dispute = txs[_disputeID];
+        DisputeInfo storage dispute = txs[_disputeID];
 
         // TODO: restrict to only payer/payee
 
