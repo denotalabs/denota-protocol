@@ -109,7 +109,10 @@ contract KlerosEscrow is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         if (caller == payments[cheqId].payee) {
-            require(payments[cheqId].timelockEnd < block.timestamp, "TIMELOCK");
+            require(
+                payments[cheqId].timelockEnd < block.timestamp,
+                "Payee can only claim after timelock"
+            );
         } else if (caller == payments[cheqId].payer) {
             require(
                 to == payments[cheqId].payee,

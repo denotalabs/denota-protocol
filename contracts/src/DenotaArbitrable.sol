@@ -23,15 +23,7 @@ contract DenotaArbitrable is IArbitrable, IEvidence, AxelarExecutable {
     }
     uint256 constant numberOfRulingOptions = 2;
 
-    error InvalidStatus();
-    error ReleasedTooEarly();
-    error NotPayer();
     error NotArbitrator();
-    error ThirdPartyNotAllowed();
-    error PayeeDepositStillPending();
-    error ReclaimedTooLate();
-    error InsufficientPayment(uint256 _available, uint256 _required);
-    error InvalidRuling(uint256 _ruling, uint256 _numberOfChoices);
 
     struct Dispute {
         uint256 txID;
