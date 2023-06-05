@@ -25,7 +25,7 @@ export async function writeReversibleRelease({
   ipfsHash,
 }: WriteReversibleReleaseyProps) {
   const { type, creditor, debitor, inspector } = module;
-  const notaInspector = inspector ?? debitor;
+  const notaInspector = inspector ? inspector : debitor;
 
   const amountWei = ethers.utils.parseEther(String(amount));
 
