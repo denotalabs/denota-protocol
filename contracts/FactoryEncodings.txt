@@ -52,3 +52,11 @@ Proposed Factory:
 
 Admin vs Reversal? 
     Admin entails whitelist, WTFC pausability, permanant operator
+
+ReversalFactory: 
+    Users want someone to go to for help when buying real world goods/services using crypto. They can select their reverser.
+    Why use Factory.deploy(reverser) vs Factory.deploy(reverser, currency)? Would arbitrator only want to accept certain currencies?
+GatingFactory:
+Metadata?Factory:
+TimelockFactory:
+AdminFactory:

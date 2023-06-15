@@ -3,29 +3,14 @@ pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Base64.sol";
 import "openzeppelin/utils/Strings.sol";
 
-/**
-1. Sender is the reverser
-2. Sender can choose reverser (not themselves)
-3. Sender+receiver whitelist reversers, then sender chooses
-4. Hardcoded reverser
-5. Kleros reverser
-// TODO Use Hedgy's before and after hooks to make sure the token was sent here (blacklisted addresses may break this otherwise)
-
-Which is easiest?
-1. Hardcoded based on 
-    1. Reverser
-    2. Both
-    3. Currency
-2. Kleros
-*/
-
-// If someone want's to be able to reverse their own payments, they deploy their own instance
-// Escrow released by the reverser, either back to sender or to the owner (owner keeps Nota)
-/// The reverser can have off-chain settlement timelines.
-contract ReverseRelease is ERC721 {
+/// TODO use one with a merkle list
+/// TODO make one with a ZK proof (client can create a proof that they are on the list, submit with tx)
+// https://www.freecodecamp.org/news/how-to-implement-whitelist-in-smartcontracts-erc-721-nft-erc-1155-and-others/
+contract Allowlist is ERC721, Ownable {
     using SafeERC20 for IERC20;
     using Strings for address;
     using Strings for uint256;
@@ -33,20 +18,17 @@ contract ReverseRelease is ERC721 {
     struct Nota {
         uint256 escrowed;
         address asset;
-        address sender;
-        bool cashed;
     }
 
-    address public reverser;
     mapping(uint256 => Nota) public notaInfo;
+    mapping(address => bool) public allowList;
+    mapping(address => bool) public assetList;
     uint256 private _totalSupply;
 
     error InsufficientValue(uint256, uint256);
     error SendFailed();
 
-    constructor(address _reverser) ERC721("reversible", "REVERSE") {
-        reverser = _reverser;
-    }
+    constructor() ERC721("allow", "ALLOW") {}
 
     /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
@@ -54,9 +36,7 @@ contract ReverseRelease is ERC721 {
         uint256 escrowed,
         address owner
     ) public payable returns (uint256) {
-        // require(allowList[msg.sender], "Sender not allowed to write");
-        require(escrowed > 0, "Escrowed must be greater than 0");
-        require(msg.sender != owner, "Sender cannot be owner");
+        require(allowList[msg.sender] && assetList[asset], "NOT_ALLOWED");
 
         if (asset == address(0)) {
             if (msg.value < escrowed) {
@@ -71,36 +51,30 @@ contract ReverseRelease is ERC721 {
         }
 
         _mint(owner, _totalSupply);
-        notaInfo[_totalSupply] = Nota(escrowed, asset, msg.sender, false);
+        notaInfo[_totalSupply] = Nota(escrowed, asset);
 
         unchecked {
             return _totalSupply++;
         }
     }
 
-    function cash(uint256 notaId, bool isReversed) public {
-        require(msg.sender == reverser, "Only reverser can cash");
+    function transferFrom(address from, address to, uint256 notaId) public {
+        require(allowList[to], "NOT_ALLOWED");
+        _transfer(from, to, notaId);
+    }
+
+    function cash(uint256 notaId) public {
+        require(msg.sender == ownerOf(notId), "ONLY_OWNER");
         Nota memory nota = notaInfo[notaId];
-        require(!nota.cashed, "Nota already cashed");
-        if (isReversed) {
-            if (nota.asset == address(0)) {
-                (bool sent, ) = nota.sender.call{value: nota.escrowed}("");
-                if (!sent) revert SendFailed();
-            } else {
-                IERC20(nota.asset).transfer(nota.sender, nota.escrowed);
-            }
+
+        if (nota.asset == address(0)) {
+            address payable owner = payable(ownerOf(notaId));
+            (bool sent, ) = owner.call{value: nota.escrowed}("");
+            if (!sent) revert SendFailed();
         } else {
-            if (nota.asset == address(0)) {
-                address payable owner = payable(ownerOf(notaId));
-                (bool sent, ) = owner.call{value: nota.escrowed}("");
-                if (!sent) revert SendFailed();
-            } else {
-                address owner = ownerOf(notaId);
-                IERC20(nota.asset).transfer(owner, nota.escrowed);
-            }
+            address owner = ownerOf(notaId);
+            IERC20(nota.asset).transfer(owner, nota.escrowed);
         }
-        notaInfo[notaId].cashed = true;
-        // emit Reversed();
     }
 
     function tokenURI(
@@ -219,16 +193,6 @@ contract ReverseRelease is ERC721 {
     function notaAsset(uint256 notaId) public view returns (address) {
         require(_exists(notaId));
         return notaInfo[notaId].asset;
-    }
-
-    function notaSender(uint256 notaId) public view returns (address) {
-        require(_exists(notaId));
-        return notaInfo[notaId].sender;
-    }
-
-    function notaCashed(uint256 notaId) public view returns (bool) {
-        require(_exists(notaId));
-        return notaInfo[notaId].cashed;
     }
 
     function totalSupply() public view returns (uint256) {
@@ -353,53 +317,3 @@ contract ReverseRelease is ERC721 {
         }
     }
 }
-
-contract ReverseReleaseFactory {
-    mapping(address => address) public reverser;
-    address[] public reversers;
-
-    constructor() {}
-
-    function deploy() external returns (address) {
-        require(reverser[msg.sender] == address(0), "EXISTS");
-        ReverseRelease registrar = new ReverseRelease(msg.sender); // TODO check that this succeeds
-        reverser[msg.sender] = address(registrar);
-        reversers.push(address(registrar));
-        // emit Deployed(address(registrar));  // TODO
-        return address(registrar);
-    }
-}
-
-/// Allow the deployer to set their settlement time? What about dynamic?
-/// Allow the reverser OR the owner to release to the owner after the timelock
-// contract ReverseReleaseTimelock is ERC721 {}
-
-// /// Sender can set who is the reversing party
-// contract ReverseReleaseSettable is ERC721 {
-
-// }
-
-// /// The contract has a single person that can reverse all notas, single settlement time
-// contract ReverseReleaseStaticTimelock is ERC721 {
-
-// }
-
-// /// Sender can set who is the reversing party, single settlement time
-// contract ReverseReleaseSettableTimelock is ERC721 {
-
-// }
-
-// contract Factory {
-//     mapping(address => address) public reverser;
-//     address[] public reversers;
-
-//     constructor() {}
-
-//     function deploy() external returns (address) {
-//         ReverseRelease registrar = new ReverseRelease(msg.sender); // TODO check that this succeeds
-//         reverser[msg.sender] = address(registrar);
-//         reversers.push(address(registrar));
-//         // emit Deployed(address(registrar));  // TODO
-//         return address(registrar);
-//     }
-// }

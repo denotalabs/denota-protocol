@@ -1,0 +1,16 @@
+{
+    "AxelarGateway": "",
+    "AxelarGasStation": "",
+    "DataTypes": "0xD0a2A80b4023DE04e28520850745760D573B6d6e",
+    "Events": "0x53b3c85ecCBAE718Aca4A84f63e2dBDfC279BECC",
+    "registrar": "0x295d8484Eb91583213Fcbfa3984cB61D84264C87",
+    "directPay": "0xa9f0CE52c8De7496F7137cF807A6D33df06C2C87",
+    "escrow": "0x41a3D11eC4dE4eaa3A6b0fD584693F86fB85E0EB",
+    "dai": "0xea5050C10606f2ee61faA904027FDa04effA94e9",
+    "weth": "0x80311c7d331e808f7a831df7CD60f6E087aEee88",
+    "bridgeReceiver": "",
+    "bridgeSender": "",
+    "directPayAxelar": "",
+    "startBlock": "20237409",
+    "network": "arbitrum"
+}

@@ -1,0 +1,16 @@
+{
+    "AxelarGateway": "",
+    "AxelarGasStation": "",
+    "DataTypes": "0x8296aEc2E9Ad887B8a47980Db2Fa4F675F011567",
+    "Events": "0x41a3D11eC4dE4eaa3A6b0fD584693F86fB85E0EB",
+    "registrar": "0x722D4CED724b69A416AfA50860cEd7B71a1bf689",
+    "directPay": "0x05d94324C10844E6F37Ba12D1be935FCA8494Fcc",
+    "escrow": "0x182d6be910Fc1f9bC8D3Fe40E2EED0fcf6F254e7",
+    "dai": "0x6d2C6326018a4E4Bbf0728985bf96c0eB6E07A49",
+    "weth": "0xe314158969CCa87E88350196308f96D879D18b83",
+    "bridgeReceiver": "",
+    "bridgeSender": "",
+    "directPayAxelar": "",
+    "startBlock": "3505211",
+    "network": "sepolia"
+}

@@ -1,11 +1,14 @@
+## Our Mission
+TradFi payments expect a number of protections crypto doesn't provide (disputation, reversibility, etc), legal and regulatory checks, attachment of metadata, and more. Payments also represent trust, reputation, and identity. Denota can provide all of these things, and more, to the crypto world. We will help individuals feel safe transaction in cryptocurrency, give them more optionality, and help them build their reputation and identity in the crypto world. We believe in the mission of cryptocurrency, bringing financial inclusion, permissionlessness, trust minimization, and global cooperation. Crypto doesn't have to be synonymous with risk, illegality, or technical jargon. Denota is building payment primitives for the crypto world and the mainstream.
+
 # Denota's Architecture
 An overview of what happens between a user initiating a transaction and a Nota being minted.
 
-## The Nota Registrar
-The Registrar is where Notas are minted, their funds are held, and where Payment Agreements are whitelisted. The interface is acronymed as WTFCAT (very memorable), where `write` and `transfer` directly affect ownership, and `fund` and `cash` affect escrow. `approve` and `tokenURI` are also inherited from the ERC721 standard.
+## The Nota Factory
+This is where Nota contracts are deployed, their information is stored, and where they are minted. The Nota Factory is a singleton contract that is deployed once and never again. It is responsible for deploying Nota contracts, storing their information, and minting them. The Nota Factory is also responsible for storing the address of the Registrar contract.
 
-## Payment Agreements
-Each Nota contains a reference to a Payment Agreement module which is an external contract responsible for the logic that each Nota follows as well as any additional information Notas contain. Whenever a WTFCAT function is called, a Payment Agreement hook is also called so the module can either revert or update it's storage accordingly. Every WTFCAT function (save for tokenURI) has a bytes parameter that modules can use to decode variables specific to their logic. This is how the Registrar is able to be called regardless of module while each Pay Agreement can recieve it's module specific arguments.
+## Nota Agreements
+
 
 ## On-Chain tokenURIs
-The Denota protocol aims to give individuals as much sovereignty and transparancy as possible. For that reason, tokenURIs are represented as on-chain JSONs so that users can be sure that what they are receiving is what the sender claims it to be. Marketplaces following the MetaData standard will correctly display how much of what currency is escrowed, which payment agreement is referenced, as well as the Nota's module specific attributes.
+The Denota protocol aims to give individuals as much sovereignty and transparancy as possible. For that reason, tokenURIs are represented as on-chain JSONs so that users can be sure that what they are receiving is what the sender claims it to be. Marketplaces following the Metadata standard will correctly display how much of what currency is escrowed, which payment agreement is referenced, as well as the Nota's specific attributes.

@@ -1,0 +1,5 @@
+Metadata:
+    Should the MetadataOnly be factory deployable? What makes each unique? base_ImageURI and base_DocHash?
+    What is the purpose of just issuing a metadata NFT?
+        Can record payments? How to link a same block transaction?
+        Can be used to "message" people?
