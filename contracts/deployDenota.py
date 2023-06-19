@@ -1,4 +1,3 @@
-
 import json
 import re
 import shlex
@@ -117,13 +116,13 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
     print(f'Registrar address: {registrar}')
 
     # Deploy ERC20s for testing
-    erc20_path, oldTokens = "src/test/mock/erc20.sol:TestERC20", []
-    for (supply, name, symbol) in [(10000000e18, "weth", "WETH"), (10000000e18, "dai", "DAI")]:
+    erc20_path, oldTokens, amount = "test/mock/erc20.sol:TestERC20", [], 10_000_000_000_000_000_000_000_000
+    for (supply, name, symbol) in [(amount, "weth", "WETH"), (amount, "dai", "DAI"), (amount, "bob", "BOB"), (amount, "usdt", "USDT")]:
         if not existing_addresses[chain][name]:
             result = eth_call(
                 f'forge create {erc20_path} --constructor-args {supply} {name} {symbol} {rpc_key_flags}', "ERC20 deployment failed")
             token = extract_address(result.stdout)
-            existing_addresses[chain][name] = token
+            existing_addresses[chain][name] = token # TODO use .get() instead?
 
             eth_call(
                 f'cast send {registrar} "whitelistToken(address,bool,string)" {token} "true" {symbol} {rpc_key_flags}', "Whitelist token failed")
@@ -256,10 +255,6 @@ if __name__ == "__main__":
         with open("contractAddresses.json", 'w') as f:
             f.write(json.dumps(existing_addresses))
 
-        with open("../frontend/context/contractAddresses.tsx", 'w') as f:
-            f.write("export const ContractAddressMapping = " +
-                    json.dumps(existing_addresses))
-
         with open("../graph/subgraph/config/" + chain + ".json", 'w') as f:
             existing_addresses[chain]["network"] = chain
             f.write(json.dumps(existing_addresses[chain]))
@@ -267,3 +262,4 @@ if __name__ == "__main__":
         # Query for the tokenURI
         # print(
         #     f"cast call {registrar} 'tokenURI(uint256)' '0' --rpc-url {rpc}")
+
