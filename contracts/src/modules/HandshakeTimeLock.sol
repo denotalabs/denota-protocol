@@ -11,8 +11,8 @@ pragma solidity ^0.8.16;
 //     //     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
 //     //     mapping(address => mapping(address => bool)) public auditorUser; // Whether Auditor accepts User
 //     //     mapping(uint256 => uint256) public inspectionPeriod;
-//     //     mapping(uint256 => address) public cheqAuditor;
-//     //     mapping(address => bool) public cheqVoided;
+//     //     mapping(uint256 => address) public notaAuditor;
+//     //     mapping(address => bool) public notaVoided;
 //     //     string private _baseURI;
 
 //     constructor(
@@ -26,36 +26,36 @@ pragma solidity ^0.8.16;
 //     // TRANSFERING
 //     //         (address auditor, uint256 _inspectionPeriod) = abi.decode(initData, (address, uint256));
 //     //         require(userAuditor[caller][auditor] && auditorUser[auditor][caller], "Must handshake");
-//     //         inspectionPeriod[cheqId] = _inspectionPeriod;
-//     //         cheqAuditor[cheqId] = auditor;
+//     //         inspectionPeriod[notaId] = _inspectionPeriod;
+//     //         notaAuditor[notaId] = auditor;
 
 //     // FUNDING
-//     //         require(inspectionPeriod[cheqId] + cheq.mintTimestamp <= block.timestamp, "Already cashed");  // How to abstract this?
+//     //         require(inspectionPeriod[notaId] + nota.mintTimestamp <= block.timestamp, "Already cashed");  // How to abstract this?
 
 //     // CASHING
-//     // //         if (block.timestamp >= cheqCreated[cheqId]+cheqInspectionPeriod[cheqId]
-//     // //             || crx.ownerOf(cheqId)!=caller
-//     // //             || cheqVoided[cheqId]){
+//     // //         if (block.timestamp >= notaCreated[notaId]+notaInspectionPeriod[notaId]
+//     // //             || crx.ownerOf(notaId)!=caller
+//     // //             || notaVoided[notaId]){
 //     // //             return 0;
 //     // //         } else{
-//     // //             return crx.cheqEscrowed(cheqId);
+//     // //             return crx.notaEscrowed(notaId);
 //     // //         }
-//     // require(!cheqVoided[cheqId], "Voided");
-//     // cheqVoided[cheqId] = true;
+//     // require(!notaVoided[notaId], "Voided");
+//     // notaVoided[notaId] = true;
 
 //     //     function tokenURI(uint256 /*tokenId*/) external pure returns (string memory){
 //     //         return "";
 //     //     }
 
-//     //     function voidCheq(uint256 cheqId) external {
-//     //         require(cheqAuditor[cheqId]==_msgSender(), "Only auditor");
-//     //         cheqVoided[cheqId] = true;
-//     //         // crx.cash(cheqId, crx.cheqDrawer(cheqId), crx.cheqEscrowed(cheqId));  // Return escrow to drawer
+//     //     function voidnota(uint256 notaId) external {
+//     //         require(notaAuditor[notaId]==_msgSender(), "Only auditor");
+//     //         notaVoided[notaId] = true;
+//     //         // crx.cash(notaId, crx.notaDrawer(notaId), crx.notaEscrowed(notaId));  // Return escrow to drawer
 //     //     }
-//     //     function status(uint256 cheqId, address caller) public view returns(string memory){
-//     //         if(cashable(cheqId, caller) != 0){
+//     //     function status(uint256 notaId, address caller) public view returns(string memory){
+//     //         if(cashable(notaId, caller) != 0){
 //     //             return "mature";
-//     //         } else if(cheqVoided[cheqId]){
+//     //         } else if(notaVoided[notaId]){
 //     //             return "voided";
 //     //         } else {
 //     //             return "pending";

@@ -23,7 +23,7 @@ export class PaymentCreated__Params {
     this._event = event;
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 
@@ -133,7 +133,7 @@ export class ReversibleRelease__payInfoResult {
   }
 }
 
-export class ReversibleRelease__processCashInputCheqStruct extends ethereum.Tuple {
+export class ReversibleRelease__processCashInputnotaStruct extends ethereum.Tuple {
   get currency(): Address {
     return this[0].toAddress();
   }
@@ -151,7 +151,7 @@ export class ReversibleRelease__processCashInputCheqStruct extends ethereum.Tupl
   }
 }
 
-export class ReversibleRelease__processFundInputCheqStruct extends ethereum.Tuple {
+export class ReversibleRelease__processFundInputnotaStruct extends ethereum.Tuple {
   get currency(): Address {
     return this[0].toAddress();
   }
@@ -318,8 +318,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
     owner: Address,
     to: Address,
     amount: BigInt,
-    cheqId: BigInt,
-    cheq: ReversibleRelease__processCashInputCheqStruct,
+    notaId: BigInt,
+    nota: ReversibleRelease__processCashInputnotaStruct,
     initData: Bytes
   ): BigInt {
     let result = super.call(
@@ -330,8 +330,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
         ethereum.Value.fromAddress(owner),
         ethereum.Value.fromAddress(to),
         ethereum.Value.fromUnsignedBigInt(amount),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
-        ethereum.Value.fromTuple(cheq),
+        ethereum.Value.fromUnsignedBigInt(notaId),
+        ethereum.Value.fromTuple(nota),
         ethereum.Value.fromBytes(initData)
       ]
     );
@@ -344,8 +344,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
     owner: Address,
     to: Address,
     amount: BigInt,
-    cheqId: BigInt,
-    cheq: ReversibleRelease__processCashInputCheqStruct,
+    notaId: BigInt,
+    nota: ReversibleRelease__processCashInputnotaStruct,
     initData: Bytes
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
@@ -356,8 +356,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
         ethereum.Value.fromAddress(owner),
         ethereum.Value.fromAddress(to),
         ethereum.Value.fromUnsignedBigInt(amount),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
-        ethereum.Value.fromTuple(cheq),
+        ethereum.Value.fromUnsignedBigInt(notaId),
+        ethereum.Value.fromTuple(nota),
         ethereum.Value.fromBytes(initData)
       ]
     );
@@ -373,8 +373,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
     owner: Address,
     amount: BigInt,
     instant: BigInt,
-    cheqId: BigInt,
-    cheq: ReversibleRelease__processFundInputCheqStruct,
+    notaId: BigInt,
+    nota: ReversibleRelease__processFundInputnotaStruct,
     initData: Bytes
   ): BigInt {
     let result = super.call(
@@ -385,8 +385,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
         ethereum.Value.fromAddress(owner),
         ethereum.Value.fromUnsignedBigInt(amount),
         ethereum.Value.fromUnsignedBigInt(instant),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
-        ethereum.Value.fromTuple(cheq),
+        ethereum.Value.fromUnsignedBigInt(notaId),
+        ethereum.Value.fromTuple(nota),
         ethereum.Value.fromBytes(initData)
       ]
     );
@@ -399,8 +399,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
     owner: Address,
     amount: BigInt,
     instant: BigInt,
-    cheqId: BigInt,
-    cheq: ReversibleRelease__processFundInputCheqStruct,
+    notaId: BigInt,
+    nota: ReversibleRelease__processFundInputnotaStruct,
     initData: Bytes
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
@@ -411,8 +411,8 @@ export class ReversibleRelease extends ethereum.SmartContract {
         ethereum.Value.fromAddress(owner),
         ethereum.Value.fromUnsignedBigInt(amount),
         ethereum.Value.fromUnsignedBigInt(instant),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
-        ethereum.Value.fromTuple(cheq),
+        ethereum.Value.fromUnsignedBigInt(notaId),
+        ethereum.Value.fromTuple(nota),
         ethereum.Value.fromBytes(initData)
       ]
     );
@@ -516,7 +516,7 @@ export class ReversibleRelease extends ethereum.SmartContract {
   processWrite(
     caller: Address,
     owner: Address,
-    cheqId: BigInt,
+    notaId: BigInt,
     currency: Address,
     escrowed: BigInt,
     instant: BigInt,
@@ -528,7 +528,7 @@ export class ReversibleRelease extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(caller),
         ethereum.Value.fromAddress(owner),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
+        ethereum.Value.fromUnsignedBigInt(notaId),
         ethereum.Value.fromAddress(currency),
         ethereum.Value.fromUnsignedBigInt(escrowed),
         ethereum.Value.fromUnsignedBigInt(instant),
@@ -542,7 +542,7 @@ export class ReversibleRelease extends ethereum.SmartContract {
   try_processWrite(
     caller: Address,
     owner: Address,
-    cheqId: BigInt,
+    notaId: BigInt,
     currency: Address,
     escrowed: BigInt,
     instant: BigInt,
@@ -554,7 +554,7 @@ export class ReversibleRelease extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(caller),
         ethereum.Value.fromAddress(owner),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
+        ethereum.Value.fromUnsignedBigInt(notaId),
         ethereum.Value.fromAddress(currency),
         ethereum.Value.fromUnsignedBigInt(escrowed),
         ethereum.Value.fromUnsignedBigInt(instant),
@@ -682,12 +682,12 @@ export class ProcessCashCall__Inputs {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 
-  get cheq(): ProcessCashCallCheqStruct {
-    return changetype<ProcessCashCallCheqStruct>(
+  get nota(): ProcessCashCallnotaStruct {
+    return changetype<ProcessCashCallnotaStruct>(
       this._call.inputValues[5].value.toTuple()
     );
   }
@@ -709,7 +709,7 @@ export class ProcessCashCall__Outputs {
   }
 }
 
-export class ProcessCashCallCheqStruct extends ethereum.Tuple {
+export class ProcessCashCallnotaStruct extends ethereum.Tuple {
   get currency(): Address {
     return this[0].toAddress();
   }
@@ -760,12 +760,12 @@ export class ProcessFundCall__Inputs {
     return this._call.inputValues[3].value.toBigInt();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._call.inputValues[4].value.toBigInt();
   }
 
-  get cheq(): ProcessFundCallCheqStruct {
-    return changetype<ProcessFundCallCheqStruct>(
+  get nota(): ProcessFundCallnotaStruct {
+    return changetype<ProcessFundCallnotaStruct>(
       this._call.inputValues[5].value.toTuple()
     );
   }
@@ -787,7 +787,7 @@ export class ProcessFundCall__Outputs {
   }
 }
 
-export class ProcessFundCallCheqStruct extends ethereum.Tuple {
+export class ProcessFundCallnotaStruct extends ethereum.Tuple {
   get currency(): Address {
     return this[0].toAddress();
   }
@@ -900,7 +900,7 @@ export class ProcessWriteCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 

@@ -4,13 +4,14 @@ pragma solidity ^0.8.16;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "./mock/erc20.sol";
-import {CheqRegistrar} from "../src/CheqRegistrar.sol";
+import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {Milestones} from "../src/modules/Milestones.sol";
 
+
 // TODO add fail tests
 contract MilestonesTest is Test {
-    CheqRegistrar public REGISTRAR;
+    NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -25,7 +26,7 @@ contract MilestonesTest is Test {
 
     function setUp() public {
         // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(); // ContractTest is the owner
+        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -35,90 +36,90 @@ contract MilestonesTest is Test {
         vm.label(address(this), "TestContract");
         vm.label(address(dai), "TestDai");
         vm.label(address(usdc), "TestUSDC");
-        vm.label(address(REGISTRAR), "CheqRegistrarContract");
+        vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
-    function whitelist(address module) public {
-        // Whitelists tokens, rules, modules
-        // REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true, "Milestones"); // Whitelist bytecode
-    }
+    // function whitelist(address module) public {
+    //     // Whitelists tokens, rules, modules
+    //     // REGISTRAR.whitelistRule(rule, true);
+    //     REGISTRAR.whitelistModule(module, false, true, "Milestones"); // Whitelist bytecode
+    // }
 
     /*///////////////////////// SETUP /////////////////////////////*/
-    function testWhitelistToken() public {
-        address daiAddress = address(dai);
-        vm.prank(address(this));
+    // function testWhitelistToken() public {
+    //     address daiAddress = address(dai);
+    //     vm.prank(address(this));
 
-        // Whitelist tokens
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Unauthorized whitelist"
-        );
-        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
-        assertTrue(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Whitelisting failed"
-        );
-        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Un-whitelisting failed"
-        );
+    //     // Whitelist tokens
+    //     assertFalse(
+    //         REGISTRAR.tokenWhitelisted(daiAddress),
+    //         "Unauthorized whitelist"
+    //     );
+    //     REGISTRAR.whitelistToken(daiAddress, true, "DAI");
+    //     assertTrue(
+    //         REGISTRAR.tokenWhitelisted(daiAddress),
+    //         "Whitelisting failed"
+    //     );
+    //     REGISTRAR.whitelistToken(daiAddress, false, "DAI");
+    //     assertFalse(
+    //         REGISTRAR.tokenWhitelisted(daiAddress),
+    //         "Un-whitelisting failed"
+    //     );
 
-        // Whitelist rules
-        // MilestonesRules milestonesRules = new MilestonesRules();
-        // address milestonesRulesAddress = address(milestonesRules);
-        // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
-        //     "Unauthorized whitelist"
-        // );
-        // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
-        // assertTrue(
-        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
-        //     "Whitelisting failed"
-        // );
-        // REGISTRAR.whitelistRule(milestonesRulesAddress, false);
-        // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
-        //     "Un-whitelisting failed"
-        // );
-        // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
+    //     // Whitelist rules
+    //     // MilestonesRules milestonesRules = new MilestonesRules();
+    //     // address milestonesRulesAddress = address(milestonesRules);
+    //     // assertFalse(
+    //     //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
+    //     //     "Unauthorized whitelist"
+    //     // );
+    //     // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
+    //     // assertTrue(
+    //     //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
+    //     //     "Whitelisting failed"
+    //     // );
+    //     // REGISTRAR.whitelistRule(milestonesRulesAddress, false);
+    //     // assertFalse(
+    //     //     REGISTRAR.ruleWhitelisted(milestonesRulesAddress),
+    //     //     "Un-whitelisting failed"
+    //     // );
+    //     // REGISTRAR.whitelistRule(milestonesRulesAddress, true); // whitelist bytecode, not address
 
-        // Whitelist module
-        Milestones milestones = new Milestones(
-            address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
-            "ipfs://yourmemos.com/"
-        );
-        address milestonesAddress = address(milestones);
-        (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
-            .moduleWhitelisted(milestonesAddress);
-        assertFalse(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Unauthorized whitelist"
-        );
-        REGISTRAR.whitelistModule(milestonesAddress, true, false, "Milestones"); // whitelist bytecode, not address
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            milestonesAddress
-        );
-        assertTrue(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Whitelisting failed"
-        );
-        REGISTRAR.whitelistModule(
-            milestonesAddress,
-            false,
-            false,
-            "Milestones"
-        );
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            milestonesAddress
-        );
-        assertFalse(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Un-whitelisting failed"
-        );
-    }
+    //     // Whitelist module
+    //     Milestones milestones = new Milestones(
+    //         address(REGISTRAR),
+    //         DataTypes.WTFCFees(0, 0, 0, 0),
+    //         "ipfs://yourmemos.com/"
+    //     );
+    //     address milestonesAddress = address(milestones);
+    //     (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
+    //         .moduleWhitelisted(milestonesAddress);
+    //     assertFalse(
+    //         addressWhitelisted || bytecodeWhitelisted,
+    //         "Unauthorized whitelist"
+    //     );
+    //     REGISTRAR.whitelistModule(milestonesAddress, true, false, "Milestones"); // whitelist bytecode, not address
+    //     (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
+    //         milestonesAddress
+    //     );
+    //     assertTrue(
+    //         addressWhitelisted || bytecodeWhitelisted,
+    //         "Whitelisting failed"
+    //     );
+    //     REGISTRAR.whitelistModule(
+    //         milestonesAddress,
+    //         false,
+    //         false,
+    //         "Milestones"
+    //     );
+    //     (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
+    //         milestonesAddress
+    //     );
+    //     assertFalse(
+    //         addressWhitelisted || bytecodeWhitelisted,
+    //         "Un-whitelisting failed"
+    //     );
+    // }
 
     function setUpMilestones() public returns (Milestones) {
         // Deploy and whitelist module
@@ -127,12 +128,12 @@ contract MilestonesTest is Test {
             DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://yourmemos.com/"
         );
-        REGISTRAR.whitelistModule(
-            address(milestones),
-            true,
-            false,
-            "Milestones"
-        );
+        // REGISTRAR.whitelistModule(
+        //     address(milestones),
+        //     true,
+        //     false,
+        //     "Milestones"
+        // );
         vm.label(address(milestones), "Milestones");
         return milestones;
     }
@@ -148,57 +149,57 @@ contract MilestonesTest is Test {
     function registrarWriteBefore(address caller, address owner) public {
         assertTrue(
             REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a cheq"
+            "Caller already had a nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 0,
-            "Recipient already had a cheq"
+            "Recipient already had a nota"
         );
-        assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
+        assertTrue(REGISTRAR.totalSupply() == 0, "nota supply non-zero");
     }
 
     function registrarWriteAfter(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 escrowed,
         address owner,
         address module
     ) public {
         assertTrue(
             REGISTRAR.totalSupply() == 1,
-            "Cheq supply didn't increment"
+            "nota supply didn't increment"
         );
         assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
-            "`owner` isn't owner of cheq"
+            REGISTRAR.ownerOf(notaId) == owner,
+            "`owner` isn't owner of nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 1,
             "Owner balance didn't increment"
         );
 
-        // CheqRegistrar wrote correctly to its storage
-        // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        // NotaRegistrar wrote correctly to its storage
+        // assertTrue(REGISTRAR.notaDrawer(notaId) == drawer, "Incorrect drawer");
         // assertTrue(
-        //     REGISTRAR.cheqRecipient(cheqId) == recipient,
+        //     REGISTRAR.notaRecipient(notaId) == recipient,
         //     "Incorrect recipient"
         // );
         assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == address(dai),
+            REGISTRAR.notaCurrency(notaId) == address(dai),
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
         assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
         assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }
 
     function calcTotalFees(
-        CheqRegistrar registrar,
+        NotaRegistrar registrar,
         Milestones milestones,
         uint256 escrowed,
         uint256 directAmount
@@ -229,7 +230,7 @@ contract MilestonesTest is Test {
             (secondMilestone != 0) &&
             (debtor != creditor) &&
             (debtor != address(0) && creditor != address(0)) &&
-            !isContract(creditor); // Don't send cheqs to non-ERC721Reciever contracts
+            !isContract(creditor); // Don't send notas to non-ERC721Reciever contracts
     }
 
     function _writePayment(
@@ -272,7 +273,7 @@ contract MilestonesTest is Test {
         address owner
     ) public returns (uint256, Milestones) {
         Milestones milestones = setUpMilestones();
-        REGISTRAR.whitelistToken(address(dai), true, "Milestones");
+        // REGISTRAR.whitelistToken(address(dai), true, "Milestones");
         registrarWriteBefore(caller, toNotify);
 
         uint256[] memory milestoneAmounts = new uint256[](2);
@@ -285,10 +286,10 @@ contract MilestonesTest is Test {
             milestoneAmounts
         );
 
-        uint256 cheqId;
+        uint256 notaId;
         if (caller == owner) {
             vm.prank(caller);
-            cheqId = REGISTRAR.write(
+            notaId = REGISTRAR.write(
                 address(dai),
                 0,
                 0,
@@ -297,13 +298,13 @@ contract MilestonesTest is Test {
                 initData
             ); // Sets caller as owner
             registrarWriteAfter(
-                cheqId,
+                notaId,
                 0, // escrowed
                 owner,
                 address(milestones)
             );
         } else {
-            cheqId = _writePayment(
+            notaId = _writePayment(
                 milestones,
                 firstMilestone,
                 secondMilestone,
@@ -312,18 +313,18 @@ contract MilestonesTest is Test {
                 initData
             );
             registrarWriteAfter(
-                cheqId,
+                notaId,
                 secondMilestone, // escrowed
                 owner,
                 address(milestones)
             );
         }
 
-        return (cheqId, milestones);
+        return (notaId, milestones);
     }
 
     function fundHelper(
-        uint256 cheqId,
+        uint256 notaId,
         address debtor,
         uint256 escrowed,
         uint256 instant,
@@ -343,7 +344,7 @@ contract MilestonesTest is Test {
 
         bytes memory fundData = abi.encode(bytes32(""));
         vm.prank(debtor);
-        REGISTRAR.fund(cheqId, escrowed, instant, fundData); // Send direct amount
+        REGISTRAR.fund(notaId, escrowed, instant, fundData); // Send direct amount
         assertTrue(
             debtorBalanceBefore - (escrowed + instant) == dai.balanceOf(debtor),
             "Didnt decrement balance"
@@ -367,7 +368,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             debtor, // caller
             secondMilestone, // escrowed amount
             firstMilestone, // instant amount
@@ -375,8 +376,8 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        // ICheqModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        // INotaModule wrote correctly to it's storage
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -398,7 +399,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -406,8 +407,8 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        // ICheqModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        // INotaModule wrote correctly to it's storage
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -428,7 +429,7 @@ contract MilestonesTest is Test {
             )
         );
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -437,7 +438,7 @@ contract MilestonesTest is Test {
         );
 
         fundHelper(
-            cheqId,
+            notaId,
             debtor, // debtor
             secondMilestone, // escrowed
             firstMilestone, // instant
@@ -462,7 +463,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             debtor, // caller
             secondMilestone, // escrowed amount
             firstMilestone, // instant amount
@@ -470,11 +471,11 @@ contract MilestonesTest is Test {
             creditor // The owner
         ); // Instant pay the first, escrow second
 
-        fundHelper(cheqId, debtor, 0, 0, milestones); // release second
+        fundHelper(notaId, debtor, 0, 0, milestones); // release second
 
         bytes memory cashData = abi.encode(1, address(0)); // cash second milestone
         vm.prank(creditor);
-        REGISTRAR.cash(cheqId, secondMilestone, creditor, cashData);
+        REGISTRAR.cash(notaId, secondMilestone, creditor, cashData);
     }
 
     function testCashInvoice(
@@ -494,7 +495,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -502,12 +503,12 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        fundHelper(cheqId, debtor, secondMilestone, firstMilestone, milestones);
-        fundHelper(cheqId, debtor, 0, 0, milestones);
+        fundHelper(notaId, debtor, secondMilestone, firstMilestone, milestones);
+        fundHelper(notaId, debtor, 0, 0, milestones);
 
         bytes memory cashData = abi.encode(1, address(0)); // cash second milestone
         vm.prank(creditor);
-        REGISTRAR.cash(cheqId, secondMilestone, creditor, cashData);
+        REGISTRAR.cash(notaId, secondMilestone, creditor, cashData);
     }
 }
 
@@ -517,11 +518,11 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     (uint256 notaId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 //     bytes memory cashData =  abi.encode(bytes32(""));
 
 //     vm.prank(owner);
-//     REGISTRAR.cash(cheqId, escrowed, owner, cashData);
+//     REGISTRAR.cash(notaId, escrowed, owner, cashData);
 // }
 
 // function testTransferPay(address caller, uint256 amount, address recipient) public {
@@ -530,9 +531,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+//     REGISTRAR.transferFrom(owner, drawer, notaId);
 // }
 
 // function testTransferInvoice(address caller, uint256 amount, address recipient) public {
@@ -541,9 +542,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+//     REGISTRAR.transferFrom(owner, drawer, notaId);
 // }
 
 // function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
@@ -552,9 +553,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 //     bytes memory fundData =  abi.encode(bytes32(""));
 
 //     vm.expectRevert(bytes("Rule: Only recipient"));
-//     REGISTRAR.fund(cheqId, 0, amount, fundData);
+//     REGISTRAR.fund(notaId, 0, amount, fundData);
 // }

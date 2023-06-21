@@ -45,7 +45,7 @@ export class PaymentCreated__Params {
     this._event = event;
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._event.parameters[0].value.toBigInt();
   }
 
@@ -526,7 +526,7 @@ export class DirectPayAxelar extends ethereum.SmartContract {
   processWrite(
     caller: Address,
     owner: Address,
-    cheqId: BigInt,
+    notaId: BigInt,
     currency: Address,
     escrowed: BigInt,
     instant: BigInt,
@@ -538,7 +538,7 @@ export class DirectPayAxelar extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(caller),
         ethereum.Value.fromAddress(owner),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
+        ethereum.Value.fromUnsignedBigInt(notaId),
         ethereum.Value.fromAddress(currency),
         ethereum.Value.fromUnsignedBigInt(escrowed),
         ethereum.Value.fromUnsignedBigInt(instant),
@@ -552,7 +552,7 @@ export class DirectPayAxelar extends ethereum.SmartContract {
   try_processWrite(
     caller: Address,
     owner: Address,
-    cheqId: BigInt,
+    notaId: BigInt,
     currency: Address,
     escrowed: BigInt,
     instant: BigInt,
@@ -564,7 +564,7 @@ export class DirectPayAxelar extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(caller),
         ethereum.Value.fromAddress(owner),
-        ethereum.Value.fromUnsignedBigInt(cheqId),
+        ethereum.Value.fromUnsignedBigInt(notaId),
         ethereum.Value.fromAddress(currency),
         ethereum.Value.fromUnsignedBigInt(escrowed),
         ethereum.Value.fromUnsignedBigInt(instant),
@@ -758,7 +758,7 @@ export class ProcessWriteCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 

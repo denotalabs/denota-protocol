@@ -132,7 +132,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -156,7 +156,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "cheqFee",
+        "name": "notaFee",
         "type": "uint256"
       },
       {
@@ -248,7 +248,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -276,11 +276,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqAmount",
+    "name": "notaAmount",
     "outputs": [
       {
         "internalType": "uint256",
@@ -295,59 +295,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqCurrency",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "cheqId",
-        "type": "uint256"
-      }
-    ],
-    "name": "cheqCurrencyValueEscrow",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "cheqId",
-        "type": "uint256"
-      }
-    ],
-    "name": "cheqDrawer",
+    "name": "notaCurrency",
     "outputs": [
       {
         "internalType": "address",
@@ -362,11 +314,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqDrawerRecipient",
+    "name": "notaCurrencyValueEscrow",
     "outputs": [
       {
         "internalType": "address",
@@ -374,6 +326,30 @@
         "type": "address"
       },
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "notaId",
+        "type": "uint256"
+      }
+    ],
+    "name": "notaDrawer",
+    "outputs": [
+      {
         "internalType": "address",
         "name": "",
         "type": "address"
@@ -386,11 +362,35 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqEscrowed",
+    "name": "notaDrawerRecipient",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "notaId",
+        "type": "uint256"
+      }
+    ],
+    "name": "notaEscrowed",
     "outputs": [
       {
         "internalType": "uint256",
@@ -405,11 +405,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqInfo",
+    "name": "notaInfo",
     "outputs": [
       {
         "components": [
@@ -449,7 +449,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       }
@@ -461,11 +461,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqModule",
+    "name": "notaModule",
     "outputs": [
       {
         "internalType": "address",
@@ -480,11 +480,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       }
     ],
-    "name": "cheqRecipient",
+    "name": "notaRecipient",
     "outputs": [
       {
         "internalType": "address",
@@ -527,7 +527,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -602,7 +602,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -1154,8 +1154,8 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
-        "name": "cheq",
+        "internalType": "struct DataTypes.Nota",
+        "name": "nota",
         "type": "tuple"
       },
       {

@@ -1,32 +1,32 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {ModuleBase} from "../ModuleBase.sol";
+import {OperatorFeeModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * @notice A simple time release module. The longer the release time, the more in fees you have to pay
  * Escrowed tokens are cashable after the releaseDate
- * Question: Allow cheq creator to update the URI?
+ * Question: Allow nota creator to update the URI?
  */
-contract SimpleTimelockFee is ModuleBase {
+contract SimpleTimelockFee is OperatorFeeModuleBase {
     mapping(uint256 => uint256) public releaseDate;
-    event Timelock(uint256 cheqId, uint256 _releaseDate);
+    event Timelock(uint256 notaId, uint256 _releaseDate);
 
     constructor(
         address registrar,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    ) ModuleBase(registrar, _fees) {
+    ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
     function processWrite(
         address /*caller*/,
         address /*owner*/,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -35,9 +35,9 @@ contract SimpleTimelockFee is ModuleBase {
         (uint256 _releaseDate, address dappOperator) = abi.decode(
             initData,
             (uint256, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        releaseDate[cheqId] = _releaseDate;
-        emit Timelock(cheqId, _releaseDate);
+        ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+        releaseDate[notaId] = _releaseDate;
+        emit Timelock(notaId, _releaseDate);
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
@@ -47,7 +47,7 @@ contract SimpleTimelockFee is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -63,8 +63,8 @@ contract SimpleTimelockFee is ModuleBase {
         address /*owner*/,
         uint256 /*amount*/,
         uint256 /*instant*/,
-        uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -76,14 +76,14 @@ contract SimpleTimelockFee is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 amount,
-        uint256 /*cheqId*/,
-        DataTypes.Cheq calldata cheq,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(amount == cheq.escrowed, "Must fully cash");
+        require(amount == nota.escrowed, "Must fully cash");
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -94,8 +94,8 @@ contract SimpleTimelockFee is ModuleBase {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
@@ -103,7 +103,7 @@ contract SimpleTimelockFee is ModuleBase {
 
     function processTokenURI(
         uint256 tokenId
-    ) external view override returns (string memory) {
-        return string(abi.encodePacked(_URI, tokenId));
+    ) external view override returns (string memory, string memory) {
+        return ("", string(abi.encodePacked(_URI, tokenId)));
     }
 }

@@ -161,40 +161,40 @@ export class Account extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get cheqsOwned(): Array<string> {
-    let value = this.get("cheqsOwned");
+  get notasOwned(): Array<string> {
+    let value = this.get("notasOwned");
     return value!.toStringArray();
   }
 
-  set cheqsOwned(value: Array<string>) {
-    this.set("cheqsOwned", Value.fromStringArray(value));
+  set notasOwned(value: Array<string>) {
+    this.set("notasOwned", Value.fromStringArray(value));
   }
 
-  get cheqsSent(): Array<string> {
-    let value = this.get("cheqsSent");
+  get notasSent(): Array<string> {
+    let value = this.get("notasSent");
     return value!.toStringArray();
   }
 
-  set cheqsSent(value: Array<string>) {
-    this.set("cheqsSent", Value.fromStringArray(value));
+  set notasSent(value: Array<string>) {
+    this.set("notasSent", Value.fromStringArray(value));
   }
 
-  get cheqsReceived(): Array<string> {
-    let value = this.get("cheqsReceived");
+  get notasReceived(): Array<string> {
+    let value = this.get("notasReceived");
     return value!.toStringArray();
   }
 
-  set cheqsReceived(value: Array<string>) {
-    this.set("cheqsReceived", Value.fromStringArray(value));
+  set notasReceived(value: Array<string>) {
+    this.set("notasReceived", Value.fromStringArray(value));
   }
 
-  get cheqsInspected(): Array<string> {
-    let value = this.get("cheqsInspected");
+  get notasInspected(): Array<string> {
+    let value = this.get("notasInspected");
     return value!.toStringArray();
   }
 
-  set cheqsInspected(value: Array<string>) {
-    this.set("cheqsInspected", Value.fromStringArray(value));
+  set notasInspected(value: Array<string>) {
+    this.set("notasInspected", Value.fromStringArray(value));
   }
 
   get transfersFrom(): Array<string> {
@@ -251,7 +251,7 @@ export class Transfer extends Entity {
     this.set("emitter", Value.fromString(""));
     this.set("transaction", Value.fromString(""));
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
-    this.set("cheq", Value.fromString(""));
+    this.set("nota", Value.fromString(""));
     this.set("from", Value.fromString(""));
     this.set("to", Value.fromString(""));
   }
@@ -309,13 +309,13 @@ export class Transfer extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get cheq(): string {
-    let value = this.get("cheq");
+  get nota(): string {
+    let value = this.get("nota");
     return value!.toString();
   }
 
-  set cheq(value: string) {
-    this.set("cheq", Value.fromString(value));
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
   }
 
   get from(): string {
@@ -345,7 +345,7 @@ export class Escrow extends Entity {
     this.set("emitter", Value.fromString(""));
     this.set("transaction", Value.fromString(""));
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
-    this.set("cheq", Value.fromString(""));
+    this.set("nota", Value.fromString(""));
     this.set("from", Value.fromString(""));
     this.set("amount", Value.fromBigInt(BigInt.zero()));
     this.set("instantAmount", Value.fromBigInt(BigInt.zero()));
@@ -404,13 +404,13 @@ export class Escrow extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get cheq(): string {
-    let value = this.get("cheq");
+  get nota(): string {
+    let value = this.get("nota");
     return value!.toString();
   }
 
-  set cheq(value: string) {
-    this.set("cheq", Value.fromString(value));
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
   }
 
   get from(): string {
@@ -448,7 +448,7 @@ export class Approval extends Entity {
 
     this.set("transaction", Value.fromString(""));
     this.set("timestamp", Value.fromBigInt(BigInt.zero()));
-    this.set("cheq", Value.fromString(""));
+    this.set("nota", Value.fromString(""));
     this.set("owner", Value.fromString(""));
     this.set("approved", Value.fromString(""));
     this.set("emitter", Value.fromString(""));
@@ -498,13 +498,13 @@ export class Approval extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 
-  get cheq(): string {
-    let value = this.get("cheq");
+  get nota(): string {
+    let value = this.get("nota");
     return value!.toString();
   }
 
-  set cheq(value: string) {
-    this.set("cheq", Value.fromString(value));
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
   }
 
   get owner(): string {
@@ -535,7 +535,7 @@ export class Approval extends Entity {
   }
 }
 
-export class Cheq extends Entity {
+export class nota extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -547,19 +547,19 @@ export class Cheq extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Cheq entity without an ID");
+    assert(id != null, "Cannot save nota entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save Cheq entity with non-string ID. " +
+        "Cannot save nota entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("Cheq", id.toString(), this);
+      store.set("nota", id.toString(), this);
     }
   }
 
-  static load(id: string): Cheq | null {
-    return changetype<Cheq | null>(store.get("Cheq", id));
+  static load(id: string): nota | null {
+    return changetype<nota | null>(store.get("nota", id));
   }
 
   get id(): string {
@@ -796,7 +796,7 @@ export class Cheq extends Entity {
   }
 }
 
-export class CheqRegistrar extends Entity {
+export class NotaRegistrar extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -811,19 +811,19 @@ export class CheqRegistrar extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save CheqRegistrar entity without an ID");
+    assert(id != null, "Cannot save NotaRegistrar entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        "Cannot save CheqRegistrar entity with non-string ID. " +
+        "Cannot save NotaRegistrar entity with non-string ID. " +
           'Considering using .toHex() to convert the "id" to a string.'
       );
-      store.set("CheqRegistrar", id.toString(), this);
+      store.set("NotaRegistrar", id.toString(), this);
     }
   }
 
-  static load(id: string): CheqRegistrar | null {
-    return changetype<CheqRegistrar | null>(store.get("CheqRegistrar", id));
+  static load(id: string): NotaRegistrar | null {
+    return changetype<NotaRegistrar | null>(store.get("NotaRegistrar", id));
   }
 
   get id(): string {
@@ -1249,7 +1249,7 @@ export class DirectPayModule extends Entity {
     this.set("transferFee", Value.fromI32(0));
     this.set("fundFee", Value.fromI32(0));
     this.set("cashFee", Value.fromI32(0));
-    this.set("numCheqsManaged", Value.fromBigInt(BigInt.zero()));
+    this.set("numnotasManaged", Value.fromBigInt(BigInt.zero()));
   }
 
   save(): void {
@@ -1332,21 +1332,21 @@ export class DirectPayModule extends Entity {
     this.set("cashFee", Value.fromI32(value));
   }
 
-  get cheqsManaged(): Array<string> {
-    let value = this.get("cheqsManaged");
+  get notasManaged(): Array<string> {
+    let value = this.get("notasManaged");
     return value!.toStringArray();
   }
 
-  set cheqsManaged(value: Array<string>) {
-    this.set("cheqsManaged", Value.fromStringArray(value));
+  set notasManaged(value: Array<string>) {
+    this.set("notasManaged", Value.fromStringArray(value));
   }
 
-  get numCheqsManaged(): BigInt {
-    let value = this.get("numCheqsManaged");
+  get numnotasManaged(): BigInt {
+    let value = this.get("numnotasManaged");
     return value!.toBigInt();
   }
 
-  set numCheqsManaged(value: BigInt) {
-    this.set("numCheqsManaged", Value.fromBigInt(value));
+  set numnotasManaged(value: BigInt) {
+    this.set("numnotasManaged", Value.fromBigInt(value));
   }
 }

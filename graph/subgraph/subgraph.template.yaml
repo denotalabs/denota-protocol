@@ -14,11 +14,11 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
+        - nota  # notas
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
+        - Account  # Accounts that have interacted with NotaRegistrar
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
@@ -50,11 +50,11 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
+        - nota  # notas
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
+        - Account  # Accounts that have interacted with NotaRegistrar
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
@@ -78,11 +78,11 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
+        - nota  # notas
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
+        - Account  # Accounts that have interacted with NotaRegistrar
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
@@ -106,11 +106,11 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
+        - nota  # notas
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
+        - Account  # Accounts that have interacted with NotaRegistrar
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
@@ -134,11 +134,11 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Cheq  # Cheqs
+        - nota  # notas
         - Transfer  # Write/Transfers
         - Escrow  # Fund/Cash
         - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
+        - Account  # Accounts that have interacted with NotaRegistrar
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData

@@ -21,6 +21,8 @@ Steps to deploy to a new chain:
 
 contractAddresses.tsx should automatically have been updated
 TODO: figure out how to get nginx wildcard paths working properly, manually add a path for each chain for now
+TODO Capture which branch/commit the contracts were deployed from
+TODO how to update contract addresses on redeployement
 """
 
 
@@ -102,7 +104,7 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
     newRegistrarDeployed = False
 
     if not existing_addresses[chain]["registrar"]:
-        registar_path = "src/CheqRegistrar.sol:CheqRegistrar"
+        registar_path = "src/NotaRegistrar.sol:NotaRegistrar"
         result = eth_call(
             f'forge create {registar_path} {rpc_key_flags}', "Registrar deployment failed")
         registrar = extract_address(result.stdout)

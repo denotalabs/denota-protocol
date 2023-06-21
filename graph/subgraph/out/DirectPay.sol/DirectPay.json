@@ -98,7 +98,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -312,7 +312,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       },
@@ -377,7 +377,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       },
@@ -422,7 +422,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -448,8 +448,8 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
-        "name": "cheq",
+        "internalType": "struct DataTypes.Nota",
+        "name": "nota",
         "type": "tuple"
       },
       {
@@ -566,7 +566,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {

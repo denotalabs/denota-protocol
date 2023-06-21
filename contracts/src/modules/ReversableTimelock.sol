@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {ModuleBase} from "../ModuleBase.sol";
+import {OperatorFeeModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversableTimelock is ModuleBase {
+contract ReversableTimelock is OperatorFeeModuleBase {
     struct Payment {
         address inspector;
         address drawer;
@@ -32,14 +32,14 @@ contract ReversableTimelock is ModuleBase {
         address registrar,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI
-    ) ModuleBase(registrar, _fees) {
+    ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -53,10 +53,10 @@ contract ReversableTimelock is ModuleBase {
         ) = abi.decode(initData, (address, uint256, address, bytes32));
         require((caller != owner) && (owner != address(0)), "Invalid Params");
 
-        payments[cheqId].inspector = inspector;
-        payments[cheqId].inspectionEnd = inspectionEnd;
-        payments[cheqId].drawer = caller;
-        payments[cheqId].memoHash = memoHash;
+        payments[notaId].inspector = inspector;
+        payments[notaId].inspectionEnd = inspectionEnd;
+        payments[notaId].drawer = caller;
+        payments[notaId].memoHash = memoHash;
 
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
@@ -67,7 +67,7 @@ contract ReversableTimelock is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -85,8 +85,8 @@ contract ReversableTimelock is ModuleBase {
         address, // owner,
         uint256, // amount,
         uint256, // instant,
-        uint256, // cheqId,
-        DataTypes.Cheq calldata, // cheq,
+        uint256, // notaId,
+        DataTypes.Nota calldata, // nota,
         bytes calldata // initData
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "");
@@ -98,17 +98,17 @@ contract ReversableTimelock is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(
-            caller == payments[cheqId].inspector,
+            caller == payments[notaId].inspector,
             "Inspector cash for owner"
         );
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -119,18 +119,18 @@ contract ReversableTimelock is ModuleBase {
         address caller,
         address owner,
         address to,
-        uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes memory initData
     ) external override onlyRegistrar {}
 
     function processTokenURI(
         uint256 tokenId
-    ) external view override returns (string memory) {
-        return
+    ) external view override returns (string memory, string memory) {
+        return ("",
             bytes(_URI).length > 0
                 ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
-                : "";
+                : "");
 
         // return string(abi.encode(_URI, payments[tokenId].memoHash));
     }

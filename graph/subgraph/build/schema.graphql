@@ -18,11 +18,11 @@ type Account @entity {
   id: ID!
   # TODO need to query every new user's token balances for future modules that may depend on token balance logic
   # ERC20balances: [ERC20Balance!]! @derivedFrom(field: "account")
-  cheqsOwned: [Cheq!]! @derivedFrom(field: "owner")
+  notasOwned: [nota!]! @derivedFrom(field: "owner")
 
-  cheqsSent: [Cheq!]! @derivedFrom(field: "sender")
-  cheqsReceived: [Cheq!]! @derivedFrom(field: "receiver")
-  cheqsInspected: [Cheq!]! @derivedFrom(field: "inspector")
+  notasSent: [nota!]! @derivedFrom(field: "sender")
+  notasReceived: [nota!]! @derivedFrom(field: "receiver")
+  notasInspected: [nota!]! @derivedFrom(field: "inspector")
 
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
@@ -50,7 +50,7 @@ type Transfer implements Event @entity(immutable: true) {
   emitter: Account!
   transaction: Transaction!
   timestamp: BigInt!
-  cheq: Cheq!
+  nota: nota!
   from: Account!
   to: Account!
 }
@@ -59,7 +59,7 @@ type Escrow implements Event @entity(immutable: true) {  # Instances of escrowin
   emitter: Account!
   transaction: Transaction!
   timestamp: BigInt!
-  cheq: Cheq!
+  nota: nota!
   from: Account!
   amount: BigInt!
   instantAmount: BigInt!
@@ -69,13 +69,13 @@ type Approval implements Event @entity {
   id: ID!
   transaction: Transaction!
   timestamp: BigInt!
-  cheq: Cheq!
+  nota: nota!
   owner: Account!
   approved: Account!
   emitter: Account!
 }
 
-type Cheq @entity {
+type nota @entity {
   id: ID!
   timestamp: BigInt!
   createdAt: BigInt!
@@ -88,9 +88,9 @@ type Cheq @entity {
   escrowed: BigInt
 
   owner: Account
-  transfers: [Transfer!]! @derivedFrom(field: "cheq")
-  escrows: [Escrow!]! @derivedFrom(field: "cheq")
-  approvals: [Approval!]! @derivedFrom(field: "cheq")
+  transfers: [Transfer!]! @derivedFrom(field: "nota")
+  escrows: [Escrow!]! @derivedFrom(field: "nota")
+  approvals: [Approval!]! @derivedFrom(field: "nota")
   sender: Account
   receiver: Account
   moduleData: ModuleData!
@@ -99,8 +99,8 @@ type Cheq @entity {
 }
 
 # TODO: figure out why unions aren't working
-# union CheqData =  BYOAData | SelfSignedCheqData
-type CheqRegistrar @entity {
+# union notaData =  BYOAData | SelfSignednotaData
+type NotaRegistrar @entity {
   id: ID!  # Should this be the registrar's address?
   name: String!
   writeFee: Int!
@@ -158,26 +158,26 @@ type ReversiblePaymentData implements ModuleData @entity {
 
 interface Module {  # Allows new modules to inherit from Module interface
   id: ID!
-  registrar: CheqRegistrar!
+  registrar: NotaRegistrar!
   isWhitelisted: Boolean!
   writeFee: Int!
   transferFee: Int!
   fundFee: Int!
   cashFee: Int!
-  cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
-  numCheqsManaged: BigInt!
+  notasManaged: [nota!]! @derivedFrom(field: "module")
+  numnotasManaged: BigInt!
 }
 
 type DirectPayModule implements Module @entity {
   id: ID!
-  registrar: CheqRegistrar!
+  registrar: NotaRegistrar!
   isWhitelisted: Boolean!
   writeFee: Int!
   transferFee: Int!
   fundFee: Int!
   cashFee: Int!
-  cheqsManaged: [Cheq!]! @derivedFrom(field: "module")
-  numCheqsManaged: BigInt!
+  notasManaged: [nota!]! @derivedFrom(field: "module")
+  numnotasManaged: BigInt!
 }
 
 

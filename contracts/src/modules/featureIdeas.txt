@@ -13,15 +13,15 @@ General Features:
     function rewardUser(Action action) {if (action==Action.Write){ _mint(_msgSender(), rewardW);}else if(...){} }
 * Reputation Blacklisting
     function blacklistUser(address, bool) onlyOwner { blacklisted[address] == bool }
-    function ownerOf() { require(cheqId.module.processOwnerOf(cheqId), "MODULE_REVOKED_OWNERSHIP");}
-    function processX() { require(!blacklisted[cheqId.owner]) }
+    function ownerOf() { require(notaId.module.processOwnerOf(notaId), "MODULE_REVOKED_OWNERSHIP");}
+    function processX() { require(!blacklisted[notaId.owner]) }
 * Yield Generation
     function yieldWrite() {AAVE.deposit(token); REGISTRAR.write(aToken, address(this), ...)}
-* Cheq Buy-Backs
-    function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
+* nota Buy-Backs
+    function buynota(notaId) {REGISTRAR.transferFrom(notaId, caller, address(this)); ERC20._mint(caller, nota.escrowed)}; // AMM style nota buybacks and issue tokens
 * ZK proving of past payments
-    function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
-* Dynamically charging fees based on caller, cheqId, or other (if intervention was needed for ex)
+    function proveModuleTotalSuccessfulPayment(address) { ZK.recovernotaAmountsByAccount(address); }
+* Dynamically charging fees based on caller, notaId, or other (if intervention was needed for ex)
 Admin role abilities: 
 1. Global pausing of WTFCA
 2. Operator-like transfer ability
@@ -37,20 +37,20 @@ Admin role abilities:
 
 Writing Features:
 * Proof-of-Funds
-    require(cheq.amount == cheq.escrowed)
+    require(nota.amount == nota.escrowed)
 * Proof-of-Reserves
-    require(IERC20(cheq.currency).balanceOf(cheq.drawer) > cheq.amount)
+    require(IERC20(nota.currency).balanceOf(nota.drawer) > nota.amount)
 * Token Allowlists (by module or by user)
-    require(tokenWhitelist[cheq.currency])
+    require(tokenWhitelist[nota.currency])
 * Payment Delegation
-    require(cheq.drawer == cheq.payer)
+    require(nota.drawer == nota.payer)
 * Setting NFT Contract address
-    function processWrite() { nftGate[cheqId] = NFTAddress}
-    require(NFTAddress.balanceOf(to) > 0, "Only token holders can trade this cheq");
+    function processWrite() { nftGate[notaId] = NFTAddress}
+    require(NFTAddress.balanceOf(to) > 0, "Only token holders can trade this nota");
 
 Transferring:
 * Timelocks
-    require(cheq.timeCreated + inspectionPeriod[cheqID] >= block.timestamp, "");
+    require(nota.timeCreated + inspectionPeriod[notaID] >= block.timestamp, "");
 * Sender-approvals
     function approveRecipient(address, bool) { senderApproves[msg.sender][address] = bool; }
     require(senderApproves[msg.sender][address], "")
@@ -64,7 +64,7 @@ Transferring:
 
 Funding:
 * Allowed Funding Amount
-    require(cheq.milestones[currentMilestone].fundTime < block.timestamp, "") (delinquent payment)
+    require(nota.milestones[currentMilestone].fundTime < block.timestamp, "") (delinquent payment)
 * Late-funding Interest
     function setLatePaymentInterestRate() onlyOwner {}
     function fund();
@@ -75,22 +75,22 @@ Funding:
 
 Cashing
 * Cashing Amounts
-    require(cheq.milestones[currentMilestone].clientStatus == Finished, "")
+    require(nota.milestones[currentMilestone].clientStatus == Finished, "")
 * Payment Splitting
     function cashable() { cashable = 0xSplits.isAmountByMember[_msgSender()]; }
 * Spite Disputation
-    function spite() onlyCheqOwner { invoice.status == status.Spited; }
-    function cash() { cheq.module.processCash(msg.sender, ...) } (amount to cash is half for each caller)
+    function spite() onlynotaOwner { invoice.status == status.Spited; }
+    function cash() { nota.module.processCash(msg.sender, ...) } (amount to cash is half for each caller)
     function setSpitePercent(uint) onlyOwner { SPITE_BPS = uint; }
-    function cash() { if (msg.sender==drawer) {cheq.amount*SPIT_BPS} else if (msg.sender==recipient){SPITE_BPS} }
+    function cash() { if (msg.sender==drawer) {nota.amount*SPIT_BPS} else if (msg.sender==recipient){SPITE_BPS} }
 * Spite + Spiter Timelock (recipient Timelocks (w/wo yield))
     function setSpiteTimelock(uint) { SPITE_TIMELOCK = uint; }
 * Reversibility/Arbitration_Ruling_Payout
-    function settleDispute(cheqId, amount) onlyArbitor { require(amount<=cheq.amount, ""); cheq.currency.transfer(winner, amount) }
+    function settleDispute(notaId, amount) onlyArbitor { require(amount<=nota.amount, ""); nota.currency.transfer(winner, amount) }
 
 URI
 * Setting by Role
-    function setTokenURI(cheqId) onlyDrawerRecipientDelegateOwner {}
+    function setTokenURI(notaId) onlyDrawerRecipientDelegateOwner {}
 * Dynamicly Set
     string memory URI = oracle(oracleAddress).state;
 * Randomly Set

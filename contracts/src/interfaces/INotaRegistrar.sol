@@ -2,15 +2,15 @@
 pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
 
 /**
- * @notice CheqRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing cheq data
- * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces cheq.escrowed)?
+ * @notice NotaRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing nota data
+ * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces nota.escrowed)?
  * Question: Should process_() return non-booleans?
- * TODO: pass cheq as a struct or individual variables?
+ * TODO: pass nota as a struct or individual variables?
  */
-interface ICheqRegistrar {
+interface INotaRegistrar {
     function write(
         address currency,
         uint256 escrowed,
@@ -39,14 +39,14 @@ interface ICheqRegistrar {
     ) external;
 
     function fund(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         uint256 instant,
         bytes calldata fundData
     ) external payable;
 
     function cash(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         address to,
         bytes calldata cashData
@@ -56,18 +56,22 @@ interface ICheqRegistrar {
 
     // function burn(uint256 tokenId) external;
 
-    // Cheq data
-    function cheqInfo(
-        uint256 cheqId
-    ) external view returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
+    // nota data
+    function notaInfo(
+        uint256 notaId
+    ) external view returns (DataTypes.Nota memory); // Question: Should this be the only _notaInfo view method?
 
-    function cheqCurrency(uint256 cheqId) external view returns (address);
+    function notaCreatedAt(uint256 notaId) external view returns (uint256);
+    
+    function notaCurrency(uint256 notaId) external view returns (address);
 
-    function cheqEscrowed(uint256 cheqId) external view returns (uint256);
+    function notaEscrowed(uint256 notaId) external view returns (uint256);
 
-    function cheqModule(uint256 cheqId) external view returns (address);
+    function notaModule(uint256 notaId) external view returns (address);
 
-    // function ownerOf(uint256 cheqId) external view returns (address);
+    function moduleWithdraw(address token,uint256 amount,address to) external;
+
+    // function ownerOf(uint256 notaId) external view returns (address);
 
     // function totalSupply() public view returns (uint256);
 

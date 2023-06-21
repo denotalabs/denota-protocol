@@ -4,7 +4,7 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
-import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
 import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
@@ -65,7 +65,7 @@ export async function setProvider(web3Connection: any) {
   if (contractMapping) {
     const registrar = new ethers.Contract(
       contractMapping.registrar,
-      CheqRegistrar.abi,
+      NotaRegistrar.abi,
       signer
     );
     const axelarBridgeSender = new ethers.Contract(
@@ -180,8 +180,8 @@ interface FundProps {
 
 export async function fund({ notaId }: FundProps) {
   const notaQuery = `
-  query cheqs($cheq: String ){
-    cheqs(where: { id: $cheq }, first: 1)  {
+  query notas($nota: String ){
+    notas(where: { id: $nota }, first: 1)  {
       erc20 {
         id
       }
@@ -207,11 +207,11 @@ export async function fund({ notaId }: FundProps) {
   const data = await client.query({
     query: gql(notaQuery),
     variables: {
-      cheq: notaId,
+      nota: notaId,
     },
   });
 
-  const nota = data["data"]["cheqs"][0];
+  const nota = data["data"]["notas"][0];
   const amount = BigNumber.from(nota.moduleData.amount);
 
   switch (nota.moduleData.__typename) {
@@ -237,8 +237,8 @@ interface CashPaymentProps {
 
 export async function cash({ notaId, type }: CashPaymentProps) {
   const notaQuery = `
-    query cheqs($cheq: String ){
-      cheqs(where: { id: $cheq }, first: 1)  {
+    query notas($nota: String ){
+      notas(where: { id: $nota }, first: 1)  {
         moduleData {
           ... on DirectPayData {
             __typename
@@ -274,11 +274,11 @@ export async function cash({ notaId, type }: CashPaymentProps) {
   const data = await client.query({
     query: gql(notaQuery),
     variables: {
-      cheq: notaId,
+      nota: notaId,
     },
   });
 
-  const nota = data["data"]["cheqs"][0];
+  const nota = data["data"]["notas"][0];
   const amount = BigNumber.from(nota.moduleData.amount);
 
   switch (nota.moduleData.__typename) {

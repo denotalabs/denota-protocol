@@ -109,7 +109,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "cheqId",
+          "name": "notaId",
           "type": "uint256"
         },
         {
@@ -348,7 +348,7 @@
               "type": "address"
             }
           ],
-          "internalType": "struct DataTypes.Cheq",
+          "internalType": "struct DataTypes.Nota",
           "name": "",
           "type": "tuple"
         },
@@ -387,7 +387,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "cheqId",
+          "name": "notaId",
           "type": "uint256"
         },
         {
@@ -413,8 +413,8 @@
               "type": "address"
             }
           ],
-          "internalType": "struct DataTypes.Cheq",
-          "name": "cheq",
+          "internalType": "struct DataTypes.Nota",
+          "name": "nota",
           "type": "tuple"
         },
         {
@@ -458,7 +458,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "cheqId",
+          "name": "notaId",
           "type": "uint256"
         },
         {
@@ -484,8 +484,8 @@
               "type": "address"
             }
           ],
-          "internalType": "struct DataTypes.Cheq",
-          "name": "cheq",
+          "internalType": "struct DataTypes.Nota",
+          "name": "nota",
           "type": "tuple"
         },
         {
@@ -602,7 +602,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "cheqId",
+          "name": "notaId",
           "type": "uint256"
         },
         {
@@ -768,7 +768,7 @@
     "setFees((uint256,uint256,uint256,uint256))": "fd77c960",
     "withdrawFees(address)": "164e68de"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"registrar\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"__baseURI\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AddressZero\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AmountZero\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Disallowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FeeTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientPayment\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvoiceWithPay\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotRegistrar\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyInspector\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOwnerOrApproved\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyToDebtorOrOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"memoHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"referer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"creditor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"debtor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"inspector\",\"type\":\"address\"}],\"name\":\"PaymentCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"dappOperatorFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dappOperator\",\"type\":\"address\"}],\"name\":\"getFees\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"payInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"inspector\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"creditor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"debtor\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"memoHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"imageURI\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Cheq\",\"name\":\"cheq\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"cheqId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"setFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/modules/ReversibleRelease.sol\":\"ReversibleRelease\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/ModuleBase.sol\":{\"keccak256\":\"0xf62999e089e5c61d1b37a30b4119cc121c119c4309e343370f16bddb1359500c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://69f6fe6f9fd1759d607f8cba8a6d14c6b26db8e4c765bb386df2480e9757a695\",\"dweb:/ipfs/QmZWzhBajXGvKA2rmQ39UgNd8jcNAE3kd6Dzy88hs5dQ6a\"]},\"src/interfaces/ICheqModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/interfaces/ICheqRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/modules/ReversibleRelease.sol\":{\"keccak256\":\"0xd42c4cafbe33f9778f78c18e4efa287c628a095bfb7b6cbf59a1db3e9d0b47ed\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://8da259894a2fcd64b610e1fb5082b8da642ff6d6b7384e7d75ee2996c94c88ac\",\"dweb:/ipfs/QmS6S5Ze1semXAhUkPUXH1BY3WapNi3C343LUgLzL4TxQU\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"registrar\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"},{\"internalType\":\"string\",\"name\":\"__baseURI\",\"type\":\"string\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AddressZero\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AmountZero\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"Disallowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"FeeTooHigh\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InitParamsInvalid\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientPayment\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvoiceWithPay\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotRegistrar\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyInspector\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOwnerOrApproved\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyToDebtorOrOwner\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"memoHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"referer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"creditor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"debtor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"inspector\",\"type\":\"address\"}],\"name\":\"PaymentCreated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"REGISTRAR\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_URI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"dappOperatorFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dappOperator\",\"type\":\"address\"}],\"name\":\"getFees\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"payInfo\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"inspector\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"creditor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"debtor\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"memoHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"imageURI\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Nota\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"processApproval\",\"outputs\":[],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Nota\",\"name\":\"nota\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processCash\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Nota\",\"name\":\"nota\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processFund\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"processTokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"processTransfer\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"initData\",\"type\":\"bytes\"}],\"name\":\"processWrite\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"revenue\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"setFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"withdrawFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/modules/ReversibleRelease.sol\":\"ReversibleRelease\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"src/ModuleBase.sol\":{\"keccak256\":\"0xf62999e089e5c61d1b37a30b4119cc121c119c4309e343370f16bddb1359500c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://69f6fe6f9fd1759d607f8cba8a6d14c6b26db8e4c765bb386df2480e9757a695\",\"dweb:/ipfs/QmZWzhBajXGvKA2rmQ39UgNd8jcNAE3kd6Dzy88hs5dQ6a\"]},\"src/interfaces/INotaModule.sol\":{\"keccak256\":\"0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665\",\"dweb:/ipfs/QmTruCJ3s8CrWJTr2FRwThyqH47jAjRBg5MEX3S3Wcfv46\"]},\"src/interfaces/INotaRegistrar.sol\":{\"keccak256\":\"0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6\",\"dweb:/ipfs/QmNXXUB3kQPAWUU2RLB82XToS9wGc6Wwcda2GhCRshPYZ9\"]},\"src/interfaces/IRegistrarGov.sol\":{\"keccak256\":\"0x806f310fb3ac245906049d72317f75c8c87f9b3bfb2e66d36eb59b9e234a47d1\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://4fc858223ca36ca5f10bbb60c138807c64acd19d73f4dde35e7b55329f8df836\",\"dweb:/ipfs/QmXSvS4zYKCqZAG6DAZgS1GfwkvNTm7Lg79EfdgseBxREx\"]},\"src/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/libraries/Errors.sol\":{\"keccak256\":\"0xa0fd577d9bd0c77191e2764a158e43057d2cd5f6f265d462937d55c3cf70be13\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c7775b32ef7f8b4627f1934c37596c63a9233c79f256a61922625d40f2a23f3a\",\"dweb:/ipfs/QmQY7rkWirP1RLw7XAegD4xxYRnUtZpEtEaj9kmoVTVXtw\"]},\"src/libraries/Events.sol\":{\"keccak256\":\"0xb6a1cd2690be1a3e4a7005e4b9e05a9c36825c0a63901f94bd83a582d75c6ff4\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://f8822aedccc9ffe4d005a9e118895fec409ca7c8c0131635607749374e7e6f59\",\"dweb:/ipfs/QmXpjYS61nBnpSWD19mQja3WNmtoU7Ayk1vPGzdGcn2yFa\"]},\"src/modules/ReversibleRelease.sol\":{\"keccak256\":\"0xd42c4cafbe33f9778f78c18e4efa287c628a095bfb7b6cbf59a1db3e9d0b47ed\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://8da259894a2fcd64b610e1fb5082b8da642ff6d6b7384e7d75ee2996c94c88ac\",\"dweb:/ipfs/QmS6S5Ze1semXAhUkPUXH1BY3WapNi3C343LUgLzL4TxQU\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -883,7 +883,7 @@
           "inputs": [
             {
               "internalType": "uint256",
-              "name": "cheqId",
+              "name": "notaId",
               "type": "uint256",
               "indexed": false
             },
@@ -1102,7 +1102,7 @@
               "type": "uint256"
             },
             {
-              "internalType": "struct DataTypes.Cheq",
+              "internalType": "struct DataTypes.Nota",
               "name": "",
               "type": "tuple",
               "components": [
@@ -1162,12 +1162,12 @@
             },
             {
               "internalType": "uint256",
-              "name": "cheqId",
+              "name": "notaId",
               "type": "uint256"
             },
             {
-              "internalType": "struct DataTypes.Cheq",
-              "name": "cheq",
+              "internalType": "struct DataTypes.Nota",
+              "name": "nota",
               "type": "tuple",
               "components": [
                 {
@@ -1233,12 +1233,12 @@
             },
             {
               "internalType": "uint256",
-              "name": "cheqId",
+              "name": "notaId",
               "type": "uint256"
             },
             {
-              "internalType": "struct DataTypes.Cheq",
-              "name": "cheq",
+              "internalType": "struct DataTypes.Nota",
+              "name": "nota",
               "type": "tuple",
               "components": [
                 {
@@ -1377,7 +1377,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "cheqId",
+              "name": "notaId",
               "type": "uint256"
             },
             {
@@ -1546,7 +1546,7 @@
         ],
         "license": "BUSL-1.1"
       },
-      "src/interfaces/ICheqModule.sol": {
+      "src/interfaces/INotaModule.sol": {
         "keccak256": "0x7153312d99268c6832d945bcbb32b0dd8d0047cd47774f5a8ac531fbe6b087be",
         "urls": [
           "bzz-raw://95becb203332f64a23eb1824418da275fc4080a52e04ece051e9e9791fc24665",
@@ -1554,7 +1554,7 @@
         ],
         "license": "BUSL-1.1"
       },
-      "src/interfaces/ICheqRegistrar.sol": {
+      "src/interfaces/INotaRegistrar.sol": {
         "keccak256": "0x38fa5cc4535b9d93a8b95e490b7ecec3f9533b193e10ae4a97d1ff927e74d78a",
         "urls": [
           "bzz-raw://f6bcf1577ac5b9a47b552013fd51def84b62c288cf9a4c6df43a50eeb88846e6",
@@ -1612,10 +1612,10 @@
       "DataTypes": [
         34414
       ],
-      "ICheqModule": [
+      "INotaModule": [
         33474
       ],
-      "ICheqRegistrar": [
+      "INotaRegistrar": [
         33569
       ],
       "ModuleBase": [
@@ -1697,8 +1697,8 @@
         "nodeType": "ImportDirective",
         "src": "163:58:43",
         "nodes": [],
-        "absolutePath": "src/interfaces/ICheqModule.sol",
-        "file": "../interfaces/ICheqModule.sol",
+        "absolutePath": "src/interfaces/INotaModule.sol",
+        "file": "../interfaces/INotaModule.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 35071,
         "sourceUnit": 33475,
@@ -1706,7 +1706,7 @@
           {
             "foreign": {
               "id": 34555,
-              "name": "ICheqModule",
+              "name": "INotaModule",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
               "referencedDeclaration": 33474,
@@ -1723,8 +1723,8 @@
         "nodeType": "ImportDirective",
         "src": "222:64:43",
         "nodes": [],
-        "absolutePath": "src/interfaces/ICheqRegistrar.sol",
-        "file": "../interfaces/ICheqRegistrar.sol",
+        "absolutePath": "src/interfaces/INotaRegistrar.sol",
+        "file": "../interfaces/INotaRegistrar.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 35071,
         "sourceUnit": 33570,
@@ -1732,7 +1732,7 @@
           {
             "foreign": {
               "id": 34557,
-              "name": "ICheqRegistrar",
+              "name": "INotaRegistrar",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
               "referencedDeclaration": 33569,
@@ -2003,7 +2003,7 @@
                   "id": 34581,
                   "indexed": false,
                   "mutability": "mutable",
-                  "name": "cheqId",
+                  "name": "notaId",
                   "nameLocation": "728:6:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 34597,
@@ -3268,7 +3268,7 @@
                                 "id": 34740,
                                 "indexExpression": {
                                   "id": 34739,
-                                  "name": "cheqId",
+                                  "name": "notaId",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
                                   "referencedDeclaration": 34640,
@@ -3352,7 +3352,7 @@
                                 "id": 34747,
                                 "indexExpression": {
                                   "id": 34746,
-                                  "name": "cheqId",
+                                  "name": "notaId",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
                                   "referencedDeclaration": 34640,
@@ -3436,7 +3436,7 @@
                                 "id": 34754,
                                 "indexExpression": {
                                   "id": 34753,
-                                  "name": "cheqId",
+                                  "name": "notaId",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
                                   "referencedDeclaration": 34640,
@@ -3705,7 +3705,7 @@
                               "id": 34705,
                               "indexExpression": {
                                 "id": 34704,
-                                "name": "cheqId",
+                                "name": "notaId",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
                                 "referencedDeclaration": 34640,
@@ -3789,7 +3789,7 @@
                               "id": 34712,
                               "indexExpression": {
                                 "id": 34711,
-                                "name": "cheqId",
+                                "name": "notaId",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
                                 "referencedDeclaration": 34640,
@@ -3873,7 +3873,7 @@
                               "id": 34719,
                               "indexExpression": {
                                 "id": 34718,
-                                "name": "cheqId",
+                                "name": "notaId",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
                                 "referencedDeclaration": 34640,
@@ -3960,7 +3960,7 @@
                         "id": 34768,
                         "indexExpression": {
                           "id": 34767,
-                          "name": "cheqId",
+                          "name": "notaId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34640,
@@ -4044,7 +4044,7 @@
                         "id": 34775,
                         "indexExpression": {
                           "id": 34774,
-                          "name": "cheqId",
+                          "name": "notaId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34640,
@@ -4128,7 +4128,7 @@
                         "id": 34782,
                         "indexExpression": {
                           "id": 34781,
-                          "name": "cheqId",
+                          "name": "notaId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34640,
@@ -4193,7 +4193,7 @@
                     "arguments": [
                       {
                         "id": 34788,
-                        "name": "cheqId",
+                        "name": "notaId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 34640,
@@ -4493,7 +4493,7 @@
                   "constant": false,
                   "id": 34640,
                   "mutability": "mutable",
-                  "name": "cheqId",
+                  "name": "notaId",
                   "nameLocation": "1449:6:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 34802,
@@ -4683,7 +4683,7 @@
                     "arguments": [
                       {
                         "id": 34810,
-                        "name": "cheqId",
+                        "name": "notaId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 34804,
@@ -4710,7 +4710,7 @@
                           "id": 34813,
                           "indexExpression": {
                             "id": 34812,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34804,
@@ -4763,7 +4763,7 @@
                           "id": 34817,
                           "indexExpression": {
                             "id": 34816,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34804,
@@ -4855,7 +4855,7 @@
                           "id": 34824,
                           "indexExpression": {
                             "id": 34823,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34804,
@@ -4908,7 +4908,7 @@
                           "id": 34828,
                           "indexExpression": {
                             "id": 34827,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34804,
@@ -4961,7 +4961,7 @@
                           "id": 34832,
                           "indexExpression": {
                             "id": 34831,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34804,
@@ -5079,7 +5079,7 @@
                   "constant": false,
                   "id": 34804,
                   "mutability": "mutable",
-                  "name": "cheqId",
+                  "name": "notaId",
                   "nameLocation": "2926:6:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 34837,
@@ -6038,7 +6038,7 @@
                         "id": 34926,
                         "indexExpression": {
                           "id": 34925,
-                          "name": "cheqId",
+                          "name": "notaId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34900,
@@ -6126,14 +6126,14 @@
                       {
                         "expression": {
                           "id": 34934,
-                          "name": "cheq",
+                          "name": "nota",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34903,
                           "src": "4484:4:43",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Cheq_$34404_calldata_ptr",
-                            "typeString": "struct DataTypes.Cheq calldata"
+                            "typeIdentifier": "t_struct$_nota_$34404_calldata_ptr",
+                            "typeString": "struct DataTypes.Nota calldata"
                           }
                         },
                         "id": 34935,
@@ -6517,7 +6517,7 @@
                   "constant": false,
                   "id": 34900,
                   "mutability": "mutable",
-                  "name": "cheqId",
+                  "name": "notaId",
                   "nameLocation": "3949:6:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 34950,
@@ -6544,7 +6544,7 @@
                   "constant": false,
                   "id": 34903,
                   "mutability": "mutable",
-                  "name": "cheq",
+                  "name": "nota",
                   "nameLocation": "3989:4:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 34950,
@@ -6552,15 +6552,15 @@
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_Cheq_$34404_calldata_ptr",
-                    "typeString": "struct DataTypes.Cheq"
+                    "typeIdentifier": "t_struct$_nota_$34404_calldata_ptr",
+                    "typeString": "struct DataTypes.Nota"
                   },
                   "typeName": {
                     "id": 34902,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
                       "id": 34901,
-                      "name": "DataTypes.Cheq",
+                      "name": "DataTypes.Nota",
                       "nameLocations": [
                         "3965:9:43",
                         "3975:4:43"
@@ -6572,8 +6572,8 @@
                     "referencedDeclaration": 34404,
                     "src": "3965:14:43",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Cheq_$34404_storage_ptr",
-                      "typeString": "struct DataTypes.Cheq"
+                      "typeIdentifier": "t_struct$_nota_$34404_storage_ptr",
+                      "typeString": "struct DataTypes.Nota"
                     }
                   },
                   "visibility": "internal"
@@ -6700,7 +6700,7 @@
                         "id": 34976,
                         "indexExpression": {
                           "id": 34975,
-                          "name": "cheqId",
+                          "name": "notaId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34960,
@@ -6834,7 +6834,7 @@
                           "id": 34986,
                           "indexExpression": {
                             "id": 34985,
-                            "name": "cheqId",
+                            "name": "notaId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 34960,
@@ -6972,14 +6972,14 @@
                       {
                         "expression": {
                           "id": 34998,
-                          "name": "cheq",
+                          "name": "nota",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 34963,
                           "src": "5121:4:43",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Cheq_$34404_calldata_ptr",
-                            "typeString": "struct DataTypes.Cheq calldata"
+                            "typeIdentifier": "t_struct$_nota_$34404_calldata_ptr",
+                            "typeString": "struct DataTypes.Nota calldata"
                           }
                         },
                         "id": 34999,
@@ -7334,7 +7334,7 @@
                   "constant": false,
                   "id": 34960,
                   "mutability": "mutable",
-                  "name": "cheqId",
+                  "name": "notaId",
                   "nameLocation": "4755:6:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 35012,
@@ -7361,7 +7361,7 @@
                   "constant": false,
                   "id": 34963,
                   "mutability": "mutable",
-                  "name": "cheq",
+                  "name": "nota",
                   "nameLocation": "4795:4:43",
                   "nodeType": "VariableDeclaration",
                   "scope": 35012,
@@ -7369,15 +7369,15 @@
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_Cheq_$34404_calldata_ptr",
-                    "typeString": "struct DataTypes.Cheq"
+                    "typeIdentifier": "t_struct$_nota_$34404_calldata_ptr",
+                    "typeString": "struct DataTypes.Nota"
                   },
                   "typeName": {
                     "id": 34962,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
                       "id": 34961,
-                      "name": "DataTypes.Cheq",
+                      "name": "DataTypes.Nota",
                       "nameLocations": [
                         "4771:9:43",
                         "4781:4:43"
@@ -7389,8 +7389,8 @@
                     "referencedDeclaration": 34404,
                     "src": "4771:14:43",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Cheq_$34404_storage_ptr",
-                      "typeString": "struct DataTypes.Cheq"
+                      "typeIdentifier": "t_struct$_nota_$34404_storage_ptr",
+                      "typeString": "struct DataTypes.Nota"
                     }
                   },
                   "visibility": "internal"
@@ -7719,15 +7719,15 @@
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_Cheq_$34404_calldata_ptr",
-                    "typeString": "struct DataTypes.Cheq"
+                    "typeIdentifier": "t_struct$_nota_$34404_calldata_ptr",
+                    "typeString": "struct DataTypes.Nota"
                   },
                   "typeName": {
                     "id": 35022,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
                       "id": 35021,
-                      "name": "DataTypes.Cheq",
+                      "name": "DataTypes.Nota",
                       "nameLocations": [
                         "5386:9:43",
                         "5396:4:43"
@@ -7739,8 +7739,8 @@
                     "referencedDeclaration": 34404,
                     "src": "5386:14:43",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Cheq_$34404_storage_ptr",
-                      "typeString": "struct DataTypes.Cheq"
+                      "typeIdentifier": "t_struct$_nota_$34404_storage_ptr",
+                      "typeString": "struct DataTypes.Nota"
                     }
                   },
                   "visibility": "internal"

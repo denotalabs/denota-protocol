@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-
+import "../../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
 /**
 {
     "name": STRING_NAME,
@@ -14,13 +14,17 @@ pragma solidity ^0.8.16;
     "animation_url": A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
     "youtube_url": A URL to a YT video
 }
+
+Registrar has structure:
+
+{
+    attributes: [timecreated, currency, escrowed {INSERT_MODULE_ATTRIBUTES}],
+    {INSERT_MODULE_KEYS}
+}
  */
 
-contract CheqBase64Encoding {
-    // string constant MODULE = '},{"trait_type": "Module","value":"';
-    // string constant END = '"}]';
-    // string constant TOKENDATA_CLOSE = '"}';
-
+contract NotaEncoding {
+    using Base64 for bytes;
     /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
     function itoa32(uint x) private pure returns (uint y) {
         unchecked {
@@ -143,9 +147,10 @@ contract CheqBase64Encoding {
     function buildMetadata(
         string memory currency,
         string memory escrowed,
-        // string memory createdAt,
+        string memory createdAt,
         string memory module,
-        string memory _tokenData
+        string memory moduleAttributes,
+        string memory moduleKeys
     ) internal pure returns (string memory) {
         // 76460 with storage constants, 74861 without
         return
@@ -161,9 +166,11 @@ contract CheqBase64Encoding {
                                 escrowed,
                                 '},{"trait_type":"Module","value":"',
                                 module,
-                                '"}]',
-                                _tokenData,
-                                '"}'
+                                '"}',
+                                moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}
+                                ']',
+                                moduleKeys,
+                                '}'
                             )
                         )
                     )

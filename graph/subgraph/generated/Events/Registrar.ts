@@ -27,7 +27,7 @@ export class Cashed__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 
@@ -69,7 +69,7 @@ export class Funded__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 
@@ -231,7 +231,7 @@ export class Written__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get cheqId(): BigInt {
+  get notaId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 

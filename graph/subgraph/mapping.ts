@@ -6,7 +6,7 @@ import {
 } from "../subgraph/generated/Events/Registrar";
 import {
   Account,
-  Cheq,
+  nota,
   DirectPayData,
   ERC20,
   Escrow,
@@ -61,9 +61,9 @@ export function handleWrite(event: WrittenEvent): void {
   }
 
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
-  const cheqId = event.params.cheqId.toString();
-  const cheq = Cheq.load(cheqId);
-  const cheqEscrowed = event.params.escrowed;
+  const notaId = event.params.notaId.toString();
+  const nota = nota.load(notaId);
+  const notaEscrowed = event.params.escrowed;
 
   const transaction = saveTransaction(
     transactionHexHash,
@@ -71,15 +71,15 @@ export function handleWrite(event: WrittenEvent): void {
     event.block.number
   );
 
-  if (cheq) {
-    cheq.createdTransaction = transaction.id;
-    cheq.erc20 = ERC20Token.id;
-    cheq.module = event.params.module.toHexString();
-    cheq.escrowed = cheqEscrowed;
-    cheq.owner = owningAccount.id;
+  if (nota) {
+    nota.createdTransaction = transaction.id;
+    nota.erc20 = ERC20Token.id;
+    nota.module = event.params.module.toHexString();
+    nota.escrowed = notaEscrowed;
+    nota.owner = owningAccount.id;
 
-    if (cheq.moduleData && cheq.moduleData.endsWith("/direct")) {
-      const directPayData = DirectPayData.load(cheq.moduleData);
+    if (nota.moduleData && nota.moduleData.endsWith("/direct")) {
+      const directPayData = DirectPayData.load(nota.moduleData);
       if (directPayData && directPayData.status != "PAID") {
         if (event.params.instant > BigInt.fromI32(0)) {
           directPayData.status = "PAID";
@@ -90,10 +90,10 @@ export function handleWrite(event: WrittenEvent): void {
         }
         directPayData.save();
       }
-    } else if (cheq.moduleData && cheq.moduleData.endsWith("/escrow")) {
-      const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+    } else if (nota.moduleData && nota.moduleData.endsWith("/escrow")) {
+      const reversiblePayData = ReversiblePaymentData.load(nota.moduleData);
       if (reversiblePayData) {
-        if (cheqEscrowed > BigInt.fromI32(0)) {
+        if (notaEscrowed > BigInt.fromI32(0)) {
           reversiblePayData.status = "AWAITING_RELEASE";
           reversiblePayData.fundedTransaction = transaction.id;
           reversiblePayData.fundedTimestamp = event.block.timestamp;
@@ -103,16 +103,16 @@ export function handleWrite(event: WrittenEvent): void {
         reversiblePayData.save();
       }
     }
-    cheq.save();
+    nota.save();
   }
 
-  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
+  const escrow = new Escrow(transactionHexHash + "/" + notaId);
   escrow.emitter = event.transaction.from.toHexString();
   escrow.transaction = transaction.id;
   escrow.timestamp = event.block.timestamp;
-  escrow.cheq = event.params.cheqId.toString();
+  escrow.nota = event.params.notaId.toString();
   escrow.from = event.transaction.from.toHexString();
-  escrow.amount = cheqEscrowed;
+  escrow.amount = notaEscrowed;
   escrow.instantAmount = event.params.instant;
   escrow.save();
 }
@@ -129,9 +129,9 @@ export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   debtorAccount =
     debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
 
-  const cheqId = event.params.cheqId.toString();
+  const notaId = event.params.notaId.toString();
 
-  const directPay = new DirectPayData(cheqId + "/direct");
+  const directPay = new DirectPayData(notaId + "/direct");
   directPay.creditor = creditorAccount.id;
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
@@ -143,19 +143,19 @@ export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   }
   directPay.save();
 
-  const newCheq = new Cheq(cheqId);
-  const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  const newnota = new nota(notaId);
+  const notaTimestamp = event.block.timestamp;
+  newnota.timestamp = notaTimestamp;
+  newnota.createdAt = notaTimestamp;
+  newnota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newnota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newnota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.save();
+  newnota.sender = sender;
+  newnota.moduleData = directPay.id;
+  newnota.save();
 }
 
 export function handleDirectPaymentAxelar(
@@ -172,9 +172,9 @@ export function handleDirectPaymentAxelar(
   debtorAccount =
     debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
 
-  const cheqId = event.params.cheqId.toString();
+  const notaId = event.params.notaId.toString();
 
-  const directPay = new DirectPayData(cheqId + "/direct");
+  const directPay = new DirectPayData(notaId + "/direct");
   directPay.creditor = creditorAccount.id;
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
@@ -190,19 +190,19 @@ export function handleDirectPaymentAxelar(
   directPay.destChain = event.params.destChainId;
   directPay.save();
 
-  const newCheq = new Cheq(cheqId);
-  const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  const newnota = new nota(notaId);
+  const notaTimestamp = event.block.timestamp;
+  newnota.timestamp = notaTimestamp;
+  newnota.createdAt = notaTimestamp;
+  newnota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newnota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newnota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.save();
+  newnota.sender = sender;
+  newnota.moduleData = directPay.id;
+  newnota.save();
 }
 
 export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
@@ -218,7 +218,7 @@ export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
   debtorAccount =
     debtorAccount == null ? saveNewAccount(debtor) : debtorAccount;
 
-  const cheqId = event.transaction.hash.toHex();
+  const notaId = event.transaction.hash.toHex();
 
   const transaction = saveTransaction(
     transactionHexHash,
@@ -226,7 +226,7 @@ export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
     event.block.number
   );
 
-  const directPay = new DirectPayData(cheqId + "/direct");
+  const directPay = new DirectPayData(notaId + "/direct");
   directPay.creditor = creditorAccount.id;
   directPay.debtor = debtorAccount.id;
   directPay.amount = event.params.amount;
@@ -244,22 +244,22 @@ export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
   }
   directPay.save();
 
-  const newCheq = new Cheq(transactionHexHash + "/crosschain");
-  const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  const newnota = new nota(transactionHexHash + "/crosschain");
+  const notaTimestamp = event.block.timestamp;
+  newnota.timestamp = notaTimestamp;
+  newnota.createdAt = notaTimestamp;
+  newnota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newnota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newnota.receiver = creditorAccount.id;
   }
-  newCheq.owner = creditorAccount.id;
-  newCheq.erc20 = "0x0000000000000000000000000000000000000000"; // TODO: use right token
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.createdTransaction = transaction.id;
-  newCheq.save();
+  newnota.owner = creditorAccount.id;
+  newnota.erc20 = "0x0000000000000000000000000000000000000000"; // TODO: use right token
+  newnota.sender = sender;
+  newnota.moduleData = directPay.id;
+  newnota.createdTransaction = transaction.id;
+  newnota.save();
 }
 
 export function handleReversiblePayment(
@@ -281,9 +281,9 @@ export function handleReversiblePayment(
   inspectorAccount =
     inspectorAccount == null ? saveNewAccount(inspector) : inspectorAccount;
 
-  const cheqId = event.params.cheqId.toString();
+  const notaId = event.params.notaId.toString();
 
-  const reversibleRelease = new ReversiblePaymentData(cheqId + "/escrow");
+  const reversibleRelease = new ReversiblePaymentData(notaId + "/escrow");
   reversibleRelease.creditor = creditorAccount.id;
   reversibleRelease.debtor = debtorAccount.id;
   reversibleRelease.amount = event.params.amount;
@@ -299,20 +299,20 @@ export function handleReversiblePayment(
   }
   reversibleRelease.save();
 
-  const newCheq = new Cheq(cheqId);
-  const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  const newnota = new nota(notaId);
+  const notaTimestamp = event.block.timestamp;
+  newnota.timestamp = notaTimestamp;
+  newnota.createdAt = notaTimestamp;
+  newnota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newnota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newnota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = reversibleRelease.id;
-  newCheq.inspector = inspectorAccount.id;
-  newCheq.save();
+  newnota.sender = sender;
+  newnota.moduleData = reversibleRelease.id;
+  newnota.inspector = inspectorAccount.id;
+  newnota.save();
 }
 
 export function handleFund(event: FundedEvent): void {
@@ -324,14 +324,14 @@ export function handleFund(event: FundedEvent): void {
       : fromAccount;
   const amount = event.params.amount;
   const transactionHexHash = event.transaction.hash.toHex();
-  const cheqId = event.params.cheqId.toString();
+  const notaId = event.params.notaId.toString();
 
-  // Load cheq
-  let cheq = Cheq.load(cheqId);
-  if (cheq == null) {
+  // Load nota
+  let nota = nota.load(notaId);
+  if (nota == null) {
     // SHOULDN NEVER BE THE CASE
-    cheq = new Cheq(cheqId);
-    cheq.save();
+    nota = new nota(notaId);
+    nota.save();
   }
   const transaction = saveTransaction(
     transactionHexHash,
@@ -339,16 +339,16 @@ export function handleFund(event: FundedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData.endsWith("/direct")) {
-    const directPayData = DirectPayData.load(cheq.moduleData);
+  if (nota.moduleData.endsWith("/direct")) {
+    const directPayData = DirectPayData.load(nota.moduleData);
     if (directPayData) {
       directPayData.status = "PAID";
       directPayData.fundedTransaction = transaction.id;
       directPayData.fundedTimestamp = event.block.timestamp;
       directPayData.save();
     }
-  } else if (cheq.moduleData.endsWith("/escrow")) {
-    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+  } else if (nota.moduleData.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(nota.moduleData);
     if (reversiblePayData) {
       reversiblePayData.status = "AWAITING_RELEASE";
       reversiblePayData.fundedTransaction = transaction.id;
@@ -357,11 +357,11 @@ export function handleFund(event: FundedEvent): void {
     }
   }
 
-  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
+  const escrow = new Escrow(transactionHexHash + "/" + notaId);
   escrow.emitter = fromAccount.id;
   escrow.transaction = transactionHexHash;
   escrow.timestamp = event.block.timestamp;
-  escrow.cheq = cheqId;
+  escrow.nota = notaId;
   escrow.from = fromAccount.id;
   escrow.amount = amount;
   escrow.instantAmount = event.params.instant;
@@ -377,14 +377,14 @@ export function handleCash(event: CashedEvent): void {
       : toAccount;
   const amount = event.params.amount;
   const transactionHexHash = event.transaction.hash.toHex();
-  const cheqId = event.params.cheqId.toString();
+  const notaId = event.params.notaId.toString();
 
-  // Load cheq
-  let cheq = Cheq.load(cheqId);
-  if (cheq == null) {
+  // Load nota
+  let nota = nota.load(notaId);
+  if (nota == null) {
     // SHOULDN'T BE THE CASE
-    cheq = new Cheq(cheqId);
-    cheq.save();
+    nota = new nota(notaId);
+    nota.save();
   }
 
   // Load transaction
@@ -394,10 +394,10 @@ export function handleCash(event: CashedEvent): void {
     event.block.number
   );
 
-  if (cheq.moduleData.endsWith("/escrow")) {
-    const reversiblePayData = ReversiblePaymentData.load(cheq.moduleData);
+  if (nota.moduleData.endsWith("/escrow")) {
+    const reversiblePayData = ReversiblePaymentData.load(nota.moduleData);
     if (reversiblePayData) {
-      if (cheq.owner == toAccount.id) {
+      if (nota.owner == toAccount.id) {
         reversiblePayData.status = "RELEASED";
       } else {
         reversiblePayData.status = "VOIDED";
@@ -406,11 +406,11 @@ export function handleCash(event: CashedEvent): void {
     }
   }
 
-  const escrow = new Escrow(transactionHexHash + "/" + cheqId);
+  const escrow = new Escrow(transactionHexHash + "/" + notaId);
   escrow.emitter = toAccount.id;
   escrow.transaction = transactionHexHash;
   escrow.timestamp = event.block.timestamp;
-  escrow.cheq = cheqId;
+  escrow.nota = notaId;
   escrow.from = toAccount.id;
   escrow.amount = amount.neg();
   escrow.save();
@@ -421,40 +421,40 @@ export function handleCash(event: CashedEvent): void {
 //   // Load event params
 //   const from = event.params.from.toHexString();
 //   const to = event.params.to.toHexString();
-//   const cheqId = event.params.tokenId.toHexString();
+//   const notaId = event.params.tokenId.toHexString();
 //   const transactionHexHash = event.transaction.hash.toHex();
 //   // Load from and to Accounts
 //   let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
 //   let toAccount = Account.load(to);
 //   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
 //   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-//   // Load Cheq
-//   let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
-//   if (cheq == null) {
+//   // Load nota
+//   let nota = nota.load(notaId); // Write event fires before Transfer event: nota should exist
+//   if (nota == null) {
 //     // SHOULDN'T BE THE CASE
-//     cheq = new Cheq(cheqId);
-//     cheq.save();
+//     nota = new nota(notaId);
+//     nota.save();
 //   }
-//   // Update accounts' cheq balances
+//   // Update accounts' nota balances
 //   if (event.params.from != Address.zero()) {
-//     fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
+//     fromAccount.numnotasOwned = fromAccount.numnotasSent.minus(
 //       BigInt.fromI32(1)
 //     );
 //     fromAccount.save();
 //   }
-//   toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
+//   toAccount.numnotasOwned = toAccount.numnotasOwned.plus(BigInt.fromI32(1));
 //   toAccount.save();
 //   const transaction = saveTransaction(
 //     transactionHexHash,
-//     cheqId,
+//     notaId,
 //     event.block.timestamp,
 //     event.block.number
 //   );
-//   const transfer = new Transfer(transactionHexHash + "/" + cheqId);
+//   const transfer = new Transfer(transactionHexHash + "/" + notaId);
 //   transfer.emitter = fromAccount.id;
 //   transfer.transaction = transactionHexHash;
 //   transfer.timestamp = event.block.timestamp;
-//   transfer.cheq = cheqId;
+//   transfer.nota = notaId;
 //   transfer.from = fromAccount.id;
 //   transfer.to = toAccount.id;
 //   transfer.save();

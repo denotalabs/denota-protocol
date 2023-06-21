@@ -4,11 +4,11 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import {AxelarExecutable} from "axelarnetwork/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
-import "../CheqRegistrar.sol";
+import "../NotaRegistrar.sol";
 
 contract BridgeReceiver is AxelarExecutable {
     IAxelarGasService public immutable gasReceiver;
-    CheqRegistrar public cheq;
+    NotaRegistrar public nota;
     address public directPayAxelar;
 
     error OnlyGateway();
@@ -16,11 +16,11 @@ contract BridgeReceiver is AxelarExecutable {
     constructor(
         address gateway_,
         address gasReceiver_,
-        CheqRegistrar _cheq,
+        NotaRegistrar _nota,
         address _directPayAxelar
     ) AxelarExecutable(gateway_) {
         gasReceiver = IAxelarGasService(gasReceiver_);
-        cheq = _cheq;
+        nota = _nota;
         directPayAxelar = _directPayAxelar;
     }
 
@@ -45,12 +45,12 @@ contract BridgeReceiver is AxelarExecutable {
         bytes memory modulePayload = abi.encode(
             amount,
             sourceChain,
-            address(cheq),
+            address(nota),
             imageURI,
             memoHash,
             sender
         );
 
-        cheq.write(_token, 0, 0, owner, directPayAxelar, modulePayload);
+        nota.write(_token, 0, 0, owner, directPayAxelar, modulePayload);
     }
 }

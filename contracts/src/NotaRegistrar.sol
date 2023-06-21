@@ -1,46 +1,107 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {ERC721} from "./ERC721.sol";
+import "openzeppelin/access/Ownable.sol";
+import {ERC721} from "./ERC721Nota.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
-import {Events} from "./libraries/Events.sol";
-import {RegistrarGov} from "./RegistrarGov.sol";
-import {DataTypes} from "./libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {ICheqModule} from "./interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "./interfaces/ICheqRegistrar.sol";
-import {CheqBase64Encoding} from "./libraries/CheqBase64Encoding.sol";
+import "openzeppelin/utils/Strings.sol";
+import {INotaModule} from "./interfaces/INotaModule.sol";
+import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
+import {NotaEncoding} from "./libraries/Base64Encoding.sol";
+import {DataTypes} from "./libraries/DataTypes.sol";
 
 /**
      Ownable  IRegistrarGov
           \      /
-        RegistrarGov ICheqRegistrar ERC721
+        RegistrarGov INotaRegistrar ERC721
                     \      |       /
-                      CheqRegistrar
+                      NotaRegistrar
  */
 /**
- * @title  The Cheq Payment Registrar
- * @notice The main contract where users can WTFCA cheqs
+ * @title  The Nota Payment Registrar
+ * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules, and collects revenue.
+ * @dev    Tracks ownership of notas' data + escrow, whitelists tokens/modules, and collects revenue.
  */
-contract CheqRegistrar is
+
+/// NOW
+/// TODO allow burning
+/// TODO Collect fees based on module fees
+/// TODO use V4 accounting of fees
+/// TODO use OZ transfers libraries?
+/// TODO allow modules to tell registrar to UpdateTokenMetadata
+
+/// LATER
+/// TODO Use leading bits for hooks
+/// TODO Use before/after hooks?
+/// TODO how to do yield?
+/// TODO Make ModuelBase revert for every WTFC function by default?
+/// TODO modify ERC721 at all? Use solmate?
+/// TODO use dynamic (external query) or fixed fee set by module
+/**
+    function moduleWithdraw(
+        address token,
+        uint256 amount,
+        address payoutAccount
+    ) external;
+ */
+contract NotaRegistrar is
+    Ownable,
     ERC721,
-    RegistrarGov,
-    ICheqRegistrar,
-    CheqBase64Encoding
+    INotaRegistrar,
+    NotaEncoding
 {
     using SafeERC20 for IERC20;
-
-    mapping(uint256 => DataTypes.Cheq) private _cheqInfo;
+    using Strings for address;
+    mapping(address => mapping(address => uint256)) internal _moduleRevenue; 
+    mapping(uint256 => DataTypes.Nota) private _notaInfo;
     uint256 private _totalSupply;
+    event Written(
+        address indexed caller,
+        uint256 notaId,
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
+        uint256 instant,
+        address indexed currency,
+        uint256 escrowed,
+        uint256 createdAt,
+        uint256 moduleFee,
+        address module,
+        bytes moduleData
+    );
+    // Not used
+    event Transferred(
+        uint256 indexed tokenId,
+        address indexed from,
+        address indexed to,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Funded(
+        address indexed funder,
+        uint256 indexed notaId,
+        uint256 amount,
+        uint256 instant,
+        bytes indexed fundData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Cashed(
+        address indexed casher,
+        uint256 indexed notaId,
+        address to,
+        uint256 amount,
+        bytes indexed cashData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
 
     error SendFailed();
     error InvalidWrite(address, address);
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
 
-    modifier isMinted(uint256 cheqId) {
-        if (cheqId >= _totalSupply) revert NotMinted();
+    modifier isMinted(uint256 notaId) {
+        if (notaId >= _totalSupply) revert NotMinted();
         _;
     }
 
@@ -55,15 +116,8 @@ contract CheqRegistrar is
         address module,
         bytes calldata moduleWriteData
     ) public payable returns (uint256) {
-        if (!validWrite(module, currency))
-            revert InvalidWrite(module, currency); // Module+token whitelist check
-        // if (msg.value < _writeFlatFee) {
-        //     revert InsufficientValue(msg.value, _writeFlatFee);
-        // } else {
-        //     if (_writeFlatFee > 0) registrarRevenue += _writeFlatFee;
-        // }
         // Module hook (updates its storage, gets the fee)
-        uint256 moduleFee = ICheqModule(module).processWrite(
+        uint256 moduleFee = INotaModule(module).processWrite(
             _msgSender(),
             owner,
             _totalSupply,
@@ -76,14 +130,14 @@ contract CheqRegistrar is
         _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
 
         _mint(owner, _totalSupply);
-        _cheqInfo[_totalSupply] = DataTypes.Cheq(
+        _notaInfo[_totalSupply] = DataTypes.Nota(
             escrowed,
             block.timestamp,
             currency,
             module
         );
 
-        emit Events.Written(
+        emit Written(
             _msgSender(),
             _totalSupply,
             owner,
@@ -103,29 +157,29 @@ contract CheqRegistrar is
     function transferFrom(
         address from,
         address to,
-        uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
-        _transferHookTakeFee(from, to, cheqId, abi.encode(""));
-        _transfer(from, to, cheqId);
+        uint256 notaId
+    ) public override(ERC721, INotaRegistrar) isMinted(notaId) {
+        _transferHookTakeFee(from, to, notaId, abi.encode(""));
+        _transfer(from, to, notaId);
     }
 
     function fund(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         uint256 instant,
         bytes calldata fundData
-    ) public payable isMinted(cheqId) {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // TODO module MUST check that token exists
-        address owner = ownerOf(cheqId); // Is used twice
+    ) public payable isMinted(notaId) {
+        DataTypes.Nota storage nota = _notaInfo[notaId]; // TODO module MUST check that token exists
+        address owner = ownerOf(notaId); // Is used twice
 
         // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processFund(
+        uint256 moduleFee = INotaModule(nota.module).processFund(
             _msgSender(),
             owner,
             amount,
             instant,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             fundData
         );
 
@@ -133,17 +187,17 @@ contract CheqRegistrar is
         _transferTokens(
             amount,
             instant,
-            cheq.currency,
+            nota.currency,
             owner,
             moduleFee,
-            cheq.module
+            nota.module
         );
 
-        _cheqInfo[cheqId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
+        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
 
-        emit Events.Funded(
+        emit Funded(
             _msgSender(),
-            cheqId,
+            notaId,
             amount,
             instant,
             fundData,
@@ -153,21 +207,21 @@ contract CheqRegistrar is
     }
 
     function cash(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         address to,
         bytes calldata cashData
-    ) public payable isMinted(cheqId) {
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId];
+    ) public payable isMinted(notaId) {
+        DataTypes.Nota storage nota = _notaInfo[notaId];
 
         // Module Hook
-        uint256 moduleFee = ICheqModule(cheq.module).processCash(
+        uint256 moduleFee = INotaModule(nota.module).processCash(
             _msgSender(),
-            ownerOf(cheqId),
+            ownerOf(notaId),
             to,
             amount,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             cashData
         );
 
@@ -175,22 +229,22 @@ contract CheqRegistrar is
         uint256 totalAmount = amount + moduleFee;
 
         // Un-escrowing
-        if (totalAmount > cheq.escrowed)
-            revert InsufficientEscrow(totalAmount, cheq.escrowed);
+        if (totalAmount > nota.escrowed)
+            revert InsufficientEscrow(totalAmount, nota.escrowed);
         unchecked {
-            cheq.escrowed -= totalAmount;
+            nota.escrowed -= totalAmount;
         } // Could this just underflow and revert anyway (save gas)?
-        if (cheq.currency == address(0)) {
+        if (nota.currency == address(0)) {
             (bool sent, ) = to.call{value: amount}("");
             if (!sent) revert SendFailed();
         } else {
-            IERC20(cheq.currency).safeTransfer(to, amount);
+            IERC20(nota.currency).safeTransfer(to, amount);
         }
-        _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
+        _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
-        emit Events.Cashed(
+        emit Cashed(
             _msgSender(),
-            cheqId,
+            notaId,
             to,
             amount,
             cashData,
@@ -201,56 +255,57 @@ contract CheqRegistrar is
 
     function approve(
         address to,
-        uint256 cheqId
-    ) public override(ERC721, ICheqRegistrar) isMinted(cheqId) {
+        uint256 notaId
+    ) public override(ERC721, INotaRegistrar) isMinted(notaId) {
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
-        DataTypes.Cheq memory cheq = _cheqInfo[cheqId];
-        ICheqModule(cheq.module).processApproval(
+        DataTypes.Nota memory nota = _notaInfo[notaId];
+        INotaModule(nota.module).processApproval(
             _msgSender(),
-            ownerOf(cheqId),
+            ownerOf(notaId),
             to,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             ""
         );
 
         // Approve
-        _approve(to, cheqId);
+        _approve(to, notaId);
     }
+/**
+    function burn(uint256 notaId) public virtual {
+        DataTypes.Nota storage nota = _notaInfo[notaId];
+        uint256 moduleFee = INotaModule(nota.module).processCash(
+            _msgSender(),
+            ownerOf(notaId),
+            to,
+            amount,
+            notaId,
+            nota,
+            cashData
+        );
+
+        _burn(notaId);
+        emit Transfer(ownerOf(notaId), address(0), notaId);
+    }
+ */
 
     function tokenURI(
-        uint256 cheqId
-    ) public view override isMinted(cheqId) returns (string memory) {
-        string memory _tokenData = ICheqModule(_cheqInfo[cheqId].module)
-            .processTokenURI(cheqId);
+        uint256 notaId
+    ) public view override isMinted(notaId) returns (string memory) {
+        (string memory moduleAttributes, string memory moduleKeys) = INotaModule(_notaInfo[notaId].module)
+            .processTokenURI(notaId);
 
         return
             buildMetadata(
-                _tokenName[_cheqInfo[cheqId].currency],
-                itoa(_cheqInfo[cheqId].escrowed),
-                // itoa(_cheqInfo[_cheqId].createdAt),
-                _moduleName[_cheqInfo[cheqId].module],
-                _tokenData
+                Strings.toHexString(uint256(uint160(_notaInfo[notaId].currency)), 20),
+                itoa(_notaInfo[notaId].escrowed),
+                itoa(_notaInfo[notaId].createdAt),
+                Strings.toHexString(uint256(uint160(_notaInfo[notaId].module)), 20),
+                moduleAttributes,
+                moduleKeys
             );
-    }
-
-    function payload(
-        uint256 cheqId,
-        string memory selector,
-        bytes calldata moduleData
-    ) external isMinted(cheqId) {
-        (bool success, ) = _cheqInfo[cheqId].module.call(
-            abi.encodeWithSignature(
-                selector, // all modules' specific function must follow this pattern
-                _msgSender(),
-                ownerOf(cheqId),
-                cheqId,
-                moduleData
-            )
-        );
-        if (!success) revert();
     }
 
     /*///////////////////// BATCH FUNCTIONS ///////////////////////*/
@@ -262,7 +317,7 @@ contract CheqRegistrar is
         address[] calldata owners,
         address[] calldata modules,
         bytes[] calldata moduleWriteDataList
-    ) public payable returns (uint256[] memory cheqIds) {
+    ) public payable returns (uint256[] memory notaIds) {
         uint256 numWrites = currencies.length;
 
         require(
@@ -275,7 +330,7 @@ contract CheqRegistrar is
         );
 
         for (uint256 i = 0; i < numWrites; i++) {
-            cheqIds[i] = write(
+            notaIds[i] = write(
                 currencies[i],
                 escrowedAmounts[i],
                 instantAmounts[i],
@@ -289,27 +344,27 @@ contract CheqRegistrar is
     function transferFromBatch(
         address[] calldata froms,
         address[] calldata tos,
-        uint256[] calldata cheqIds
+        uint256[] calldata notaIds
     ) public {
         uint256 numTransfers = froms.length;
 
         require(
-            numTransfers == tos.length && numTransfers == cheqIds.length,
+            numTransfers == tos.length && numTransfers == notaIds.length,
             "Input arrays must have the same length"
         );
 
         for (uint256 i = 0; i < numTransfers; i++) {
-            transferFrom(froms[i], tos[i], cheqIds[i]);
+            transferFrom(froms[i], tos[i], notaIds[i]);
         }
     }
 
     function fundBatch(
-        uint256[] calldata cheqIds,
+        uint256[] calldata notaIds,
         uint256[] calldata amounts,
         uint256[] calldata instants,
         bytes[] calldata fundDataList
     ) public payable {
-        uint256 numFunds = cheqIds.length;
+        uint256 numFunds = notaIds.length;
 
         require(
             numFunds == amounts.length &&
@@ -319,17 +374,17 @@ contract CheqRegistrar is
         );
 
         for (uint256 i = 0; i < numFunds; i++) {
-            fund(cheqIds[i], amounts[i], instants[i], fundDataList[i]);
+            fund(notaIds[i], amounts[i], instants[i], fundDataList[i]);
         }
     }
 
     function cashBatch(
-        uint256[] calldata cheqIds,
+        uint256[] calldata notaIds,
         uint256[] calldata amounts,
         address[] calldata tos,
         bytes[] calldata cashDataList
     ) public payable {
-        uint256 numCash = cheqIds.length;
+        uint256 numCash = notaIds.length;
 
         require(
             numCash == amounts.length &&
@@ -339,26 +394,44 @@ contract CheqRegistrar is
         );
 
         for (uint256 i = 0; i < numCash; i++) {
-            cash(cheqIds[i], amounts[i], tos[i], cashDataList[i]);
+            cash(notaIds[i], amounts[i], tos[i], cashDataList[i]);
         }
     }
 
     function approveBatch(
         address[] memory tos,
-        uint256[] memory cheqIds
+        uint256[] memory notaIds
     ) public {
         uint256 numApprovals = tos.length;
 
         require(
-            numApprovals == cheqIds.length,
+            numApprovals == notaIds.length,
             "Input arrays must have the same length"
         );
 
         for (uint256 i = 0; i < numApprovals; i++) {
-            approve(tos[i], cheqIds[i]);
+            approve(tos[i], notaIds[i]);
         }
     }
 
+/**
+    function burnBatch(
+        address[] memory tos,
+        uint256[] memory notaIds
+    ) public {
+        uint256 numBurns = tos.length;
+
+        require(
+            numBurns == notaIds.length,
+            "Input arrays must have the same length"
+        );
+
+        for (uint256 i = 0; i < numBurns; i++) {
+            burn(tos[i], notaIds[i]);
+        }
+    }
+
+ */
     /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferTokens(
         uint256 escrowed,
@@ -408,36 +481,36 @@ contract CheqRegistrar is
     function _transferHookTakeFee(
         address from,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         bytes memory moduleTransferData
     ) internal {
         if (moduleTransferData.length == 0)
             moduleTransferData = abi.encode(owner());
-        address owner = ownerOf(cheqId); // require(from == owner,  "") ?
-        DataTypes.Cheq storage cheq = _cheqInfo[cheqId]; // Better to assign than to index?
+        address owner = ownerOf(notaId); // require(from == owner,  "") ?
+        DataTypes.Nota storage nota = _notaInfo[notaId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
         // Module hook
-        uint256 moduleFee = ICheqModule(cheq.module).processTransfer(
+        uint256 moduleFee = INotaModule(nota.module).processTransfer(
             _msgSender(),
-            getApproved(cheqId),
+            getApproved(notaId),
             owner,
             from, // TODO Might not be needed
             to,
-            cheqId,
-            cheq.currency,
-            cheq.escrowed,
-            cheq.createdAt,
+            notaId,
+            nota.currency,
+            nota.escrowed,
+            nota.createdAt,
             moduleTransferData
         );
 
         // Fee taking and escrowing
-        if (cheq.escrowed > 0) {
+        if (nota.escrowed > 0) {
             // Can't take from 0 escrow
-            cheq.escrowed = cheq.escrowed - moduleFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
-            emit Events.Transferred(
-                cheqId,
+            nota.escrowed = nota.escrowed - moduleFee;
+            _moduleRevenue[nota.module][nota.currency] += moduleFee;
+            emit Transferred(
+                notaId,
                 owner,
                 to,
                 moduleFee,
@@ -445,49 +518,60 @@ contract CheqRegistrar is
             );
         } else {
             // Must be case since fee's can't be taken without an escrow to take from
-            emit Events.Transferred(cheqId, owner, to, 0, block.timestamp);
+            emit Transferred(notaId, owner, to, 0, block.timestamp);
         }
     }
 
     function safeTransferFrom(
         address from,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         bytes memory moduleTransferData
-    ) public override(ERC721, ICheqRegistrar) {
-        _transferHookTakeFee(from, to, cheqId, moduleTransferData);
-        _safeTransfer(from, to, cheqId, moduleTransferData);
+    ) public override(ERC721, INotaRegistrar) {
+        _transferHookTakeFee(from, to, notaId, moduleTransferData);
+        _safeTransfer(from, to, notaId, moduleTransferData);
     }
 
     /*///////////////////////// VIEW ////////////////////////////*/
-    function cheqInfo(
-        uint256 cheqId
-    ) public view returns (DataTypes.Cheq memory) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _cheqInfo[cheqId];
+    function notaInfo(
+        uint256 notaId
+    ) public view returns (DataTypes.Nota memory) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId];
     }
 
-    function cheqCurrency(uint256 cheqId) public view returns (address) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _cheqInfo[cheqId].currency;
+    function notaCurrency(uint256 notaId) public view returns (address) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].currency;
     }
 
-    function cheqEscrowed(uint256 cheqId) public view returns (uint256) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _cheqInfo[cheqId].escrowed;
+    function notaEscrowed(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].escrowed;
     }
 
-    function cheqModule(uint256 cheqId) public view returns (address) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _cheqInfo[cheqId].module;
+    function notaModule(uint256 notaId) public view returns (address) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].module;
     }
 
-    function cheqCreatedAt(uint256 cheqId) public view returns (uint256) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _cheqInfo[cheqId].createdAt;
+    function notaCreatedAt(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].createdAt;
     }
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
+    }
+    function moduleWithdraw(
+        address token,
+        uint256 amount,
+        address to
+    ) external {
+        require(_moduleRevenue[_msgSender()][token] >= amount, "INSUF_FUNDS");
+        unchecked {
+            _moduleRevenue[_msgSender()][token] -= amount;
+        }
+        IERC20(token).safeTransferFrom(address(this), to, amount);
     }
 }

@@ -67,7 +67,7 @@ var TestERC20_json_1 = __importDefault(require("./abis/ERC20.sol/TestERC20.json"
 var chainInfo_1 = require("./chainInfo");
 var client_1 = require("@apollo/client");
 var BridgeSender_json_1 = __importDefault(require("./abis/BridgeSender.sol/BridgeSender.json"));
-var CheqRegistrar_json_1 = __importDefault(require("./abis/CheqRegistrar.sol/CheqRegistrar.json"));
+var NotaRegistrar_json_1 = __importDefault(require("./abis/NotaRegistrar.sol/NotaRegistrar.json"));
 var Events_json_1 = __importDefault(require("./abis/Events.sol/Events.json"));
 var AxelarBridge_1 = require("./modules/AxelarBridge");
 var DirectPay_1 = require("./modules/DirectPay");
@@ -105,7 +105,7 @@ function setProvider(web3Connection) {
                     chainId = (_a.sent()).chainId;
                     contractMapping = (0, chainInfo_1.contractMappingForChainId)(chainId);
                     if (contractMapping) {
-                        registrar = new ethers_1.ethers.Contract(contractMapping.registrar, CheqRegistrar_json_1.default.abi, signer);
+                        registrar = new ethers_1.ethers.Contract(contractMapping.registrar, NotaRegistrar_json_1.default.abi, signer);
                         axelarBridgeSender = new ethers_1.ethers.Contract(contractMapping.bridgeSender, BridgeSender_json_1.default.abi, signer);
                         dai = new ethers_1.ethers.Contract(contractMapping.dai, TestERC20_json_1.default.abi, signer);
                         weth = new ethers_1.ethers.Contract(contractMapping.weth, TestERC20_json_1.default.abi, signer);
@@ -222,7 +222,7 @@ function fund(_a) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    notaQuery = "\n  query cheqs($cheq: String ){\n    cheqs(where: { id: $cheq }, first: 1)  {\n      erc20 {\n        id\n      }\n      moduleData {\n        ... on DirectPayData {\n          __typename\n          amount\n        }\n        ... on ReversiblePaymentData {\n          __typename\n          amount\n        }\n      }\n    }\n  }\n";
+                    notaQuery = "\n  query notas($nota: String ){\n    notas(where: { id: $nota }, first: 1)  {\n      erc20 {\n        id\n      }\n      moduleData {\n        ... on DirectPayData {\n          __typename\n          amount\n        }\n        ... on ReversiblePaymentData {\n          __typename\n          amount\n        }\n      }\n    }\n  }\n";
                     client = new client_1.ApolloClient({
                         uri: getNotasQueryURL(),
                         cache: new client_1.InMemoryCache(),
@@ -230,12 +230,12 @@ function fund(_a) {
                     return [4 /*yield*/, client.query({
                             query: (0, client_1.gql)(notaQuery),
                             variables: {
-                                cheq: notaId,
+                                nota: notaId,
                             },
                         })];
                 case 1:
                     data = _c.sent();
-                    nota = data["data"]["cheqs"][0];
+                    nota = data["data"]["notas"][0];
                     amount = ethers_1.BigNumber.from(nota.moduleData.amount);
                     _b = nota.moduleData.__typename;
                     switch (_b) {
@@ -268,7 +268,7 @@ function cash(_a) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    notaQuery = "\n    query cheqs($cheq: String ){\n      cheqs(where: { id: $cheq }, first: 1)  {\n        moduleData {\n          ... on DirectPayData {\n            __typename\n            amount\n            creditor {\n              id\n            }\n            debtor {\n              id\n            }\n            dueDate\n          }\n          ... on ReversiblePaymentData {\n            __typename\n            amount\n            creditor {\n              id\n            }\n            debtor {\n              id\n            }\n          }\n        }\n    }\n    }\n  ";
+                    notaQuery = "\n    query notas($nota: String ){\n      notas(where: { id: $nota }, first: 1)  {\n        moduleData {\n          ... on DirectPayData {\n            __typename\n            amount\n            creditor {\n              id\n            }\n            debtor {\n              id\n            }\n            dueDate\n          }\n          ... on ReversiblePaymentData {\n            __typename\n            amount\n            creditor {\n              id\n            }\n            debtor {\n              id\n            }\n          }\n        }\n    }\n    }\n  ";
                     client = new client_1.ApolloClient({
                         uri: getNotasQueryURL(),
                         cache: new client_1.InMemoryCache(),
@@ -276,12 +276,12 @@ function cash(_a) {
                     return [4 /*yield*/, client.query({
                             query: (0, client_1.gql)(notaQuery),
                             variables: {
-                                cheq: notaId,
+                                nota: notaId,
                             },
                         })];
                 case 1:
                     data = _c.sent();
-                    nota = data["data"]["cheqs"][0];
+                    nota = data["data"]["notas"][0];
                     amount = ethers_1.BigNumber.from(nota.moduleData.amount);
                     _b = nota.moduleData.__typename;
                     switch (_b) {

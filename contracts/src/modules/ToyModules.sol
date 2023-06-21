@@ -5,7 +5,7 @@ pragma solidity >=0.8.14;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 
-/// @notice allows whoever finds the correct hash to claim the written cheq
+/// @notice allows whoever finds the correct hash to claim the written nota
 abstract contract PseudoChain is ModuleBase {
     //     mapping(uint256 => uint256) public blockCashTime;
     //     constructor(
@@ -34,8 +34,8 @@ abstract contract PseudoChain is ModuleBase {
     //     function processWrite(
     //         address caller,
     //         address owner,
-    //         uint256 cheqId,
-    //         DataTypes.Cheq calldata cheq,
+    //         uint256 notaId,
+    //         DataTypes.Nota calldata nota,
     //         uint256 directAmount,
     //         bytes calldata initData
     //     ) external override onlyRegistrar returns (uint256) {
@@ -43,21 +43,21 @@ abstract contract PseudoChain is ModuleBase {
     //         IWriteRule(writeRule).canWrite(
     //             caller,
     //             owner,
-    //             cheqId,
-    //             cheq,
+    //             notaId,
+    //             nota,
     //             directAmount,
     //             initData
     //         );
     //         (bytes32 memoHash, address referer) = abi.decode(
     //             initData,
     //             (bytes32, address)
-    //         ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-    //         memo[cheqId] = memoHash;
-    //         blockCashTime[cheqId] = blockCashTime[cheqId - 1] + 1 days;
-    //         uint256 totalAmount = cheq.escrowed + directAmount;
+    //         ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+    //         memo[notaId] = memoHash;
+    //         blockCashTime[notaId] = blockCashTime[notaId - 1] + 1 days;
+    //         uint256 totalAmount = nota.escrowed + directAmount;
     //         uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-    //         revenue[referer][cheq.currency] += moduleFee;
-    //         emit MemoWritten(cheqId, memoHash);
+    //         revenue[referer][nota.currency] += moduleFee;
+    //         emit MemoWritten(notaId, memoHash);
     //         return moduleFee;
     //     }
     //     function processTransfer(
@@ -66,8 +66,8 @@ abstract contract PseudoChain is ModuleBase {
     //         address owner,
     //         address from,
     //         address to,
-    //         uint256 cheqId,
-    //         DataTypes.Cheq calldata cheq,
+    //         uint256 notaId,
+    //         DataTypes.Nota calldata nota,
     //         bytes memory data
     //     ) external override onlyRegistrar returns (uint256) {
     //         ITransferRule(transferRule).canTransfer( // False, or isOwner
@@ -76,34 +76,34 @@ abstract contract PseudoChain is ModuleBase {
     //             owner,
     //             from,
     //             to,
-    //             cheqId,
-    //             cheq,
+    //             notaId,
+    //             nota,
     //             data
     //         );
-    //         uint256 moduleFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
+    //         uint256 moduleFee = (nota.escrowed * fees.transferBPS) / BPS_MAX;
     //         return moduleFee;
     //     }
     //     //     function cashable(
-    //     //         uint256 cheqId,
+    //     //         uint256 notaId,
     //     //         address, /* caller */
     //     //         uint256 /* amount */
     //     //     ) public view returns (uint256) {
     //     //         if (false) {
-    //     //             // "0"*n+"..." == keccack((keccack(cheqId) + hash)
-    //     //             return cheq.cheqEscrowed(cheqId);
+    //     //             // "0"*n+"..." == keccack((keccack(notaId) + hash)
+    //     //             return nota.notaEscrowed(notaId);
     //     //         } else {
     //     //             return 0;
     //     //         }
     //     //     }
-    //     //     function cashCheq(uint256 cheqId, uint256 amount) public {
-    //     //         uint256 cashableAmount = cashable(cheqId, _msgSender(), amount);
+    //     //     function cashnota(uint256 notaId, uint256 amount) public {
+    //     //         uint256 cashableAmount = cashable(notaId, _msgSender(), amount);
     //     //         require(cashableAmount == amount, "Cant cash this amount");
-    //     //         cheq.cash(cheqId, _msgSender(), amount);
+    //     //         nota.cash(notaId, _msgSender(), amount);
     //     //     }
     //     //     function tokenURI(uint256 tokenId)
     //     //         public
     //     //         view
-    //     //         override(ERC721, ICheqModule)
+    //     //         override(ERC721, INotaModule)
     //     //         returns (string memory)
     //     //     {
     //     //         return string(abi.encodePacked(_baseURI(), tokenId));
@@ -146,7 +146,7 @@ abstract contract URIUpdater is ModuleBase {
 
 }
 
-/// @notice write a cheq (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash
+/// @notice write a nota (to the zero address?) and the winner of a game (or other bet) gets to transfer to themselves and cash
 abstract contract OracleRelease is ModuleBase {
 
 }

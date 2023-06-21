@@ -11,7 +11,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -60,7 +60,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
@@ -233,7 +233,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "cheqId",
+        "name": "notaId",
         "type": "uint256"
       },
       {
