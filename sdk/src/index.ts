@@ -6,6 +6,8 @@ import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
+import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
+import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
 import { uploadMetadata } from "./Metadata";
 import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
@@ -35,6 +37,7 @@ interface BlockchainState {
   weth: ethers.Contract | null;
   milestonesAddress: string;
   axelarBridgeSender: null | ethers.Contract;
+  disperse: null | ethers.Contract;
 }
 
 interface State {
@@ -54,6 +57,7 @@ export const state: State = {
     reversibleReleaseAddress: "",
     milestonesAddress: "",
     axelarBridgeSender: null,
+    disperse: null,
   },
 };
 
@@ -105,6 +109,12 @@ export async function setProvider(input: ProviderProps) {
     );
     const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
     const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
+    const disperse = new ethers.Contract(
+      contractMapping.batch,
+      MultiDisperse.abi,
+      signer
+    );
+
     state.blockchainState = {
       signer,
       account,
@@ -117,6 +127,7 @@ export async function setProvider(input: ProviderProps) {
       reversibleReleaseAddress: contractMapping.escrow,
       milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
+      disperse,
     };
   } else {
     throw new Error("Unsupported chain");
@@ -386,7 +397,9 @@ interface BatchPayment {
   items: BatchPaymentItem[];
 }
 
-export function sendBatchPayment({}: BatchPayment) {}
+export async function sendBatchPayment(props: BatchProps) {
+  return await BatchDisperse(props);
+}
 
 export function sendBatchPaymentFromCSV(csv: File) {}
 
