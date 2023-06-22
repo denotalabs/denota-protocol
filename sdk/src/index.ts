@@ -1,4 +1,4 @@
-import { BigNumber, ethers, providers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
@@ -61,40 +61,14 @@ export const state: State = {
   },
 };
 
-interface Web3ConnectionProps {
-  type: "web3";
-  web3Connection: ethers.providers.ExternalProvider;
-}
-
-interface PrivateKeyProps {
-  type: "privateKey";
-  privateKey: string;
+interface ProviderProps {
   chainId: number;
+  signer: ethers.Signer;
 }
 
-type ProviderProps = Web3ConnectionProps | PrivateKeyProps;
+export async function setProvider({ signer, chainId }: ProviderProps) {
+  const account = await signer.getAddress();
 
-export async function setProvider(input: ProviderProps) {
-  let provider: ethers.providers.Provider | null,
-    signer: ethers.Signer,
-    account: string;
-
-  if (input.type === "privateKey") {
-    const { privateKey, chainId } = input as PrivateKeyProps;
-    provider = getProviderForChainId(chainId);
-    if (provider === null) {
-      throw new Error("Unsupported chain");
-    }
-    signer = new ethers.Wallet(privateKey, provider);
-    account = await signer.getAddress();
-  } else {
-    const { web3Connection } = input as Web3ConnectionProps;
-    provider = new ethers.providers.Web3Provider(web3Connection);
-    signer = (provider as ethers.providers.Web3Provider).getSigner();
-    account = await signer.getAddress();
-  }
-
-  const { chainId } = await provider.getNetwork();
   const contractMapping = contractMappingForChainId_(chainId);
   if (contractMapping) {
     const registrar = new ethers.Contract(
@@ -131,20 +105,6 @@ export async function setProvider(input: ProviderProps) {
     };
   } else {
     throw new Error("Unsupported chain");
-  }
-}
-
-function getProviderForChainId(chainId: number): providers.Provider | null {
-  const polygonMumbaiRpcUrl = "https://rpc-mumbai.maticvigil.com/";
-  const celoAlfajoresRpcUrl = "https://alfajores-forno.celo-testnet.org/";
-
-  switch (chainId) {
-    case 80001: // Polygon Mumbai Testnet
-      return new providers.JsonRpcProvider(polygonMumbaiRpcUrl, 80001);
-    case 44787: // Celo Alfajores Testnet
-      return new providers.JsonRpcProvider(celoAlfajoresRpcUrl, 44787);
-    default:
-      return null;
   }
 }
 
