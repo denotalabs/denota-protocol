@@ -10,6 +10,7 @@ import {Milestones} from "../src/modules/Milestones.sol";
 
 
 // TODO add fail tests
+/// TODO Failing occasionally on invoice functions
 contract MilestonesTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public dai;

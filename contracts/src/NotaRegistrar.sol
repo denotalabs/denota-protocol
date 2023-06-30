@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import "openzeppelin/access/Ownable.sol";
-import {ERC721} from "./ERC721Nota.sol";
+import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC721/IERC721.sol";
+import "openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin/utils/Strings.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
@@ -10,50 +12,45 @@ import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 
-/**
-     Ownable  IRegistrarGov
-          \      /
-        RegistrarGov INotaRegistrar ERC721
-                    \      |       /
-                      NotaRegistrar
- */
+ /// @title EIP-721 Metadata Update Extension
+interface IERC4906 is IERC165, IERC721 {
+    /// @dev This event emits when the metadata of a token is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFT.
+    event MetadataUpdate(uint256 _tokenId);
+
+    /// @dev This event emits when the metadata of a range of tokens is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFTs.    
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
+}
+contract ERC4906 is ERC721, IERC4906 {
+
+    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
+    }
+
+    /// @dev See {IERC165-supportsInterface}.
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
+        return interfaceId == bytes4(0x49064906) || super.supportsInterface(interfaceId);
+    }
+}
+
 /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of notas' data + escrow, whitelists tokens/modules, and collects revenue.
  */
-
-/// NOW
-/// TODO allow burning
-/// TODO Collect fees based on module fees
-/// TODO use V4 accounting of fees
-/// TODO use OZ transfers libraries?
-/// TODO allow modules to tell registrar to UpdateTokenMetadata
-
-/// LATER
-/// TODO Use leading bits for hooks
-/// TODO Use before/after hooks?
-/// TODO how to do yield?
-/// TODO Make ModuelBase revert for every WTFC function by default?
-/// TODO modify ERC721 at all? Use solmate?
-/// TODO use dynamic (external query) or fixed fee set by module
-/**
-    function moduleWithdraw(
-        address token,
-        uint256 amount,
-        address payoutAccount
-    ) external;
- */
 contract NotaRegistrar is
     Ownable,
-    ERC721,
+    ERC4906,
     INotaRegistrar,
     NotaEncoding
 {
     using SafeERC20 for IERC20;
     using Strings for address;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; 
+    mapping(address => uint256) internal _protocolRevenue; 
     mapping(uint256 => DataTypes.Nota) private _notaInfo;
     uint256 private _totalSupply;
     event Written(
@@ -96,6 +93,8 @@ contract NotaRegistrar is
     );
 
     error SendFailed();
+    error SelfApproval();
+    error NotMinted();
     error InvalidWrite(address, address);
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
@@ -105,7 +104,7 @@ contract NotaRegistrar is
         _;
     }
 
-    constructor() ERC721("denota", "NOTA") {}
+    constructor() ERC4906("denota", "NOTA") {}
 
     /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
@@ -158,9 +157,10 @@ contract NotaRegistrar is
         address from,
         address to,
         uint256 notaId
-    ) public override(ERC721, INotaRegistrar) isMinted(notaId) {
+    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
+        // emit MetadataUpdate(notaId);
     }
 
     function fund(
@@ -169,7 +169,7 @@ contract NotaRegistrar is
         uint256 instant,
         bytes calldata fundData
     ) public payable isMinted(notaId) {
-        DataTypes.Nota storage nota = _notaInfo[notaId]; // TODO module MUST check that token exists
+        DataTypes.Nota memory nota = _notaInfo[notaId]; // TODO module MUST check that token exists
         address owner = ownerOf(notaId); // Is used twice
 
         // Module hook
@@ -193,7 +193,8 @@ contract NotaRegistrar is
             nota.module
         );
 
-        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
+        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if (amount == 0)?
+        // nota.escrowed += amount;
 
         emit Funded(
             _msgSender(),
@@ -204,6 +205,7 @@ contract NotaRegistrar is
             moduleFee,
             block.timestamp
         );
+        // emit MetadataUpdate(notaId);
     }
 
     function cash(
@@ -212,7 +214,7 @@ contract NotaRegistrar is
         address to,
         bytes calldata cashData
     ) public payable isMinted(notaId) {
-        DataTypes.Nota storage nota = _notaInfo[notaId];
+        DataTypes.Nota memory nota = _notaInfo[notaId];
 
         // Module Hook
         uint256 moduleFee = INotaModule(nota.module).processCash(
@@ -232,7 +234,7 @@ contract NotaRegistrar is
         if (totalAmount > nota.escrowed)
             revert InsufficientEscrow(totalAmount, nota.escrowed);
         unchecked {
-            nota.escrowed -= totalAmount;
+            _notaInfo[notaId].escrowed -= totalAmount;
         } // Could this just underflow and revert anyway (save gas)?
         if (nota.currency == address(0)) {
             (bool sent, ) = to.call{value: amount}("");
@@ -256,7 +258,7 @@ contract NotaRegistrar is
     function approve(
         address to,
         uint256 notaId
-    ) public override(ERC721, INotaRegistrar) isMinted(notaId) {
+    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
@@ -272,25 +274,9 @@ contract NotaRegistrar is
 
         // Approve
         _approve(to, notaId);
+        // emit MetadataUpdate(notaId);
     }
-/**
-    function burn(uint256 notaId) public virtual {
-        DataTypes.Nota storage nota = _notaInfo[notaId];
-        uint256 moduleFee = INotaModule(nota.module).processCash(
-            _msgSender(),
-            ownerOf(notaId),
-            to,
-            amount,
-            notaId,
-            nota,
-            cashData
-        );
-
-        _burn(notaId);
-        emit Transfer(ownerOf(notaId), address(0), notaId);
-    }
- */
-
+    
     function tokenURI(
         uint256 notaId
     ) public view override isMinted(notaId) returns (string memory) {
@@ -298,7 +284,7 @@ contract NotaRegistrar is
             .processTokenURI(notaId);
 
         return
-            buildMetadata(
+            toJSON(
                 Strings.toHexString(uint256(uint160(_notaInfo[notaId].currency)), 20),
                 itoa(_notaInfo[notaId].escrowed),
                 itoa(_notaInfo[notaId].createdAt),
@@ -414,24 +400,6 @@ contract NotaRegistrar is
         }
     }
 
-/**
-    function burnBatch(
-        address[] memory tos,
-        uint256[] memory notaIds
-    ) public {
-        uint256 numBurns = tos.length;
-
-        require(
-            numBurns == notaIds.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numBurns; i++) {
-            burn(tos[i], notaIds[i]);
-        }
-    }
-
- */
     /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferTokens(
         uint256 escrowed,
@@ -487,7 +455,7 @@ contract NotaRegistrar is
         if (moduleTransferData.length == 0)
             moduleTransferData = abi.encode(owner());
         address owner = ownerOf(notaId); // require(from == owner,  "") ?
-        DataTypes.Nota storage nota = _notaInfo[notaId]; // Better to assign than to index?
+        DataTypes.Nota memory nota = _notaInfo[notaId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
         // Module hook
@@ -498,16 +466,14 @@ contract NotaRegistrar is
             from, // TODO Might not be needed
             to,
             notaId,
-            nota.currency,
-            nota.escrowed,
-            nota.createdAt,
+            nota,
             moduleTransferData
         );
 
         // Fee taking and escrowing
-        if (nota.escrowed > 0) {
+        if (_notaInfo[notaId].escrowed > 0) {
             // Can't take from 0 escrow
-            nota.escrowed = nota.escrowed - moduleFee;
+            _notaInfo[notaId].escrowed -= moduleFee;
             _moduleRevenue[nota.module][nota.currency] += moduleFee;
             emit Transferred(
                 notaId,
@@ -527,9 +493,16 @@ contract NotaRegistrar is
         address to,
         uint256 notaId,
         bytes memory moduleTransferData
-    ) public override(ERC721, INotaRegistrar) {
+    ) public override(ERC721, IERC721, INotaRegistrar) {
         _transferHookTakeFee(from, to, notaId, moduleTransferData);
         _safeTransfer(from, to, notaId, moduleTransferData);
+        emit MetadataUpdate(notaId);
+    }
+
+    function metadataUpdate(uint256 notaId) external {
+        DataTypes.Nota memory nota = _notaInfo[notaId];
+        require(_msgSender() == nota.module, "NOT_MODULE");
+        emit MetadataUpdate(notaId);
     }
 
     /*///////////////////////// VIEW ////////////////////////////*/
@@ -539,26 +512,23 @@ contract NotaRegistrar is
         if (notaId >= _totalSupply) revert NotMinted();
         return _notaInfo[notaId];
     }
-
-    function notaCurrency(uint256 notaId) public view returns (address) {
-        if (notaId >= _totalSupply) revert NotMinted();
-        return _notaInfo[notaId].currency;
-    }
-
     function notaEscrowed(uint256 notaId) public view returns (uint256) {
         if (notaId >= _totalSupply) revert NotMinted();
         return _notaInfo[notaId].escrowed;
     }
-
+    function notaCreatedAt(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].createdAt;
+    }
+    function notaCurrency(uint256 notaId) public view returns (address) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].currency;
+    }
     function notaModule(uint256 notaId) public view returns (address) {
         if (notaId >= _totalSupply) revert NotMinted();
         return _notaInfo[notaId].module;
     }
 
-    function notaCreatedAt(uint256 notaId) public view returns (uint256) {
-        if (notaId >= _totalSupply) revert NotMinted();
-        return _notaInfo[notaId].createdAt;
-    }
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -575,3 +545,37 @@ contract NotaRegistrar is
         IERC20(token).safeTransferFrom(address(this), to, amount);
     }
 }
+
+/**
+    function burn(uint256 notaId) public virtual {
+        DataTypes.Nota storage nota = _notaInfo[notaId];
+        uint256 moduleFee = INotaModule(nota.module).processCash(
+            _msgSender(),
+            ownerOf(notaId),
+            to,
+            amount,
+            notaId,
+            nota,
+            cashData
+        );
+
+        _burn(notaId);
+        emit Transfer(ownerOf(notaId), address(0), notaId);
+    }
+
+    function burnBatch(
+        address[] memory tos,
+        uint256[] memory notaIds
+    ) public {
+        uint256 numBurns = tos.length;
+
+        require(
+            numBurns == notaIds.length,
+            "Input arrays must have the same length"
+        );
+
+        for (uint256 i = 0; i < numBurns; i++) {
+            burn(tos[i], notaIds[i]);
+        }
+    }
+*/

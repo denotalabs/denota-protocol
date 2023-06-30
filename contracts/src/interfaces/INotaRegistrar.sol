@@ -5,10 +5,7 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 
 /**
- * @notice NotaRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing nota data
- * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces nota.escrowed)?
- * Question: Should process_() return non-booleans?
- * TODO: pass nota as a struct or individual variables?
+ * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
  */
 interface INotaRegistrar {
     function write(
@@ -59,7 +56,7 @@ interface INotaRegistrar {
     // nota data
     function notaInfo(
         uint256 notaId
-    ) external view returns (DataTypes.Nota memory); // Question: Should this be the only _notaInfo view method?
+    ) external view returns (DataTypes.Nota memory);
 
     function notaCreatedAt(uint256 notaId) external view returns (uint256);
     
@@ -74,13 +71,6 @@ interface INotaRegistrar {
     // function ownerOf(uint256 notaId) external view returns (address);
 
     // function totalSupply() public view returns (uint256);
-
-    // /// Whitlistings
-    // function moduleWhitelisted(
-    //     address module
-    // ) external view returns (bool, bool); // addressWhitelisted, bytecodeWhitelisted
-
-    // function tokenWhitelisted(address token) external view returns (bool);
 
     // function moduleWithdraw(
     //     address token,

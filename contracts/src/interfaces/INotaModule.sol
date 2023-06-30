@@ -15,8 +15,7 @@ interface INotaModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (moduleFee, adjOwner, adjnota)?
-
+    /// TODO change to struct
     function processTransfer(
         address caller,
         address approved,
@@ -24,13 +23,9 @@ interface INotaModule {
         address from,
         address to,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
+        DataTypes.Nota calldata nota,
         bytes calldata data
     ) external returns (uint256);
-
-    // QUESTION: return (adjOwner, adjnota)?
 
     function processFund(
         address caller,
@@ -42,8 +37,6 @@ interface INotaModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (adjOwner, adjAmount, adjnota)?
-
     function processCash(
         address caller,
         address owner,
@@ -54,8 +47,6 @@ interface INotaModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (adjOwner, adjTo, adjAmount, adjnota)?
-
     function processApproval(
         address caller,
         address owner,
@@ -65,11 +56,9 @@ interface INotaModule {
         bytes memory initData
     ) external;
 
-    // QUESTION: return (adjOwner, adjnota)?
-
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool); // TODO settle on what this returns
     // function processBalanceOf() external view returns(uint256);
     function processTokenURI(
         uint256 tokenId
-    ) external view returns (string memory, string memory); // TODO how to format IPFS payloads to insert into the metadata
+    ) external view returns (string memory, string memory);
 }
