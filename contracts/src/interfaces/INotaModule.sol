@@ -15,7 +15,6 @@ interface INotaModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    /// TODO change to struct
     function processTransfer(
         address caller,
         address approved,
@@ -23,8 +22,10 @@ interface INotaModule {
         address from,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes calldata data
+        address currency,
+        uint256 escrowed,
+        uint256 createdAt,
+        bytes calldata transferData
     ) external returns (uint256);
 
     function processFund(

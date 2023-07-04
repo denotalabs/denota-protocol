@@ -3,13 +3,13 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin/token/ERC721/IERC721.sol";
-import "openzeppelin/token/ERC721/IERC721Receiver.sol";
-import "openzeppelin/token/ERC721/extensions/IERC721Metadata.sol";
-import "openzeppelin/utils/Address.sol";
-import "openzeppelin/utils/Context.sol";
-import "openzeppelin/utils/Strings.sol";
-import "openzeppelin/utils/introspection/ERC165.sol";
+import "openzeppelin-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import "openzeppelin-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import "openzeppelin-upgradeable/token/ERC721/extensions/IERC721MetadataUpgradeable.sol";
+import "openzeppelin-upgradeable/utils/AddressUpgradeable.sol";
+import "openzeppelin-upgradeable/utils/ContextUpgradeable.sol";
+import "openzeppelin-upgradeable/utils/StringsUpgradeable.sol";
+import "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
@@ -18,9 +18,9 @@ import "openzeppelin/utils/introspection/ERC165.sol";
  *
  * @custom:denota remove operators, remove approval owner/operator check, remove _before/_after hooks from mint/transfer/burn. Changed requires to reverts
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
-    using Address for address;
-    using Strings for uint256;
+contract ERC721Upgradeable is ContextUpgradeable, ERC165Upgradeable, IERC721Upgradeable, IERC721MetadataUpgradeable {
+    using AddressUpgradeable for address;
+    using StringsUpgradeable for uint256;
 
     // Token name
     string private _name;
@@ -45,7 +45,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor(string memory name_, string memory symbol_) {
+    function __ERC721_init(string memory name_, string memory symbol_) internal onlyInitializing {
+        __ERC721_init_unchained(name_, symbol_);
+    }
+
+    function __ERC721_init_unchained(string memory name_, string memory symbol_) internal onlyInitializing {
         _name = name_;
         _symbol = symbol_;
     }
@@ -55,10 +59,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC165, IERC165) returns (bool) {
+    ) public view virtual override(ERC165Upgradeable, IERC165Upgradeable) returns (bool) {
         return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IERC721Metadata).interfaceId ||
+            interfaceId == type(IERC721Upgradeable).interfaceId ||
+            interfaceId == type(IERC721MetadataUpgradeable).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
@@ -132,7 +136,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ERC721Upgradeable.ownerOf(tokenId);
         // require(to != owner, "ERC721: approval to current owner");  // Changed: removed
         if (to == owner) revert SelfApproval();
 
@@ -187,7 +191,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual override {
         // require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved"); // Changed: removed
-        _transfer(from, to, tokenId);
+        // _transfer(from, to, tokenId);
+        revert();
     }
 
     /**
@@ -211,7 +216,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         bytes memory data
     ) public virtual override {
         // require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");  // Changed: removed
-        _safeTransfer(from, to, tokenId, data);
+        // _safeTransfer(from, to, tokenId, data);
+        revert();
     }
 
     /**
@@ -265,7 +271,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {
         // Changed: removed the beforeTokenTransfer hook and check, and afterTokenTransfer hook
         require(
-            ERC721.ownerOf(tokenId) == from,
+            ERC721Upgradeable.ownerOf(tokenId) == from,
             "ERC721: transfer from incorrect owner"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -414,7 +420,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ERC721Upgradeable.ownerOf(tokenId);
 
         // _beforeTokenTransfer(owner, address(0), tokenId, 1);  // Changed: removed
 
@@ -443,7 +449,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
+        emit Approval(ERC721Upgradeable.ownerOf(tokenId), to, tokenId);
     }
 
     // /**
@@ -487,14 +493,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) private returns (bool) {
         if (to.isContract()) {
             try
-                IERC721Receiver(to).onERC721Received(
+                IERC721ReceiverUpgradeable(to).onERC721Received(
                     _msgSender(),
                     from,
                     tokenId,
                     data
                 )
             returns (bytes4 retval) {
-                return retval == IERC721Receiver.onERC721Received.selector;
+                return retval == IERC721ReceiverUpgradeable.onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
                     revert(
@@ -568,4 +574,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     // ) internal {
     //     _balances[account] += amount;
     // }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[44] private __gap;
 }

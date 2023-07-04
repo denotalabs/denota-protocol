@@ -58,7 +58,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         uint256 escrowed,
         uint256 createdAt,
         bytes calldata transferData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) external virtual onlyRegistrar returns (uint256) {
         // Add module logic here
         return 0;
     }
@@ -111,12 +111,12 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     ) public view virtual returns (DataTypes.WTFCFees memory) {
         return DataTypes.WTFCFees(0, 0, 0, 0);
     }
-        function takeReturnFee(
+    function takeReturnFee(
         address currency,
         uint256 amount,
         address dappOperator,
         uint8 _WTFC
-    ) internal returns (uint256 fee) { return 0;}
+    ) internal pure returns (uint256 fee) { return 0;}
 
     // function withdrawFees(address token) public {
     //     uint256 payoutAmount = revenue[msg.sender][token];
@@ -213,7 +213,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         uint256 escrowed,
         uint256 createdAt,
         bytes calldata transferData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) external virtual onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
         return takeReturnFee(currency, escrowed, dappOperator, 1);
@@ -364,7 +364,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         uint256 escrowed,
         uint256 createdAt,
         bytes calldata transferData
-    ) external virtual override onlyRegistrar returns (uint256) {
+    ) external virtual onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
         return takeReturnFee(currency, escrowed, 1);

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
+import "openzeppelin-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
+import {ERC721Upgradeable} from "./ERC721Nota.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
@@ -42,8 +46,11 @@ contract ERC4906 is ERC721, IERC4906 {
  * @dev    Tracks ownership of notas' data + escrow, whitelists tokens/modules, and collects revenue.
  */
 contract NotaRegistrar is
-    Ownable,
-    ERC4906,
+    OwnableUpgradeable,
+    // ERC4906,
+    // Initializable,
+    UUPSUpgradeable,
+    ERC721Upgradeable,
     INotaRegistrar,
     NotaEncoding
 {
@@ -93,8 +100,6 @@ contract NotaRegistrar is
     );
 
     error SendFailed();
-    error SelfApproval();
-    error NotMinted();
     error InvalidWrite(address, address);
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
@@ -104,8 +109,13 @@ contract NotaRegistrar is
         _;
     }
 
-    constructor() ERC4906("denota", "NOTA") {}
-
+    constructor() {}
+    function initialize() public initializer {
+        __ERC721_init("denota", "NOTA");
+       __Ownable_init();
+       __UUPSUpgradeable_init();
+    }
+    
     /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
         address currency,
@@ -157,7 +167,7 @@ contract NotaRegistrar is
         address from,
         address to,
         uint256 notaId
-    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+    ) public override(ERC721Upgradeable, INotaRegistrar) isMinted(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
         // emit MetadataUpdate(notaId);
@@ -258,7 +268,7 @@ contract NotaRegistrar is
     function approve(
         address to,
         uint256 notaId
-    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+    ) public override(ERC721Upgradeable, INotaRegistrar) isMinted(notaId) {
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
@@ -293,6 +303,8 @@ contract NotaRegistrar is
                 moduleKeys
             );
     }
+    /*//////////////////// UPGRADEABILITY ////////////////////////*/
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
     /*///////////////////// BATCH FUNCTIONS ///////////////////////*/
 
@@ -453,8 +465,8 @@ contract NotaRegistrar is
         bytes memory moduleTransferData
     ) internal {
         if (moduleTransferData.length == 0)
-            moduleTransferData = abi.encode(owner());
-        address owner = ownerOf(notaId); // require(from == owner,  "") ?
+            moduleTransferData = abi.encode(super.owner());
+        address notaOwner = ownerOf(notaId); // require(from == owner,  "") ?
         DataTypes.Nota memory nota = _notaInfo[notaId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
@@ -462,11 +474,13 @@ contract NotaRegistrar is
         uint256 moduleFee = INotaModule(nota.module).processTransfer(
             _msgSender(),
             getApproved(notaId),
-            owner,
+            notaOwner,
             from, // TODO Might not be needed
             to,
             notaId,
-            nota,
+            nota.currency,
+            nota.escrowed,
+            nota.createdAt,
             moduleTransferData
         );
 
@@ -477,14 +491,14 @@ contract NotaRegistrar is
             _moduleRevenue[nota.module][nota.currency] += moduleFee;
             emit Transferred(
                 notaId,
-                owner,
+                notaOwner,
                 to,
                 moduleFee,
                 block.timestamp
             );
         } else {
             // Must be case since fee's can't be taken without an escrow to take from
-            emit Transferred(notaId, owner, to, 0, block.timestamp);
+            emit Transferred(notaId, notaOwner, to, 0, block.timestamp);
         }
     }
 
@@ -493,16 +507,16 @@ contract NotaRegistrar is
         address to,
         uint256 notaId,
         bytes memory moduleTransferData
-    ) public override(ERC721, IERC721, INotaRegistrar) {
+    ) public override(ERC721Upgradeable, INotaRegistrar) {
         _transferHookTakeFee(from, to, notaId, moduleTransferData);
         _safeTransfer(from, to, notaId, moduleTransferData);
-        emit MetadataUpdate(notaId);
+        // emit MetadataUpdate(notaId);
     }
 
     function metadataUpdate(uint256 notaId) external {
         DataTypes.Nota memory nota = _notaInfo[notaId];
         require(_msgSender() == nota.module, "NOT_MODULE");
-        emit MetadataUpdate(notaId);
+        // emit MetadataUpdate(notaId);
     }
 
     /*///////////////////////// VIEW ////////////////////////////*/

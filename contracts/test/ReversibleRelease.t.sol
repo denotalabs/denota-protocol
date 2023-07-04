@@ -7,10 +7,10 @@ import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {ReversibleRelease} from "../src/modules/ReversibleRelease.sol";
+import "./util/CheqRegistrarTest.sol";
 
 // TODO add fail tests
-contract ReversibleReleaseTest is Test {
-    NotaRegistrar public REGISTRAR;
+contract ReversibleReleaseTest is CheqRegistrarTest {
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -23,9 +23,9 @@ contract ReversibleReleaseTest is Test {
         return (size > 0);
     }
 
-    function setUp() public {
-        // sets up the registrar and ERC20s
-        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
+    function setUp() public override {
+        super.setUp();
+        // sets up ERC20s
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);

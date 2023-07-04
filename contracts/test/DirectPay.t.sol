@@ -7,6 +7,7 @@ import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {DirectPay} from "../src/modules/DirectPay.sol";
+import "./util/CheqRegistrarTest.sol";
 
 // TODO add fail tests
 /**
@@ -35,8 +36,7 @@ Celo:
     Celo price: 0.63
     Write Price: 0.0056
 */
-contract DirectPayTest is Test {
-    NotaRegistrar public REGISTRAR;
+contract DirectPayTest is CheqRegistrarTest {
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -49,9 +49,9 @@ contract DirectPayTest is Test {
         return (size > 0);
     }
 
-    function setUp() public {
-        // sets up the registrar and ERC20s
-        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
+    function setUp() public override {
+        super.setUp();
+        // sets up ERC20s
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);

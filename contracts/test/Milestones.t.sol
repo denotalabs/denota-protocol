@@ -7,12 +7,11 @@ import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {Milestones} from "../src/modules/Milestones.sol";
+import "./util/CheqRegistrarTest.sol";
 
 
 // TODO add fail tests
-/// TODO Failing occasionally on invoice functions
-contract MilestonesTest is Test {
-    NotaRegistrar public REGISTRAR;
+contract MilestonesTest is CheqRegistrarTest {
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -25,9 +24,9 @@ contract MilestonesTest is Test {
         return (size > 0);
     }
 
-    function setUp() public {
-        // sets up the registrar and ERC20s
-        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
+    function setUp() public override {
+        super.setUp();
+        // sets up ERC20s
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
