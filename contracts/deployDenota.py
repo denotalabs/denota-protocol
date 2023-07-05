@@ -53,11 +53,11 @@ def rpc_for_chain(chain):
         "arbitrum": "https://goerli-rollup.arbitrum.io/rpc",
         "alfajores": "https://alfajores-forno.celo-testnet.org",
         "base": "https://goerli.base.org",
-        "bnb": "https://data-seed-prebsc-1-s3.binance.org:8545",
+        "bnb": "https://bsc-testnet.publicnode.com",
         "gnosis": "https://rpc.ankr.com/gnosis",  # MAINNET
         # "goerli":  "https://goerli.blockpi.network/v1/rpc/public", # Will be deprecated
-        "sepolia": "https://rpc2.sepolia.org",
-        "mumbai": "https://matic-mumbai.chainstacklabs.com",
+        "sepolia": "https://eth-sepolia-public.unifra.io", # "https://rpc2.sepolia.org",# "https://endpoints.omniatech.io/v1/eth/sepolia/public",
+        "mumbai": "https://polygon-mumbai-bor.publicnode.com",
         "optimism": "https://goerli.optimism.io",
         "zksync": "https://zksync2-testnet.zksync.dev"
     }
@@ -82,9 +82,7 @@ def native_token_name_chain(chain):
 
 def deploy_libraries(existing_addresses, chain, rpc_key_flags):
     datatypes = "src/libraries/DataTypes.sol:DataTypes"
-    errors = "src/libraries/Errors.sol:Errors"
-    events = "src/libraries/Events.sol:Events"
-    library_paths, lib_addresses = [datatypes, errors, events], []
+    library_paths, lib_addresses = [datatypes], []
     for library_path in library_paths:
         name = library_path.split(":")[-1]
         if not existing_addresses[chain][name]:
@@ -101,8 +99,6 @@ def deploy_libraries(existing_addresses, chain, rpc_key_flags):
 
 
 def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
-    newRegistrarDeployed = False
-
     if not existing_addresses[chain]["registrar"]:
         registar_path = "src/NotaRegistrar.sol:NotaRegistrar"
         result = eth_call(
@@ -112,53 +108,36 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
         block_number = (eth_call(
             f'cast block-number --rpc-url {rpc_for_chain(chain)}', "Block failed to fetch")).stdout
         existing_addresses[chain]["startBlock"] = block_number.strip("\n")
-        newRegistrarDeployed = True
     else:
         registrar = existing_addresses[chain]["registrar"]
         block_number = existing_addresses[chain]["startBlock"]
     print(f'Registrar address: {registrar}')
 
     # Deploy ERC20s for testing
-    erc20_path, oldTokens = "src/test/mock/erc20.sol:TestERC20", []
-    for (supply, name, symbol) in [(10000000e18, "weth", "WETH"), (10000000e18, "dai", "DAI")]:
+    erc20_path, oldTokens, amount = "src/test/mock/erc20.sol:TestERC20", [], 10000000000000000000000000
+    for (supply, name, symbol) in [(amount, "weth", "WETH"), (amount, "dai", "DAI")]:
         if not existing_addresses[chain][name]:
             result = eth_call(
                 f'forge create {erc20_path} --constructor-args {supply} {name} {symbol} {rpc_key_flags}', "ERC20 deployment failed")
             token = extract_address(result.stdout)
             existing_addresses[chain][name] = token
-
-            eth_call(
-                f'cast send {registrar} "whitelistToken(address,bool,string)" {token} "true" {symbol} {rpc_key_flags}', "Whitelist token failed")
         else:
             token = existing_addresses[chain][name]
             oldTokens.append((token, name, symbol))
 
         print(f'{symbol} address: {token}')
 
-    # Whitelist tokens
-    if newRegistrarDeployed:
-        for (token, name, symbol) in oldTokens:
-            eth_call(
-                f'cast send {registrar} "whitelistToken(address,bool,string)" {token} "true" {symbol} {rpc_key_flags}', "Whitelist token failed")
-
-        native_token_name = native_token_name_chain(chain)
-        eth_call(
-            f'cast send {registrar} "whitelistToken(address,bool,string)" "0x0000000000000000000000000000000000000000" "true" {native_token_name} {rpc_key_flags}', "Whitelist token failed")
-
     return existing_addresses, block_number, registrar
 
 
 def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
-    # TODO refactor into for loop
+    # TODO refactor into a for loop
     if not existing_addresses[chain]["directPay"]:
         DirectPay_path = "src/modules/DirectPay.sol:DirectPay"
         result = eth_call(
             f'forge create {DirectPay_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         direct_pay = extract_address(result.stdout)
         existing_addresses[chain]["directPay"] = direct_pay
-        # Whitelist the DirectPay module
-        eth_call(
-            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {direct_pay} "false" "true" "DirectPay" {rpc_key_flags}', "Whitelist module failed")
     else:
         direct_pay = existing_addresses[chain]["directPay"]
     # Update the address JSON
@@ -172,9 +151,8 @@ def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
             f'forge create {Escrow_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {rpc_key_flags}', "Module deployment failed")
         escrow = extract_address(result.stdout)
         existing_addresses[chain]["escrow"] = escrow
-        # Whitelist the Escrow module
-        eth_call(
-            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {escrow} "false" "true" "ReversibleRelease" {rpc_key_flags}', "Whitelist module failed")
+    else:
+        escrow = existing_addresses[chain]["escrow"]
     # Update the address JSON
     print(f'Escrow address: {escrow}')
     with open("contractAddresses.json", 'w') as f:
@@ -198,8 +176,6 @@ def deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar):
             f'forge create {axelarDirectPay_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {gateway} {rpc_key_flags}', "Axelar Module deployment failed")
         direct_pay_axelar = extract_address(result.stdout)
         existing_addresses[chain]["directPayAxelar"] = direct_pay_axelar
-        eth_call(
-            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {direct_pay_axelar} "false" "true" "ReversibleRelease" {rpc_key_flags}', "Whitelist module failed")
     else:
         direct_pay_axelar = existing_addresses[chain]["directPayAxelar"]
 
@@ -241,7 +217,7 @@ def create_crosschain_nota(existing_addresses, chain, rpc_key_flags):
 
 if __name__ == "__main__":
     key = sys.argv[1]  # load up from from the .env file directly?
-    for chain in ["mumbai", "alfajores"]:  # chains
+    for chain in [x for x in chains if x not in ["sepolia", "alfajores", "bnb", "gnosis", "zksync"]]:  # "mumbai", 
         print(f"\n{chain} @{rpc_for_chain(chain)}")
         rpc_key_flags = f"--private-key {key} --rpc-url {rpc_for_chain(chain)} --gas-price 30gwei"
         with open("contractAddresses.json", 'r') as f:
@@ -251,16 +227,13 @@ if __name__ == "__main__":
             existing_addresses, chain, rpc_key_flags)
         existing_addresses, block_number, registrar = deploy_registrar_tokens(
             existing_addresses, chain, rpc_key_flags)
-        existing_addresses, axelarBridgeSender, axelarBridgeReceiver = deploy_axelar(
-            existing_addresses, chain, rpc_key_flags, registrar)
-        create_crosschain_nota(existing_addresses, chain, rpc_key_flags)
+        existing_addresses = deploy_modules(existing_addresses, chain, rpc_key_flags, registrar)
+        # existing_addresses, axelarBridgeSender, axelarBridgeReceiver = deploy_axelar(
+        #     existing_addresses, chain, rpc_key_flags, registrar)
+        # create_crosschain_nota(existing_addresses, chain, rpc_key_flags)
 
         with open("contractAddresses.json", 'w') as f:
             f.write(json.dumps(existing_addresses))
-
-        with open("../frontend/context/contractAddresses.tsx", 'w') as f:
-            f.write("export const ContractAddressMapping = " +
-                    json.dumps(existing_addresses))
 
         with open("../graph/subgraph/config/" + chain + ".json", 'w') as f:
             existing_addresses[chain]["network"] = chain

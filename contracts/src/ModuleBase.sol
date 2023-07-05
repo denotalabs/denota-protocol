@@ -54,9 +54,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         address from,
         address to,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
+        DataTypes.Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
@@ -209,14 +207,12 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         address from,
         address to,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
+        DataTypes.Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
-        return takeReturnFee(currency, escrowed, dappOperator, 1);
+        return takeReturnFee(nota.currency, nota.escrowed, dappOperator, 1);
     }
 
     function processFund(
@@ -360,14 +356,12 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         address from,
         address to,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 createdAt,
+        DataTypes.Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
-        return takeReturnFee(currency, escrowed, 1);
+        return takeReturnFee(nota.currency, nota.escrowed, 1);
     }
 
     function processFund(

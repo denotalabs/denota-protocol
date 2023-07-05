@@ -224,15 +224,13 @@ contract Milestones is OperatorFeeModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        address currency,
-        uint256 escrowed,
-        uint256 /*createdAt*/,
+        DataTypes.Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
         // revert Disallowed();
         return
-            takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
+            takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(

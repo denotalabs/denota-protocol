@@ -164,14 +164,14 @@ contract NotaEncoding {
                                 currency,
                                 '"},{"trait_type":"Escrowed","display_type":"number","value":',
                                 escrowed,
-                                '"},{"trait_type":"CreatedAt","display_type":"number","value":',
+                                '},{"trait_type":"CreatedAt","display_type":"number","value":',
                                 createdAt,
                                 '},{"trait_type":"Module","value":"',
                                 module,
                                 '"}',
-                                moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}
+                                moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
                                 ']',
-                                moduleKeys,
+                                moduleKeys, // of form: ',{"<key>":"<value>"}
                                 '}'
                             )
                         )

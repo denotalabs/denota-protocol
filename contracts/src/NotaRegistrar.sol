@@ -53,6 +53,7 @@ contract NotaRegistrar is
     mapping(address => uint256) internal _protocolRevenue; 
     mapping(uint256 => DataTypes.Nota) private _notaInfo;
     uint256 private _totalSupply;
+
     event Written(
         address indexed caller,
         uint256 notaId,
@@ -160,7 +161,7 @@ contract NotaRegistrar is
     ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
-        // emit MetadataUpdate(notaId);
+        // emit MetadataUpdate(notaId); // TODO will transfers update the json too?
     }
 
     function fund(
@@ -205,7 +206,7 @@ contract NotaRegistrar is
             moduleFee,
             block.timestamp
         );
-        // emit MetadataUpdate(notaId);
+        emit MetadataUpdate(notaId);
     }
 
     function cash(
@@ -274,7 +275,7 @@ contract NotaRegistrar is
 
         // Approve
         _approve(to, notaId);
-        // emit MetadataUpdate(notaId);
+        emit MetadataUpdate(notaId);
     }
     
     function tokenURI(
@@ -528,7 +529,6 @@ contract NotaRegistrar is
         if (notaId >= _totalSupply) revert NotMinted();
         return _notaInfo[notaId].module;
     }
-
 
     function totalSupply() public view returns (uint256) {
         return _totalSupply;

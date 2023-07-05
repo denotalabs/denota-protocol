@@ -9,3 +9,10 @@ contract TestERC20 is ERC20 {
         if (_amount>0) _mint(msg.sender, _amount);
     }
 }
+
+contract erc20 is ERC20 {
+
+    constructor(uint256 _amount, string memory name, string memory symbol) ERC20(name, symbol){
+        if (_amount>0) _mint(msg.sender, _amount);
+    }
+}

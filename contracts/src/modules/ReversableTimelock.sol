@@ -68,16 +68,14 @@ contract ReversableTimelock is OperatorFeeModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        address currency,
-        uint256 escrowed,
-        uint256 /*createdAt*/,
+        DataTypes.Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         require(
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return takeReturnFee(currency, 0, abi.decode(data, (address)), 1);
+        return takeReturnFee(nota.currency, 0, abi.decode(data, (address)), 1);
     }
 
     function processFund(

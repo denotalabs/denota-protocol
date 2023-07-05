@@ -292,8 +292,10 @@ contract DirectPayTest is Test {
             // block.timestamp,
             100,
             address(this), // dappOperator
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
+            "https://i.seadn.io/gcs/files/d09bf6c414378cd82ff1bc2886fcc68b.png", 
+            "bafybeibj3nf4iyxt2guxihs77sylpuwu4l4yn4cfqumpc2xplxgxt4ssoa"
+            // "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
+            // "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
         );
         vm.prank(debtor);
         uint256 notaId = REGISTRAR.write(

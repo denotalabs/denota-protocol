@@ -4,7 +4,6 @@ import subprocess
 import sys
 from time import time
 
-import web3
 from eth_abi import encode
 
 
@@ -21,23 +20,20 @@ def eth_call(command, error):
 if __name__ == "__main__":
   chain = sys.argv[2]; chain = chain if chain == "mumbai" else "local"
   key = sys.argv[1]; key = key if chain == "mumbai" else "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"  # load up from from the .env file directly?
-  rpc = "https://matic-mumbai.chainstacklabs.com" if (chain == "mumbai") else "http://127.0.0.1:8545"
+  rpc = "https://polygon-mumbai-bor.publicnode.com" if (chain == "mumbai") else "http://127.0.0.1:8545"
   rpc_key_flags = f"--private-key {key} --rpc-url {rpc} --gas-price 30gwei"
   
   with open("contractAddresses.json", 'r') as f:
     existing_addresses = json.loads(f.read())
 
-  for (key, value) in existing_addresses[chain].items():
-    if not value:
-      raise f"{key} contract not deployed"
 
   registrar, directPay, dai, weth = [existing_addresses[chain][contract] for contract in 
                                      ["registrar", "directPay", "dai", "weth"]]
 
-  # DIRECT PAY MODULE CHEQS # TODO create for loop with random values. Write using multiple modules
-  toNotify, invoice_amount, timestamp, dappOperator, memoHash = ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', int(10e10), int(time()), '0x0000000000000000000000000000000000000000', web3.Web3.keccak(text='This is a hash')]
-  moduleWriteData = encode(['address', 'uint256', 'uint256', 'address', 'string'], [toNotify, invoice_amount, timestamp, dappOperator, str(encode(['bytes32'], [memoHash]))])
-  print(moduleWriteData); print(); print()
+  # DIRECT PAY MODULE NOTA # TODO create for loop with random values. Write using multiple modules
+  toNotify, invoice_amount, timestamp, dappOperator, imageURI, memoHash = ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', int(10e10), int(time()), '0x0000000000000000000000000000000000000000', "https://i.seadn.io/gcs/files/d09bf6c414378cd82ff1bc2886fcc68b.png", "bafybeibj3nf4iyxt2guxihs77sylpuwu4l4yn4cfqumpc2xplxgxt4ssoa"] # web3.Web3.keccak(text='This is a hash')
+  moduleWriteData = encode(['address', 'uint256', 'address', 'string', 'string'], [toNotify, invoice_amount, dappOperator, "", ""])#imageURI, memoHash])# str(encode(["string"], [imageURI])), str(encode(["string"], [memoHash]))]) # 
+  print(type(moduleWriteData)); print(moduleWriteData); print()
   # TODO how to encode the bytes data??
   # write_args = '" "'.join({
   #                        "currency": '"' + dai,
