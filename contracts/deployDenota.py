@@ -57,7 +57,7 @@ def rpc_for_chain(chain):
         "gnosis": "https://rpc.ankr.com/gnosis",  # MAINNET
         # "goerli":  "https://goerli.blockpi.network/v1/rpc/public", # Will be deprecated
         "sepolia": "https://rpc2.sepolia.org",
-        "mumbai": "https://matic-mumbai.chainstacklabs.com",
+        "mumbai": "https://polygon-mumbai-bor.publicnode.com",
         "optimism": "https://goerli.optimism.io",
         "zksync": "https://zksync2-testnet.zksync.dev"
     }

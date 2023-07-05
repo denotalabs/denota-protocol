@@ -4,4 +4,17 @@ out = 'out'
 libs = ['lib']
 gas_reports = ["*"]
 
+[rpc_endpoints]
+optimism = "${OPTIMISM_RPC_URL}"
+mainnet = "${MAINNET_RPC_URL}"
+arbitrum-goerli = "${ARBITRUM_GOERLI_RPC_URL}"
+alfajores = "${ALFAJORES_RPC_URL}"
+base-goerli = "${BASE_GOERLI_RPC_URL}"
+bnb-testnet = "${BNB_TESTNET_RPC_URL}"
+gnosis = "${GNOSIS_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+mumbai = "${MUMBAI_RPC_URL}"
+optimism-goerli = "${OPTIMISM_GOERLI_RPC_URL}"
+zksync-testnet = "${ZKSYNC_TESTNET_RPC_URL}"
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

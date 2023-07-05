@@ -12,13 +12,16 @@ fresh-install:
 build  :; forge clean && forge build --optimize --optimizer-runs 1000000
 
 deploy-local:
-	python3 deployDenota.py ${PRIVATE_KEY}
-	
-deploy-testnets:
-	python3 deployDenota.py ${PRIVATE_KEY}
+	forge script src/script/01_deployRegistrar.s.sol:DeployRegistrar --fork-url http://localhost:8545 --private-key ${PRIVATE_KEY_LOCAL} -vvvv --via-ir
 
-create-mumbai-data: # write notas from different modules, transfer, fund, cash
-	python3 createNotas.py ${PRIVATE_KEY} "mumbai"
+deploy-mumbai:
+	forge script src/script/01_deployRegistrar.s.sol:DeployRegistrar --rpc-url ${MUMBAI_RPC_URL} --private-key ${PRIVATE_KEY} --via-ir
+
+deploy-arbitrum-goerli:
+	forge script src/script/01_deployRegistrar.s.sol:DeployRegistrar --rpc-url ${ARBITRUM_GOERLI_RPC_URL} --private-key ${PRIVATE_KEY} --via-ir
+
+# create-mumbai-data: # write notas from different modules, transfer, fund, cash
+# 	python3 createNotas.py ${PRIVATE_KEY} "mumbai"
 
 
 
