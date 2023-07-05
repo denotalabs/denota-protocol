@@ -6,6 +6,7 @@ import {OperatorFeeModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
+import {NotaEncoding} from "../libraries/Base64Encoding.sol";
 
 /**
  * @notice Contract: stores invoice structs, allows freelancer/client to set work status'

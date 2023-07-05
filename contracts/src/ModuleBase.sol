@@ -6,11 +6,13 @@ import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
+// import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 
 
 // TODO use uniswap V4 fee taking model
 // TODO have inheritence for URIs
 // TODO how to handle erc721 inheritence
+// TODO add NotaEncoding basic functionality
 abstract contract ModuleBase is INotaModule, NotaEncoding {
     using Strings for address;
     address public immutable REGISTRAR;

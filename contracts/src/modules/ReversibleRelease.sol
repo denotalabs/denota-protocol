@@ -5,6 +5,7 @@ import {OperatorFeeModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
+import {NotaEncoding} from "../libraries/Base64Encoding.sol";
 import "openzeppelin/utils/Strings.sol";
 
 /**
@@ -193,9 +194,9 @@ contract ReversibleRelease is OperatorFeeModuleBase {
             Strings.toHexString(uint256(uint160(payment.creditor))),
             '"},{"trait_type":"Debtor","value":"',
             Strings.toHexString(uint256(uint160(payment.debtor))),
-            '"},{"trait_type":"Amount","value":"',
-            Strings.toHexString(payment.amount),
-            '"}'));
+            '"},{"trait_type":"Amount","display_type":"number","value":',
+            itoa(payment.amount),
+            '}'));
         
         if (bytes(_URI).length == 0) {
             return (attributes, "");

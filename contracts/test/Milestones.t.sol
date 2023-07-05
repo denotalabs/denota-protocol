@@ -282,7 +282,7 @@ contract MilestonesTest is CheqRegistrarTest {
         bytes memory initData = abi.encode(
             toNotify,
             address(this),
-            bytes32(keccak256("this is a hash")),
+            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
             milestoneAmounts
         );
 

@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import {OperatorFeeModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
+import {NotaEncoding} from "../libraries/Base64Encoding.sol";
 import "openzeppelin/utils/Strings.sol";
 
 /**
@@ -192,9 +193,9 @@ contract DirectPay is OperatorFeeModuleBase {
                 Strings.toHexString(uint256(uint160(payment.creditor))),
                 '"},{"trait_type":"Debtor","value":"',
                 Strings.toHexString(uint256(uint160(payment.debtor))),
-                '"},{"trait_type":"Amount","value":"',
-                Strings.toHexString(payment.amount),
-                '"},{"trait_type":"Was Paid","value":"',
+                '"},{"trait_type":"Amount","display_type":"number","value":',
+                itoa(payment.amount),
+                '},{"trait_type":"Was Paid","value":"',
                 payment.wasPaid  ? 'true' : 'false',
                 '"}'
             )
