@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol"; 
-import "../NotaRegistrar.sol";
+import "../src/NotaRegistrar.sol";
 
 contract DeployRegistrar is Script {
     function run() public {
