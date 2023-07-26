@@ -41,7 +41,6 @@ deploy-optimism-goerli:
 deploy-zksync-testnet:
 	forge script script/01_deployRegistrar.s.sol:DeployRegistrar --rpc-url ${ZKSYNC_TESTNET_RPC_URL} --private-key ${PRIVATE_KEY} --via-ir --broadcast
 
-
 deploy-testnet-all: deploy-arbitrum-goerli deploy-alfajores deploy-base-goerli deploy-bnb-testnet deploy-gnosis deploy-mumbai deploy-sepolia deploy-optimism-goerli deploy-zksync-testnet
 
 # create-mumbai-data: # write notas from different modules, transfer, fund, cash

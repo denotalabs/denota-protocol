@@ -101,7 +101,6 @@ def deploy_libraries(existing_addresses, chain, rpc_key_flags):
 
 
 def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
-    newRegistrarDeployed = False
 
     if not existing_addresses[chain]["registrar"]:
         registar_path = "src/NotaRegistrar.sol:NotaRegistrar"
@@ -112,12 +111,14 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
         block_number = (eth_call(
             f'cast block-number --rpc-url {rpc_for_chain(chain)}', "Block failed to fetch")).stdout
         existing_addresses[chain]["startBlock"] = block_number.strip("\n")
-        newRegistrarDeployed = True
     else:
         registrar = existing_addresses[chain]["registrar"]
         block_number = existing_addresses[chain]["startBlock"]
     print(f'Registrar address: {registrar}')
 
+    return existing_addresses, block_number, registrar
+
+def deploy_tokens(existing_addresses, chain, rpc_key_flags):
     # Deploy ERC20s for testing
     erc20_path, oldTokens = "src/test/mock/erc20.sol:TestERC20", []
     for (supply, name, symbol) in [(10000000e18, "weth", "WETH"), (10000000e18, "dai", "DAI")]:
@@ -126,26 +127,12 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
                 f'forge create {erc20_path} --constructor-args {supply} {name} {symbol} {rpc_key_flags}', "ERC20 deployment failed")
             token = extract_address(result.stdout)
             existing_addresses[chain][name] = token
-
-            eth_call(
-                f'cast send {registrar} "whitelistToken(address,bool,string)" {token} "true" {symbol} {rpc_key_flags}', "Whitelist token failed")
         else:
             token = existing_addresses[chain][name]
             oldTokens.append((token, name, symbol))
 
         print(f'{symbol} address: {token}')
-
-    # Whitelist tokens
-    if newRegistrarDeployed:
-        for (token, name, symbol) in oldTokens:
-            eth_call(
-                f'cast send {registrar} "whitelistToken(address,bool,string)" {token} "true" {symbol} {rpc_key_flags}', "Whitelist token failed")
-
-        native_token_name = native_token_name_chain(chain)
-        eth_call(
-            f'cast send {registrar} "whitelistToken(address,bool,string)" "0x0000000000000000000000000000000000000000" "true" {native_token_name} {rpc_key_flags}', "Whitelist token failed")
-
-    return existing_addresses, block_number, registrar
+    return existing_addresses
 
 
 def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
