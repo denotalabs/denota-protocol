@@ -133,7 +133,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function approve(address to, uint256 tokenId) public virtual override {
         address owner = ERC721.ownerOf(tokenId);
-        // require(to != owner, "ERC721: approval to current owner");  // Changed: removed
+        // require(to != owner, "ERC721: approval to current owner");  // Changed: to revert
         if (to == owner) revert SelfApproval();
 
         // require( // Changed: removed

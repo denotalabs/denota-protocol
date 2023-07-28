@@ -170,13 +170,13 @@ contract NotaRegistrar is
         uint256 instant,
         bytes calldata fundData
     ) public payable isMinted(notaId) {
-        DataTypes.Nota memory nota = _notaInfo[notaId]; // TODO module MUST check that token exists
-        address owner = ownerOf(notaId); // Is used twice
+        DataTypes.Nota memory nota = _notaInfo[notaId];
+        address tokenOwner = ownerOf(notaId); // Is used twice
 
         // Module hook
         uint256 moduleFee = INotaModule(nota.module).processFund(
             _msgSender(),
-            owner,
+            tokenOwner,
             amount,
             instant,
             notaId,
@@ -189,13 +189,12 @@ contract NotaRegistrar is
             amount,
             instant,
             nota.currency,
-            owner,
+            tokenOwner,
             moduleFee,
             nota.module
         );
 
-        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if (amount == 0)?
-        // nota.escrowed += amount;
+        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if (amount == 0) then assigning?
 
         emit Funded(
             _msgSender(),
@@ -406,7 +405,7 @@ contract NotaRegistrar is
         uint256 escrowed,
         uint256 instant,
         address currency,
-        address owner,
+        address payer,
         uint256 moduleFee,
         address module
     ) private {
@@ -432,12 +431,12 @@ contract NotaRegistrar is
                     if (msg.value != instant + toEscrow)
                         // need to subtract toEscrow from msg.value
                         revert InsufficientValue(instant + toEscrow, msg.value);
-                    (bool sent, ) = owner.call{value: instant}("");
+                    (bool sent, ) = payer.call{value: instant}("");
                     if (!sent) revert SendFailed();
                 } else {
                     IERC20(currency).safeTransferFrom(
                         _msgSender(),
-                        owner,
+                        payer,
                         instant
                     );
                 }

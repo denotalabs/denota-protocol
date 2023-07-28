@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol"; 
-import "./NotaRegistrar.sol"
+import "../NotaRegistrar.sol";
 
 contract DeployRegistrar is Script {
     function run() public {
@@ -10,7 +10,8 @@ contract DeployRegistrar is Script {
         vm.startBroadcast(deployerPrivateKey);
         vm.startBroadcast();
 
-        address registrar = new NotaRegistrar();
+        address registrar = address(new NotaRegistrar());
+        console.log(registrar);
 
         vm.stopBroadcast();
     }
