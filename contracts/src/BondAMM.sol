@@ -9,6 +9,7 @@ import "./NotaRegistrar.sol";
 
 // If 100k USDC is to be purchased, AT LEAST 100k USDC (minus discount) must be deposited as idle funds. 
 // These funds should become active when a bond purchase is made in exchange for the idle funds
+
 // Who deposited and how much into the idle funds should be tracked by the contract so they can withdraw
 // If their idle funds becomes active, they should be given shares but not allowed to withdraw until the funds become idle again
 // How to determine the redeeming of shares for mature tokens? Seems like there needs to be a way to update the total bond value has matured
@@ -24,11 +25,12 @@ contract BondAMM is ERC20Burnable {
     uint256 public bondCount = 0;
     uint256 public defaultCount = 0;
     uint256 public totalBondValue = 0;
-    uint256 public maturedBondValue = 0;  // TODO add this to 
+    uint256 public maturedBondValue = 0;
 
     mapping(address => uint256) public userIdleFunds; // tracks the idle funds of each user
 
     event BondDefaulted(uint256 bondId);
+    event BondMatured(uint256 bondId);
 
     constructor(address _bondToken, address _currencyToken) ERC20("BondShares", "BSHR") {
         bondToken = NotaRegistrar(_bondToken);
@@ -63,7 +65,6 @@ contract BondAMM is ERC20Burnable {
         userIdleFunds[msg.sender] += amount; 
         idleFunds += amount;
     }
-
 
     function redeemBond(uint256 bondId) external {
         require(bondToken.ownerOf(bondId) == address(this), "Bond not held by the contract");
@@ -101,6 +102,14 @@ contract BondAMM is ERC20Burnable {
             discount += DISCOUNT_STEP;
         }
         defaultCount += 1;
+    }
+    
+    function bondMatured(uint256 bondId) external {
+        emit BondMatured(bondId);
+
+        uint256 bondValue = _getBondValue(bondId);
+        activeFunds -= bondValue;
+        maturedBondValue += bondValue;
     }
 
     function getDynamicDiscount() public view returns (uint256) {
