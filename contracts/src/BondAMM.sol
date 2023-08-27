@@ -17,17 +17,20 @@ contract BondAMM is ERC20Burnable {
     NotaRegistrar public bondToken;
     IERC20 public currencyToken;
 
-    uint256 public activeFunds = 0;
-    uint256 public idleFunds = 0;
+    uint256 public activeFunds = 0;  // Funds that were used to purchase bonds
+    uint256 public idleFunds = 0;  // Funds used to purchase future bonds
 
-    uint256 public discount = 10; 
-    uint256 public constant DISCOUNT_STEP = 5;
-    uint256 public bondCount = 0;
-    uint256 public defaultCount = 0;
-    uint256 public totalBondValue = 0;
-    uint256 public maturedBondValue = 0;
+    uint256 public discount = 10; // 10% discount on bond purchases
+    uint256 public constant DISCOUNT_STEP = 5;  // Automated discount increase per bond default
 
-    mapping(address => uint256) public userIdleFunds; // tracks the idle funds of each user
+    uint256 public totalBondCount = 0;
+    uint256 public totalMaturedCount = 0;
+    uint256 public totalDefaultCount = 0;
+    uint256 public totalBondValue = 0;  // Including pending bonds
+    uint256 public totalDefaultValue = 0;
+    uint256 public totalMaturedValue = 0;
+
+    mapping(address => uint256) public userIdleFunds; // Tracks the idle funds of each user  // Question: do shares get calculated by percent of idle funds a user has or percent of active?
 
     event BondDefaulted(uint256 bondId);
     event BondMatured(uint256 bondId);
@@ -54,7 +57,7 @@ contract BondAMM is ERC20Burnable {
         activeFunds += bondValue;
         idleFunds -= (bondValue - discountedValue);
         totalBondValue += bondValue;
-        bondCount += 1;
+        totalBondCount += 1;
     }
 
     function provideLiquidity(uint256 amount) external {
@@ -78,7 +81,7 @@ contract BondAMM is ERC20Burnable {
         activeFunds -= bondValue;
         idleFunds -= bondValue;
         totalBondValue -= bondValue;
-        bondCount -= 1;
+        totalBondCount -= 1;
     }
 
     function withdrawLiquidity(uint256 amount) external {
@@ -101,7 +104,7 @@ contract BondAMM is ERC20Burnable {
         if (discount + DISCOUNT_STEP <= 100) {
             discount += DISCOUNT_STEP;
         }
-        defaultCount += 1;
+        totalDefaultCount += 1;
     }
     
     function bondMatured(uint256 bondId) external {
@@ -109,21 +112,23 @@ contract BondAMM is ERC20Burnable {
 
         uint256 bondValue = _getBondValue(bondId);
         activeFunds -= bondValue;
-        maturedBondValue += bondValue;
+        idleFunds += bondValue;
+        totalMaturedValue += bondValue;
     }
 
     function getDynamicDiscount() public view returns (uint256) {
-        if (bondCount == 0) {
+        if (totalBondCount == 0) {
             return discount;
         }
 
-        uint256 riskFactor = (defaultCount * 100) / bondCount;
+        uint256 riskFactor = (totalDefaultCount * 100) / totalBondCount;
         uint256 dynamicDiscount = discount + riskFactor * DISCOUNT_STEP;
 
         return (dynamicDiscount > 100) ? 100 : dynamicDiscount;
     }
 
     function _calculateShares(uint256 depositAmount) internal view returns (uint256) {
+        /// Maybe shares has a formula. Shares are virtual but based on user's idle funds vs matured funds?
         return (totalBondValue == 0) 
             ? depositAmount
             : depositAmount * totalSupply() / totalBondValue; 
