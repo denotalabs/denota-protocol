@@ -1,13 +1,17 @@
+
+Uniswap V3 LP position costs ~350_000
+NOTE: foundry gas reports measures gas per individual function. Chaining of functions means adding of gas
+
 | src/NotaRegistrar.sol:NotaRegistrar contract |                 |        |        |        |         |
 |----------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                              | Deployment Size |        |        |        |         |
 | 2_989_907                                    | 15205           |        |        |        |         |
 | Function Name                                | min             | avg    | median | max    | # calls |
-| write                                        | 357984          | 375664 | 378397 | 390520 | 12      |
+| *write                                       | 357_984         | 375664 | 378397 | 390520 | 12      |
 | safeTransferFrom                             | 29132           | 29132  | 29132  | 29132  | 1       |
-| transferFrom                                 | 32841           | 32841  | 32841  | 32841  | 1       |
-| fund                                         | 48551           | 49224  | 48551  | 50570  | 6       |
-| cash                                         | 27404           | 29532  | 30576  | 30616  | 3       |
+| *transferFrom                                | 32_841          | 32841  | 32841  | 32841  | 1       |
+| *fund                                        | 48_551          | 49224  | 48551  | 50570  | 6       |
+| *cash                                        | 27_404          | 29532  | 30576  | 30616  | 3       |
 | tokenURI                                     | 34207           | 35259  | 34901  | 36571  | 10      |
 | balanceOf                                    | 678             | 2011   | 2678   | 2678   | 36      |
 | notaCurrency                                 | 587             | 587    | 587    | 587    | 12      |
@@ -26,9 +30,9 @@
 | Deployment Cost                              | Deployment Size |        |        |        |         |
 | 1292133                                      | 7795            |        |        |        |         |
 | Function Name                                | min             | avg    | median | max    | # calls |
-| processWrite                                 | 212927          | 218005 | 212927 | 233241 | 4       |
-| processTransfer                              | 2614            | 2614   | 2614   | 2614   | 1       |
-| processFund                                  | 27006           | 27006  | 27006  | 27006  | 2       |
+| processWrite                                 | 212_927         | 218005 | 212927 | 233241 | 4       |
+| processTransfer                              | 2_614           | 2614   | 2614   | 2614   | 1       |
+| processFund                                  | 27_006          | 27006  | 27006  | 27006  | 2       |
 | getFees                                      | 1290            | 6623   | 9290   | 9290   | 6       |
 | processTokenURI                              | 3378            | 3378   | 3378   | 3378   | 2       |
 

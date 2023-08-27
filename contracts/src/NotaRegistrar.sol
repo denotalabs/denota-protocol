@@ -35,6 +35,7 @@ contract ERC4906 is ERC721, IERC4906 {
     }
 }
 
+// IDEA: could allow modules to perform the escrow functionality. They can return the token that is escrowed (and fee) and registrar can check before and after module hook token.balanceOf()
 /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas
