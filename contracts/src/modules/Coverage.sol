@@ -10,13 +10,13 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 contract Coverage is ModuleBase {
     using SafeERC20 for IERC20;
 
-    struct Payment {
+    struct CoverageInfo {
         address coverageHolder;
         uint256 coverageAmount; // Face value of the payment
         bool wasRedeemed;
     }
 
-    mapping(uint256 => Payment) public payInfo;
+    mapping(uint256 => CoverageInfo) public coverageInfo;
     mapping(address => bool) public isWhitelisted;
 
     address public admin; // admin address
@@ -77,25 +77,25 @@ contract Coverage is ModuleBase {
         require(owner == address(this), "Risk fee not paid to pool");
         require(currency == usdc, "Incorrect currency");
 
-        payInfo[cheqId].coverageHolder = holder;
-        payInfo[cheqId].coverageAmount = amount;
-        payInfo[cheqId].wasRedeemed = false;
+        coverageInfo[cheqId].coverageHolder = holder;
+        coverageInfo[cheqId].coverageAmount = amount;
+        coverageInfo[cheqId].wasRedeemed = false;
         return 0;
     }
 
     function recoverFunds(uint256 notaId) public {
-        Payment storage payment = payInfo[notaId];
+        CoverageInfo storage coverage = coverageInfo[notaId];
 
-        require(!payment.wasRedeemed);
-        require(msg.sender == payment.coverageHolder);
+        require(!coverage.wasRedeemed);
+        require(msg.sender == coverage.coverageHolder);
 
         // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(
-            payment.coverageHolder,
-            payment.coverageAmount
+            coverage.coverageHolder,
+            coverage.coverageAmount
         );
 
-        payment.wasRedeemed = true;
+        coverage.wasRedeemed = true;
     }
 
     function processTransfer(
