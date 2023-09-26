@@ -4,8 +4,12 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
 contract Coverage is ModuleBase {
+    using SafeERC20 for IERC20;
+
     struct Payment {
         address coverageHolder;
         uint256 coverageAmount; // Face value of the payment
@@ -13,13 +17,43 @@ contract Coverage is ModuleBase {
     }
 
     mapping(uint256 => Payment) public payInfo;
+    mapping(address => bool) public isWhitelisted;
+
+    address public admin; // admin address
+    address public usdc;
+
+    // Only Admin modifier
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Not authorized");
+        _;
+    }
 
     constructor(
         address registrar,
         DataTypes.WTFCFees memory _fees,
-        string memory __baseURI
+        string memory __baseURI,
+        address _usdc
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
+        admin = msg.sender; // set the contract deployer as the admin
+        usdc = _usdc;
+    }
+
+    // Admin can add an address to the whitelist
+    function addToWhitelist(address _address) external onlyAdmin {
+        isWhitelisted[_address] = true;
+    }
+
+    // Admin can remove an address from the whitelist
+    function removeFromWhitelist(address _address) external onlyAdmin {
+        isWhitelisted[_address] = false;
+    }
+
+    function fundPool(uint256 fundingAmount) public {
+        IERC20(usdc).safeTransferFrom(msg.sender, address(this), fundingAmount);
+
+        // LPs receive pool tokens in return
+        // TODO: figure out token issuance and redemption
     }
 
     function processWrite(
@@ -31,14 +65,37 @@ contract Coverage is ModuleBase {
         uint256 instant,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
-        (address holder, uint256 amount) = abi.decode(
+        require(isWhitelisted[caller], "Not whitelisted");
+
+        (address holder, uint256 amount, uint256 riskScore) = abi.decode(
             initData,
-            (address, uint256)
+            (address, uint256, uint256)
         );
+
+        require(instant == (amount / 10000) * riskScore, "Risk fee not paid");
+        // TODO: maybe onramp should own nota? (currently the registrar assumes that the owner is the one being paid)
+        require(owner == address(this), "Risk fee not paid to pool");
+        require(currency == usdc, "Incorrect currency");
+
         payInfo[cheqId].coverageHolder = holder;
         payInfo[cheqId].coverageAmount = amount;
         payInfo[cheqId].wasRedeemed = false;
         return 0;
+    }
+
+    function recoverFunds(uint256 notaId) public {
+        Payment storage payment = payInfo[notaId];
+
+        require(!payment.wasRedeemed);
+        require(msg.sender == payment.coverageHolder);
+
+        // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
+        IERC20(usdc).safeTransfer(
+            payment.coverageHolder,
+            payment.coverageAmount
+        );
+
+        payment.wasRedeemed = true;
     }
 
     function processTransfer(
@@ -95,9 +152,5 @@ contract Coverage is ModuleBase {
         uint256 tokenId
     ) external view override returns (string memory) {
         return "";
-    }
-
-    function recoverFunds(uint256 tokenId) public {
-        payInfo[tokenId].wasRedeemed = true;
     }
 }
