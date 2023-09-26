@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import {CheqRegistrar} from "../CheqRegistrar.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import {Coverage} from "../modules/Coverage.sol";
 
 contract LiquidityPool {
     using SafeERC20 for IERC20;
@@ -39,9 +40,7 @@ contract LiquidityPool {
         uint256 riskFee = (coverageAmount / 10000) * riskScore;
 
         // Custom module stores metadata
-        // coverageHolder = msg.sender
-        // coverageAmount = coverageAmount
-        bytes memory modulePayload = abi.encode();
+        bytes memory modulePayload = abi.encode(msg.sender, coverageAmount);
 
         // Mint nota, direct pay risk fee into liquidity pool
         // Maybe onramp should hold the nota? (represents an asset for the onramp, a liability for the pool)
@@ -58,17 +57,21 @@ contract LiquidityPool {
     }
 
     function recoverFunds(uint256 notaId) public {
-        // TODO: check if nota is already redeemed
+        Coverage coverage = Coverage(coverageModule);
 
-        // lookup coverage amount and coverage holder using notaId
-        address coverageHolder = 0x000000000000000000000000000000000000dEaD; // TODO: pull from module
-        uint256 coverageAmount = 0; // TODO: pull from module
+        (
+            address coverageHolder,
+            uint256 coverageAmount,
+            bool wasRedeemed
+        ) = coverage.payInfo(notaId);
 
-        // TODO: make sure caller is coverage holder
+        require(!wasRedeemed);
+        require(msg.sender == coverageHolder);
 
         // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(coverageHolder, coverageAmount);
 
-        // TODO: update nota state to "redeemed" (or something)
+        // Update nota state to "redeemed"
+        coverage.recoverFunds(notaId);
     }
 }
