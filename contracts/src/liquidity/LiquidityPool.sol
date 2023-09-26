@@ -4,9 +4,6 @@ pragma solidity ^0.8.16;
 import {CheqRegistrar} from "../CheqRegistrar.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import "openzeppelin/token/ERC20/IERC20.sol";
-
-import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
 contract LiquidityPool {
     using SafeERC20 for IERC20;
@@ -72,6 +69,6 @@ contract LiquidityPool {
         // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(coverageHolder, coverageAmount);
 
-        // TODO: update nota to state to "redeemed" (or something)
+        // TODO: update nota state to "redeemed" (or something)
     }
 }
