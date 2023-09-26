@@ -11,8 +11,8 @@ contract Coverage is ModuleBase {
     using SafeERC20 for IERC20;
 
     struct CoverageInfo {
-        address coverageHolder;
         uint256 coverageAmount; // Face value of the payment
+        address coverageHolder;
         bool wasRedeemed;
     }
 
