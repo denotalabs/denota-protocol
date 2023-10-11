@@ -1,4 +1,4 @@
-| src/CheqRegistrar.sol:CheqRegistrar contract |                 |        |        |        |         |
+| src/NotaRegistrar.sol:NotaRegistrar contract |                 |        |        |        |         |
 |----------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                              | Deployment Size |        |        |        |         |
 | 2_989_907                                    | 15205           |        |        |        |         |
@@ -53,7 +53,7 @@
 
 
 
-| src/CheqRegistrar.sol:CheqRegistrar contract |                 |        |        |        |         |
+| src/NotaRegistrar.sol:NotaRegistrar contract |                 |        |        |        |         |
 |----------------------------------------------|-----------------|--------|--------|--------|---------|
 | Deployment Cost                              | Deployment Size |        |        |        |         |
 | 2_710_976                                    | 13812           |        |        |        |         |

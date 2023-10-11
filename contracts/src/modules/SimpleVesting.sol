@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * @notice Issuer pays out the entire escrow amount at once. Defines the size and times of each vest in the schedule.
@@ -38,7 +38,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address caller,
 //         address owner,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         uint256 directAmount,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
@@ -72,7 +72,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address from,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory data
 //     ) external override onlyRegistrar returns (uint256) {
 //         ITransferRule(transferRule).canTransfer(
@@ -97,7 +97,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         uint256 amount,
 //         uint256 directAmount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IFundRule(fundRule).canFund(
@@ -122,7 +122,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address to,
 //         uint256 amount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ICashRule(cashRule).canCash(
@@ -147,7 +147,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(

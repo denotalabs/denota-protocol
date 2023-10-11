@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * @notice A simple time release module. The longer the release time, the more in fees you have to pay
@@ -64,7 +64,7 @@ contract SimpleTimelockFee is ModuleBase {
         uint256 /*amount*/,
         uint256 /*instant*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -77,7 +77,7 @@ contract SimpleTimelockFee is ModuleBase {
         address /*to*/,
         uint256 amount,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(amount == cheq.escrowed, "Must fully cash");
@@ -95,7 +95,7 @@ contract SimpleTimelockFee is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");

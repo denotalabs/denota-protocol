@@ -4,13 +4,13 @@ pragma solidity ^0.8.16;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "./mock/erc20.sol";
-import {CheqRegistrar} from "../src/CheqRegistrar.sol";
+import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {Milestones} from "../src/modules/Milestones.sol";
 
 // TODO add fail tests
 contract MilestonesTest is Test {
-    CheqRegistrar public REGISTRAR;
+    NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -25,7 +25,7 @@ contract MilestonesTest is Test {
 
     function setUp() public {
         // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(); // ContractTest is the owner
+        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -35,7 +35,7 @@ contract MilestonesTest is Test {
         vm.label(address(this), "TestContract");
         vm.label(address(dai), "TestDai");
         vm.label(address(usdc), "TestUSDC");
-        vm.label(address(REGISTRAR), "CheqRegistrarContract");
+        vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
     function whitelist(address module) public {
@@ -154,7 +154,7 @@ contract MilestonesTest is Test {
             REGISTRAR.balanceOf(owner) == 0,
             "Recipient already had a cheq"
         );
-        assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
+        assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
@@ -165,7 +165,7 @@ contract MilestonesTest is Test {
     ) public {
         assertTrue(
             REGISTRAR.totalSupply() == 1,
-            "Cheq supply didn't increment"
+            "Nota supply didn't increment"
         );
         assertTrue(
             REGISTRAR.ownerOf(cheqId) == owner,
@@ -176,7 +176,7 @@ contract MilestonesTest is Test {
             "Owner balance didn't increment"
         );
 
-        // CheqRegistrar wrote correctly to its storage
+        // NotaRegistrar wrote correctly to its storage
         // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
         // assertTrue(
         //     REGISTRAR.cheqRecipient(cheqId) == recipient,
@@ -198,7 +198,7 @@ contract MilestonesTest is Test {
     }
 
     function calcTotalFees(
-        CheqRegistrar registrar,
+        NotaRegistrar registrar,
         Milestones milestones,
         uint256 escrowed,
         uint256 directAmount
@@ -375,7 +375,7 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        // ICheqModule wrote correctly to it's storage
+        // INotaModule wrote correctly to it's storage
         string memory tokenURI = REGISTRAR.tokenURI(cheqId);
         console.log("TokenURI: ");
         console.log(tokenURI);
@@ -406,7 +406,7 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        // ICheqModule wrote correctly to it's storage
+        // INotaModule wrote correctly to it's storage
         string memory tokenURI = REGISTRAR.tokenURI(cheqId);
         console.log("TokenURI: ");
         console.log(tokenURI);

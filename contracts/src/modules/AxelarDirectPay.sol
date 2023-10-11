@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import {BridgeReceiver} from "../axelar/BridgeReceiver.sol";
 
 /**
@@ -138,7 +138,7 @@ contract AxelarDirectPay is ModuleBase {
         uint256 /*amount*/,
         uint256 /*instant*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -150,7 +150,7 @@ contract AxelarDirectPay is ModuleBase {
         address /*to*/,
         uint256 /*amount*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -161,7 +161,7 @@ contract AxelarDirectPay is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();

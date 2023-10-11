@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
@@ -119,7 +119,7 @@ contract Coverage is ModuleBase {
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         return 0;
@@ -131,7 +131,7 @@ contract Coverage is ModuleBase {
         address /*to*/,
         uint256 /*amount*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         return 0;
@@ -142,7 +142,7 @@ contract Coverage is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         // if (caller != owner) revert;

@@ -4,8 +4,8 @@ import "openzeppelin/utils/Strings.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * @notice Contract: stores invoice structs, allows freelancer/client to set work status'
@@ -241,7 +241,7 @@ contract Milestones is ModuleBase {
         uint256 escrowed,
         uint256 instant,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         Milestone[] memory milestoneAmounts = milestones[cheqId];
@@ -302,7 +302,7 @@ contract Milestones is ModuleBase {
         address to,
         uint256 amount, // Question: This could function as the milestone index if the cashing amount was determined by the module's return value for `amount`
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         // Any caller can cash milestones < currentMilestone (when `to` == owner)
@@ -340,7 +340,7 @@ contract Milestones is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initDat*/
     ) external view override onlyRegistrar {
         // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?

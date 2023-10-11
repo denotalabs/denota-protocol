@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 library BytesLib {
     function concat(
@@ -1064,7 +1064,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         uint256 /*amount*/,
         uint256 /*instant*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -1077,7 +1077,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address /*to*/,
         uint256 amount,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(amount == cheq.escrowed, "Must fully cash");
@@ -1107,13 +1107,13 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address owner,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }
 
-    // TODO inject into the Cheqbase64 format
+    // TODO inject into the Notabase64 format
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory) {

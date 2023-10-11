@@ -35,7 +35,7 @@ abstract contract PseudoChain is ModuleBase {
     //         address caller,
     //         address owner,
     //         uint256 cheqId,
-    //         DataTypes.Cheq calldata cheq,
+    //         DataTypes.Nota calldata cheq,
     //         uint256 directAmount,
     //         bytes calldata initData
     //     ) external override onlyRegistrar returns (uint256) {
@@ -67,7 +67,7 @@ abstract contract PseudoChain is ModuleBase {
     //         address from,
     //         address to,
     //         uint256 cheqId,
-    //         DataTypes.Cheq calldata cheq,
+    //         DataTypes.Nota calldata cheq,
     //         bytes memory data
     //     ) external override onlyRegistrar returns (uint256) {
     //         ITransferRule(transferRule).canTransfer( // False, or isOwner
@@ -95,7 +95,7 @@ abstract contract PseudoChain is ModuleBase {
     //     //             return 0;
     //     //         }
     //     //     }
-    //     //     function cashCheq(uint256 cheqId, uint256 amount) public {
+    //     //     function cashNota(uint256 cheqId, uint256 amount) public {
     //     //         uint256 cashableAmount = cashable(cheqId, _msgSender(), amount);
     //     //         require(cashableAmount == amount, "Cant cash this amount");
     //     //         cheq.cash(cheqId, _msgSender(), amount);
@@ -103,7 +103,7 @@ abstract contract PseudoChain is ModuleBase {
     //     //     function tokenURI(uint256 tokenId)
     //     //         public
     //     //         view
-    //     //         override(ERC721, ICheqModule)
+    //     //         override(ERC721, INotaModule)
     //     //         returns (string memory)
     //     //     {
     //     //         return string(abi.encodePacked(_baseURI(), tokenId));

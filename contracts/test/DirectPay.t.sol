@@ -4,13 +4,13 @@ pragma solidity ^0.8.16;
 import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import {CheqRegistrar} from "../src/CheqRegistrar.sol";
+import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {DirectPay} from "../src/modules/DirectPay.sol";
 
 // TODO add fail tests
 /**
-[357688] CheqRegistrarContract::write(TestDai: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0, 0, 0xf2301Aa26da7660019Dd94A336224b0a7F723941, DirectPay: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 0x0000000000000000000000009d408513222580cf45916cd32320f983dfaf2cc300000000000000000000000000000000000000000b0dc019d2fc681ec2b1f41a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f2301aa26da7660019dd94a336224b0a7f72394100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000) 
+[357688] NotaRegistrarContract::write(TestDai: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0, 0, 0xf2301Aa26da7660019Dd94A336224b0a7F723941, DirectPay: [0x5991A2dF15A8F6A256D3Ec51E99254Cd3fb576A9], 0x0000000000000000000000009d408513222580cf45916cd32320f983dfaf2cc300000000000000000000000000000000000000000b0dc019d2fc681ec2b1f41a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f2301aa26da7660019dd94a336224b0a7f72394100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000) 
     └─[212916] DirectPay::processWrite(0xf2301Aa26da7660019Dd94A336224b0a7F723941, 0xf2301Aa26da7660019Dd94A336224b0a7F723941, 0, TestDai: [0x2e234DAe75C793f67A35089C9d99245E1C58470b], 0, 0, 0x0000000000000000000000009d408513222580cf45916cd32320f983dfaf2cc300000000000000000000000000000000000000000b0dc019d2fc681ec2b1f41a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f2301aa26da7660019dd94a336224b0a7f72394100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d625a7a44634162666e4e7152437134596d34796770314145644e4b4e34767167536355537a5232445a516376000000000000000000000000000000000000) 
 
 Gas units: 357,688
@@ -36,7 +36,7 @@ Celo:
     Write Price: 0.0056
 */
 contract DirectPayTest is Test {
-    CheqRegistrar public REGISTRAR;
+    NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -51,7 +51,7 @@ contract DirectPayTest is Test {
 
     function setUp() public {
         // sets up the registrar and ERC20s
-        REGISTRAR = new CheqRegistrar(); // ContractTest is the owner
+        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
         dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
@@ -61,7 +61,7 @@ contract DirectPayTest is Test {
         vm.label(address(this), "TestContract");
         vm.label(address(dai), "TestDai");
         vm.label(address(usdc), "TestUSDC");
-        vm.label(address(REGISTRAR), "CheqRegistrarContract");
+        vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
     function whitelist(address module) public {
@@ -187,7 +187,7 @@ contract DirectPayTest is Test {
         address owner
     ) public view returns (bool) {
         return
-            (amount != 0) && // Cheq must have a face value
+            (amount != 0) && // Nota must have a face value
             (drawer != recipient) && // Drawer and recipient aren't the same
             (owner == drawer || owner == recipient) && // Either drawer or recipient must be owner
             (caller == drawer || caller == recipient) && // Delegated pay/requesting not allowed
@@ -210,7 +210,7 @@ contract DirectPayTest is Test {
             REGISTRAR.balanceOf(recipient) == 0,
             "Recipient already had a cheq"
         );
-        assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
+        assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
@@ -224,7 +224,7 @@ contract DirectPayTest is Test {
     ) public {
         assertTrue(
             REGISTRAR.totalSupply() == 1,
-            "Cheq supply didn't increment"
+            "Nota supply didn't increment"
         );
         assertTrue(
             REGISTRAR.ownerOf(cheqId) == owner,
@@ -235,7 +235,7 @@ contract DirectPayTest is Test {
             "Owner balance didn't increment"
         );
 
-        // CheqRegistrar wrote correctly to its storage
+        // NotaRegistrar wrote correctly to its storage
         // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
         // assertTrue(
         //     REGISTRAR.cheqRecipient(cheqId) == recipient,
@@ -314,7 +314,7 @@ contract DirectPayTest is Test {
             address(directPay)
         );
 
-        // ICheqModule wrote correctly to it's storage
+        // INotaModule wrote correctly to it's storage
         string memory tokenURI = REGISTRAR.tokenURI(cheqId);
         console.log("TokenURI: ");
         console.log(tokenURI);
@@ -344,14 +344,14 @@ contract DirectPayTest is Test {
             creditor // The owner
         );
 
-        // ICheqModule wrote correctly to it's storage
+        // INotaModule wrote correctly to it's storage
         string memory tokenURI = REGISTRAR.tokenURI(cheqId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
 
     function calcTotalFees(
-        CheqRegistrar registrar,
+        NotaRegistrar registrar,
         DirectPay directPay,
         uint256 escrowed,
         uint256 directAmount

@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 
 // import {ModuleBase} from "../ModuleBase.sol";
 // import {DataTypes} from "../libraries/DataTypes.sol";
-// import {ICheqModule} from "../interfaces/ICheqModule.sol";
-// import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+// import {INotaModule} from "../interfaces/INotaModule.sol";
+// import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 // /**
 //  * @notice
@@ -103,7 +103,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IFundRule(fundRule).canFund(
@@ -128,7 +128,7 @@ pragma solidity ^0.8.16;
 //         address to,
 //         uint256 amount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ICashRule(cashRule).canCash(
@@ -149,7 +149,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(

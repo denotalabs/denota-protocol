@@ -5,11 +5,11 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
- * Question: How to ensure deployed modules point to correct CheqRegistrar and Globals?
+ * Question: How to ensure deployed modules point to correct NotaRegistrar and Globals?
  * TODO how to export the struct?
  * Notice: Assumes only invoices are sent
  * Notice: Assumes milestones are funded sequentially
@@ -88,7 +88,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address caller,
 //         address owner,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         uint256 instant,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
@@ -142,7 +142,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address from,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ITransferRule(transferRule).canTransfer(
@@ -168,7 +168,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // Client escrows the first milestone (is the upfront)
@@ -227,7 +227,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address to,
 //         uint256 amount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // require(caller == owner, "");
@@ -254,7 +254,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(
@@ -301,7 +301,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //     function setStatus(uint256 cheqId, Status newStatus) public {
 //         Invoice storage invoice = invoices[cheqId];
 
-//         // (address drawer, address recipient) = ICheqRegistrar(REGISTRAR)
+//         // (address drawer, address recipient) = INotaRegistrar(REGISTRAR)
 //         //     .cheqDrawerRecipient(cheqId);
 //         require(
 //             _msgSender() == invoices[cheqId].drawer ||

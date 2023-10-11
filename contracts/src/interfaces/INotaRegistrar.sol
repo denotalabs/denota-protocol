@@ -2,15 +2,15 @@
 pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
 
 /**
- * @notice CheqRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing cheq data
+ * @notice NotaRegistrar handles: Whitelisting/?Deploying modules, Escrowing funds, and Storing cheq data
  * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces cheq.escrowed)?
  * Question: Should process_() return non-booleans?
  * TODO: pass cheq as a struct or individual variables?
  */
-interface ICheqRegistrar {
+interface INotaRegistrar {
     function write(
         address currency,
         uint256 escrowed,
@@ -56,10 +56,10 @@ interface ICheqRegistrar {
 
     // function burn(uint256 tokenId) external;
 
-    // Cheq data
+    // Nota data
     function cheqInfo(
         uint256 cheqId
-    ) external view returns (DataTypes.Cheq memory); // Question: Should this be the only _cheqInfo view method?
+    ) external view returns (DataTypes.Nota memory); // Question: Should this be the only _cheqInfo view method?
 
     function cheqCurrency(uint256 cheqId) external view returns (address);
 

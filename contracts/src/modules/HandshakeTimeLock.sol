@@ -47,7 +47,7 @@ pragma solidity ^0.8.16;
 //     //         return "";
 //     //     }
 
-//     //     function voidCheq(uint256 cheqId) external {
+//     //     function voidNota(uint256 cheqId) external {
 //     //         require(cheqAuditor[cheqId]==_msgSender(), "Only auditor");
 //     //         cheqVoided[cheqId] = true;
 //     //         // crx.cash(cheqId, crx.cheqDrawer(cheqId), crx.cheqEscrowed(cheqId));  // Return escrow to drawer

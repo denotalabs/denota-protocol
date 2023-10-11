@@ -16,7 +16,7 @@ pragma solidity ^0.8.16;
 }
  */
 
-contract CheqBase64Encoding {
+contract NotaBase64Encoding {
     // string constant MODULE = '},{"trait_type": "Module","value":"';
     // string constant END = '"}]';
     // string constant TOKENDATA_CLOSE = '"}';

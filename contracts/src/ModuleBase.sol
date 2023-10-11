@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import {DataTypes} from "./libraries/DataTypes.sol";
-import {ICheqModule} from "./interfaces/ICheqModule.sol";
+import {INotaModule} from "./interfaces/INotaModule.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
 // ERC-4906: EIP-721 Metadata Update Extension
-abstract contract ModuleBase is ICheqModule {
+abstract contract ModuleBase is INotaModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     mapping(address => DataTypes.WTFCFees) public dappOperatorFees;
@@ -99,7 +99,7 @@ abstract contract ModuleBase is ICheqModule {
     //     uint256 amount,
     //     uint256 instant,
     //     uint256 cheqId,
-    //     DataTypes.Cheq calldata cheq,
+    //     DataTypes.Nota calldata cheq,
     //     bytes calldata initData
     // ) external virtual override onlyRegistrar returns (uint256) {
     //     // Add module logic here
@@ -112,7 +112,7 @@ abstract contract ModuleBase is ICheqModule {
     //     address to,
     //     uint256 amount,
     //     uint256 cheqId,
-    //     DataTypes.Cheq calldata cheq,
+    //     DataTypes.Nota calldata cheq,
     //     bytes calldata initData
     // ) external virtual override onlyRegistrar returns (uint256) {
     //     // Add module logic here
@@ -124,7 +124,7 @@ abstract contract ModuleBase is ICheqModule {
     //     address owner,
     //     address to,
     //     uint256 cheqId,
-    //     DataTypes.Cheq calldata cheq,
+    //     DataTypes.Nota calldata cheq,
     //     bytes memory initData
     // ) external virtual override onlyRegistrar {
     //     // Add module logic here

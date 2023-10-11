@@ -5,7 +5,7 @@ pragma solidity ^0.8.16;
 // import "forge-std/Test.sol";
 // import "forge-std/console.sol";
 // import {DataTypes} from "src/contracts/libraries/DataTypes.sol";
-// import {CheqRegistrar} from "src/contracts/CheqRegistrar.sol";
+// import {NotaRegistrar} from "src/contracts/NotaRegistrar.sol";
 // import {Marketplace} from "src/contracts/Modules/Marketplace.sol";
 // import {AllTrueRules} from "src/contracts/rules/AllTrueRules.sol";
 
@@ -32,7 +32,7 @@ pragma solidity ^0.8.16;
 // }
 
 // contract ContractTest is Test {
-//     //     CheqRegistrar public REGISTRAR;
+//     //     NotaRegistrar public REGISTRAR;
 //     //     TestERC20 public dai;
 //     //     TestERC20 public usdc;
 //     //     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
@@ -42,7 +42,7 @@ pragma solidity ^0.8.16;
 //     //         return (size > 0);
 //     //     }
 //     //     function setUp() public {  // sets up the registrar and ERC20s
-//     //         REGISTRAR = new CheqRegistrar(DataTypes.WTFCFees(0,0,0,0));  // ContractTest is the owner
+//     //         REGISTRAR = new NotaRegistrar(DataTypes.WTFCFees(0,0,0,0));  // ContractTest is the owner
 //     //         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
 //     //         usdc = new TestERC20(0, "USDC", "USDC");
 //     //         // REGISTRAR.whitelistToken(address(dai), true);
@@ -51,7 +51,7 @@ pragma solidity ^0.8.16;
 //     //         vm.label(address(this), "TestContract");
 //     //         vm.label(address(dai), "TestDai");
 //     //         vm.label(address(usdc), "TestUSDC");
-//     //         vm.label(address(REGISTRAR), "CheqRegistrarContract");
+//     //         vm.label(address(REGISTRAR), "NotaRegistrarContract");
 //     //     }
 //     //     // function whitelist(address rule, address module) public {  // Whitelists tokens, rules, modules
 //     //     //     REGISTRAR.whitelistRule(rule, true);
@@ -119,7 +119,7 @@ pragma solidity ^0.8.16;
 //     //             //    duration < type(uint).max &&  // Causes overflow
 //     //             //    (duration >> 2) + (block.timestamp >> 2) <= (type(uint).max >> 2) ; // Causes overflow
 //     //     }
-//     //     function testWriteCheq(address caller, uint256 amount, address recipient) public {
+//     //     function testWriteNota(address caller, uint256 amount, address recipient) public {
 //     //         vm.assume(cheqWriteCondition(caller, amount, recipient));
 //     //         vm.assume(amount > 0);
 //     //         REGISTRAR.whitelistToken(address(dai), true);
@@ -141,8 +141,8 @@ pragma solidity ^0.8.16;
 //     //         dai.transfer(caller, totalWithFees);
 //     //         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
 //     //         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a cheq");
-//     //         assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
-//     //         DataTypes.Cheq memory cheq = DataTypes.Cheq({
+//     //         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
+//     //         DataTypes.Nota memory cheq = DataTypes.Nota({
 //     //             currency: address(dai),
 //     //             amount: amount,
 //     //             escrowed: amount,
@@ -156,18 +156,18 @@ pragma solidity ^0.8.16;
 //     //         bytes memory initData = abi.encode(prices);
 //     //         vm.prank(caller);
 //     //         uint256 cheqId = REGISTRAR.write(cheq, initData, caller);
-//     //         assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
+//     //         assertTrue(REGISTRAR.totalSupply() == 1, "Nota supply didn't increment");
 //     //         assertTrue(REGISTRAR.ownerOf(cheqId) == caller, "Recipient isn't owner");
 //     //         assertTrue(REGISTRAR.balanceOf(caller) == 1, "Sender got a cheq");
 //     //         // assertTrue(REGISTRAR.balanceOf(recipient) == 1, "Recipient didnt get a cheq");
-//     //         // CheqRegistrar wrote correctly to its storage
+//     //         // NotaRegistrar wrote correctly to its storage
 //     //         assertTrue(REGISTRAR.cheqDrawer(cheqId) == caller, "Incorrect drawer");
 //     //         assertTrue(REGISTRAR.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
 //     //         assertTrue(REGISTRAR.cheqCurrency(cheqId) == address(dai), "Incorrect token");
 //     //         assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
 //     //         assertTrue(REGISTRAR.cheqEscrowed(cheqId) == amount, "Incorrect escrow");
 //     //         assertTrue(address(REGISTRAR.cheqModule(cheqId)) == address(market), "Incorrect module");
-//     //         // ICheqModule wrote correctly to it's storage
+//     //         // INotaModule wrote correctly to it's storage
 //     //         (
 //     //             uint256 startTime,
 //     //             uint256 currentMilestone,
@@ -192,28 +192,28 @@ pragma solidity ^0.8.16;
 //     // //         vm.assume(duration < type(uint256).max);
 //     // //         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a cheq");
 //     // //         assertTrue(REGISTRAR.balanceOf(recipient) == 0);
-//     // //         assertTrue(REGISTRAR.totalSupply() == 0, "Cheq supply non-zero");
+//     // //         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         vm.prank(caller);
-//     // //         uint256 cheqId = sstl.writeCheq(dai, amount, 0, recipient, duration);
+//     // //         uint256 cheqId = sstl.writeNota(dai, amount, 0, recipient, duration);
 //     // //         assertTrue(REGISTRAR.deposits(caller, dai) == 0, "Writer gained a deposit");
-//     // //         assertTrue(REGISTRAR.totalSupply() == 1, "Cheq supply didn't increment");
+//     // //         assertTrue(REGISTRAR.totalSupply() == 1, "Nota supply didn't increment");
 //     // //         assertTrue(REGISTRAR.balanceOf(caller) == 1, "Invoicer didn't get a cheq");
 //     // //         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient gained a cheq");
 //     // //         assertTrue(REGISTRAR.ownerOf(cheqId) == caller, "Invoicer isn't owner");
-//     // //         // ICheqModule wrote correctly to CheqRegistrar storage
+//     // //         // INotaModule wrote correctly to NotaRegistrar storage
 //     // //         assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
 //     // //         assertTrue(REGISTRAR.cheqToken(cheqId) == dai, "Incorrect token");
 //     // //         assertTrue(REGISTRAR.cheqDrawer(cheqId) == caller, "Incorrect drawer");
 //     // //         assertTrue(REGISTRAR.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
 //     // //         assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
-//     // //         // ICheqModule wrote correctly to it's storage
-//     // //         assertTrue(sstl.cheqFunder(cheqId) == recipient, "Cheq reciever is same as on cheq");
-//     // //         assertTrue(sstl.cheqReceiver(cheqId) == caller, "Cheq reciever is same as on SSTL");
-//     // //         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
+//     // //         // INotaModule wrote correctly to it's storage
+//     // //         assertTrue(sstl.cheqFunder(cheqId) == recipient, "Nota reciever is same as on cheq");
+//     // //         assertTrue(sstl.cheqReceiver(cheqId) == caller, "Nota reciever is same as on SSTL");
+//     // //         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Nota created not at block.timestamp");
 //     // //         assertTrue(sstl.cheqInspectionPeriod(cheqId) == duration, "Expired");
 //     // //     }
-//     // //     function testFailWriteCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
+//     // //     function testFailWriteNota(address caller, uint256 amount, address recipient, uint256 duration) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -225,39 +225,39 @@ pragma solidity ^0.8.16;
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         // Can't write cheq without a deposit on crx
 //     // //         vm.prank(caller);
-//     // //         sstl.writeCheq(dai, amount, amount, recipient, duration);
+//     // //         sstl.writeNota(dai, amount, amount, recipient, duration);
 //     // //         // Can't write cheques with insufficient balance
 //     // //         depositHelper(amount, caller);
-//     // //         sstl.writeCheq(dai, amount, amount + 1, recipient, duration);  // Not enough escrow and amount!=escrow && escrow>0
-//     // //         sstl.writeCheq(dai, amount + 1, amount + 1, recipient, duration);  // Not enough escrow
+//     // //         sstl.writeNota(dai, amount, amount + 1, recipient, duration);  // Not enough escrow and amount!=escrow && escrow>0
+//     // //         sstl.writeNota(dai, amount + 1, amount + 1, recipient, duration);  // Not enough escrow
 //     // //         // Can't write directly from cheq
 //     // //         vm.prank(caller);
 //     // //         cheq.write(caller, caller, recipient, dai, amount, amount, recipient);
 //     // //         // Can't write a 0 amount cheq??
 //     // //         vm.prank(caller);
-//     // //         sstl.writeCheq(dai, 0, amount, recipient, duration);
+//     // //         sstl.writeNota(dai, 0, amount, recipient, duration);
 //     // //         // Can't write a cheq with a higher escrow than amount??
 //     // //         vm.prank(caller);
-//     // //         sstl.writeCheq(dai, amount, amount + 1, recipient, duration);
+//     // //         sstl.writeNota(dai, amount, amount + 1, recipient, duration);
 //     // //     }
-//     // //     function helperCheqInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
-//     // //         // ICheqModule wrote correctly to CheqRegistrar storage
+//     // //     function helperNotaInfo(uint256 cheqId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
+//     // //         // INotaModule wrote correctly to NotaRegistrar storage
 //     // //         assertTrue(cheq.cheqAmount(cheqId) == amount, "Incorrect amount");
 //     // //         assertTrue(cheq.cheqToken(cheqId) == dai, "Incorrect token");
 //     // //         assertTrue(cheq.cheqDrawer(cheqId) == sender, "Incorrect drawer");
 //     // //         assertTrue(cheq.cheqRecipient(cheqId) == recipient, "Incorrect recipient");
 //     // //         assertTrue(address(cheq.cheqModule(cheqId)) == address(sstl), "Incorrect module");
-//     // //         // ICheqModule wrote correctly to it's storage
-//     // //         if (sstl.cheqFunder(cheqId) == sender){  // Cheq
+//     // //         // INotaModule wrote correctly to it's storage
+//     // //         if (sstl.cheqFunder(cheqId) == sender){  // Nota
 //     // //             assertTrue(cheq.cheqEscrowed(cheqId) == amount, "Incorrect escrowed amount");
-//     // //             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqDrawer(cheqId), "Cheq funder is not the sender");
-//     // //             assertTrue(sstl.cheqReceiver(cheqId) == recipient, "Cheq reciever is not recipient");
+//     // //             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqDrawer(cheqId), "Nota funder is not the sender");
+//     // //             assertTrue(sstl.cheqReceiver(cheqId) == recipient, "Nota reciever is not recipient");
 //     // //         } else {  // Invoice
 //     // //             assertTrue(cheq.cheqEscrowed(cheqId) == 0, "Incorrect escrowed amount");
-//     // //             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqRecipient(cheqId), "Cheq reciever is same as on cheq");
-//     // //             assertTrue(sstl.cheqReceiver(cheqId) == cheq.cheqDrawer(cheqId), "Cheq reciever is same as on SSTL");
+//     // //             assertTrue(sstl.cheqFunder(cheqId) == cheq.cheqRecipient(cheqId), "Nota reciever is same as on cheq");
+//     // //             assertTrue(sstl.cheqReceiver(cheqId) == cheq.cheqDrawer(cheqId), "Nota reciever is same as on SSTL");
 //     // //         }
-//     // //         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Cheq created not at block.timestamp");
+//     // //         assertTrue(sstl.cheqCreated(cheqId) == block.timestamp, "Nota created not at block.timestamp");
 //     // //         assertTrue(sstl.cheqInspectionPeriod(cheqId) == duration, "Expired");
 //     // //     }
 //     // //     function writeHelper(address sender, uint256 amount, uint256 escrow, address recipient, uint256 duration, SelfSignTimeLock sstl) public returns(uint256){
@@ -267,9 +267,9 @@ pragma solidity ^0.8.16;
 //     // //         assertTrue(cheq.balanceOf(sender) == 0, "Caller already got a cheq");
 //     // //         assertTrue(cheq.balanceOf(recipient) == 0);
 //     // //         vm.prank(sender);
-//     // //         uint256 cheqId = sstl.writeCheq(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
-//     // //         helperCheqInfo(cheqId, amount, sender, recipient, sstl, duration);
-//     // //         if (escrow == amount && amount != 0){ // Cheq
+//     // //         uint256 cheqId = sstl.writeNota(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
+//     // //         helperNotaInfo(cheqId, amount, sender, recipient, sstl, duration);
+//     // //         if (escrow == amount && amount != 0){ // Nota
 //     // //             assertTrue(cheq.deposits(sender, dai) == 0, "Writer gained a deposit");
 //     // //             assertTrue(cheq.balanceOf(sender) == senderBalanceOf, "Recipient gained a cheq");
 //     // //             assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf + 1, "Recipient didnt get a cheq");
@@ -280,10 +280,10 @@ pragma solidity ^0.8.16;
 //     // //             assertTrue(cheq.balanceOf(recipient) == recipientBalanceOf, "Funder gained a cheq");
 //     // //             assertTrue(cheq.ownerOf(cheqId) == sender, "Invoicer isn't owner");
 //     // //         }
-//     // //         assertTrue(cheq.totalSupply() == cheqSupply + 1, "Cheq supply didn't increment");
+//     // //         assertTrue(cheq.totalSupply() == cheqSupply + 1, "Nota supply didn't increment");
 //     // //         return cheqId;
 //     // //     }
-//     // //     function testTransferCheq(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
+//     // //     function testTransferNota(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -297,18 +297,18 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //     }
-//     // //     function testFailTransferCheq(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
+//     // //     function testFailTransferNota(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, caller);  // caller is writer
 //     // //         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         // Non-owner transfer
 //     // //         vm.prank(caller);
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //         // Transfer of non-existent cheq
 //     // //         vm.prank(caller);
-//     // //         sstl.transferCheq(cheqId+1, to);
+//     // //         sstl.transferNota(cheqId+1, to);
 //     // //     }
 //     // //     function testTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
@@ -325,28 +325,28 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(caller);
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //     }
 //     // //     function testFailTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         // Non-owner transfer
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //         vm.prank(recipient);
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //         // Transfer to address(0)
 //     // //         vm.prank(caller);
-//     // //         sstl.transferCheq(cheqId, address(0));
+//     // //         sstl.transferNota(cheqId, address(0));
 //     // //         // Transfer to contract
 //     // //         vm.prank(caller);
-//     // //         sstl.transferCheq(cheqId, address(this));
+//     // //         sstl.transferNota(cheqId, address(this));
 //     // //         // Transfer of non-existent cheq
-//     // //         sstl.transferCheq(cheqId+1, to);
+//     // //         sstl.transferNota(cheqId+1, to);
 //     // //     }
 //     // //     function transferHelper(uint256 cheqId, address to, SelfSignTimeLock sstl) public {
 //     // //         vm.prank(cheq.ownerOf(cheqId));
-//     // //         sstl.transferCheq(cheqId, to);
+//     // //         sstl.transferNota(cheqId, to);
 //     // //     }
 //     // //     function testFundInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {  //
 //     // //         vm.assume(amount <= dai.totalSupply());
@@ -362,9 +362,9 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);  // This can be anybody
-//     // //         sstl.fundCheq(cheqId, amount);
+//     // //         sstl.fundNota(cheqId, amount);
 //     // //         vm.expectRevert(bytes("Cant fund this amount"));
-//     // //         sstl.fundCheq(cheqId, amount);
+//     // //         sstl.fundNota(cheqId, amount);
 //     // //     }
 //     // //     function testFailFundInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(random != 0);
@@ -372,20 +372,20 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundCheq(cheqId, amount);
+//     // //         sstl.fundNota(cheqId, amount);
 //     // //         vm.prank(caller);
-//     // //         sstl.fundCheq(cheqId, amount);
+//     // //         sstl.fundNota(cheqId, amount);
 //     // //         // invoice but not correct amount?
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 cheqId2 = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundCheq(cheqId2, amount+random);
-//     // //         sstl.fundCheq(cheqId2, amount-random);
+//     // //         sstl.fundNota(cheqId2, amount+random);
+//     // //         sstl.fundNota(cheqId2, amount-random);
 //     // //         vm.prank(caller);
-//     // //         sstl.fundCheq(cheqId2, amount+random);
-//     // //         sstl.fundCheq(cheqId2, amount-random);
+//     // //         sstl.fundNota(cheqId2, amount+random);
+//     // //         sstl.fundNota(cheqId2, amount-random);
 //     // //     }
-//     // //     function testCashCheq(address caller, uint256 amount, address recipient, uint256 duration) public {
+//     // //     function testCashNota(address caller, uint256 amount, address recipient, uint256 duration) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -401,7 +401,7 @@ pragma solidity ^0.8.16;
 //     // //         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.startPrank(recipient);
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId));
 //     // //         vm.stopPrank();
 //     // //     }
 //     // //     function testCashInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {
@@ -417,25 +417,25 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundCheq(cheqId, amount);
+//     // //         sstl.fundNota(cheqId, amount);
 //     // //         vm.startPrank(caller);
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId));
 //     // //         vm.stopPrank();
 //     // //     }
-//     // //     function testFailCashCheq(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
+//     // //     function testFailCashNota(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(amount != 0);
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 cheqId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         // Can't cash until its time
 //     // //         vm.prank(recipient);
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId));
 //     // //         // Can't cash unless owner
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId));
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId));
 //     // //         // Can't cash different amount
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)-random);
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId)-random);
 //     // //     }
 //     // //     function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(random != 0);
@@ -455,12 +455,12 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 cheqId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         // Can't cash before inspection
-//     // //         sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId));
+//     // //         sstl.cashNota(cheqId+1, cheq.cheqEscrowed(cheqId));
 //     // //         // Cant cash wrong cheq
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashCheq(cheqId+1, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
+//     // //         sstl.cashNota(cheqId+1, cheq.cheqEscrowed(cheqId));  // You can cash an unfunded cheq after inspectionPeriod
 //     // //         // cant cash wrong amount
-//     // //         sstl.cashCheq(cheqId, cheq.cheqEscrowed(cheqId)+1);
+//     // //         sstl.cashNota(cheqId, cheq.cheqEscrowed(cheqId)+1);
 //     // //     }
 // }
 // // // Need invoice encoded

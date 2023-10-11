@@ -4,7 +4,7 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 
 // Question: Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
 // Question: Should module return their fee in BPS or actual fee amount?
-interface ICheqModule {
+interface INotaModule {
     function processWrite(
         address caller,
         address owner,
@@ -15,7 +15,7 @@ interface ICheqModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (moduleFee, adjOwner, adjCheq)?
+    // QUESTION: return (moduleFee, adjOwner, adjNota)?
 
     function processTransfer(
         address caller,
@@ -30,7 +30,7 @@ interface ICheqModule {
         bytes calldata data
     ) external returns (uint256);
 
-    // QUESTION: return (adjOwner, adjCheq)?
+    // QUESTION: return (adjOwner, adjNota)?
 
     function processFund(
         address caller,
@@ -38,11 +38,11 @@ interface ICheqModule {
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (adjOwner, adjAmount, adjCheq)?
+    // QUESTION: return (adjOwner, adjAmount, adjNota)?
 
     function processCash(
         address caller,
@@ -50,22 +50,22 @@ interface ICheqModule {
         address to,
         uint256 amount,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external returns (uint256);
 
-    // QUESTION: return (adjOwner, adjTo, adjAmount, adjCheq)?
+    // QUESTION: return (adjOwner, adjTo, adjAmount, adjNota)?
 
     function processApproval(
         address caller,
         address owner,
         address to,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes memory initData
     ) external;
 
-    // QUESTION: return (adjOwner, adjCheq)?
+    // QUESTION: return (adjOwner, adjNota)?
 
     // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool); // TODO settle on what this returns
     // function processBalanceOf() external view returns(uint256);

@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import "openzeppelin/token/ERC721/ERC721.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 contract AttestationStation {
     mapping(address => mapping(address => mapping(bytes32 => bytes)))
@@ -147,7 +147,7 @@ contract AttestSendLock is ModuleBase {
         uint256 amount,
         uint256 instant,
         uint256 cheqId,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(caller == owner, "Not owner");
@@ -166,7 +166,7 @@ contract AttestSendLock is ModuleBase {
         address /*to*/,
         uint256 amount,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata cheq,
+        DataTypes.Nota calldata cheq,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         return
@@ -183,7 +183,7 @@ contract AttestSendLock is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*cheqId*/,
-        DataTypes.Cheq calldata /*cheq*/,
+        DataTypes.Nota calldata /*cheq*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {}
 

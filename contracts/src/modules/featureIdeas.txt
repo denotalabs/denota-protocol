@@ -17,10 +17,10 @@ General Features:
     function processX() { require(!blacklisted[cheqId.owner]) }
 * Yield Generation
     function yieldWrite() {AAVE.deposit(token); REGISTRAR.write(aToken, address(this), ...)}
-* Cheq Buy-Backs
-    function buyCheq(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
+* Nota Buy-Backs
+    function buyNota(cheqId) {REGISTRAR.transferFrom(cheqId, caller, address(this)); ERC20._mint(caller, cheq.escrowed)}; // AMM style cheq buybacks and issue tokens
 * ZK proving of past payments
-    function proveModuleTotalSuccessfulPayment(address) { ZK.recoverCheqAmountsByAccount(address); }
+    function proveModuleTotalSuccessfulPayment(address) { ZK.recoverNotaAmountsByAccount(address); }
 * Dynamically charging fees based on caller, cheqId, or other (if intervention was needed for ex)
 Admin role abilities: 
 1. Global pausing of WTFCA
@@ -79,7 +79,7 @@ Cashing
 * Payment Splitting
     function cashable() { cashable = 0xSplits.isAmountByMember[_msgSender()]; }
 * Spite Disputation
-    function spite() onlyCheqOwner { invoice.status == status.Spited; }
+    function spite() onlyNotaOwner { invoice.status == status.Spited; }
     function cash() { cheq.module.processCash(msg.sender, ...) } (amount to cash is half for each caller)
     function setSpitePercent(uint) onlyOwner { SPITE_BPS = uint; }
     function cash() { if (msg.sender==drawer) {cheq.amount*SPIT_BPS} else if (msg.sender==recipient){SPITE_BPS} }

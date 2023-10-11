@@ -5,7 +5,7 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 import {AxelarExecutable} from "axelarnetwork/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
-import "../CheqRegistrar.sol";
+import "../NotaRegistrar.sol";
 
 /**
  * @title BridgeSender

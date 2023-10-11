@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 // import {DirectPay} from "./../DirectPay.sol";
 // import {DataTypes} from "../../libraries/DataTypes.sol";
-// import {ICheqRegistrar} from "../../interfaces/ICheqRegistrar.sol";
+// import {INotaRegistrar} from "../../interfaces/INotaRegistrar.sol";
 
 // /**
 //  * @notice multi-bounty module // IDEA comment out when not on polygon
@@ -124,7 +124,7 @@ pragma solidity ^0.8.16;
 
 //         // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
 //         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-//         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
+//         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to NotaRegistrarOwner
 //         return moduleFee;
 //     }
 
@@ -134,7 +134,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
@@ -181,7 +181,7 @@ pragma solidity ^0.8.16;
 //         address, /*to*/
 //         uint256, /*amount*/
 //         uint256, /*cheqId*/
-//         DataTypes.Cheq calldata, /*cheq*/
+//         DataTypes.Nota calldata, /*cheq*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Disallowed");
@@ -197,7 +197,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address, /*to*/
 //         uint256, /*cheqId*/
-//         DataTypes.Cheq calldata, /*cheq*/
+//         DataTypes.Nota calldata, /*cheq*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(caller == owner, "Only owner");
@@ -304,7 +304,7 @@ pragma solidity ^0.8.16;
 
 //         // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
 //         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-//         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to CheqRegistrarOwner
+//         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to NotaRegistrarOwner
 //         return moduleFee;
 //     }
 
@@ -314,7 +314,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
@@ -334,7 +334,7 @@ pragma solidity ^0.8.16;
 //         address, /*to*/
 //         uint256, /*amount*/
 //         uint256, /*cheqId*/
-//         DataTypes.Cheq calldata, /*cheq*/
+//         DataTypes.Nota calldata, /*cheq*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Rule: Disallowed");
@@ -350,7 +350,7 @@ pragma solidity ^0.8.16;
 //         address, /*owner*/
 //         address, /*to*/
 //         uint256, /*cheqId*/
-//         DataTypes.Cheq calldata, /*cheq*/
+//         DataTypes.Nota calldata, /*cheq*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(false, "Rule: Disallowed");

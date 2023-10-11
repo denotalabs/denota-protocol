@@ -2,9 +2,9 @@
 pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC20/IERC20.sol";
 
-// Might be able to just incorporate this into the CheqRegistrar
+// Might be able to just incorporate this into the NotaRegistrar
 library DataTypes {
-    struct Cheq {
+    struct Nota {
         uint256 escrowed;
         uint256 createdAt; // Set by caller and immutable
         address currency; // Set by caller and immutable

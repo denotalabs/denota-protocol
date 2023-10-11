@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
-import {ICheqModule} from "../interfaces/ICheqModule.sol";
-import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
+import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * @notice A simple crowdfunding module
@@ -49,7 +49,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address caller,
 //         address owner,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         uint256 directAmount,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
@@ -78,7 +78,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address from,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory data
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(isCashed[cheqId], "Needs full funding");
@@ -101,7 +101,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         uint256 amount,
 //         uint256 directAmount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(!isCashed[cheqId], "Already cashed"); // How to abstract this?
@@ -126,7 +126,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address to,
 //         uint256 amount,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(!isCashed[cheqId], "Already cashed");
@@ -149,7 +149,7 @@ import {ICheqRegistrar} from "../interfaces/ICheqRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 cheqId,
-//         DataTypes.Cheq calldata cheq,
+//         DataTypes.Nota calldata cheq,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         require(isCashed[cheqId], "Must be cashed first");
