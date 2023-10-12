@@ -312,7 +312,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       },
@@ -377,7 +377,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       },
@@ -448,7 +448,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "cheq",
         "type": "tuple"
       },

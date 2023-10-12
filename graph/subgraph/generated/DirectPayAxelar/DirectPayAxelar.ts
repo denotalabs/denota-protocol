@@ -95,6 +95,22 @@ export class DirectPayAxelar__dappOperatorFeesResult {
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
+
+  getWriteBPS(): BigInt {
+    return this.value0;
+  }
+
+  getTransferBPS(): BigInt {
+    return this.value1;
+  }
+
+  getFundBPS(): BigInt {
+    return this.value2;
+  }
+
+  getCashBPS(): BigInt {
+    return this.value3;
+  }
 }
 
 export class DirectPayAxelar__getFeesResultValue0Struct extends ethereum.Tuple {
@@ -144,6 +160,26 @@ export class DirectPayAxelar__payInfoResult {
     map.set("value3", ethereum.Value.fromString(this.value3));
     map.set("value4", ethereum.Value.fromAddress(this.value4));
     return map;
+  }
+
+  getAmount(): BigInt {
+    return this.value0;
+  }
+
+  getSourceChain(): BigInt {
+    return this.value1;
+  }
+
+  getImageURI(): string {
+    return this.value2;
+  }
+
+  getMemoHash(): string {
+    return this.value3;
+  }
+
+  getSender(): Address {
+    return this.value4;
   }
 }
 

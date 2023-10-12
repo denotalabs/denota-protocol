@@ -1,20 +1,20 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Events
-    network: alfajores
+    network: mumbai
     source:
-      address: "0x5f7804628849d5B34bbA0e6d21c572FC991E3Fec"
+      address: "0x50d535af78A154a493d6ed466B363DDeBE4Ee88f"
       abi: Registrar
-      startBlock: 16848348
+      startBlock: 33483535
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq
+        - Nota
         - Transfer
         - Escrow
         - ERC20
@@ -38,17 +38,17 @@ dataSources:
       file: Events/Events.wasm
   - kind: ethereum/contract
     name: DirectPay
-    network: alfajores
+    network: mumbai
     source:
-      address: "0xf14Cf88b8B41B3CBCDf7564054870B0AA43bb6e3"
+      address: "0x6396CB807Aa9cAd7DdDCFf8dE153E3F3Dcad6D45"
       abi: DirectPay
-      startBlock: 16848348
+      startBlock: 33483535
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq
+        - Nota
         - Transfer
         - Escrow
         - ERC20
@@ -65,17 +65,17 @@ dataSources:
       file: Events/Events.wasm
   - kind: ethereum/contract
     name: DirectPayAxelar
-    network: alfajores
+    network: mumbai
     source:
-      address: "0x453ccF56e94B03888bc787b249eb3A4c99d769f7"
+      address: "0xed9B684c481F5b20A1f5bEeA5E458d92f7D1b2BC"
       abi: DirectPayAxelar
-      startBlock: 16848348
+      startBlock: 33483535
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq
+        - Nota
         - Transfer
         - Escrow
         - ERC20
@@ -92,17 +92,17 @@ dataSources:
       file: Events/Events.wasm
   - kind: ethereum/contract
     name: BridgeSender
-    network: alfajores
+    network: mumbai
     source:
-      address: "0xFd77Eed331C200B3Ea360Ff172fA849BAE8cb66d"
+      address: "0x89A545bC5f783F18F3a0AC3E92c78E03a14CC69c"
       abi: BridgeSender
-      startBlock: 16848348
+      startBlock: 33483535
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq
+        - Nota
         - Transfer
         - Escrow
         - ERC20
@@ -119,17 +119,17 @@ dataSources:
       file: Events/Events.wasm
   - kind: ethereum/contract
     name: ReversibleRelease
-    network: alfajores
+    network: mumbai
     source:
-      address: "0x8EF1c8CFf1E2701A359Da1205135A0f39D13382a"
+      address: "0x361034E527Ce50Ae24DFaCb50C056CBd3C3b31da"
       abi: ReversibleRelease
-      startBlock: 16848348
+      startBlock: 33483535
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Cheq
+        - Nota
         - Transfer
         - Escrow
         - ERC20

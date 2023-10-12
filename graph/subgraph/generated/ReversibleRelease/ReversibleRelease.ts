@@ -77,6 +77,22 @@ export class ReversibleRelease__dappOperatorFeesResult {
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
+
+  getWriteBPS(): BigInt {
+    return this.value0;
+  }
+
+  getTransferBPS(): BigInt {
+    return this.value1;
+  }
+
+  getFundBPS(): BigInt {
+    return this.value2;
+  }
+
+  getCashBPS(): BigInt {
+    return this.value3;
+  }
 }
 
 export class ReversibleRelease__getFeesResultValue0Struct extends ethereum.Tuple {
@@ -130,6 +146,30 @@ export class ReversibleRelease__payInfoResult {
     map.set("value4", ethereum.Value.fromString(this.value4));
     map.set("value5", ethereum.Value.fromString(this.value5));
     return map;
+  }
+
+  getInspector(): Address {
+    return this.value0;
+  }
+
+  getCreditor(): Address {
+    return this.value1;
+  }
+
+  getDebtor(): Address {
+    return this.value2;
+  }
+
+  getAmount(): BigInt {
+    return this.value3;
+  }
+
+  getMemoHash(): string {
+    return this.value4;
+  }
+
+  getImageURI(): string {
+    return this.value5;
   }
 }
 

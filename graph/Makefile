@@ -2,7 +2,12 @@ graph-start:
 	# Requires docker to be running
 	npm run clean # If node has run before remove the old subgraph
 	npm run start  # (re)start the node [postgres & ipfs & blockchain ingester]
-	# npm run codegen
+
+graph-deploy-local:
+	GRAPH_CHAIN=local npm run prepare  
+	GRAPH_CHAIN=local npm run create-local
+	GRAPH_CHAIN=local npm run deploy-local
+
 
 graph-deploy-local-mumbai:
 	GRAPH_CHAIN=mumbai npm run prepare  

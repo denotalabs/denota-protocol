@@ -449,7 +449,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "",
         "type": "tuple"
       }
@@ -1154,7 +1154,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.Cheq",
+        "internalType": "struct DataTypes.Nota",
         "name": "cheq",
         "type": "tuple"
       },

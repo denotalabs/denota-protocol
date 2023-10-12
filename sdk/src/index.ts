@@ -4,7 +4,7 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
-import CheqRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
+import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
 import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
 import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
@@ -73,7 +73,7 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
   if (contractMapping) {
     const registrar = new ethers.Contract(
       contractMapping.registrar,
-      CheqRegistrar.abi,
+      NotaRegistrar.abi,
       signer
     );
     const axelarBridgeSender = new ethers.Contract(

@@ -77,6 +77,22 @@ export class DirectPay__dappOperatorFeesResult {
     map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
     return map;
   }
+
+  getWriteBPS(): BigInt {
+    return this.value0;
+  }
+
+  getTransferBPS(): BigInt {
+    return this.value1;
+  }
+
+  getFundBPS(): BigInt {
+    return this.value2;
+  }
+
+  getCashBPS(): BigInt {
+    return this.value3;
+  }
 }
 
 export class DirectPay__getFeesResultValue0Struct extends ethereum.Tuple {
@@ -130,6 +146,30 @@ export class DirectPay__payInfoResult {
     map.set("value4", ethereum.Value.fromString(this.value4));
     map.set("value5", ethereum.Value.fromString(this.value5));
     return map;
+  }
+
+  getCreditor(): Address {
+    return this.value0;
+  }
+
+  getDebtor(): Address {
+    return this.value1;
+  }
+
+  getAmount(): BigInt {
+    return this.value2;
+  }
+
+  getWasPaid(): boolean {
+    return this.value3;
+  }
+
+  getImageURI(): string {
+    return this.value4;
+  }
+
+  getMemoHash(): string {
+    return this.value5;
   }
 }
 

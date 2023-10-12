@@ -18,7 +18,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "ipfs:5001"
-      ethereum: "mumbai:https://matic-mumbai.chainstacklabs.com alfajores:https://alfajores-forno.celo-testnet.org"
+      ethereum: "local:http://host.docker.internal:8545" # mumbai:https://matic-mumbai.chainstacklabs.com alfajores:https://alfajores-forno.celo-testnet.org 
       GRAPH_LOG: info
     logging:
       driver: "json-file"

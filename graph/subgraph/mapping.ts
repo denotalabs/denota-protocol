@@ -6,7 +6,7 @@ import {
 } from "../subgraph/generated/Events/Registrar";
 import {
   Account,
-  Cheq,
+  Nota,
   DirectPayData,
   ERC20,
   Escrow,
@@ -62,7 +62,7 @@ export function handleWrite(event: WrittenEvent): void {
 
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
   const cheqId = event.params.cheqId.toString();
-  const cheq = Cheq.load(cheqId);
+  const cheq = Nota.load(cheqId);
   const cheqEscrowed = event.params.escrowed;
 
   const transaction = saveTransaction(
@@ -143,19 +143,19 @@ export function handleDirectPayment(event: DirectPaymentCreatedEvent): void {
   }
   directPay.save();
 
-  const newCheq = new Cheq(cheqId);
+  const newNota = new Nota(cheqId);
   const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  newNota.timestamp = cheqTimestamp;
+  newNota.createdAt = cheqTimestamp;
+  newNota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newNota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newNota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.save();
+  newNota.sender = sender;
+  newNota.moduleData = directPay.id;
+  newNota.save();
 }
 
 export function handleDirectPaymentAxelar(
@@ -190,19 +190,19 @@ export function handleDirectPaymentAxelar(
   directPay.destChain = event.params.destChainId;
   directPay.save();
 
-  const newCheq = new Cheq(cheqId);
+  const newNota = new Nota(cheqId);
   const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  newNota.timestamp = cheqTimestamp;
+  newNota.createdAt = cheqTimestamp;
+  newNota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newNota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newNota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.save();
+  newNota.sender = sender;
+  newNota.moduleData = directPay.id;
+  newNota.save();
 }
 
 export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
@@ -244,22 +244,22 @@ export function handleAxelarOutgoing(event: DirectPaymentBridgeEvent): void {
   }
   directPay.save();
 
-  const newCheq = new Cheq(transactionHexHash + "/crosschain");
+  const newNota = new Nota(transactionHexHash + "/crosschain");
   const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  newNota.timestamp = cheqTimestamp;
+  newNota.createdAt = cheqTimestamp;
+  newNota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newNota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newNota.receiver = creditorAccount.id;
   }
-  newCheq.owner = creditorAccount.id;
-  newCheq.erc20 = "0x0000000000000000000000000000000000000000"; // TODO: use right token
-  newCheq.sender = sender;
-  newCheq.moduleData = directPay.id;
-  newCheq.createdTransaction = transaction.id;
-  newCheq.save();
+  newNota.owner = creditorAccount.id;
+  newNota.erc20 = "0x0000000000000000000000000000000000000000"; // TODO: use right token
+  newNota.sender = sender;
+  newNota.moduleData = directPay.id;
+  newNota.createdTransaction = transaction.id;
+  newNota.save();
 }
 
 export function handleReversiblePayment(
@@ -299,20 +299,20 @@ export function handleReversiblePayment(
   }
   reversibleRelease.save();
 
-  const newCheq = new Cheq(cheqId);
+  const newNota = new Nota(cheqId);
   const cheqTimestamp = event.block.timestamp;
-  newCheq.timestamp = cheqTimestamp;
-  newCheq.createdAt = cheqTimestamp;
-  newCheq.uri = event.params.memoHash.toString();
+  newNota.timestamp = cheqTimestamp;
+  newNota.createdAt = cheqTimestamp;
+  newNota.uri = event.params.memoHash.toString();
   if (sender == creditor) {
-    newCheq.receiver = debtorAccount.id;
+    newNota.receiver = debtorAccount.id;
   } else {
-    newCheq.receiver = creditorAccount.id;
+    newNota.receiver = creditorAccount.id;
   }
-  newCheq.sender = sender;
-  newCheq.moduleData = reversibleRelease.id;
-  newCheq.inspector = inspectorAccount.id;
-  newCheq.save();
+  newNota.sender = sender;
+  newNota.moduleData = reversibleRelease.id;
+  newNota.inspector = inspectorAccount.id;
+  newNota.save();
 }
 
 export function handleFund(event: FundedEvent): void {
@@ -327,10 +327,10 @@ export function handleFund(event: FundedEvent): void {
   const cheqId = event.params.cheqId.toString();
 
   // Load cheq
-  let cheq = Cheq.load(cheqId);
+  let cheq = Nota.load(cheqId);
   if (cheq == null) {
     // SHOULDN NEVER BE THE CASE
-    cheq = new Cheq(cheqId);
+    cheq = new Nota(cheqId);
     cheq.save();
   }
   const transaction = saveTransaction(
@@ -380,10 +380,10 @@ export function handleCash(event: CashedEvent): void {
   const cheqId = event.params.cheqId.toString();
 
   // Load cheq
-  let cheq = Cheq.load(cheqId);
+  let cheq = Nota.load(cheqId);
   if (cheq == null) {
     // SHOULDN'T BE THE CASE
-    cheq = new Cheq(cheqId);
+    cheq = new Nota(cheqId);
     cheq.save();
   }
 
@@ -428,21 +428,21 @@ export function handleCash(event: CashedEvent): void {
 //   let toAccount = Account.load(to);
 //   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
 //   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-//   // Load Cheq
-//   let cheq = Cheq.load(cheqId); // Write event fires before Transfer event: cheq should exist
+//   // Load Nota
+//   let cheq = Nota.load(cheqId); // Write event fires before Transfer event: cheq should exist
 //   if (cheq == null) {
 //     // SHOULDN'T BE THE CASE
-//     cheq = new Cheq(cheqId);
+//     cheq = new Nota(cheqId);
 //     cheq.save();
 //   }
 //   // Update accounts' cheq balances
 //   if (event.params.from != Address.zero()) {
-//     fromAccount.numCheqsOwned = fromAccount.numCheqsSent.minus(
+//     fromAccount.numNotasOwned = fromAccount.numNotasSent.minus(
 //       BigInt.fromI32(1)
 //     );
 //     fromAccount.save();
 //   }
-//   toAccount.numCheqsOwned = toAccount.numCheqsOwned.plus(BigInt.fromI32(1));
+//   toAccount.numNotasOwned = toAccount.numNotasOwned.plus(BigInt.fromI32(1));
 //   toAccount.save();
 //   const transaction = saveTransaction(
 //     transactionHexHash,
