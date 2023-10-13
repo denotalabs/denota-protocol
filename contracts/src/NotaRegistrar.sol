@@ -432,7 +432,7 @@ contract NotaRegistrar is
         bytes memory moduleTransferData
     ) internal {
         if (moduleTransferData.length == 0)
-            moduleTransferData = abi.encode(owner());
+            moduleTransferData = abi.encode("");
         address owner = ownerOf(notaId); // require(from == owner,  "") ?
         DataTypes.Nota memory nota = _notaInfo[notaId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
