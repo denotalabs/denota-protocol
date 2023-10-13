@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 library Events {
-    // emit cheq structs or each variable?
+    // emit nota structs or each variable?
     // event ModuleGlobalsGovernanceSet(
     //     address indexed prevGovernance,
     //     address indexed newGovernance,
@@ -40,7 +40,7 @@ library Events {
 
     event Written(
         address indexed caller,
-        uint256 cheqId,
+        uint256 notaId,
         address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
         uint256 instant,
         address currency,
@@ -60,7 +60,7 @@ library Events {
     );
     event Funded(
         address indexed funder,
-        uint256 indexed cheqId,
+        uint256 indexed notaId,
         uint256 amount,
         uint256 instant,
         bytes indexed fundData,
@@ -69,7 +69,7 @@ library Events {
     );
     event Cashed(
         address indexed casher,
-        uint256 indexed cheqId,
+        uint256 indexed notaId,
         address to,
         uint256 amount,
         bytes indexed cashData,

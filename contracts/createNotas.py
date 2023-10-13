@@ -34,7 +34,7 @@ if __name__ == "__main__":
   registrar, directPay, dai, weth = [existing_addresses[chain][contract] for contract in 
                                      ["registrar", "directPay", "dai", "weth"]]
 
-  # DIRECT PAY MODULE CHEQS # TODO create for loop with random values. Write using multiple modules
+  # DIRECT PAY MODULE NOTAS # TODO create for loop with random values. Write using multiple modules
   toNotify, invoice_amount, timestamp, dappOperator, memoHash = ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', int(10e10), int(time()), '0x0000000000000000000000000000000000000000', web3.Web3.keccak(text='This is a hash')]
   moduleWriteData = encode(['address', 'uint256', 'uint256', 'address', 'string'], [toNotify, invoice_amount, timestamp, dappOperator, str(encode(['bytes32'], [memoHash]))])
   print(moduleWriteData); print(); print()

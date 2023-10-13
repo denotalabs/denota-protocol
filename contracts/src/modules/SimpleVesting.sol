@@ -37,16 +37,16 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         uint256 directAmount,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IWriteRule(writeRule).canWrite(
 //             caller,
 //             owner,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             directAmount,
 //             initData
 //         );
@@ -54,14 +54,14 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         (bytes32 memoHash, address referer) = abi.decode(
 //             initData,
 //             (bytes32, address)
-//         ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-//         memo[cheqId] = memoHash;
+//         ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+//         memo[notaId] = memoHash;
 
-//         uint256 totalAmount = cheq.escrowed + directAmount;
+//         uint256 totalAmount = nota.escrowed + directAmount;
 //         uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
-//         revenue[referer][cheq.currency] += moduleFee;
+//         revenue[referer][nota.currency] += moduleFee;
 
-//         emit MemoWritten(cheqId, memoHash);
+//         emit MemoWritten(notaId, memoHash);
 //         return moduleFee;
 //     }
 
@@ -71,8 +71,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address from,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory data
 //     ) external override onlyRegistrar returns (uint256) {
 //         ITransferRule(transferRule).canTransfer(
@@ -81,13 +81,13 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             owner,
 //             from,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             data
 //         );
-//         require(isCashed[cheqId], "Module: Only after cashing");
-//         uint256 moduleFee = (cheq.escrowed * fees.transferBPS) / BPS_MAX;
-//         // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes?
+//         require(isCashed[notaId], "Module: Only after cashing");
+//         uint256 moduleFee = (nota.escrowed * fees.transferBPS) / BPS_MAX;
+//         // revenue[referer][nota.currency] += moduleFee; // TODO who does this go to if no bytes?
 //         return moduleFee;
 //     }
 
@@ -96,8 +96,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         uint256 amount,
 //         uint256 directAmount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IFundRule(fundRule).canFund(
@@ -105,14 +105,14 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             owner,
 //             amount,
 //             directAmount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         // require(!isCashed[cheqId], "Module: Already cashed");
+//         // require(!isCashed[notaId], "Module: Already cashed");
 //         address referer = abi.decode(initData, (address));
 //         uint256 moduleFee = ((amount + directAmount) * fees.fundBPS) / BPS_MAX;
-//         revenue[referer][cheq.currency] += moduleFee;
+//         revenue[referer][nota.currency] += moduleFee;
 //         return moduleFee;
 //     }
 
@@ -121,8 +121,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 amount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ICashRule(cashRule).canCash(
@@ -130,15 +130,15 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             owner,
 //             to,
 //             amount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         // require(!isCashed[cheqId], "Module: Already cashed");
+//         // require(!isCashed[notaId], "Module: Already cashed");
 //         address referer = abi.decode(initData, (address));
 //         uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-//         revenue[referer][cheq.currency] += moduleFee;
-//         isCashed[cheqId] = true;
+//         revenue[referer][nota.currency] += moduleFee;
+//         isCashed[notaId] = true;
 //         return moduleFee;
 //     }
 
@@ -146,18 +146,18 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address caller,
 //         address owner,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(
 //             caller,
 //             owner,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         // require(isCashed[cheqId], "Module: Must be cashed first");
+//         // require(isCashed[notaId], "Module: Must be cashed first");
 //     }
 // }

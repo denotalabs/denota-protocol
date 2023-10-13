@@ -123,7 +123,7 @@ contract Milestones is ModuleBase {
     error CantDeleteCurrentMilestone();
 
     event Invoiced(
-        uint256 cheqId,
+        uint256 notaId,
         address toNotify,
         bytes32 docHash,
         uint256[] milestoneAmounts
@@ -140,7 +140,7 @@ contract Milestones is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -159,10 +159,10 @@ contract Milestones is ModuleBase {
         // Invoice
         if (caller == owner) {
             if (instant != 0 || escrowed != 0) revert InvoiceWithPay();
-            invoices[cheqId].worker = caller;
-            invoices[cheqId].client = toNotify;
+            invoices[notaId].worker = caller;
+            invoices[notaId].client = toNotify;
             for (uint256 i = 0; i < totalMilestones; i++) {
-                milestones[cheqId].push(
+                milestones[notaId].push(
                     Milestone({amount: milestoneAmounts[i], isCashed: false})
                 );
             }
@@ -170,23 +170,23 @@ contract Milestones is ModuleBase {
         // Payment
         else if (toNotify == owner) {
             if (owner == address(0)) revert AddressZero();
-            invoices[cheqId].worker = toNotify;
-            invoices[cheqId].client = caller;
-            invoices[cheqId].startTime = block.timestamp;
+            invoices[notaId].worker = toNotify;
+            invoices[notaId].client = caller;
+            invoices[notaId].startTime = block.timestamp;
 
             // If instant is used, that must be first milestone (upfront) and second must be funded
             if (instant == milestoneAmounts[0]) {
                 if (escrowed != milestoneAmounts[1])
                     revert InsufficientPayment();
 
-                invoices[cheqId].currentMilestone += 1; // First milestone sent, second is now funded (index 1)
+                invoices[notaId].currentMilestone += 1; // First milestone sent, second is now funded (index 1)
 
-                milestones[cheqId].push(
+                milestones[notaId].push(
                     Milestone({amount: milestoneAmounts[0], isCashed: true})
                 );
 
                 for (uint256 i = 1; i < totalMilestones; i++) {
-                    milestones[cheqId].push(
+                    milestones[notaId].push(
                         Milestone({
                             amount: milestoneAmounts[i],
                             isCashed: false
@@ -199,7 +199,7 @@ contract Milestones is ModuleBase {
                 if (escrowed != milestoneAmounts[0])
                     revert InsufficientPayment();
                 for (uint256 i; i < totalMilestones; i++) {
-                    milestones[cheqId].push(
+                    milestones[notaId].push(
                         Milestone({
                             amount: milestoneAmounts[i],
                             isCashed: false
@@ -211,9 +211,9 @@ contract Milestones is ModuleBase {
             revert Disallowed();
         }
 
-        invoices[cheqId].totalMilestones = totalMilestones;
-        invoices[cheqId].documentHash = docHash;
-        emit Invoiced(cheqId, toNotify, docHash, milestoneAmounts);
+        invoices[notaId].totalMilestones = totalMilestones;
+        invoices[notaId].documentHash = docHash;
+        emit Invoiced(notaId, toNotify, docHash, milestoneAmounts);
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
@@ -223,7 +223,7 @@ contract Milestones is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -240,19 +240,19 @@ contract Milestones is ModuleBase {
         address /*owner*/,
         uint256 escrowed,
         uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        Milestone[] memory milestoneAmounts = milestones[cheqId];
+        Milestone[] memory milestoneAmounts = milestones[notaId];
 
-        if (invoices[cheqId].startTime == 0) {
+        if (invoices[notaId].startTime == 0) {
             /// Initial funding of an invoice (instant allowed)
-            if (instant == milestones[cheqId][0].amount) {
+            if (instant == milestones[notaId][0].amount) {
                 if (escrowed != milestoneAmounts[1].amount)
                     revert InsufficientPayment();
-                milestones[cheqId][0].isCashed = true;
-                invoices[cheqId].currentMilestone += 1; // Instant and escrow used [Technically currentMilestone was -1 so increment once]
+                milestones[notaId][0].isCashed = true;
+                invoices[notaId].currentMilestone += 1; // Instant and escrow used [Technically currentMilestone was -1 so increment once]
             } else if (instant == 0) {
                 // Instant wasn't used
                 if (escrowed != milestoneAmounts[0].amount)
@@ -260,21 +260,21 @@ contract Milestones is ModuleBase {
             } else {
                 revert InsufficientPayment(); // instant was wrong amount
             }
-            invoices[cheqId].startTime = block.timestamp;
-        } else if (!invoices[cheqId].isRevoked) {
+            invoices[notaId].startTime = block.timestamp;
+        } else if (!invoices[notaId].isRevoked) {
             /// Not the first time it was funded
             if (instant != 0) revert InstantOnlyUpfront();
 
-            invoices[cheqId].currentMilestone += 1; // is funding the next milestone, increment so escrow check is based on next milestone
+            invoices[notaId].currentMilestone += 1; // is funding the next milestone, increment so escrow check is based on next milestone
 
             /// If final escrow hit, no escrow necessary. Allows the last to be released
             if (
-                invoices[cheqId].currentMilestone !=
-                invoices[cheqId].totalMilestones
+                invoices[notaId].currentMilestone !=
+                invoices[notaId].totalMilestones
             ) {
                 if (
                     escrowed !=
-                    milestoneAmounts[invoices[cheqId].currentMilestone].amount
+                    milestoneAmounts[invoices[notaId].currentMilestone].amount
                 ) revert InsufficientPayment();
             }
         } else {
@@ -282,14 +282,14 @@ contract Milestones is ModuleBase {
             if (instant != 0) revert InstantOnlyUpfront();
             if (
                 escrowed !=
-                milestoneAmounts[invoices[cheqId].currentMilestone].amount
+                milestoneAmounts[invoices[notaId].currentMilestone].amount
             ) revert InsufficientPayment();
-            invoices[cheqId].isRevoked = false; // Don't increment milestones- the currentMilestone escrowed amount is returned
+            invoices[notaId].isRevoked = false; // Don't increment milestones- the currentMilestone escrowed amount is returned
         }
 
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 escrowed + instant,
                 abi.decode(initData, (address)),
                 2
@@ -301,8 +301,8 @@ contract Milestones is ModuleBase {
         address owner,
         address to,
         uint256 amount, // Question: This could function as the milestone index if the cashing amount was determined by the module's return value for `amount`
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         // Any caller can cash milestones < currentMilestone (when `to` == owner)
@@ -310,37 +310,37 @@ contract Milestones is ModuleBase {
             initData,
             (uint256, address)
         );
-        if (invoices[cheqId].startTime == 0) revert NotFundedYet();
+        if (invoices[notaId].startTime == 0) revert NotFundedYet();
 
         if (to == owner) {
             // Cashing out, must be less than current milestone
-            if (cashingMilestone >= invoices[cheqId].currentMilestone)
+            if (cashingMilestone >= invoices[notaId].currentMilestone)
                 revert NotCashableYet();
-            if (milestones[cheqId][cashingMilestone].isCashed)
+            if (milestones[notaId][cashingMilestone].isCashed)
                 revert AlreadyCashed();
-            if (amount != milestones[cheqId][cashingMilestone].amount)
+            if (amount != milestones[notaId][cashingMilestone].amount)
                 revert WrongAmount();
-            milestones[cheqId][cashingMilestone].isCashed = true;
-        } else if (caller == invoices[cheqId].client) {
-            if (cashingMilestone != invoices[cheqId].currentMilestone)
+            milestones[notaId][cashingMilestone].isCashed = true;
+        } else if (caller == invoices[notaId].client) {
+            if (cashingMilestone != invoices[notaId].currentMilestone)
                 revert WrongMilestone();
-            if (amount != milestones[cheqId][cashingMilestone].amount)
+            if (amount != milestones[notaId][cashingMilestone].amount)
                 revert WrongAmount();
-            milestones[cheqId][invoices[cheqId].currentMilestone]
+            milestones[notaId][invoices[notaId].currentMilestone]
                 .isCashed = true; // Question: Should this be the case??
-            invoices[cheqId].isRevoked = true;
+            invoices[notaId].isRevoked = true;
         } else {
             revert Disallowed();
         }
-        return takeReturnFee(cheq.currency, amount, dappOperator, 3);
+        return takeReturnFee(nota.currency, amount, dappOperator, 3);
     }
 
     function processApproval(
         address /*caller*/,
         address /*owner*/,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initDat*/
     ) external view override onlyRegistrar {
         // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?
@@ -366,54 +366,54 @@ contract Milestones is ModuleBase {
     // }
 
     function getMilestones(
-        uint256 cheqId
+        uint256 notaId
     ) public view returns (Milestone[] memory) {
-        return milestones[cheqId];
+        return milestones[notaId];
     }
 
     // Question: Should worker be able to add/remove milestones?
-    function addMilestone(uint256 cheqId, uint256 amount) public {
-        if (msg.sender != invoices[cheqId].client) revert OnlyClient();
-        milestones[cheqId].push(Milestone({amount: amount, isCashed: false}));
-        invoices[cheqId].totalMilestones += 1;
+    function addMilestone(uint256 notaId, uint256 amount) public {
+        if (msg.sender != invoices[notaId].client) revert OnlyClient();
+        milestones[notaId].push(Milestone({amount: amount, isCashed: false}));
+        invoices[notaId].totalMilestones += 1;
     }
 
-    function removeMilestone(uint256 cheqId) public {
-        if (msg.sender != invoices[cheqId].client) revert OnlyClient();
+    function removeMilestone(uint256 notaId) public {
+        if (msg.sender != invoices[notaId].client) revert OnlyClient();
         if (
-            invoices[cheqId].currentMilestone + 1 >=
-            invoices[cheqId].totalMilestones
+            invoices[notaId].currentMilestone + 1 >=
+            invoices[notaId].totalMilestones
         ) revert CantDeleteCurrentMilestone();
-        delete milestones[cheqId][invoices[cheqId].totalMilestones - 1];
-        invoices[cheqId].totalMilestones -= 1;
+        delete milestones[notaId][invoices[notaId].totalMilestones - 1];
+        invoices[notaId].totalMilestones -= 1;
     }
 }
 
 /**
 FUND LOGIC SIMPLIFIED
-        uint256 currentMilestone = invoices[cheqId].currentMilestone; // QUESTION: Is this a pointer or a separate var? SEPARATE!
+        uint256 currentMilestone = invoices[notaId].currentMilestone; // QUESTION: Is this a pointer or a separate var? SEPARATE!
 
         // Initial funding of an invoice
-        if (invoices[cheqId].startTime == 0) {
-            invoices[cheqId].startTime = block.timestamp;
+        if (invoices[notaId].startTime == 0) {
+            invoices[notaId].startTime = block.timestamp;
             // Can use instant pay on first funding.
-            if (instant == milestones[cheqId][currentMilestone].amount) {
-                milestones[cheqId][currentMilestone].isCashed = true;
-                invoices[cheqId].currentMilestone += 1; // escrow check comes later
+            if (instant == milestones[notaId][currentMilestone].amount) {
+                milestones[notaId][currentMilestone].isCashed = true;
+                invoices[notaId].currentMilestone += 1; // escrow check comes later
                 currentMilestone += 1; // QUESTION: redundant?
                 // Technically currentMilestone was -1 so don't increment (zero init)
             }
-        } else if (!invoices[cheqId].isRevoked) {
+        } else if (!invoices[notaId].isRevoked) {
             if (instant != 0) revert InstantOnlyUpfront();
 
-            invoices[cheqId].currentMilestone += 1; // is funding the next milestone, increment so escrow check is based on next milestone
+            invoices[notaId].currentMilestone += 1; // is funding the next milestone, increment so escrow check is based on next milestone
 
-            if (currentMilestone == invoices[cheqId].totalMilestones)
+            if (currentMilestone == invoices[notaId].totalMilestones)
                 revert AllMilestonesFunded();
         } else {
-            invoices[cheqId].isRevoked = false;
+            invoices[notaId].isRevoked = false;
         }
         // if isRevoked was true then don't increment milestones- the escrowed amount reverted it to not revoked
-        if (escrowed != milestones[cheqId][currentMilestone].amount)
+        if (escrowed != milestones[notaId][currentMilestone].amount)
             revert InsufficientPayment();
  */

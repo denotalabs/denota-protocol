@@ -13,7 +13,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
  */
 // contract SimpleCrowdRaise is ModuleBase {
 //     mapping(uint256 => bytes32) public dataHash;
-//     event DataWritten(uint256 cheqId, bytes32 dataHash);
+//     event DataWritten(uint256 notaId, bytes32 dataHash);
 
 //     // mapping(uint256 => bool) public isCashed;
 
@@ -48,25 +48,25 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         uint256 directAmount,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IWriteRule(writeRule).canWrite(
 //             caller,
 //             owner,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             directAmount,
 //             initData
 //         );
-//         // require(cheq.escrowed == 0, "");
+//         // require(nota.escrowed == 0, "");
 
-//         bytes32 memoHash = abi.decode(initData, (bytes32)); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-//         memo[cheqId] = memoHash;
+//         bytes32 memoHash = abi.decode(initData, (bytes32)); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+//         memo[notaId] = memoHash;
 
-//         emit MemoWritten(cheqId, memoHash);
+//         emit MemoWritten(notaId, memoHash);
 
 //         return fees.writeBPS;
 //     }
@@ -77,19 +77,19 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address from,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory data
 //     ) external override onlyRegistrar returns (uint256) {
-//         require(isCashed[cheqId], "Needs full funding");
+//         require(isCashed[notaId], "Needs full funding");
 //         ITransferRule(transferRule).canTransfer(
 //             caller,
 //             isApproved,
 //             owner,
 //             from,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             data
 //         ); // Checks if caller is ownerOrApproved
 //         return fees.transferBPS;
@@ -100,23 +100,23 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         uint256 amount,
 //         uint256 directAmount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
-//         require(!isCashed[cheqId], "Already cashed"); // How to abstract this?
-//         // require(endDate[cheqId] <= block.timestamp, "Funding over");
-//         // require(cheq.escrowed + amount <= cheq.amount, "Overfunding");
+//         require(!isCashed[notaId], "Already cashed"); // How to abstract this?
+//         // require(endDate[notaId] <= block.timestamp, "Funding over");
+//         // require(nota.escrowed + amount <= nota.amount, "Overfunding");
 //         IFundRule(fundRule).canFund(
 //             caller,
 //             owner,
 //             amount,
 //             directAmount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         // uint256 fundAmount = cheq.escrowed + amount <= cheq.amount ? amount : cheq.amount - cheq.escrowed;
+//         // uint256 fundAmount = nota.escrowed + amount <= nota.amount ? amount : nota.amount - nota.escrowed;
 //         return fees.fundBPS;
 //     }
 
@@ -125,22 +125,22 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 amount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
-//         require(!isCashed[cheqId], "Already cashed");
+//         require(!isCashed[notaId], "Already cashed");
 //         ICashRule(cashRule).canCash(
 //             caller,
 //             owner,
 //             to,
 //             amount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         isCashed[cheqId] = true;
-//         // require(cheq.escrowed == cheq.amount, "");
+//         isCashed[notaId] = true;
+//         // require(nota.escrowed == nota.amount, "");
 //         return fees.cashBPS;
 //     }
 
@@ -148,17 +148,17 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address caller,
 //         address owner,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
-//         require(isCashed[cheqId], "Must be cashed first");
+//         require(isCashed[notaId], "Must be cashed first");
 //         IApproveRule(approveRule).canApprove(
 //             caller,
 //             owner,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 //     }
@@ -169,7 +169,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         override
 //         returns (string memory)
 //     {
-//         // Allow cheq creator to update the URI?
+//         // Allow nota creator to update the URI?
 //         bytes32 memoHash = memo[tokenId];
 //         return string(abi.encodePacked(_URI, memoHash)); // ipfs://baseURU/memoHash --> memo // TODO encrypt upload on frontend
 //     }
