@@ -58,7 +58,7 @@ contract ReversableTimelock is OperatorFeeModuleBase {
         payments[notaId].drawer = caller;
         payments[notaId].memoHash = memoHash;
 
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
@@ -75,7 +75,7 @@ contract ReversableTimelock is OperatorFeeModuleBase {
             caller == owner || caller == approved,
             "Only owner or approved"
         );
-        return takeReturnFee(nota.currency, 0, abi.decode(data, (address)), 1);
+        return _takeReturnFee(nota.currency, 0, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -105,7 +105,7 @@ contract ReversableTimelock is OperatorFeeModuleBase {
             "Inspector cash for owner"
         );
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount,
                 abi.decode(initData, (address)),

@@ -1038,7 +1038,7 @@
 //         locks[notaId].sender = caller;
 
 //         emit Locked(notaId, claimPeriod, requiredProof);
-//         return takeReturnFee(currency, escrowed, dappOperator, 0);
+//         return _takeReturnFee(currency, escrowed, dappOperator, 0);
 //     }
 
 //     function processTransfer(
@@ -1094,7 +1094,7 @@
 //         }
 
 //         return
-//             takeReturnFee(
+//             _takeReturnFee(
 //                 nota.currency,
 //                 amount,
 //                 abi.decode(initData, (address)),

@@ -8,7 +8,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
 /**
- * Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)
+ * Note: Allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
 contract ReversibleRelease is OperatorFeeModuleBase {
     struct Payment {
@@ -63,7 +63,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
             address toNotify,
             address inspector,
             address dappOperator,
-            uint256 amount, // Face value (for invoices)
+            uint256 amount,
             string memory memoHash,
             string memory imageURI
         ) = abi.decode(
@@ -93,7 +93,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
 
         _logPaymentCreated(notaId, dappOperator);
 
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function _logPaymentCreated(uint256 notaId, address referer) private {
@@ -121,7 +121,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
         return
-            takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -139,7 +139,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
         // if (payInfo[notaId].wasPaid) revert Disallowed();
         // payInfo[notaId].wasPaid = true;
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount + instant,
                 abi.decode(initData, (address)),
@@ -160,7 +160,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
         if (to != payInfo[notaId].debtor && to != owner)
             revert OnlyToDebtorOrOwner();
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount,
                 abi.decode(initData, (address)),

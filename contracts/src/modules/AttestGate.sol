@@ -115,7 +115,7 @@
 //         attestGates[notaId].index = index;
 //         attestGates[notaId].expectedVal = expectedVal;
 
-//         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+//         return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
 //     }
 
 //     function processTransfer(
@@ -137,7 +137,7 @@
 //         onlyAttested(to, notaId)
 //         returns (uint256)
 //     {
-//         // return takeReturnFee(currency, escrowed, dappOperator);
+//         // return _takeReturnFee(currency, escrowed, dappOperator);
 //         return 0;
 //     }
 
@@ -152,7 +152,7 @@
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(caller == owner, "Not owner");
 //         return
-//             takeReturnFee(
+//             _takeReturnFee(
 //                 nota.currency,
 //                 amount + instant,
 //                 abi.decode(initData, (address)),
@@ -170,7 +170,7 @@
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         return
-//             takeReturnFee(
+//             _takeReturnFee(
 //                 nota.currency,
 //                 amount,
 //                 abi.decode(initData, (address)),

@@ -8,9 +8,6 @@ import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
 
-// TODO use uniswap V4 fee taking model
-// TODO have inheritence for URIs
-// TODO how to handle erc721 inheritence
 abstract contract ModuleBase is INotaModule, NotaEncoding {
     using Strings for address;
     address public immutable REGISTRAR;
@@ -35,53 +32,53 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     }
 
     function processWrite(
-        address caller,
-        address owner,
-        uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
-        bytes calldata writeData
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*notaId*/,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*instant*/,
+        bytes calldata /*writeData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
         return 0;
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
-        uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes calldata transferData
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
+        address /*from*/,
+        address /*to*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
+        bytes calldata /*transferData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
         return 0;
     }
 
     function processFund(
-        address caller,
-        address owner,
-        uint256 amount,
-        uint256 instant,
-        uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes calldata fundData
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
+        bytes calldata /*fundData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
         return 0;
     }
 
     function processCash(
-        address caller,
-        address owner,
-        address to,
-        uint256 amount,
-        uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes calldata cashData
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*amount*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
+        bytes calldata /*cashData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
         return 0;
@@ -99,21 +96,21 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     }
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 /*tokenId*/
     ) external view virtual override returns (string memory, string memory) {
         return ("", "");
     }
 
     function getFees(
-        address dappOperator
+        address /*dappOperator*/
     ) public view virtual returns (DataTypes.WTFCFees memory) {
         return DataTypes.WTFCFees(0, 0, 0, 0);
     }
-        function takeReturnFee(
-        address currency,
-        uint256 amount,
-        address dappOperator,
-        uint8 _WTFC
+    function _takeReturnFee(
+        address /*currency*/,
+        uint256 /*amount*/,
+        address /*dappOperator*/,
+        uint8 /*_WTFC*/
     ) internal returns (uint256 fee) { return 0;}
 
     // function withdrawFees(address token) public {
@@ -164,7 +161,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         dappOperatorFees[msg.sender] = _fees;
     }
 
-    function takeReturnFee(
+    function _takeReturnFee(
         address currency,
         uint256 amount,
         address dappOperator,
@@ -187,9 +184,9 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
     }
 
     function processWrite(
-        address caller,
-        address owner,
-        uint256 notaId,
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -197,50 +194,50 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(writeData, (address));
         // Add module logic here
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
-        uint256 notaId,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
+        address /*from*/,
+        address /*to*/,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, nota.escrowed, dappOperator, 1);
+        return _takeReturnFee(nota.currency, nota.escrowed, dappOperator, 1);
     }
 
     function processFund(
-        address caller,
-        address owner,
+        address /*caller*/,
+        address /*owner*/,
         uint256 amount,
         uint256 instant,
-        uint256 notaId,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata fundData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(fundData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, amount + instant, dappOperator, 2);
+        return _takeReturnFee(nota.currency, amount + instant, dappOperator, 2);
     }
 
     function processCash(
-        address caller,
-        address owner,
-        address to,
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
-        uint256 notaId,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata cashData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(cashData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, amount, dappOperator, 3);
+        return _takeReturnFee(nota.currency, amount, dappOperator, 3);
     }
 
     function processApproval(
@@ -255,7 +252,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
     }
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 /*tokenId*/
     ) external view virtual override returns (string memory, string memory) {
         return ("", "");
     }
@@ -314,7 +311,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         fees = _fees;
     }
 
-    function takeReturnFee(
+    function _takeReturnFee(
         address currency,
         uint256 amount,
         uint8 _WTFC
@@ -336,9 +333,9 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
     }
 
     function processWrite(
-        address caller,
-        address owner,
-        uint256 notaId,
+        address /*caller*/,
+        address /*owner*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -346,50 +343,50 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(writeData, (address));
         // Add module logic here
-        return takeReturnFee(currency, escrowed + instant, 0);
+        return _takeReturnFee(currency, escrowed + instant, 0);
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
-        uint256 notaId,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
+        address /*from*/,
+        address /*to*/,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, nota.escrowed, 1);
+        return _takeReturnFee(nota.currency, nota.escrowed, 1);
     }
 
     function processFund(
-        address caller,
-        address owner,
+        address /*caller*/,
+        address /*owner*/,
         uint256 amount,
         uint256 instant,
-        uint256 notaId,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata fundData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(fundData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, amount + instant, 2);
+        return _takeReturnFee(nota.currency, amount + instant, 2);
     }
 
     function processCash(
-        address caller,
-        address owner,
-        address to,
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
         uint256 amount,
-        uint256 notaId,
+        uint256 /*notaId*/,
         DataTypes.Nota calldata nota,
         bytes calldata cashData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(cashData, (address));
         // Add module logic here
-        return takeReturnFee(nota.currency, amount, 3);
+        return _takeReturnFee(nota.currency, amount, 3);
     }
 
     function processApproval(
@@ -404,14 +401,14 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
     }
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 /*tokenId*/
     ) external view virtual override returns (string memory, string memory) {
         // Add module logic here
         return ("", "");
     }
 
     function getFees(
-        address dappOperator
+        address /*dappOperator*/
     ) public view virtual returns (DataTypes.WTFCFees memory) {
         return fees;
     }
@@ -427,3 +424,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
             );
     }
 }
+
+
+// TODO have inheritence for URIs
+// TODO how to handle erc721 inheritence

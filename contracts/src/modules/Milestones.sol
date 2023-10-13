@@ -214,7 +214,7 @@ contract Milestones is OperatorFeeModuleBase {
         invoices[notaId].totalMilestones = totalMilestones;
         invoices[notaId].documentHash = docHash;
         emit Invoiced(notaId, toNotify, docHash, milestoneAmounts);
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
@@ -230,7 +230,7 @@ contract Milestones is OperatorFeeModuleBase {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
         // revert Disallowed();
         return
-            takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -286,7 +286,7 @@ contract Milestones is OperatorFeeModuleBase {
         }
 
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 escrowed + instant,
                 abi.decode(initData, (address)),
@@ -330,7 +330,7 @@ contract Milestones is OperatorFeeModuleBase {
         } else {
             revert Disallowed();
         }
-        return takeReturnFee(nota.currency, amount, dappOperator, 3);
+        return _takeReturnFee(nota.currency, amount, dappOperator, 3);
     }
 
     function processApproval(

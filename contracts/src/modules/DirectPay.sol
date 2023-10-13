@@ -96,7 +96,7 @@ contract DirectPay is OperatorFeeModuleBase {
 
         _logPaymentCreated(notaId, dappOperator, dueDate);
 
-        return takeReturnFee(currency, instant, dappOperator, 0);
+        return _takeReturnFee(currency, instant, dappOperator, 0);
     }
 
     function _logPaymentCreated(
@@ -128,7 +128,7 @@ contract DirectPay is OperatorFeeModuleBase {
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
         return
-            takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -147,7 +147,7 @@ contract DirectPay is OperatorFeeModuleBase {
         // require(caller == payInfo[notaId].debtor, "Only debtor"); // Should anyone be allowed to pay?
         payInfo[notaId].wasPaid = true;
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount + instant,
                 abi.decode(initData, (address)),

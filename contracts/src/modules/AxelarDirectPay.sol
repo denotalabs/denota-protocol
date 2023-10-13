@@ -96,7 +96,7 @@
 
 //         _logPaymentCreated(notaId, owner, sourceChain);
 
-//         return takeReturnFee(currency, instant, dappOperator, 0);
+//         return _takeReturnFee(currency, instant, dappOperator, 0);
 //     }
 
 //     function _logPaymentCreated(
@@ -129,7 +129,7 @@
 //     ) public override onlyRegistrar returns (uint256) {
 //         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
 //         return
-//             takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
+//             _takeReturnFee(currency, escrowed, abi.decode(data, (address)), 1);
 //     }
 
 //     function processFund(

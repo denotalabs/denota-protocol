@@ -11,36 +11,14 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
+import {ERC4906} from "./ERC4906.sol";
 
- /// @title EIP-721 Metadata Update Extension
-interface IERC4906 is IERC165, IERC721 {
-    /// @dev This event emits when the metadata of a token is changed.
-    /// So that the third-party platforms such as NFT market could
-    /// timely update the images and related attributes of the NFT.
-    event MetadataUpdate(uint256 _tokenId);
-
-    /// @dev This event emits when the metadata of a range of tokens is changed.
-    /// So that the third-party platforms such as NFT market could
-    /// timely update the images and related attributes of the NFTs.    
-    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
-}
-contract ERC4906 is ERC721, IERC4906 {
-
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
-    }
-
-    /// @dev See {IERC165-supportsInterface}.
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
-        return interfaceId == bytes4(0x49064906) || super.supportsInterface(interfaceId);
-    }
-}
-
-// IDEA: could allow modules to perform the escrow functionality. They can return the token that is escrowed (and fee) and registrar can check before and after module hook token.balanceOf()
+// Questions: whitelisting tokens/modules.
 /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of notas' data + escrow, whitelists tokens/modules, and collects revenue.
+ * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
 contract NotaRegistrar is
     Ownable,
@@ -67,7 +45,6 @@ contract NotaRegistrar is
         address module,
         bytes moduleData
     );
-    // Not used
     event Transferred(
         uint256 indexed tokenId,
         address indexed from,
@@ -128,6 +105,7 @@ contract NotaRegistrar is
             moduleWriteData
         );
 
+        // Transfer tokens (escrow and/or instant)
         _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
 
         _mint(owner, _totalSupply);
@@ -160,9 +138,10 @@ contract NotaRegistrar is
         address to,
         uint256 notaId
     ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+        // Module hook to update storage and/or take fee
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
-        // emit MetadataUpdate(notaId); // TODO will transfers update the json too?
+        emit MetadataUpdate(notaId);
     }
 
     function fund(
@@ -172,7 +151,7 @@ contract NotaRegistrar is
         bytes calldata fundData
     ) public payable isMinted(notaId) {
         DataTypes.Nota memory nota = _notaInfo[notaId];
-        address tokenOwner = ownerOf(notaId); // Is used twice
+        address tokenOwner = ownerOf(notaId);
 
         // Module hook
         uint256 moduleFee = INotaModule(nota.module).processFund(
@@ -195,7 +174,7 @@ contract NotaRegistrar is
             nota.module
         );
 
-        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if (amount == 0) then assigning?
+        _notaInfo[notaId].escrowed += amount;
 
         emit Funded(
             _msgSender(),
@@ -227,7 +206,8 @@ contract NotaRegistrar is
             nota,
             cashData
         );
-
+        
+        // TODO refactor token transfer logic into a function for readability
         // Fee taking
         uint256 totalAmount = amount + moduleFee;
 
@@ -236,7 +216,7 @@ contract NotaRegistrar is
             revert InsufficientEscrow(totalAmount, nota.escrowed);
         unchecked {
             _notaInfo[notaId].escrowed -= totalAmount;
-        } // Could this just underflow and revert anyway (save gas)?
+        } 
         if (nota.currency == address(0)) {
             (bool sent, ) = to.call{value: amount}("");
             if (!sent) revert SendFailed();

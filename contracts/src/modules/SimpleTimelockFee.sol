@@ -38,7 +38,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
         releaseDate[notaId] = _releaseDate;
         emit Timelock(notaId, _releaseDate);
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
@@ -53,7 +53,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
         return
-            takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -80,7 +80,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         require(amount == nota.escrowed, "Must fully cash");
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount,
                 abi.decode(initData, (address)),
