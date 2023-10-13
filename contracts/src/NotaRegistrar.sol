@@ -13,7 +13,7 @@ import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {ERC4906} from "./ERC4906.sol";
 
-// Questions: whitelisting tokens/modules.
+// Question/todo: whitelisting tokens/modules, supporting ERC721/1155 escrowing, burning, address-based hooks, module reentrancy, module based collections
 /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas
@@ -21,15 +21,13 @@ import {ERC4906} from "./ERC4906.sol";
  * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
 contract NotaRegistrar is
-    Ownable,
     ERC4906,
     INotaRegistrar,
     NotaEncoding
 {
     using SafeERC20 for IERC20;
     using Strings for address;
-    mapping(address => mapping(address => uint256)) internal _moduleRevenue; 
-    mapping(address => uint256) internal _protocolRevenue; 
+    mapping(address => mapping(address => uint256)) internal _moduleRevenue; // [module][token] => revenue
     mapping(uint256 => DataTypes.Nota) private _notaInfo;
     uint256 private _totalSupply;
 
@@ -78,12 +76,12 @@ contract NotaRegistrar is
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
 
-    modifier isMinted(uint256 notaId) {
+    modifier isMinted(uint256 notaId) {  // Question: Allow burned Notas to be interacted with? Otherwise use ERC721._exists()
         if (notaId >= _totalSupply) revert NotMinted();
         _;
     }
 
-    constructor() ERC4906("denota", "NOTA") {}
+    constructor() ERC4906("Denota", "NOTA") {}
 
     /*/////////////////////// WTFCAT ////////////////////////////*/
     function write(
@@ -489,24 +487,19 @@ contract NotaRegistrar is
     /*///////////////////////// VIEW ////////////////////////////*/
     function notaInfo(
         uint256 notaId
-    ) public view returns (DataTypes.Nota memory) {
-        if (notaId >= _totalSupply) revert NotMinted();
+    ) public view isMinted(notaId) returns (DataTypes.Nota memory) {
         return _notaInfo[notaId];
     }
-    function notaEscrowed(uint256 notaId) public view returns (uint256) {
-        if (notaId >= _totalSupply) revert NotMinted();
+    function notaEscrowed(uint256 notaId) public view isMinted(notaId) returns (uint256) {
         return _notaInfo[notaId].escrowed;
     }
-    function notaCreatedAt(uint256 notaId) public view returns (uint256) {
-        if (notaId >= _totalSupply) revert NotMinted();
+    function notaCreatedAt(uint256 notaId) public view isMinted(notaId) returns (uint256) {
         return _notaInfo[notaId].createdAt;
     }
-    function notaCurrency(uint256 notaId) public view returns (address) {
-        if (notaId >= _totalSupply) revert NotMinted();
+    function notaCurrency(uint256 notaId) public view isMinted(notaId) returns (address) {
         return _notaInfo[notaId].currency;
     }
-    function notaModule(uint256 notaId) public view returns (address) {
-        if (notaId >= _totalSupply) revert NotMinted();
+    function notaModule(uint256 notaId) public view isMinted(notaId) returns (address) {
         return _notaInfo[notaId].module;
     }
 

@@ -270,7 +270,7 @@ contract ReversibleReleaseTest is Test {
     }
 
     function calcTotalFees(
-        NotaRegistrar registrar,
+        NotaRegistrar /*registrar*/,
         ReversibleRelease reversibleRelease,
         uint256 escrowed,
         uint256 instant
@@ -345,7 +345,7 @@ contract ReversibleReleaseTest is Test {
         ReversibleRelease reversibleRelease,
         uint256 fundAmount,
         address debtor,
-        address creditor
+        address /*creditor*/
     ) public {
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
