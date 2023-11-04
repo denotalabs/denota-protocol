@@ -112,17 +112,6 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         address /*dappOperator*/,
         uint8 /*_WTFC*/
     ) internal returns (uint256 fee) { return 0;}
-
-    // function withdrawFees(address token) public {
-    //     uint256 payoutAmount = revenue[msg.sender][token];
-    //     revenue[msg.sender][token] = 0;
-    //     if (payoutAmount > 0)
-    //         INotaRegistrar(REGISTRAR).moduleWithdraw(
-    //             token,
-    //             payoutAmount,
-    //             msg.sender
-    //         );
-    // }
 }
 
 abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {

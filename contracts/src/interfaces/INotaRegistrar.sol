@@ -7,7 +7,59 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 /**
  * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
  */
+ // TODO: Uniswapv4 has this inherit a IFees interface here as well
+ /**
+ * @title  The Nota Payment Registrar
+ * @notice The main contract where users can WTFCA notas
+ * @author Alejandro Almaraz
+ * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
+ */
 interface INotaRegistrar {
+    event Written(
+        address indexed caller,
+        uint256 notaId,
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
+        uint256 instant,
+        address indexed currency,
+        uint256 escrowed,
+        uint256 createdAt,
+        uint256 moduleFee,
+        address module,
+        bytes moduleData
+    );
+    event Transferred(
+        uint256 indexed tokenId,
+        address indexed from,
+        address indexed to,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Funded(
+        address indexed funder,
+        uint256 indexed notaId,
+        uint256 amount,
+        uint256 instant,
+        bytes indexed fundData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Cashed(
+        address indexed casher,
+        uint256 indexed notaId,
+        address to,
+        uint256 amount,
+        bytes indexed cashData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+
+    error SendFailed();
+    error SelfApproval();
+    error NotMinted();
+    error InvalidWrite(address, address);
+    error InsufficientValue(uint256, uint256);
+    error InsufficientEscrow(uint256, uint256);
+
     function write(
         address currency,
         uint256 escrowed,
