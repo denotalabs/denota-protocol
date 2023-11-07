@@ -13,74 +13,17 @@ import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {ERC4906} from "./ERC4906.sol";
 
-// Question/todo: whitelisting tokens/modules, supporting ERC721/1155 escrowing, burning, address-based hooks, module reentrancy, module based collections
-/**
- * @title  The Nota Payment Registrar
- * @notice The main contract where users can WTFCA notas
- * @author Alejandro Almaraz
- * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
- */
-contract NotaRegistrar is
-    ERC4906,
-    INotaRegistrar,
-    NotaEncoding
-{
+contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding {
     using SafeERC20 for IERC20;
     using Strings for address;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // [module][token] => revenue
     mapping(uint256 => DataTypes.Nota) private _notaInfo;
     uint256 private _totalSupply;
 
-    event Written(
-        address indexed caller,
-        uint256 notaId,
-        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
-        uint256 instant,
-        address indexed currency,
-        uint256 escrowed,
-        uint256 createdAt,
-        uint256 moduleFee,
-        address module,
-        bytes moduleData
-    );
-    event Transferred(
-        uint256 indexed tokenId,
-        address indexed from,
-        address indexed to,
-        uint256 moduleFee,
-        uint256 timestamp
-    );
-    event Funded(
-        address indexed funder,
-        uint256 indexed notaId,
-        uint256 amount,
-        uint256 instant,
-        bytes indexed fundData,
-        uint256 moduleFee,
-        uint256 timestamp
-    );
-    event Cashed(
-        address indexed casher,
-        uint256 indexed notaId,
-        address to,
-        uint256 amount,
-        bytes indexed cashData,
-        uint256 moduleFee,
-        uint256 timestamp
-    );
-
-    error SendFailed();
-    error SelfApproval();
-    error NotMinted();
-    error InvalidWrite(address, address);
-    error InsufficientValue(uint256, uint256);
-    error InsufficientEscrow(uint256, uint256);
-
     modifier isMinted(uint256 notaId) {  // Question: Allow burned Notas to be interacted with? Otherwise use ERC721._exists()
-        if (notaId >= _totalSupply) revert NotMinted();
+        if (notaId >= totalSupply()) revert NotMinted();  // Question: should this access the function or the variable directly?
         _;
     }
-
     constructor() ERC4906("Denota", "NOTA") {}
 
     /*/////////////////////// WTFCAT ////////////////////////////*/
@@ -272,113 +215,6 @@ contract NotaRegistrar is
                 moduleKeys
             );
     }
-
-    /*///////////////////// BATCH FUNCTIONS ///////////////////////*/
-
-    function writeBatch(
-        address[] calldata currencies,
-        uint256[] calldata escrowedAmounts,
-        uint256[] calldata instantAmounts,
-        address[] calldata owners,
-        address[] calldata modules,
-        bytes[] calldata moduleWriteDataList
-    ) public payable returns (uint256[] memory notaIds) {
-        uint256 numWrites = currencies.length;
-
-        require(
-            numWrites == escrowedAmounts.length &&
-                numWrites == instantAmounts.length &&
-                numWrites == owners.length &&
-                numWrites == modules.length &&
-                numWrites == moduleWriteDataList.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numWrites; i++) {
-            notaIds[i] = write(
-                currencies[i],
-                escrowedAmounts[i],
-                instantAmounts[i],
-                owners[i],
-                modules[i],
-                moduleWriteDataList[i]
-            );
-        }
-    }
-
-    function transferFromBatch(
-        address[] calldata froms,
-        address[] calldata tos,
-        uint256[] calldata notaIds
-    ) public {
-        uint256 numTransfers = froms.length;
-
-        require(
-            numTransfers == tos.length && numTransfers == notaIds.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numTransfers; i++) {
-            transferFrom(froms[i], tos[i], notaIds[i]);
-        }
-    }
-
-    function fundBatch(
-        uint256[] calldata notaIds,
-        uint256[] calldata amounts,
-        uint256[] calldata instants,
-        bytes[] calldata fundDataList
-    ) public payable {
-        uint256 numFunds = notaIds.length;
-
-        require(
-            numFunds == amounts.length &&
-                numFunds == instants.length &&
-                numFunds == fundDataList.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numFunds; i++) {
-            fund(notaIds[i], amounts[i], instants[i], fundDataList[i]);
-        }
-    }
-
-    function cashBatch(
-        uint256[] calldata notaIds,
-        uint256[] calldata amounts,
-        address[] calldata tos,
-        bytes[] calldata cashDataList
-    ) public payable {
-        uint256 numCash = notaIds.length;
-
-        require(
-            numCash == amounts.length &&
-                numCash == tos.length &&
-                numCash == cashDataList.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numCash; i++) {
-            cash(notaIds[i], amounts[i], tos[i], cashDataList[i]);
-        }
-    }
-
-    function approveBatch(
-        address[] memory tos,
-        uint256[] memory notaIds
-    ) public {
-        uint256 numApprovals = tos.length;
-
-        require(
-            numApprovals == notaIds.length,
-            "Input arrays must have the same length"
-        );
-
-        for (uint256 i = 0; i < numApprovals; i++) {
-            approve(tos[i], notaIds[i]);
-        }
-    }
-
     /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferTokens(
         uint256 escrowed,
@@ -450,7 +286,7 @@ contract NotaRegistrar is
         );
 
         // Fee taking and escrowing
-        if (_notaInfo[notaId].escrowed > 0) {
+        if (nota.escrowed > 0) {
             // Can't take from 0 escrow
             _notaInfo[notaId].escrowed -= moduleFee;
             _moduleRevenue[nota.module][nota.currency] += moduleFee;
@@ -467,6 +303,7 @@ contract NotaRegistrar is
         }
     }
 
+    // Question: is this needed?
     function safeTransferFrom(
         address from,
         address to,
