@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {ModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
@@ -27,7 +27,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address _fundRule,
 //         address _cashRule,
 //         address _approveRule,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     )
 //         ModuleBase(
@@ -49,7 +49,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address caller,
 //         address owner,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         uint256 directAmount,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
@@ -78,7 +78,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address from,
 //         address to,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes memory data
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(isCashed[notaId], "Needs full funding");
@@ -101,7 +101,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         uint256 amount,
 //         uint256 directAmount,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(!isCashed[notaId], "Already cashed"); // How to abstract this?
@@ -126,7 +126,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address to,
 //         uint256 amount,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(!isCashed[notaId], "Already cashed");
@@ -149,7 +149,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         require(isCashed[notaId], "Must be cashed first");

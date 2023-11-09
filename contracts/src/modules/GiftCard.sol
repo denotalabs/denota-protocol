@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 // import {ModuleBase} from "../ModuleBase.sol";
-// import {DataTypes} from "../libraries/DataTypes.sol";
+// import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 // import {INotaModule} from "../interfaces/INotaModule.sol";
 // import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
@@ -20,7 +20,7 @@ pragma solidity ^0.8.16;
 //         address _fundRule,
 //         address _cashRule,
 //         address _approveRule,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     )
 //         ModuleBase(
@@ -103,7 +103,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IFundRule(fundRule).canFund(
@@ -128,7 +128,7 @@ pragma solidity ^0.8.16;
 //         address to,
 //         uint256 amount,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ICashRule(cashRule).canCash(
@@ -149,7 +149,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address to,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(

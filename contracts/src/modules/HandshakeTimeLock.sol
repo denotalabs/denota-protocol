@@ -5,7 +5,7 @@ pragma solidity ^0.8.16;
 // import "openzeppelin/token/ERC20/IERC20.sol";
 // import "openzeppelin/token/ERC721/ERC721.sol";
 // import {ModuleBase} from "../ModuleBase.sol";
-// import {DataTypes} from "../libraries/DataTypes.sol";
+// import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 
 // contract HandshakeTimeLock is ModuleBase {
 //     //     mapping(address => mapping(address => bool)) public userAuditor; // Whether User accepts Auditor
@@ -17,7 +17,7 @@ pragma solidity ^0.8.16;
 
 //     constructor(
 //         address registrar,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     ) ModuleBase(registrar, _fees) {
 //         _URI = __baseURI;

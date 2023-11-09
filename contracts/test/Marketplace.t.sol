@@ -42,7 +42,7 @@ pragma solidity ^0.8.16;
 //     //         return (size > 0);
 //     //     }
 //     //     function setUp() public {  // sets up the registrar and ERC20s
-//     //         REGISTRAR = new NotaRegistrar(DataTypes.WTFCFees(0,0,0,0));  // ContractTest is the owner
+//     //         REGISTRAR = new NotaRegistrar(WTFCFees(0,0,0,0));  // ContractTest is the owner
 //     //         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
 //     //         usdc = new TestERC20(0, "USDC", "USDC");
 //     //         // REGISTRAR.whitelistToken(address(dai), true);
@@ -98,7 +98,7 @@ pragma solidity ^0.8.16;
 //     //         AllTrueRules allTrueRules = new AllTrueRules();
 //     //         address allTrueAddress = address(allTrueRules);
 //     //         REGISTRAR.whitelistRule(allTrueAddress, true);
-//     //         Marketplace market = new Marketplace(address(REGISTRAR), allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, DataTypes.WTFCFees(0,0,0,0), "MyMarket");
+//     //         Marketplace market = new Marketplace(address(REGISTRAR), allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, allTrueAddress, WTFCFees(0,0,0,0), "MyMarket");
 //     //         REGISTRAR.whitelistModule(address(market), true, false);
 //     //         vm.label(address(market), "Marketplace");
 //     //         return market;
@@ -142,7 +142,7 @@ pragma solidity ^0.8.16;
 //     //         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a nota");
 //     //         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a nota");
 //     //         assertTrue(REGISTRAR.totalSupply() == 0, "nota supply non-zero");
-//     //         DataTypes.Nota memory nota = DataTypes.Nota({
+//     //         Nota memory nota = Nota({
 //     //             currency: address(dai),
 //     //             amount: amount,
 //     //             escrowed: amount,

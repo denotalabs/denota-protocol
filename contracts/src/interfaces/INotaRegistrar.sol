@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 
@@ -108,7 +108,7 @@ interface INotaRegistrar {
     // nota data
     function notaInfo(
         uint256 notaId
-    ) external view returns (DataTypes.Nota memory);
+    ) external view returns (Nota memory);
 
     function notaCreatedAt(uint256 notaId) external view returns (uint256);
     
@@ -117,8 +117,6 @@ interface INotaRegistrar {
     function notaEscrowed(uint256 notaId) external view returns (uint256);
 
     function notaModule(uint256 notaId) external view returns (address);
-
-    function moduleWithdraw(address token,uint256 amount,address to) external;
 
     // function ownerOf(uint256 notaId) external view returns (address);
 

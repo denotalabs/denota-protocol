@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {DataTypes} from "./libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "./libraries/DataTypes.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
+import {INotaFees} from "./interfaces/INotaFees.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
 
 abstract contract ModuleBase is INotaModule, NotaEncoding {
-    using Strings for address;
     address public immutable REGISTRAR;
     uint256 internal constant BPS_MAX = 10_000;
     string public _URI;
@@ -51,7 +51,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes calldata /*transferData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
@@ -64,7 +64,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         uint256 /*amount*/,
         uint256 /*instant*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes calldata /*fundData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
@@ -77,7 +77,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         address /*to*/,
         uint256 /*amount*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes calldata /*cashData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         // Add module logic here
@@ -89,7 +89,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
         address owner,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory initData
     ) external virtual override onlyRegistrar {
         // Add module logic here
@@ -103,8 +103,8 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
 
     function getFees(
         address /*dappOperator*/
-    ) public view virtual returns (DataTypes.WTFCFees memory) {
-        return DataTypes.WTFCFees(0, 0, 0, 0);
+    ) public view virtual returns (WTFCFees memory) {
+        return WTFCFees(0, 0, 0, 0);
     }
     function _takeReturnFee(
         address /*currency*/,
@@ -115,10 +115,9 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
 }
 
 abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
-    using Strings for address;
     address public immutable REGISTRAR;
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
-    mapping(address => DataTypes.WTFCFees) public dappOperatorFees;
+    mapping(address => WTFCFees) public dappOperatorFees;
     uint256 internal constant BPS_MAX = 10_000;
     string public _URI;
 
@@ -133,7 +132,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         _;
     }
 
-    constructor(address registrar, DataTypes.WTFCFees memory _fees) {
+    constructor(address registrar, WTFCFees memory _fees) {
         if (registrar == address(0)) revert InitParamsInvalid();
         if (BPS_MAX < _fees.writeBPS) revert FeeTooHigh();
         if (BPS_MAX < _fees.transferBPS) revert FeeTooHigh();
@@ -146,7 +145,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         emit ModuleBaseConstructed(registrar, block.timestamp);
     }
 
-    function setFees(DataTypes.WTFCFees memory _fees) public {
+    function setFees(WTFCFees memory _fees) public {
         dappOperatorFees[msg.sender] = _fees;
     }
 
@@ -193,7 +192,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
@@ -207,7 +206,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         uint256 amount,
         uint256 instant,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata fundData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(fundData, (address));
@@ -221,7 +220,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         address /*to*/,
         uint256 amount,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata cashData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(cashData, (address));
@@ -234,7 +233,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         address owner,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory initData
     ) external virtual override onlyRegistrar {
         // Add module logic here
@@ -248,7 +247,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
 
     function getFees(
         address dappOperator
-    ) public view virtual returns (DataTypes.WTFCFees memory) {
+    ) public view virtual returns (WTFCFees memory) {
         return dappOperatorFees[dappOperator];
     }
 
@@ -256,7 +255,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         uint256 payoutAmount = revenue[msg.sender][token];
         revenue[msg.sender][token] = 0;
         if (payoutAmount > 0)
-            INotaRegistrar(REGISTRAR).moduleWithdraw(
+            INotaFees(REGISTRAR).moduleWithdraw(
                 token,
                 payoutAmount,
                 msg.sender
@@ -265,10 +264,9 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
 }
 
 abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
-    using Strings for address;
     address public immutable REGISTRAR;
     mapping(address => uint256) public revenue; // token => rewardAmount
-    DataTypes.WTFCFees public  fees;
+    WTFCFees public  fees;
     uint256 internal constant BPS_MAX = 10_000;
     string public _URI;
 
@@ -283,7 +281,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         _;
     }
 
-    constructor(address registrar, DataTypes.WTFCFees memory _fees) {
+    constructor(address registrar, WTFCFees memory _fees) {
         if (registrar == address(0)) revert InitParamsInvalid();
         if (BPS_MAX < _fees.writeBPS) revert FeeTooHigh();
         if (BPS_MAX < _fees.transferBPS) revert FeeTooHigh();
@@ -296,7 +294,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         emit ModuleBaseConstructed(registrar, block.timestamp);
     }
 
-    function setFees(DataTypes.WTFCFees memory _fees) public onlyOwner {
+    function setFees(WTFCFees memory _fees) public onlyOwner {
         fees = _fees;
     }
 
@@ -342,7 +340,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(transferData, (address));
@@ -356,7 +354,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         uint256 amount,
         uint256 instant,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata fundData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(fundData, (address));
@@ -370,7 +368,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         address /*to*/,
         uint256 amount,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata cashData
     ) external virtual override onlyRegistrar returns (uint256) {
         address dappOperator = abi.decode(cashData, (address));
@@ -383,7 +381,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         address owner,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory initData
     ) external virtual override onlyRegistrar {
         // Add module logic here
@@ -398,7 +396,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
 
     function getFees(
         address /*dappOperator*/
-    ) public view virtual returns (DataTypes.WTFCFees memory) {
+    ) public view virtual returns (WTFCFees memory) {
         return fees;
     }
 
@@ -406,7 +404,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         uint256 payoutAmount = revenue[token];
         revenue[token] = 0;
         if (payoutAmount > 0)
-            INotaRegistrar(REGISTRAR).moduleWithdraw(
+            INotaFees(REGISTRAR).moduleWithdraw(
                 token,
                 payoutAmount,
                 msg.sender

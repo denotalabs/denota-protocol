@@ -5,7 +5,7 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
 import {ReversibleRelease} from "../src/modules/ReversibleRelease.sol";
 
 // TODO add fail tests
@@ -69,7 +69,7 @@ contract ReversibleReleaseTest is Test {
     //     // Whitelist module
     //     ReversibleRelease reversibleRelease = new ReversibleRelease(
     //         address(REGISTRAR),
-    //         DataTypes.WTFCFees(0, 0, 0, 0),
+    //         WTFCFees(0, 0, 0, 0),
     //         "ipfs://"
     //     );
     //     address reversibleReleaseAddress = address(reversibleRelease);
@@ -119,7 +119,7 @@ contract ReversibleReleaseTest is Test {
         // Deploy and whitelist module
         ReversibleRelease reversibleRelease = new ReversibleRelease(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
+            WTFCFees(0, 0, 0, 0),
             "https://"
         );
         // REGISTRAR.whitelistModule(
@@ -275,7 +275,7 @@ contract ReversibleReleaseTest is Test {
         uint256 escrowed,
         uint256 instant
     ) public view returns (uint256) {
-        DataTypes.WTFCFees memory fees = reversibleRelease.getFees(address(0));
+        WTFCFees memory fees = reversibleRelease.getFees(address(0));
         uint256 moduleFee = calcFee(fees.writeBPS, instant + escrowed);
         console.log("ModuleFee: ", moduleFee);
         uint256 totalWithFees = escrowed + moduleFee;

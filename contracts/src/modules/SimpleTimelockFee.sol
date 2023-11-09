@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {OperatorFeeModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
@@ -17,7 +17,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
 
     constructor(
         address registrar,
-        DataTypes.WTFCFees memory _fees,
+        WTFCFees memory _fees,
         string memory __baseURI
     ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
@@ -48,7 +48,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
@@ -62,7 +62,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         uint256 /*amount*/,
         uint256 /*instant*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -75,7 +75,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         address /*to*/,
         uint256 amount,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(amount == nota.escrowed, "Must fully cash");
@@ -93,7 +93,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");

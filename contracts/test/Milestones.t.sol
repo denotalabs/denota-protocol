@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
 import {Milestones} from "../src/modules/Milestones.sol";
 
 
@@ -89,7 +89,7 @@ contract MilestonesTest is Test {
     //     // Whitelist module
     //     Milestones milestones = new Milestones(
     //         address(REGISTRAR),
-    //         DataTypes.WTFCFees(0, 0, 0, 0),
+    //         WTFCFees(0, 0, 0, 0),
     //         "ipfs://yourmemos.com/"
     //     );
     //     address milestonesAddress = address(milestones);
@@ -126,7 +126,7 @@ contract MilestonesTest is Test {
         // Deploy and whitelist module
         Milestones milestones = new Milestones(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
+            WTFCFees(0, 0, 0, 0),
             "ipfs://yourmemos.com/"
         );
         // REGISTRAR.whitelistModule(
@@ -205,7 +205,7 @@ contract MilestonesTest is Test {
         uint256 escrowed,
         uint256 directAmount
     ) public view returns (uint256) {
-        DataTypes.WTFCFees memory fees = milestones.getFees(address(0));
+        WTFCFees memory fees = milestones.getFees(address(0));
         uint256 moduleFee = calcFee(fees.writeBPS, directAmount + escrowed);
         console.log("ModuleFee: ", moduleFee);
         uint256 totalWithFees = escrowed + directAmount + moduleFee;

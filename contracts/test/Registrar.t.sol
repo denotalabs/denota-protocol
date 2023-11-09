@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
 
 // TODO add fail tests
 contract RegistrarTest is Test {
@@ -130,7 +130,7 @@ contract RegistrarTest is Test {
 // // Whitelist module
 // ReversibleRelease reversibleRelease = new ReversibleRelease(
 //     address(REGISTRAR),
-//     DataTypes.WTFCFees(0, 0, 0, 0),
+//     WTFCFees(0, 0, 0, 0),
 //     "ipfs://"
 // );
 // address reversibleReleaseAddress = address(reversibleRelease);

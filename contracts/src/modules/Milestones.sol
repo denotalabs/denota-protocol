@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import "openzeppelin/utils/Strings.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {OperatorFeeModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
@@ -131,7 +131,7 @@ contract Milestones is OperatorFeeModuleBase {
 
     constructor(
         address registrar,
-        DataTypes.WTFCFees memory _fees,
+        WTFCFees memory _fees,
         string memory __baseURI
     ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
@@ -224,7 +224,7 @@ contract Milestones is OperatorFeeModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
@@ -239,7 +239,7 @@ contract Milestones is OperatorFeeModuleBase {
         uint256 escrowed,
         uint256 instant,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         Milestone[] memory milestoneAmounts = milestones[notaId];
@@ -300,7 +300,7 @@ contract Milestones is OperatorFeeModuleBase {
         address to,
         uint256 amount, // Question: This could function as the milestone index if the cashing amount was determined by the module's return value for `amount`
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         // Any caller can cash milestones < currentMilestone (when `to` == owner)
@@ -338,7 +338,7 @@ contract Milestones is OperatorFeeModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes memory /*initDat*/
     ) external view override onlyRegistrar {
         // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?

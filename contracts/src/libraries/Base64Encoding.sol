@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import "../../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
+import "openzeppelin/utils/Strings.sol";
+import {Nota} from "../libraries/DataTypes.sol";
+
 /**
 {
     "name": STRING_NAME,
@@ -24,6 +27,7 @@ Registrar has structure:
  */
 
 contract NotaEncoding {
+    using Strings for address;  // TODO move into NotaEncoding
     using Base64 for bytes;
     /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
     function itoa32(uint x) private pure returns (uint y) {
@@ -145,10 +149,7 @@ contract NotaEncoding {
     }
 
     function toJSON(
-        string memory currency,
-        string memory escrowed,
-        string memory createdAt,
-        string memory module,
+        Nota memory nota,
         string memory moduleAttributes,
         string memory moduleKeys
     ) internal pure returns (string memory) {
@@ -159,13 +160,13 @@ contract NotaEncoding {
                     bytes(
                         abi.encodePacked(
                             '{"attributes":[{"trait_type":"Currency","value":"',
-                            currency,
+                            Strings.toHexString(uint256(uint160(nota.currency)), 20),
                             '"},{"trait_type":"Escrowed","display_type":"number","value":',
-                            escrowed,
+                            itoa(nota.escrowed),
                             '},{"trait_type":"CreatedAt","display_type":"number","value":',
-                            createdAt,
+                            itoa(nota.createdAt),
                             '},{"trait_type":"Module","value":"',
-                            module,
+                            Strings.toHexString(uint256(uint160(nota.module)), 20),
                             '"}',
                             moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
                             ']',

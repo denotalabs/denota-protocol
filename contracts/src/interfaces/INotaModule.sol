@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 
 // Question: Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
 // Question: Should module return their fee in BPS or actual fee amount?
@@ -23,7 +23,7 @@ interface INotaModule {
         address from,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata data
     ) external returns (uint256);
 
@@ -33,7 +33,7 @@ interface INotaModule {
         uint256 amount,
         uint256 instant,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external returns (uint256);
 
@@ -43,7 +43,7 @@ interface INotaModule {
         address to,
         uint256 amount,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external returns (uint256);
 
@@ -52,7 +52,7 @@ interface INotaModule {
         address owner,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory initData
     ) external;
 

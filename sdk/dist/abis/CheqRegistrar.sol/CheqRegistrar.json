@@ -25,7 +25,7 @@
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct DataTypes.WTFCFees",
+                    "internalType": "struct WTFCFees",
                     "name": "_fees",
                     "type": "tuple"
                 }
@@ -295,7 +295,7 @@
                             "type": "address"
                         }
                     ],
-                    "internalType": "struct DataTypes.Nota",
+                    "internalType": "struct Nota",
                     "name": "",
                     "type": "tuple"
                 }
@@ -790,7 +790,7 @@
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct DataTypes.WTFCFees",
+                    "internalType": "struct WTFCFees",
                     "name": "_fees",
                     "type": "tuple"
                 }
@@ -958,7 +958,7 @@
         "whitelistToken(address,bool)": "0ffb1d8b",
         "write(address,uint256,uint256,address,address,bytes)": "d0d0bb3f"
     },
-    "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"name\":\"_returnCodeHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_writeFlatFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"cashData\",\"type\":\"bytes\"}],\"name\":\"cash\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaCurrency\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaEscrowed\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Nota\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaModule\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"fundData\",\"type\":\"bytes\"}],\"name\":\"fund\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"_WTFC\",\"type\":\"uint8\"}],\"name\":\"getTotalFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"name\":\"moduleWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"moduleWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"moduleTransferData\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"tokenWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct DataTypes.WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"updateFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"validWrite\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"bytecodeAccepted\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"addressAccepted\",\"type\":\"bool\"}],\"name\":\"whitelistModule\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"accepted\",\"type\":\"bool\"}],\"name\":\"whitelistToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"moduleWriteData\",\"type\":\"bytes\"}],\"name\":\"write\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Alejandro Almaraz\",\"details\":\"Tracks ownership of notas' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.\",\"kind\":\"dev\",\"methods\":{\"balanceOf(address)\":{\"details\":\"See {IERC721-balanceOf}.\"},\"getApproved(uint256)\":{\"details\":\"See {IERC721-getApproved}.\"},\"isApprovedForAll(address,address)\":{\"details\":\"See {IERC721-isApprovedForAll}.\"},\"name()\":{\"details\":\"See {IERC721Metadata-name}.\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"ownerOf(uint256)\":{\"details\":\"See {IERC721-ownerOf}.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"safeTransferFrom(address,address,uint256)\":{\"details\":\"See {IERC721-safeTransferFrom}.\"},\"supportsInterface(bytes4)\":{\"details\":\"See {IERC165-supportsInterface}.\"},\"symbol()\":{\"details\":\"See {IERC721Metadata-symbol}.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"See {IERC721-transferFrom}.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"The nota Payment Registrar\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"moduleWhitelisted(address)\":{\"notice\":\"Whitlistings\"}},\"notice\":\"The main contract where users can WTFCA notas\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/NotaRegistrar.sol\":\"NotaRegistrar\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/notaBase64Encoding.sol:notaBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol\":{\"keccak256\":\"0xf41ca991f30855bf80ffd11e9347856a517b977f0a6c2d52e6421a99b7840329\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2717fd2bdac99daa960a6de500754ea1b932093c946388c381da48658234b95\",\"dweb:/ipfs/QmP6QVMn6UeA3ByahyJbYQr5M6coHKBKsf3ySZSfbyA8R7\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol\":{\"keccak256\":\"0x032807210d1d7d218963d7355d62e021a84bf1b3339f4f50be2f63b53cccaf29\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://11756f42121f6541a35a8339ea899ee7514cfaa2e6d740625fcc844419296aa6\",\"dweb:/ipfs/QmekMuk6BY4DAjzeXr4MSbKdgoqqsZnA8JPtuyWc6CwXHf\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x49bf2704b32f05938de826184a3a16fdb377b4f76ae3d790546cf4d03d1e59fb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7ff9c3bb275bee4eb51035bf6ae41901f96580e489f3caa1919ede85452a66fc\",\"dweb:/ipfs/QmTR6HYe8pnqJ7WLCLmcfapSk7JpvvCj4cGiwDUUGQtGdX\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda\",\"dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x75b829ff2f26c14355d1cba20e16fe7b29ca58eb5fef665ede48bc0f9c6c74b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a0a107160525724f9e1bbbab031defc2f298296dd9e331f16a6f7130cec32146\",\"dweb:/ipfs/QmemujxSd7gX8A9M8UwmNbz4Ms3U9FG9QfudUgxwvTmPWf\"]},\"lib/openzeppelin-contracts/contracts/utils/Address.sol\":{\"keccak256\":\"0x9720545d8ea1f76222f98683f861f919e9c28bd5d5503caa7e3620a21b6aaa24\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe3dac0e0258d8396c33fd27c277699a9bfac198f2cb45632c4f5df2c2ca895a\",\"dweb:/ipfs/QmfEWsX7aGpWN9wooHiQo1XjiGM1h6iXeaeMTAJ1TUcnts\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0\",\"dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d\",\"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"src/contracts/NotaRegistrar.sol\":{\"keccak256\":\"0xb886f73eaa65ef644e732c9d20d56746f9ad31bddf00fd80db91e46b5400704c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91b63fbadc0c3c6221802a5e335e5ef5456f0bc4a189a22c8c7343c869c44f8e\",\"dweb:/ipfs/QmPUxx9qdNFTPPZ6EyF4rkVDeFisiUsTZkYKfRiXkCbZRb\"]},\"src/contracts/interfaces/INotaModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/INotaRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/libraries/notaBase64Encoding.sol\":{\"keccak256\":\"0xe0a6518255a12583cc9792824346b1ac5879e76e029a649adc689aec1edbfd92\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://87e9762fa295674f4c29d545d3908bf1b6ebe4650e036655ac209738c30abac8\",\"dweb:/ipfs/QmdrFBsMeDXfn3WVG5B6mnx3FVbQYjmNgetCoLXfTK6AnG\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]}},\"version\":1}",
+    "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"approved\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"approved\",\"type\":\"bool\"}],\"name\":\"ApprovalForAll\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"name\":\"_returnCodeHash\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"_writeFlatFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"cashData\",\"type\":\"bytes\"}],\"name\":\"cash\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaCurrency\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaEscrowed\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaInfo\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"createdAt\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"internalType\":\"struct Nota\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"}],\"name\":\"notaModule\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"fundData\",\"type\":\"bytes\"}],\"name\":\"fund\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"notaId\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"_WTFC\",\"type\":\"uint8\"}],\"name\":\"getTotalFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"}],\"name\":\"moduleWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"}],\"name\":\"moduleWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"moduleTransferData\",\"type\":\"bytes\"}],\"name\":\"safeTransferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_tokenId\",\"type\":\"uint256\"}],\"name\":\"tokenURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"tokenWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"writeBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"transferBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundBPS\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"cashBPS\",\"type\":\"uint256\"}],\"internalType\":\"struct WTFCFees\",\"name\":\"_fees\",\"type\":\"tuple\"}],\"name\":\"updateFees\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"validWrite\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"bytecodeAccepted\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"addressAccepted\",\"type\":\"bool\"}],\"name\":\"whitelistModule\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_token\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"accepted\",\"type\":\"bool\"}],\"name\":\"whitelistToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"currency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"escrowed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"instant\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"module\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"moduleWriteData\",\"type\":\"bytes\"}],\"name\":\"write\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"payable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Alejandro Almaraz\",\"details\":\"Tracks ownership of notas' data + escrow, whitelists tokens/modules/rulesets, and collects revenue.\",\"kind\":\"dev\",\"methods\":{\"balanceOf(address)\":{\"details\":\"See {IERC721-balanceOf}.\"},\"getApproved(uint256)\":{\"details\":\"See {IERC721-getApproved}.\"},\"isApprovedForAll(address,address)\":{\"details\":\"See {IERC721-isApprovedForAll}.\"},\"name()\":{\"details\":\"See {IERC721Metadata-name}.\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"ownerOf(uint256)\":{\"details\":\"See {IERC721-ownerOf}.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"safeTransferFrom(address,address,uint256)\":{\"details\":\"See {IERC721-safeTransferFrom}.\"},\"supportsInterface(bytes4)\":{\"details\":\"See {IERC165-supportsInterface}.\"},\"symbol()\":{\"details\":\"See {IERC721Metadata-symbol}.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"See {IERC721-transferFrom}.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"The nota Payment Registrar\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"moduleWhitelisted(address)\":{\"notice\":\"Whitlistings\"}},\"notice\":\"The main contract where users can WTFCA notas\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/NotaRegistrar.sol\":\"NotaRegistrar\"},\"evmVersion\":\"london\",\"libraries\":{\"src/contracts/libraries/notaBase64Encoding.sol:notaBase64Encoding\":\"0x6cc614e8a7f83df4a85e4cccace7fcd71576fe9d\",\"src/contracts/libraries/DataTypes.sol:DataTypes\":\"0x912ef5c235c22f09ec98d476e52a0725d54abc11\",\"src/contracts/libraries/Errors.sol:Errors\":\"0x0e49a5311cdccd7ec733710686da89b6c7b48f3c\",\"src/contracts/libraries/Events.sol:Events\":\"0x9628ab62198ee35ad7fbad47cdf463ed8a1464a3\"},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@graphprotocol/=node_modules/@graphprotocol/\",\":@openzeppelin/=node_modules/@openzeppelin/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":truffle/=node_modules/@graphprotocol/graph-cli/examples/basic-event-handlers/node_modules/truffle/\"]},\"sources\":{\"lib/openzeppelin-contracts/contracts/access/Ownable.sol\":{\"keccak256\":\"0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2\",\"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5a7d5b1ef5d8d5889ad2ed89d8619c09383b80b72ab226e0fe7bde1636481e34\",\"dweb:/ipfs/QmebXWgtEfumQGBdVeM6c71McLixYXQP5Bk6kKXuoY4Bmr\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol\":{\"keccak256\":\"0xf41ca991f30855bf80ffd11e9347856a517b977f0a6c2d52e6421a99b7840329\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2717fd2bdac99daa960a6de500754ea1b932093c946388c381da48658234b95\",\"dweb:/ipfs/QmP6QVMn6UeA3ByahyJbYQr5M6coHKBKsf3ySZSfbyA8R7\"]},\"lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol\":{\"keccak256\":\"0x032807210d1d7d218963d7355d62e021a84bf1b3339f4f50be2f63b53cccaf29\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://11756f42121f6541a35a8339ea899ee7514cfaa2e6d740625fcc844419296aa6\",\"dweb:/ipfs/QmekMuk6BY4DAjzeXr4MSbKdgoqqsZnA8JPtuyWc6CwXHf\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x49bf2704b32f05938de826184a3a16fdb377b4f76ae3d790546cf4d03d1e59fb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7ff9c3bb275bee4eb51035bf6ae41901f96580e489f3caa1919ede85452a66fc\",\"dweb:/ipfs/QmTR6HYe8pnqJ7WLCLmcfapSk7JpvvCj4cGiwDUUGQtGdX\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x086fbe904291497e1532ef340f1bd589078f49e3d4d0bbfd88f5e02fb89261eb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0df1e3e965b78a0d98dda2d1d6a6acde88f515b1d3a9ad02f505e93fa7babeda\",\"dweb:/ipfs/QmW4cSbGriRAj7XRZu6zSaqspe4eyYWkF7WfJbj3rmmLbk\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xa82b58eca1ee256be466e536706850163d2ec7821945abd6b4778cfb3bee37da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e75cf83beb757b8855791088546b8337e9d4684e169400c20d44a515353b708\",\"dweb:/ipfs/QmYvPafLfoquiDMEj7CKHtvbgHu7TJNPSVPSCjrtjV8HjV\"]},\"lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x75b829ff2f26c14355d1cba20e16fe7b29ca58eb5fef665ede48bc0f9c6c74b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a0a107160525724f9e1bbbab031defc2f298296dd9e331f16a6f7130cec32146\",\"dweb:/ipfs/QmemujxSd7gX8A9M8UwmNbz4Ms3U9FG9QfudUgxwvTmPWf\"]},\"lib/openzeppelin-contracts/contracts/utils/Address.sol\":{\"keccak256\":\"0x9720545d8ea1f76222f98683f861f919e9c28bd5d5503caa7e3620a21b6aaa24\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fe3dac0e0258d8396c33fd27c277699a9bfac198f2cb45632c4f5df2c2ca895a\",\"dweb:/ipfs/QmfEWsX7aGpWN9wooHiQo1XjiGM1h6iXeaeMTAJ1TUcnts\"]},\"lib/openzeppelin-contracts/contracts/utils/Context.sol\":{\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92\",\"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3\"]},\"lib/openzeppelin-contracts/contracts/utils/Strings.sol\":{\"keccak256\":\"0x20b522c62459df59d6fdde3efb7597492dd44970eacdc1a6acc2b20a93bf53b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9ccfb6f87a4f86ffa8725f4c8dd48f9780ac3aeaa0d299394077122b23dfcea0\",\"dweb:/ipfs/QmZ6W2Ssx3oRUM9AtQrzf9ur94dYBqPCSBJypScXxNUqZE\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d\",\"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43\"]},\"lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f\",\"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy\"]},\"src/contracts/NotaRegistrar.sol\":{\"keccak256\":\"0xb886f73eaa65ef644e732c9d20d56746f9ad31bddf00fd80db91e46b5400704c\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://91b63fbadc0c3c6221802a5e335e5ef5456f0bc4a189a22c8c7343c869c44f8e\",\"dweb:/ipfs/QmPUxx9qdNFTPPZ6EyF4rkVDeFisiUsTZkYKfRiXkCbZRb\"]},\"src/contracts/interfaces/INotaModule.sol\":{\"keccak256\":\"0x22e7ff7a600fb071e589103dcf8c41550e357b3bb17bfd177104242247687aeb\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://2814d14e9bf0eaaa712628c5ec720d31cbc15005702766a439d04ca51a590efa\",\"dweb:/ipfs/QmepGo7ZCE9de71jUkdtJgRNnPhxYu7PqwjnXvEH9yjdhE\"]},\"src/contracts/interfaces/INotaRegistrar.sol\":{\"keccak256\":\"0xe3036d449455216c52bfe063a3b22829b65acc1e85039fa6984da064ca33ce8b\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://c869e38b1c5f31c0821e7f009c641fef0320817a9e98c5d7803a05f3e4810372\",\"dweb:/ipfs/QmRFAYBcf3tCSMQDbkCe5JdAhWcmHS787SRJH9BmEDGJxN\"]},\"src/contracts/libraries/notaBase64Encoding.sol\":{\"keccak256\":\"0xe0a6518255a12583cc9792824346b1ac5879e76e029a649adc689aec1edbfd92\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://87e9762fa295674f4c29d545d3908bf1b6ebe4650e036655ac209738c30abac8\",\"dweb:/ipfs/QmdrFBsMeDXfn3WVG5B6mnx3FVbQYjmNgetCoLXfTK6AnG\"]},\"src/contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x4282ecfe7190b0a77f2c84644501ada1369ff1e8ffad0db692c58dd87d78d700\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://d58d70d41f97cc163f0af928afc2b7e17abec1b7a63080f38babc93da3b1b67f\",\"dweb:/ipfs/QmXXCVUeoDrhxNsLn1zqo9MLSRAFqr1MALsUoBQrmspzXt\"]},\"src/contracts/libraries/Events.sol\":{\"keccak256\":\"0x4ca73c6874eb9eed1335a86f40e81fd486027be6387d98ebb36d2b5790259908\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://fd1b2dd500d373ad7157c8d3ec7c9376ced483b3c030af24ef724506d22a4b6a\",\"dweb:/ipfs/QmSEkocmfxpb4b9xxWAyhHhNKRgYzCJkZtELnVtuhnkQXF\"]}},\"version\":1}",
     "metadata": {
         "compiler": {
             "version": "0.8.16+commit.07a7930e"
@@ -969,7 +969,7 @@
                 {
                     "inputs": [
                         {
-                            "internalType": "struct DataTypes.WTFCFees",
+                            "internalType": "struct WTFCFees",
                             "name": "_fees",
                             "type": "tuple",
                             "components": [
@@ -1239,7 +1239,7 @@
                     "name": "notaInfo",
                     "outputs": [
                         {
-                            "internalType": "struct DataTypes.Nota",
+                            "internalType": "struct Nota",
                             "name": "",
                             "type": "tuple",
                             "components": [
@@ -1724,7 +1724,7 @@
                 {
                     "inputs": [
                         {
-                            "internalType": "struct DataTypes.WTFCFees",
+                            "internalType": "struct WTFCFees",
                             "name": "_fees",
                             "type": "tuple",
                             "components": [
@@ -2413,7 +2413,7 @@
                         "storageLocation": "default",
                         "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                            "typeString": "mapping(uint256 => struct DataTypes.Nota)"
+                            "typeString": "mapping(uint256 => struct Nota)"
                         },
                         "typeName": {
                             "id": 25635,
@@ -2431,14 +2431,14 @@
                             "src": "1278:34:30",
                             "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                "typeString": "mapping(uint256 => struct DataTypes.Nota)"
+                                "typeString": "mapping(uint256 => struct Nota)"
                             },
                             "valueType": {
                                 "id": 25634,
                                 "nodeType": "UserDefinedTypeName",
                                 "pathNode": {
                                     "id": 25633,
-                                    "name": "DataTypes.Nota",
+                                    "name": "Nota",
                                     "nameLocations": [
                                         "1297:9:30",
                                         "1307:4:30"
@@ -2451,7 +2451,7 @@
                                 "src": "1297:14:30",
                                 "typeDescriptions": {
                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                    "typeString": "struct DataTypes.Nota"
+                                    "typeString": "struct Nota"
                                 }
                             }
                         },
@@ -2798,14 +2798,14 @@
                         "storageLocation": "default",
                         "typeDescriptions": {
                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                            "typeString": "struct DataTypes.WTFCFees"
+                            "typeString": "struct WTFCFees"
                         },
                         "typeName": {
                             "id": 25665,
                             "nodeType": "UserDefinedTypeName",
                             "pathNode": {
                                 "id": 25664,
-                                "name": "DataTypes.WTFCFees",
+                                "name": "WTFCFees",
                                 "nameLocations": [
                                     "1889:9:30",
                                     "1899:8:30"
@@ -2818,7 +2818,7 @@
                             "src": "1889:18:30",
                             "typeDescriptions": {
                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_storage_ptr",
-                                "typeString": "struct DataTypes.WTFCFees"
+                                "typeString": "struct WTFCFees"
                             }
                         },
                         "visibility": "public"
@@ -2879,7 +2879,7 @@
                                             "src": "2089:4:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                "typeString": "struct WTFCFees storage ref"
                                             }
                                         },
                                         "nodeType": "Assignment",
@@ -2893,13 +2893,13 @@
                                             "src": "2096:5:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_memory_ptr",
-                                                "typeString": "struct DataTypes.WTFCFees memory"
+                                                "typeString": "struct WTFCFees memory"
                                             }
                                         },
                                         "src": "2089:12:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                            "typeString": "struct DataTypes.WTFCFees storage ref"
+                                            "typeString": "struct WTFCFees storage ref"
                                         }
                                     },
                                     "id": 25681,
@@ -2981,14 +2981,14 @@
                                     "storageLocation": "memory",
                                     "typeDescriptions": {
                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_memory_ptr",
-                                        "typeString": "struct DataTypes.WTFCFees"
+                                        "typeString": "struct WTFCFees"
                                     },
                                     "typeName": {
                                         "id": 25670,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
                                             "id": 25669,
-                                            "name": "DataTypes.WTFCFees",
+                                            "name": "WTFCFees",
                                             "nameLocations": [
                                                 "2001:9:30",
                                                 "2011:8:30"
@@ -3001,7 +3001,7 @@
                                         "src": "2001:18:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage_ptr",
-                                            "typeString": "struct DataTypes.WTFCFees"
+                                            "typeString": "struct WTFCFees"
                                         }
                                     },
                                     "visibility": "internal"
@@ -5698,7 +5698,7 @@
                                                     "src": "4939:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 25894,
@@ -5893,7 +5893,7 @@
                                                     "src": "5056:9:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                        "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                        "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                     }
                                                 },
                                                 "id": 25906,
@@ -5917,7 +5917,7 @@
                                                 "src": "5056:23:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                    "typeString": "struct DataTypes.Nota storage ref"
+                                                    "typeString": "struct Nota storage ref"
                                                 }
                                             },
                                             "id": 25907,
@@ -5977,7 +5977,7 @@
                                                     "src": "5109:9:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                        "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                        "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                     }
                                                 },
                                                 "id": 25913,
@@ -6001,7 +6001,7 @@
                                                 "src": "5109:23:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                    "typeString": "struct DataTypes.Nota storage ref"
+                                                    "typeString": "struct Nota storage ref"
                                                 }
                                             },
                                             "id": 25914,
@@ -6061,7 +6061,7 @@
                                                     "src": "5162:9:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                        "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                        "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                     }
                                                 },
                                                 "id": 25920,
@@ -6085,7 +6085,7 @@
                                                 "src": "5162:23:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                    "typeString": "struct DataTypes.Nota storage ref"
+                                                    "typeString": "struct Nota storage ref"
                                                 }
                                             },
                                             "id": 25921,
@@ -6160,7 +6160,7 @@
                                                     "src": "5223:9:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                        "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                        "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                     }
                                                 },
                                                 "id": 25928,
@@ -6184,7 +6184,7 @@
                                                 "src": "5223:23:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                    "typeString": "struct DataTypes.Nota storage ref"
+                                                    "typeString": "struct Nota storage ref"
                                                 }
                                             },
                                             "id": 25929,
@@ -7106,14 +7106,14 @@
                                             "storageLocation": "storage",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                "typeString": "struct DataTypes.Nota"
+                                                "typeString": "struct Nota"
                                             },
                                             "typeName": {
                                                 "id": 25997,
                                                 "nodeType": "UserDefinedTypeName",
                                                 "pathNode": {
                                                     "id": 25996,
-                                                    "name": "DataTypes.Nota",
+                                                    "name": "Nota",
                                                     "nameLocations": [
                                                         "6145:9:30",
                                                         "6155:4:30"
@@ -7126,7 +7126,7 @@
                                                 "src": "6145:14:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota"
+                                                    "typeString": "struct Nota"
                                                 }
                                             },
                                             "visibility": "internal"
@@ -7143,7 +7143,7 @@
                                             "src": "6175:9:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                "typeString": "mapping(uint256 => struct Nota storage ref)"
                                             }
                                         },
                                         "id": 26001,
@@ -7167,7 +7167,7 @@
                                         "src": "6175:18:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                            "typeString": "struct DataTypes.Nota storage ref"
+                                            "typeString": "struct Nota storage ref"
                                         }
                                     },
                                     "nodeType": "VariableDeclarationStatement",
@@ -7347,7 +7347,7 @@
                                                     "src": "6498:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26020,
@@ -7375,7 +7375,7 @@
                                                     "src": "6525:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26022,
@@ -7403,7 +7403,7 @@
                                                     "src": "6552:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26024,
@@ -7489,7 +7489,7 @@
                                                             "src": "6294:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                "typeString": "struct DataTypes.Nota storage pointer"
+                                                                "typeString": "struct Nota storage pointer"
                                                             }
                                                         },
                                                         "id": 26007,
@@ -7597,7 +7597,7 @@
                                                 "src": "6659:4:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 }
                                             },
                                             "id": 26029,
@@ -7893,7 +7893,7 @@
                                                                         "src": "6751:4:30",
                                                                         "typeDescriptions": {
                                                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                            "typeString": "struct DataTypes.Nota storage pointer"
+                                                                            "typeString": "struct Nota storage pointer"
                                                                         }
                                                                     },
                                                                     "id": 26035,
@@ -7923,7 +7923,7 @@
                                                                         "src": "6767:4:30",
                                                                         "typeDescriptions": {
                                                                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                                            "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                                            "typeString": "struct WTFCFees storage ref"
                                                                         }
                                                                     },
                                                                     "id": 26037,
@@ -8001,7 +8001,7 @@
                                                             "src": "6808:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                "typeString": "struct DataTypes.Nota storage pointer"
+                                                                "typeString": "struct Nota storage pointer"
                                                             }
                                                         },
                                                         "id": 26045,
@@ -8051,7 +8051,7 @@
                                                                     "src": "6824:4:30",
                                                                     "typeDescriptions": {
                                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                                        "typeString": "struct Nota storage pointer"
                                                                     }
                                                                 },
                                                                 "id": 26047,
@@ -8151,7 +8151,7 @@
                                                                     "src": "6888:4:30",
                                                                     "typeDescriptions": {
                                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                                        "typeString": "struct Nota storage pointer"
                                                                     }
                                                                 },
                                                                 "id": 26056,
@@ -8191,7 +8191,7 @@
                                                                 "src": "6901:4:30",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                                    "typeString": "struct Nota storage pointer"
                                                                 }
                                                             },
                                                             "id": 26058,
@@ -8275,7 +8275,7 @@
                                                                 "src": "6960:4:30",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                                    "typeString": "struct Nota storage pointer"
                                                                 }
                                                             },
                                                             "id": 26066,
@@ -8798,14 +8798,14 @@
                                             "storageLocation": "storage",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                "typeString": "struct DataTypes.Nota"
+                                                "typeString": "struct Nota"
                                             },
                                             "typeName": {
                                                 "id": 26120,
                                                 "nodeType": "UserDefinedTypeName",
                                                 "pathNode": {
                                                     "id": 26119,
-                                                    "name": "DataTypes.Nota",
+                                                    "name": "Nota",
                                                     "nameLocations": [
                                                         "7595:9:30",
                                                         "7605:4:30"
@@ -8818,7 +8818,7 @@
                                                 "src": "7595:14:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota"
+                                                    "typeString": "struct Nota"
                                                 }
                                             },
                                             "visibility": "internal"
@@ -8835,7 +8835,7 @@
                                             "src": "7625:9:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                "typeString": "mapping(uint256 => struct Nota storage ref)"
                                             }
                                         },
                                         "id": 26124,
@@ -8859,7 +8859,7 @@
                                         "src": "7625:17:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                            "typeString": "struct DataTypes.Nota storage ref"
+                                            "typeString": "struct Nota storage ref"
                                         }
                                     },
                                     "nodeType": "VariableDeclarationStatement",
@@ -9076,7 +9076,7 @@
                                                 "src": "7910:4:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 }
                                             },
                                             {
@@ -9116,7 +9116,7 @@
                                                 },
                                                 {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 },
                                                 {
                                                     "typeIdentifier": "t_bytes_calldata_ptr",
@@ -9135,7 +9135,7 @@
                                                             "src": "7766:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                "typeString": "struct DataTypes.Nota storage pointer"
+                                                                "typeString": "struct Nota storage pointer"
                                                             }
                                                         },
                                                         "id": 26136,
@@ -9200,7 +9200,7 @@
                                             "src": "7754:36:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_uint256_$_t_struct$_nota_$29159_memory_ptr_$_t_bytes_memory_ptr_$returns$_t_uint256_$",
-                                                "typeString": "function (address,address,uint256,uint256,uint256,struct DataTypes.Nota memory,bytes memory) external returns (uint256)"
+                                                "typeString": "function (address,address,uint256,uint256,uint256,struct Nota memory,bytes memory) external returns (uint256)"
                                             }
                                         },
                                         "id": 26147,
@@ -9268,7 +9268,7 @@
                                                     "src": "8029:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26153,
@@ -9308,7 +9308,7 @@
                                                     "src": "8077:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26156,
@@ -9348,7 +9348,7 @@
                                                     "src": "8123:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 26159,
@@ -9388,7 +9388,7 @@
                                                     "src": "8172:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26162,
@@ -9850,14 +9850,14 @@
                                             "storageLocation": "storage",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                "typeString": "struct DataTypes.Nota"
+                                                "typeString": "struct Nota"
                                             },
                                             "typeName": {
                                                 "id": 26195,
                                                 "nodeType": "UserDefinedTypeName",
                                                 "pathNode": {
                                                     "id": 26194,
-                                                    "name": "DataTypes.Nota",
+                                                    "name": "Nota",
                                                     "nameLocations": [
                                                         "8620:9:30",
                                                         "8630:4:30"
@@ -9870,7 +9870,7 @@
                                                 "src": "8620:14:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota"
+                                                    "typeString": "struct Nota"
                                                 }
                                             },
                                             "visibility": "internal"
@@ -9887,7 +9887,7 @@
                                             "src": "8650:9:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                "typeString": "mapping(uint256 => struct Nota storage ref)"
                                             }
                                         },
                                         "id": 26199,
@@ -9911,7 +9911,7 @@
                                         "src": "8650:17:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                            "typeString": "struct DataTypes.Nota storage ref"
+                                            "typeString": "struct Nota storage ref"
                                         }
                                     },
                                     "nodeType": "VariableDeclarationStatement",
@@ -10078,7 +10078,7 @@
                                                 "src": "8882:4:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 }
                                             },
                                             {
@@ -10118,7 +10118,7 @@
                                                 },
                                                 {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 },
                                                 {
                                                     "typeIdentifier": "t_bytes_calldata_ptr",
@@ -10137,7 +10137,7 @@
                                                             "src": "8733:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                "typeString": "struct DataTypes.Nota storage pointer"
+                                                                "typeString": "struct Nota storage pointer"
                                                             }
                                                         },
                                                         "id": 26205,
@@ -10202,7 +10202,7 @@
                                             "src": "8721:36:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_struct$_nota_$29159_memory_ptr_$_t_bytes_memory_ptr_$returns$_t_uint256_$",
-                                                "typeString": "function (address,address,address,uint256,uint256,struct DataTypes.Nota memory,bytes memory) external returns (uint256)"
+                                                "typeString": "function (address,address,address,uint256,uint256,struct Nota memory,bytes memory) external returns (uint256)"
                                             }
                                         },
                                         "id": 26218,
@@ -10304,7 +10304,7 @@
                                                             "src": "8979:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                                "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                                "typeString": "struct WTFCFees storage ref"
                                                             }
                                                         },
                                                         "id": 26224,
@@ -10497,7 +10497,7 @@
                                                         "src": "9105:4:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                            "typeString": "struct DataTypes.Nota storage pointer"
+                                                            "typeString": "struct Nota storage pointer"
                                                         }
                                                     },
                                                     "id": 26240,
@@ -10619,7 +10619,7 @@
                                                         "src": "9242:4:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                            "typeString": "struct DataTypes.Nota storage pointer"
+                                                            "typeString": "struct Nota storage pointer"
                                                         }
                                                     },
                                                     "id": 26248,
@@ -10684,7 +10684,7 @@
                                                 "src": "9353:4:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota storage pointer"
+                                                    "typeString": "struct Nota storage pointer"
                                                 }
                                             },
                                             "id": 26254,
@@ -10827,7 +10827,7 @@
                                                                         "src": "9520:4:30",
                                                                         "typeDescriptions": {
                                                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                                            "typeString": "struct DataTypes.Nota storage pointer"
+                                                                            "typeString": "struct Nota storage pointer"
                                                                         }
                                                                     },
                                                                     "id": 26277,
@@ -11180,7 +11180,7 @@
                                                         "src": "9594:4:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                            "typeString": "struct DataTypes.Nota storage pointer"
+                                                            "typeString": "struct Nota storage pointer"
                                                         }
                                                     },
                                                     "id": 26288,
@@ -11220,7 +11220,7 @@
                                                     "src": "9607:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26290,
@@ -11304,7 +11304,7 @@
                                                     "src": "9662:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                        "typeString": "struct DataTypes.Nota storage pointer"
+                                                        "typeString": "struct Nota storage pointer"
                                                     }
                                                 },
                                                 "id": 26298,
@@ -11866,14 +11866,14 @@
                                             "storageLocation": "memory",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_memory_ptr",
-                                                "typeString": "struct DataTypes.Nota"
+                                                "typeString": "struct Nota"
                                             },
                                             "typeName": {
                                                 "id": 26340,
                                                 "nodeType": "UserDefinedTypeName",
                                                 "pathNode": {
                                                     "id": 26339,
-                                                    "name": "DataTypes.Nota",
+                                                    "name": "Nota",
                                                     "nameLocations": [
                                                         "10110:9:30",
                                                         "10120:4:30"
@@ -11886,7 +11886,7 @@
                                                 "src": "10110:14:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                                    "typeString": "struct DataTypes.Nota"
+                                                    "typeString": "struct Nota"
                                                 }
                                             },
                                             "visibility": "internal"
@@ -11903,7 +11903,7 @@
                                             "src": "10139:9:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                "typeString": "mapping(uint256 => struct Nota storage ref)"
                                             }
                                         },
                                         "id": 26344,
@@ -11927,7 +11927,7 @@
                                         "src": "10139:18:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                            "typeString": "struct DataTypes.Nota storage ref"
+                                            "typeString": "struct Nota storage ref"
                                         }
                                     },
                                     "nodeType": "VariableDeclarationStatement",
@@ -12049,7 +12049,7 @@
                                                 "src": "10314:4:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_struct$_nota_$29159_memory_ptr",
-                                                    "typeString": "struct DataTypes.Nota memory"
+                                                    "typeString": "struct Nota memory"
                                                 }
                                             },
                                             {
@@ -12089,7 +12089,7 @@
                                                 },
                                                 {
                                                     "typeIdentifier": "t_struct$_nota_$29159_memory_ptr",
-                                                    "typeString": "struct DataTypes.Nota memory"
+                                                    "typeString": "struct Nota memory"
                                                 },
                                                 {
                                                     "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
@@ -12108,7 +12108,7 @@
                                                             "src": "10179:4:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_memory_ptr",
-                                                                "typeString": "struct DataTypes.Nota memory"
+                                                                "typeString": "struct Nota memory"
                                                             }
                                                         },
                                                         "id": 26348,
@@ -12173,7 +12173,7 @@
                                             "src": "10167:40:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_address_$_t_uint256_$_t_struct$_nota_$29159_memory_ptr_$_t_bytes_memory_ptr_$returns$__$",
-                                                "typeString": "function (address,address,address,uint256,struct DataTypes.Nota memory,bytes memory) external"
+                                                "typeString": "function (address,address,address,uint256,struct Nota memory,bytes memory) external"
                                             }
                                         },
                                         "id": 26360,
@@ -12587,7 +12587,7 @@
                                             "src": "10960:4:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                "typeString": "struct WTFCFees storage ref"
                                             }
                                         },
                                         "nodeType": "Assignment",
@@ -12601,13 +12601,13 @@
                                             "src": "10967:5:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_WTFCFees_$29168_calldata_ptr",
-                                                "typeString": "struct DataTypes.WTFCFees calldata"
+                                                "typeString": "struct WTFCFees calldata"
                                             }
                                         },
                                         "src": "10960:12:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                            "typeString": "struct DataTypes.WTFCFees storage ref"
+                                            "typeString": "struct WTFCFees storage ref"
                                         }
                                     },
                                     "id": 26393,
@@ -12656,14 +12656,14 @@
                                     "storageLocation": "calldata",
                                     "typeDescriptions": {
                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_calldata_ptr",
-                                        "typeString": "struct DataTypes.WTFCFees"
+                                        "typeString": "struct WTFCFees"
                                     },
                                     "typeName": {
                                         "id": 26384,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
                                             "id": 26383,
-                                            "name": "DataTypes.WTFCFees",
+                                            "name": "WTFCFees",
                                             "nameLocations": [
                                                 "10896:9:30",
                                                 "10906:8:30"
@@ -12676,7 +12676,7 @@
                                         "src": "10896:18:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_WTFCFees_$29168_storage_ptr",
-                                            "typeString": "struct DataTypes.WTFCFees"
+                                            "typeString": "struct WTFCFees"
                                         }
                                     },
                                     "visibility": "internal"
@@ -13321,7 +13321,7 @@
                                                     "src": "11519:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 26451,
@@ -13349,7 +13349,7 @@
                                                     "src": "11534:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 26453,
@@ -13377,7 +13377,7 @@
                                                     "src": "11552:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 26455,
@@ -13405,7 +13405,7 @@
                                                     "src": "11566:4:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_WTFCFees_$29168_storage",
-                                                        "typeString": "struct DataTypes.WTFCFees storage ref"
+                                                        "typeString": "struct WTFCFees storage ref"
                                                     }
                                                 },
                                                 "id": 26457,
@@ -14034,7 +14034,7 @@
                                                                 "src": "11991:9:30",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                                    "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                                    "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                                 }
                                                             },
                                                             "id": 26509,
@@ -14058,7 +14058,7 @@
                                                             "src": "11991:17:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                                "typeString": "struct DataTypes.Nota storage ref"
+                                                                "typeString": "struct Nota storage ref"
                                                             }
                                                         },
                                                         "id": 26510,
@@ -15992,7 +15992,7 @@
                                             "src": "14144:9:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                "typeString": "mapping(uint256 => struct Nota storage ref)"
                                             }
                                         },
                                         "id": 26659,
@@ -16016,7 +16016,7 @@
                                         "src": "14144:17:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                            "typeString": "struct DataTypes.Nota storage ref"
+                                            "typeString": "struct Nota storage ref"
                                         }
                                     },
                                     "functionReturnParameters": 26656,
@@ -16086,14 +16086,14 @@
                                     "storageLocation": "memory",
                                     "typeDescriptions": {
                                         "typeIdentifier": "t_struct$_nota_$29159_memory_ptr",
-                                        "typeString": "struct DataTypes.Nota"
+                                        "typeString": "struct Nota"
                                     },
                                     "typeName": {
                                         "id": 26654,
                                         "nodeType": "UserDefinedTypeName",
                                         "pathNode": {
                                             "id": 26653,
-                                            "name": "DataTypes.Nota",
+                                            "name": "Nota",
                                             "nameLocations": [
                                                 "14100:9:30",
                                                 "14110:4:30"
@@ -16106,7 +16106,7 @@
                                         "src": "14100:14:30",
                                         "typeDescriptions": {
                                             "typeIdentifier": "t_struct$_nota_$29159_storage_ptr",
-                                            "typeString": "struct DataTypes.Nota"
+                                            "typeString": "struct Nota"
                                         }
                                     },
                                     "visibility": "internal"
@@ -16142,7 +16142,7 @@
                                                 "src": "14259:9:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                    "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                    "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                 }
                                             },
                                             "id": 26671,
@@ -16166,7 +16166,7 @@
                                             "src": "14259:17:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                "typeString": "struct DataTypes.Nota storage ref"
+                                                "typeString": "struct Nota storage ref"
                                             }
                                         },
                                         "id": 26672,
@@ -16297,7 +16297,7 @@
                                                 "src": "14383:9:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                    "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                    "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                 }
                                             },
                                             "id": 26684,
@@ -16321,7 +16321,7 @@
                                             "src": "14383:17:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                "typeString": "struct DataTypes.Nota storage ref"
+                                                "typeString": "struct Nota storage ref"
                                             }
                                         },
                                         "id": 26685,
@@ -16451,7 +16451,7 @@
                                                 "src": "14505:9:30",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                    "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                    "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                 }
                                             },
                                             "id": 26697,
@@ -16475,7 +16475,7 @@
                                             "src": "14505:17:30",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                "typeString": "struct DataTypes.Nota storage ref"
+                                                "typeString": "struct Nota storage ref"
                                             }
                                         },
                                         "id": 26698,
@@ -17194,7 +17194,7 @@
                                                                 "src": "15196:9:30",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                                    "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                                    "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                                 }
                                                             },
                                                             "id": 26758,
@@ -17218,7 +17218,7 @@
                                                             "src": "15196:19:30",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                                "typeString": "struct DataTypes.Nota storage ref"
+                                                                "typeString": "struct Nota storage ref"
                                                             }
                                                         },
                                                         "id": 26759,
@@ -17331,7 +17331,7 @@
                                                         "src": "15349:9:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                            "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                            "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                         }
                                                     },
                                                     "id": 26769,
@@ -17355,7 +17355,7 @@
                                                     "src": "15349:19:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                        "typeString": "struct DataTypes.Nota storage ref"
+                                                        "typeString": "struct Nota storage ref"
                                                     }
                                                 },
                                                 "id": 26770,
@@ -17384,7 +17384,7 @@
                                                         "src": "15395:9:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                            "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                            "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                         }
                                                     },
                                                     "id": 26773,
@@ -17408,7 +17408,7 @@
                                                     "src": "15395:19:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                        "typeString": "struct DataTypes.Nota storage ref"
+                                                        "typeString": "struct Nota storage ref"
                                                     }
                                                 },
                                                 "id": 26774,
@@ -17437,7 +17437,7 @@
                                                         "src": "15441:9:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                            "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                            "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                         }
                                                     },
                                                     "id": 26777,
@@ -17461,7 +17461,7 @@
                                                     "src": "15441:19:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                        "typeString": "struct DataTypes.Nota storage ref"
+                                                        "typeString": "struct Nota storage ref"
                                                     }
                                                 },
                                                 "id": 26778,
@@ -17490,7 +17490,7 @@
                                                         "src": "15488:9:30",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_mapping$_t_uint256_$_t_struct$_nota_$29159_storage_$",
-                                                            "typeString": "mapping(uint256 => struct DataTypes.Nota storage ref)"
+                                                            "typeString": "mapping(uint256 => struct Nota storage ref)"
                                                         }
                                                     },
                                                     "id": 26781,
@@ -17514,7 +17514,7 @@
                                                     "src": "15488:19:30",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_struct$_nota_$29159_storage",
-                                                        "typeString": "struct DataTypes.Nota storage ref"
+                                                        "typeString": "struct Nota storage ref"
                                                     }
                                                 },
                                                 "id": 26782,

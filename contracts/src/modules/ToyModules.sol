@@ -3,7 +3,7 @@ pragma solidity >=0.8.14;
 
 // import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 
 /// @notice allows whoever finds the correct hash to claim the written nota
 abstract contract PseudoChain is ModuleBase {
@@ -15,7 +15,7 @@ abstract contract PseudoChain is ModuleBase {
     //         address _fundRule,
     //         address _cashRule,
     //         address _approveRule,
-    //         DataTypes.WTFCFees memory _fees,
+    //         WTFCFees memory _fees,
     //         string memory __baseURI
     //     )
     //         ModuleBase(
@@ -35,7 +35,7 @@ abstract contract PseudoChain is ModuleBase {
     //         address caller,
     //         address owner,
     //         uint256 notaId,
-    //         DataTypes.Nota calldata nota,
+    //         Nota calldata nota,
     //         uint256 directAmount,
     //         bytes calldata initData
     //     ) external override onlyRegistrar returns (uint256) {
@@ -67,7 +67,7 @@ abstract contract PseudoChain is ModuleBase {
     //         address from,
     //         address to,
     //         uint256 notaId,
-    //         DataTypes.Nota calldata nota,
+    //         Nota calldata nota,
     //         bytes memory data
     //     ) external override onlyRegistrar returns (uint256) {
     //         ITransferRule(transferRule).canTransfer( // False, or isOwner
@@ -119,7 +119,7 @@ abstract contract PayItForward is ModuleBase {
     //         address _fundRule,
     //         address _cashRule,
     //         address _approveRule,
-    //         DataTypes.WTFCFees memory _fees,
+    //         WTFCFees memory _fees,
     //         string memory __baseURI
     //     )
     //         ModuleBase(

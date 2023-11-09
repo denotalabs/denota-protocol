@@ -2,7 +2,7 @@
 // pragma solidity ^0.8.16;
 // import "openzeppelin/access/Ownable.sol";
 // import {ModuleBase} from "../ModuleBase.sol";
-// import {DataTypes} from "../libraries/DataTypes.sol";
+// import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 // import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 // library BytesLib {
@@ -1015,7 +1015,7 @@
 
 //     constructor(
 //         address registrar,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     ) ModuleBase(registrar, _fees) {
 //         _URI = __baseURI;
@@ -1064,7 +1064,7 @@
 //         uint256 /*amount*/,
 //         uint256 /*instant*/,
 //         uint256 /*notaId*/,
-//         DataTypes.Nota calldata /*nota*/,
+//         Nota calldata /*nota*/,
 //         bytes calldata /*initData*/
 //     ) external view override onlyRegistrar returns (uint256) {
 //         require(false, "Only sending and cashing");
@@ -1077,7 +1077,7 @@
 //         address /*to*/,
 //         uint256 amount,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         require(amount == nota.escrowed, "Must fully cash");
@@ -1107,7 +1107,7 @@
 //         address owner,
 //         address /*to*/,
 //         uint256 /*notaId*/,
-//         DataTypes.Nota calldata /*nota*/,
+//         Nota calldata /*nota*/,
 //         bytes memory /*initData*/
 //     ) external view override onlyRegistrar {
 //         require(caller == owner, "Only owner can approve");

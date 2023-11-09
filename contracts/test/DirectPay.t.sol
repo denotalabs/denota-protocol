@@ -5,7 +5,7 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
 import {DirectPay} from "../src/modules/DirectPay.sol";
 
 // TODO add fail tests
@@ -115,7 +115,7 @@ contract DirectPayTest is Test {
     //     // Whitelist module
     //     DirectPay directPay = new DirectPay(
     //         address(REGISTRAR),
-    //         DataTypes.WTFCFees(0, 0, 0, 0),
+    //         WTFCFees(0, 0, 0, 0),
     //         "ipfs://"
     //     );
     //     address directPayAddress = address(directPay);
@@ -155,7 +155,7 @@ contract DirectPayTest is Test {
         // Deploy and whitelist module
         DirectPay directPay = new DirectPay(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
+            WTFCFees(0, 0, 0, 0),
             "ipfs://"
         );
         // REGISTRAR.whitelistModule(
@@ -272,7 +272,7 @@ contract DirectPayTest is Test {
         DirectPay directPay = setUpDirectPay();
         uint256 totalWithFees;
         {
-            DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
+            WTFCFees memory fees = directPay.getFees(address(0));
             uint256 moduleFee = calcFee(fees.writeBPS, directAmount);
             console.log("ModuleFee: ", moduleFee);
             totalWithFees = directAmount + moduleFee;
@@ -358,7 +358,7 @@ contract DirectPayTest is Test {
         uint256 escrowed,
         uint256 directAmount
     ) public view returns (uint256) {
-        DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
+        WTFCFees memory fees = directPay.getFees(address(0));
         uint256 moduleFee = calcFee(fees.writeBPS, directAmount + escrowed);
         console.log("ModuleFee: ", moduleFee);
         uint256 totalWithFees = escrowed + directAmount + moduleFee;

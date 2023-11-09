@@ -4,7 +4,7 @@ import "openzeppelin/utils/Strings.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
@@ -59,7 +59,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address _fundRule,
 //         address _cashRule,
 //         address _approveRule,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     )
 //         ModuleBase(
@@ -88,7 +88,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address caller,
 //         address owner,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         uint256 instant,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
@@ -142,7 +142,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address from,
 //         address to,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ITransferRule(transferRule).canTransfer(
@@ -168,7 +168,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // Client escrows the first milestone (is the upfront)
@@ -227,7 +227,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address to,
 //         uint256 amount,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // require(caller == owner, "");
@@ -254,7 +254,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(

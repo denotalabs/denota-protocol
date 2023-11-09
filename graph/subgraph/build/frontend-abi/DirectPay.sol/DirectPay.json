@@ -29,7 +29,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.WTFCFees",
+        "internalType": "struct WTFCFees",
         "name": "_fees",
         "type": "tuple"
       },
@@ -245,7 +245,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.WTFCFees",
+        "internalType": "struct WTFCFees",
         "name": "",
         "type": "tuple"
       }
@@ -342,7 +342,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Nota",
+        "internalType": "struct Nota",
         "name": "",
         "type": "tuple"
       },
@@ -407,7 +407,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Nota",
+        "internalType": "struct Nota",
         "name": "",
         "type": "tuple"
       },
@@ -478,7 +478,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct DataTypes.Nota",
+        "internalType": "struct Nota",
         "name": "nota",
         "type": "tuple"
       },
@@ -680,7 +680,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct DataTypes.WTFCFees",
+        "internalType": "struct WTFCFees",
         "name": "_fees",
         "type": "tuple"
       }

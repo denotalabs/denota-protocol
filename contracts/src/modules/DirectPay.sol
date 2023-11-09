@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {OperatorFeeModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
@@ -44,7 +44,7 @@ contract DirectPay is OperatorFeeModuleBase {
 
     constructor(
         address registrar,
-        DataTypes.WTFCFees memory _fees,
+        WTFCFees memory _fees,
         string memory __baseURI
     ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
@@ -123,7 +123,7 @@ contract DirectPay is OperatorFeeModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes memory data
     ) public override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
@@ -137,7 +137,7 @@ contract DirectPay is OperatorFeeModuleBase {
         uint256 amount,
         uint256 instant,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         if (owner == address(0)) revert AddressZero();
@@ -161,7 +161,7 @@ contract DirectPay is OperatorFeeModuleBase {
         address /*to*/,
         uint256 /*amount*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -172,7 +172,7 @@ contract DirectPay is OperatorFeeModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
+        Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
