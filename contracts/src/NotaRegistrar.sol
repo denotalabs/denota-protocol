@@ -10,6 +10,11 @@ import {Nota} from "./libraries/DataTypes.sol";
 import  "./ERC4906.sol";
 import  "./NotaFees.sol";
 
+// TODO before and after 
+// TODO address bit flags
+// TODO how to handle module fees? Store them in the Registrar? Have both static and dynamic? Have it based on the msg.sender?
+// Question: encode the currency into the module? Prevents the need to save currency inside every Nota. modules[module] => currency
+// Question: does the module hook NEED to be the selector instead of the fee? Could prevent calling any phantom functions that return a uint
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
     using SafeERC20 for IERC20;
     
@@ -17,140 +22,50 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
     uint256 public totalSupply;
 
     modifier isMinted(uint256 notaId) {  // Question: Allow burned Notas to be interacted with? Otherwise use ERC721._exists()
-        if (notaId >= totalSupply) revert NotMinted();  // Question: should this access the function or the variable directly?
+        if (notaId >= totalSupply) revert NotMinted();
         _;
     }
-    
+
     constructor() ERC4906("Denota", "NOTA") {}
 
-    /*/////////////////////// WTFCAT ////////////////////////////*/
-    function write(
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
-        address owner,
-        address module,
-        bytes calldata moduleWriteData
-    ) public payable returns (uint256) {
-        // TODO before and after
-        // TODO address bit flags
-        
-        uint256 moduleFee = INotaModule(module).processWrite(
-            _msgSender(),
-            owner,
-            totalSupply,
-            currency,
-            escrowed,
-            instant,
-            moduleWriteData
-        );
+    // Idea: could do (INotaRegistrar.NotaParams({currency, escrowed, module}), instant, owner, writeData)
+    function write(address currency, uint256 escrowed, uint256 instant, address owner,  address module, bytes calldata moduleData) public payable returns (uint256) {  // TODO switch places btwn owner & module; could have nota struct be passed here (but block.timestamp could be redundant)
+        uint256 moduleFee = INotaModule(module).processWrite(_msgSender(), owner, totalSupply, currency, escrowed, instant, moduleData);
 
-        // Transfer tokens (escrow and/or instant)
         _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
         _mint(owner, totalSupply);
-        _notas[totalSupply] = Nota(
-            escrowed,
-            block.timestamp,
-            currency,
-            module
-        );
+        _notas[totalSupply] = Nota(escrowed, block.timestamp, currency, module);
 
-        emit Written(
-            _msgSender(),
-            totalSupply,
-            owner,
-            instant,
-            currency,
-            escrowed,
-            block.timestamp,
-            moduleFee,
-            module,
-            moduleWriteData
-        );
-        unchecked {
-            return totalSupply++;
-        }
+        emit Written(_msgSender(), totalSupply, owner, instant, currency, escrowed, block.timestamp, moduleFee, module, moduleData);
+        unchecked { return totalSupply++; }
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 notaId
-    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
-        // Module hook to update storage and/or take fee
+    function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
         emit MetadataUpdate(notaId);
     }
 
-    function fund(
-        uint256 notaId,
-        uint256 amount,
-        uint256 instant,
-        bytes calldata fundData
-    ) public payable isMinted(notaId) {
+    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata fundData) public payable isMinted(notaId) {
         Nota memory nota = _notas[notaId];
         address tokenOwner = ownerOf(notaId);
+        uint256 moduleFee = INotaModule(nota.module).processFund(_msgSender(), tokenOwner, amount, instant, notaId, nota, fundData);
 
-        // Module hook
-        uint256 moduleFee = INotaModule(nota.module).processFund(
-            _msgSender(),
-            tokenOwner,
-            amount,
-            instant,
-            notaId,
-            nota,
-            fundData
-        );
-
-        // Fee taking and escrow
-        _transferTokens(
-            amount,
-            instant,
-            nota.currency,
-            tokenOwner,
-            moduleFee,
-            nota.module
-        );
-
+        _transferTokens(amount, instant, nota.currency, tokenOwner, moduleFee, nota.module);
         _notas[notaId].escrowed += amount;
 
-        emit Funded(
-            _msgSender(),
-            notaId,
-            amount,
-            instant,
-            fundData,
-            moduleFee,
-            block.timestamp
-        );
+        emit Funded(_msgSender(), notaId, amount, instant, fundData, moduleFee, block.timestamp);
         emit MetadataUpdate(notaId);
     }
 
-    function cash(
-        uint256 notaId,
-        uint256 amount,
-        address to,
-        bytes calldata cashData
-    ) public payable isMinted(notaId) {
+    function cash(uint256 notaId, uint256 amount, address to, bytes calldata cashData) public payable isMinted(notaId) {
         Nota memory nota = _notas[notaId];
 
-        // Module Hook
-        uint256 moduleFee = INotaModule(nota.module).processCash(
-            _msgSender(),
-            ownerOf(notaId),
-            to,
-            amount,
-            notaId,
-            nota,
-            cashData
-        );
+        uint256 moduleFee = INotaModule(nota.module).processCash( _msgSender(), ownerOf(notaId), to, amount, notaId, nota, cashData);
         
-        // TODO refactor token transfer logic into a function for readability
-        // Fee taking
-        uint256 totalAmount = amount + moduleFee;
+        // _transferTokens(amount + moduleFee, instant, nota.currency, tokenOwner, moduleFee, nota.module);
+        uint256 totalAmount = amount + moduleFee; // TODO refactor token transfer logic into a function for readability
 
-        // Un-escrowing
         if (totalAmount > nota.escrowed)
             revert InsufficientEscrow(totalAmount, nota.escrowed);
         unchecked {
@@ -164,50 +79,24 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         }
         _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
-        emit Cashed(
-            _msgSender(),
-            notaId,
-            to,
-            amount,
-            cashData,
-            moduleFee,
-            block.timestamp
-        );
+        emit Cashed(_msgSender(), notaId, to, amount, cashData, moduleFee, block.timestamp);
     }
 
-    function approve(
-        address to,
-        uint256 notaId
-    ) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+    function approve( address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
         if (to == _msgSender()) revert SelfApproval();
-
-        // Module hook
         Nota memory nota = _notas[notaId];
-        INotaModule(nota.module).processApproval(
-            _msgSender(),
-            ownerOf(notaId),
-            to,
-            notaId,
-            nota,
-            ""
-        );
-
-        // Approve
+        INotaModule(nota.module).processApproval(_msgSender(), ownerOf(notaId), to, notaId, nota, "");
         _approve(to, notaId);
         emit MetadataUpdate(notaId);
     }
     
-    function tokenURI(
-        uint256 notaId
-    ) public view override isMinted(notaId) returns (string memory) {
+    function tokenURI(uint256 notaId) public view override isMinted(notaId) returns (string memory) {
         Nota memory nota = _notas[notaId];
-        (string memory moduleAttributes, string memory moduleKeys) = INotaModule(nota.module)
-            .processTokenURI(notaId);
-
+        (string memory moduleAttributes, string memory moduleKeys) = INotaModule(nota.module).processTokenURI(notaId);
         return toJSON(nota, moduleAttributes, moduleKeys);
     }
     /*//////////////////////// HELPERS ///////////////////////////*/
-    function _transferTokens(
+    function _transferTokens(  // Question: should this be broken into separate functions? What about the fee
         uint256 escrowed,
         uint256 instant,
         address currency,
@@ -288,14 +177,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
                 moduleFee,
                 block.timestamp
             );
-        } else {
-            // Must be case since fee's can't be taken without an escrow to take from
+        } else { // Must be case since fee's can't be taken without an escrow to take from
             emit Transferred(notaId, owner, to, 0, block.timestamp);
         }
     }
 
-    // Question: is this needed?
-    function safeTransferFrom(
+    function safeTransferFrom(  // Question: is this needed?
         address from,
         address to,
         uint256 notaId,
@@ -312,7 +199,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         emit MetadataUpdate(notaId);
     }
 
-    /*///////////////////////// VIEW ////////////////////////////*/
     function notaInfo(
         uint256 notaId
     ) public view isMinted(notaId) returns (Nota memory) {
@@ -331,11 +217,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         return _notas[notaId].module;
     }
 }
-
 /**
     function burn(uint256 notaId) public virtual {
         Nota storage nota = _notas[notaId];
-        uint256 moduleFee = INotaModule(nota.module).processCash(
+        uint256 moduleFee = INotaModule(nota.module).processBurn(
             _msgSender(),
             ownerOf(notaId),
             to,
@@ -346,7 +231,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         );
 
         _burn(notaId);
-        emit Transfer(ownerOf(notaId), address(0), notaId);
     }
 }
 */
