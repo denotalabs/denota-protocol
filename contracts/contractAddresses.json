@@ -158,5 +158,22 @@
     "bridgeSender": "",
     "directPayAxelar": "",
     "startBlock": ""
+  },
+  "polygon": {
+    "AxelarGateway": "",
+    "AxelarGasStation": "",
+    "DataTypes": "0xD3334c9ffcD370bF97b796D7e5144bAFe4Cc080a",
+    "Errors": "",
+    "Events": "0x3d5a387631DC7CF3CfD476B2116d59EC431aF3Ae",
+    "registrar": "0x358fd4846d3f6A6Bf5DB5c7fAE0Fc5ED9C1762A1",
+    "directPay": "",
+    "escrow": "",
+    "coverage": "0x16E421294cB4d084D7BD52FaF4183cEffff1cF23",
+    "dai": "",
+    "weth": "",
+    "bridgeReceiver": "",
+    "bridgeSender": "",
+    "directPayAxelar": "",
+    "startBlock": "49938989"
   }
 }

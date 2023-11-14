@@ -56,7 +56,8 @@ def rpc_for_chain(chain):
         "sepolia": "https://rpc2.sepolia.org",
         "mumbai": "https://matic-mumbai.chainstacklabs.com",
         "optimism": "https://goerli.optimism.io",
-        "zksync": "https://zksync2-testnet.zksync.dev"
+        "zksync": "https://zksync2-testnet.zksync.dev",
+        "polygon": "https://polygon-rpc.com/"
     }
     return chain_rpc.get(chain, "http://127.0.0.1:8545")
 
@@ -81,7 +82,7 @@ def deploy_libraries(existing_addresses, chain, rpc_key_flags):
     datatypes = "src/libraries/DataTypes.sol:DataTypes"
     errors = "src/libraries/Errors.sol:Errors"
     events = "src/libraries/Events.sol:Events"
-    library_paths, lib_addresses = [datatypes, errors, events], []
+    library_paths, lib_addresses = [datatypes, events], []
     for library_path in library_paths:
         name = library_path.split(":")[-1]
         if not existing_addresses[chain][name]:
@@ -97,7 +98,7 @@ def deploy_libraries(existing_addresses, chain, rpc_key_flags):
     return libraries_flag
 
 
-def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
+def deploy_registrar(existing_addresses, chain, rpc_key_flags):
     newRegistrarDeployed = False
 
     if not existing_addresses[chain]["registrar"]:
@@ -115,9 +116,12 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
         block_number = existing_addresses[chain]["startBlock"]
     print(f'Registrar address: {registrar}')
 
+    return existing_addresses, block_number, registrar, newRegistrarDeployed
+
+def deploy_tokens(existing_addresses, chain, rpc_key_flags, newRegistrarDeployed):
     # Deploy ERC20s for testing
     erc20_path, oldTokens, amount = "test/mock/erc20.sol:TestERC20", [], 10_000_000_000_000_000_000_000_000
-    for (supply, name, symbol) in [(amount, "weth", "WETH"), (amount, "dai", "DAI"), (amount, "bob", "BOB"), (amount, "usdt", "USDT")]:
+    for (supply, name, symbol) in [(amount, "weth", "WETH"), (amount, "dai", "DAI")]:
         if not existing_addresses[chain][name]:
             result = eth_call(
                 f'forge create {erc20_path} --constructor-args {supply} {name} {symbol} {rpc_key_flags}', "ERC20 deployment failed")
@@ -141,9 +145,6 @@ def deploy_registrar_tokens(existing_addresses, chain, rpc_key_flags):
         native_token_name = native_token_name_chain(chain)
         eth_call(
             f'cast send {registrar} "whitelistToken(address,bool,string)" "0x0000000000000000000000000000000000000000" "true" {native_token_name} {rpc_key_flags}', "Whitelist token failed")
-
-    return existing_addresses, block_number, registrar
-
 
 def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
     # TODO refactor into for loop
@@ -178,7 +179,23 @@ def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
         f.write(json.dumps(existing_addresses))
     return existing_addresses
 
-
+def deploy_coverage(existing_addresses, chain, rpc_key_flags, registrar):
+    if not existing_addresses[chain]["coverage"]:
+        Coverage_path = "src/modules/Coverage.sol:Coverage"
+        result = eth_call(
+            f'forge create {Coverage_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" {rpc_key_flags}', "Module deployment failed")
+        coverage = extract_address(result.stdout)
+        existing_addresses[chain]["coverage"] = coverage
+        # Whitelist the Escrow module
+        eth_call(
+            f'cast send {registrar} "whitelistModule(address,bool,bool,string)" {coverage} "false" "true" "Coverage" {rpc_key_flags}', "Whitelist module failed")
+    
+    # Update the address JSON
+    print(f'Coverage address: {coverage}')
+    with open("contractAddresses.json", 'w') as f:
+        f.write(json.dumps(existing_addresses))
+    return existing_addresses
+    
 def deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar):
     """
         Deploys directpay on `chain`
@@ -238,19 +255,22 @@ def create_crosschain_nota(existing_addresses, chain, rpc_key_flags):
 
 if __name__ == "__main__":
     key = sys.argv[1]  # load up from from the .env file directly?
-    for chain in ["mumbai", "alfajores"]:  # chains
+    for chain in ["polygon"]:  # chains
         print(f"\n{chain} @{rpc_for_chain(chain)}")
-        rpc_key_flags = f"--private-key {key} --rpc-url {rpc_for_chain(chain)} --gas-price 30gwei"
+        rpc_key_flags = f"--private-key {key} --rpc-url {rpc_for_chain(chain)} --gas-price 400gwei"
         with open("contractAddresses.json", 'r') as f:
             existing_addresses = json.loads(f.read())
 
         libraries_flag = deploy_libraries(
             existing_addresses, chain, rpc_key_flags)
-        existing_addresses, block_number, registrar = deploy_registrar_tokens(
+        existing_addresses, block_number, registrar = deploy_registrar(
             existing_addresses, chain, rpc_key_flags)
-        existing_addresses, axelarBridgeSender, axelarBridgeReceiver = deploy_axelar(
-            existing_addresses, chain, rpc_key_flags, registrar)
-        create_crosschain_nota(existing_addresses, chain, rpc_key_flags)
+        
+        if chain == "polygon": 
+            deploy_coverage(existing_addresses, chain, rpc_key_flags, registrar)
+        else: 
+            deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar)
+            create_crosschain_nota(existing_addresses, chain, rpc_key_flags)
 
         with open("contractAddresses.json", 'w') as f:
             f.write(json.dumps(existing_addresses))
