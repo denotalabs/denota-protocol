@@ -171,6 +171,7 @@
     "coverage": "0x16E421294cB4d084D7BD52FaF4183cEffff1cF23",
     "dai": "",
     "weth": "",
+    "usdc": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     "bridgeReceiver": "",
     "bridgeSender": "",
     "directPayAxelar": "",

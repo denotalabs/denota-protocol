@@ -180,10 +180,11 @@ def deploy_modules(existing_addresses, chain, rpc_key_flags, registrar):
     return existing_addresses
 
 def deploy_coverage(existing_addresses, chain, rpc_key_flags, registrar):
+    usdc_address = existing_addresses[chain]["usdc"]
     if not existing_addresses[chain]["coverage"]:
         Coverage_path = "src/modules/Coverage.sol:Coverage"
         result = eth_call(
-            f'forge create {Coverage_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" {rpc_key_flags}', "Module deployment failed")
+            f'forge create {Coverage_path} --constructor-args {registrar} "(0,0,0,0)" "ipfs://" {usdc_address} {rpc_key_flags}', "Module deployment failed")
         coverage = extract_address(result.stdout)
         existing_addresses[chain]["coverage"] = coverage
         # Whitelist the Escrow module
