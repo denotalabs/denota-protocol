@@ -22,7 +22,6 @@ contractAddresses.tsx should automatically have been updated
 TODO: figure out how to get nginx wildcard paths working properly, manually add a path for each chain for now
 """
 
-
 def extract_address(input):
     try:
         return re.search('Deployed to: (.*)', input).group(1)
