@@ -269,6 +269,7 @@ if __name__ == "__main__":
         if chain == "polygon": 
             deploy_coverage(existing_addresses, chain, rpc_key_flags, registrar)
         else: 
+            deploy_modules(existing_addresses, chain, rpc_key_flags, registrar)
             deploy_axelar(existing_addresses, chain, rpc_key_flags, registrar)
             create_crosschain_nota(existing_addresses, chain, rpc_key_flags)
 
