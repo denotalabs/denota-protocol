@@ -14,7 +14,7 @@ contract Coverage is Ownable, ModuleBase {
     using SafeERC20 for IERC20;
 
     struct CoverageInfo {
-        uint256 coverageAmount; // Face value of the payment
+        uint256 coverageAmount;
         uint256 maturityDate; 
         address coverageHolder;
         bool wasRedeemed;
@@ -23,16 +23,16 @@ contract Coverage is Ownable, ModuleBase {
     mapping(uint256 => CoverageInfo) public coverageInfo;
     mapping(address => bool) public isWhitelisted; // Whitelisting addresses getting coverage
 
-    bool public fundingStarted = false;  // If LP already funded don't allow another deposit  // fP
+    bool public fundingStarted = false;  // If LP already funded don't allow another deposit
     address public liquidityProvider;
-    uint256 public poolStart = 0;  // Time that first coverage happened  // W
-    uint256 public liquidityReleaseDate;  // Date when LP can withdraw // W fP
+    uint256 public poolStart = 0;  // Time that first coverage happened
+    uint256 public liquidityReleaseDate;  // Date when LP can withdraw
 
-    uint256 public availableFunds = 0;  // Funds that can be used for coverage // W
-    uint256 public yieldedFunds = 0;  // W
+    uint256 public availableFunds = 0;  // Funds that can be used for coverage
+    uint256 public yieldedFunds = 0;
 
-    uint256 public liquidityLockupPeriod = 6 * 30 days;  // LP locks for 6 months // fP
-    uint256 public coveragePeriod;  // Nota coverage period // W
+    uint256 public liquidityLockupPeriod;  // LP locks for 6 months
+    uint256 public coveragePeriod;  // Nota coverage period
     address public usdc;
 
     constructor(
@@ -40,11 +40,13 @@ contract Coverage is Ownable, ModuleBase {
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI,
         address _usdc,
-        uint256 _coveragePeriod
+        uint256 _coveragePeriod,  // In seconds
+        uint256 _liquidityLockupPeriod  // In seconds
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
         usdc = _usdc;
         coveragePeriod = _coveragePeriod;
+        liquidityLockupPeriod = _liquidityLockupPeriod;
     }
 
     function processWrite(
@@ -57,11 +59,14 @@ contract Coverage is Ownable, ModuleBase {
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         require(isWhitelisted[caller], "Not whitelisted");
+        require(_owner == address(this), "Risk fee not paid to pool"); // TODO registrar assumes that the owner is the one being paid
+        require(currency == usdc, "Incorrect currency");
 
         uint256 maturityDate = block.timestamp + coveragePeriod;
 
         if (poolStart == 0) {
             poolStart = block.timestamp;
+            liquidityReleaseDate = block.timestamp + liquidityLockupPeriod;
         } else {
             require(maturityDate <= liquidityReleaseDate);
         }
@@ -69,13 +74,11 @@ contract Coverage is Ownable, ModuleBase {
         (address holder, uint256 amount, uint256 riskScore) = abi.decode(
             initData,
             (address, uint256, uint256)
-        );  // TODO do we need the risk score for now?
+        );  // TODO do we need the risk score right now?
 
         require(instant == (amount / 10000) * riskScore, "Risk fee not paid");
-        require(_owner == address(this), "Risk fee not paid to pool"); // TODO registrar assumes that the owner is the one being paid
-        require(currency == usdc, "Incorrect currency");
         
-        availableFunds -= amount;  // Should throw if underflow using pragma >0.8
+        availableFunds -= amount;  // Throws on underflow (using pragma >0.8)
         yieldedFunds += instant;
 
         coverageInfo[cheqId].coverageHolder = holder;
@@ -89,7 +92,7 @@ contract Coverage is Ownable, ModuleBase {
 
         require(!coverage.wasRedeemed);
         require(block.timestamp < coverage.maturityDate);
-        require(_msgSender() == coverage.coverageHolder);
+        // require(_msgSender() == coverage.coverageHolder);  // Question: require the coverage holder to call this?
 
         // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(
@@ -106,14 +109,13 @@ contract Coverage is Ownable, ModuleBase {
         IERC20(usdc).safeTransferFrom(_msgSender(), address(this), fundingAmount);
 
         availableFunds += fundingAmount;
-        liquidityReleaseDate = block.timestamp + liquidityLockupPeriod;
         liquidityProvider = _msgSender();
         fundingStarted = true;
 
         // LPs receive pool tokens in return TODO: figure out token issuance and redemption
     }
 
-    // Can be called by anyone to sweep matured Notas into active funds
+    // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
     function getYield(uint256 notaId) public {  // TODO inefficient
         CoverageInfo storage coverage = coverageInfo[notaId];
 
@@ -127,7 +129,7 @@ contract Coverage is Ownable, ModuleBase {
         require(_msgSender() == liquidityProvider);
         require(liquidityReleaseDate >= block.timestamp);
         
-        fundingStarted = 0;
+        fundingStarted = false;
         liquidityProvider = address(0);
         poolStart = 0;
         liquidityReleaseDate = 0;
