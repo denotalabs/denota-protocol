@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC721/ERC721.sol";
-import "openzeppelin/token/ERC20/utils/SafeERC20.sol";  // TODO change to currency
+import "openzeppelin/token/ERC20/utils/SafeERC20.sol";  // TODO change to UniV4.currency
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
-import {Nota} from "./libraries/DataTypes.sol";
+import {Nota} from "./libraries/DataTypes.sol";  // TODO remove DataTypes
 import  "./ERC4906.sol";
 import  "./NotaFees.sol";
 
-// TODO before and after 
-// TODO address bit flags
-// TODO how to handle module fees? Store them in the Registrar? Have both static and dynamic? Have it based on the msg.sender?
+// TODO remove Context dependancy
+// TODO before and after hooks & address bit flags
 // Question: encode the currency into the module? Prevents the need to save currency inside every Nota. modules[module] => currency
 // Question: does the module hook NEED to be the selector instead of the fee? Could prevent calling any phantom functions that return a uint
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
