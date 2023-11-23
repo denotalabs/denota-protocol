@@ -6,11 +6,12 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/ERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
 // Assumes: a single LP, a single liquidity deposit, a single lockup period (with endDate buffer=endDate  - coverage maturity), coverage is fully backed
 // TODO add reserve pool specific events
-contract Coverage is Ownable, ModuleBase {
+contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
     struct CoverageInfo {
@@ -24,10 +25,10 @@ contract Coverage is Ownable, ModuleBase {
     mapping(address => bool) public isWhitelisted; // Whitelisting addresses getting coverage
 
     bool public fundingStarted = false;  // If LP already funded don't allow another deposit
-    address public liquidityProvider;
     uint256 public poolStart = 0;  // Time that first coverage happened
     uint256 public liquidityReleaseDate;  // Date when LP can withdraw
 
+    uint256 public totalFunded = 0;
     uint256 public availableFunds = 0;  // Funds that can be used for coverage
     uint256 public yieldedFunds = 0;
 
@@ -42,7 +43,7 @@ contract Coverage is Ownable, ModuleBase {
         address _usdc,
         uint256 _coveragePeriod,  // In seconds
         uint256 _liquidityLockupPeriod  // In seconds
-    ) ModuleBase(registrar, _fees) {
+    ) ModuleBase(registrar, _fees) ERC20("DenotaCoverageToken", "DCT"){
         _URI = __baseURI;
         usdc = _usdc;
         coveragePeriod = _coveragePeriod;
@@ -108,11 +109,11 @@ contract Coverage is Ownable, ModuleBase {
 
         IERC20(usdc).safeTransferFrom(_msgSender(), address(this), fundingAmount);
 
+        totalFunded = fundingAmount;
         availableFunds += fundingAmount;
-        liquidityProvider = _msgSender();
         fundingStarted = true;
 
-        // LPs receive pool tokens in return TODO: figure out token issuance and redemption
+        _mint(_msgSender(), fundingAmount);
     }
 
     // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
@@ -126,18 +127,25 @@ contract Coverage is Ownable, ModuleBase {
     }
 
     function withdraw() public {
-        require(_msgSender() == liquidityProvider);
-        require(liquidityReleaseDate >= block.timestamp);
+        // HACK: if the total supply isn't claimed the module is bricked (can't restart LP/Coverage pool)
+        require(liquidityReleaseDate >= block.timestamp);  // Yielding period is over, allow claims
+        uint256 liquidityClaim = balanceOf(_msgSender());
+        uint256 claimPercentage = liquidityClaim / totalFunded;  // Percentage of yield they are entitled to
+        uint256 yieldClaim = yieldedFunds / claimPercentage; // TODO use safest math (round down)
+
+        _burn(_msgSender(), liquidityClaim); // Withdraw() burns all the caller's tokens
+
+        if (totalSupply() == 0){
+            fundingStarted = false;
+            poolStart = 0;
+            liquidityReleaseDate = 0;
+            availableFunds = 0;
+            yieldedFunds = 0;
+        }
         
-        fundingStarted = false;
-        liquidityProvider = address(0);
-        poolStart = 0;
-        liquidityReleaseDate = 0;
-        availableFunds = 0;
-        yieldedFunds = 0;
-        
-        IERC20(usdc).safeTransfer(liquidityProvider, availableFunds + yieldedFunds);
+        IERC20(usdc).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
     }
+
     // Admin can add an address to the whitelist
     function addToWhitelist(address _address) external onlyOwner {
         isWhitelisted[_address] = true;
