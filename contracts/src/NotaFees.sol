@@ -4,7 +4,6 @@ import "openzeppelin/utils/Context.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/INotaFees.sol";
 
-// TODO how to handle module fees? Store them in the Registrar? Have both static and dynamic? Have it based on the msg.sender?
 abstract contract NotaFees is Context, INotaFees {
     using SafeERC20 for IERC20;
     mapping(address => mapping(address => uint256)) internal _moduleRevenue; // [module][token] => revenue

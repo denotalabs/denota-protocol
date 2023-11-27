@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 
 // Question: Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
-// Question: Should module return their fee in BPS or actual fee amount?
 interface INotaModule {
     function processWrite(
         address caller,
@@ -15,7 +14,6 @@ interface INotaModule {
         bytes calldata initData
     ) external returns (uint256);
 
-    /// TODO change to struct
     function processTransfer(
         address caller,
         address approved,
@@ -56,8 +54,6 @@ interface INotaModule {
         bytes memory initData
     ) external;
 
-    // function processOwnerOf(address owner, uint256 tokenId) external view returns(bool); // TODO settle on what this returns
-    // function processBalanceOf() external view returns(uint256);
     function processTokenURI(
         uint256 tokenId
     ) external view returns (string memory, string memory);

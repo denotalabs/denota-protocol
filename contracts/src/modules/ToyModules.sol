@@ -150,3 +150,18 @@ abstract contract URIUpdater is ModuleBase {
 abstract contract OracleRelease is ModuleBase {
 
 }
+
+abstract contract HashFinder is ModuleBase {
+// You could pay someone for finding the right salt for a hook address. Make module that tracks bytecode(hash?) => reward. Person writes Nota with the correct salt, it's verified and then the module releases the money
+    address factory;
+    constructor(address _factory) {
+        factory = _factory;
+    }
+
+    function verifyHash() public returns(bool success){
+        // address _address = keccak(Salt, bytecode, address)
+        // significant_digits 
+        // Get if the address is correct for the hool calls they want
+    }
+
+}

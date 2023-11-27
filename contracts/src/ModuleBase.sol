@@ -8,10 +8,11 @@ import {INotaFees} from "./interfaces/INotaFees.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
-
+// TODO have Owner/OperatorFee inherit ModuleBase (if possible)
+// TODO simplify fee calculation (writeFee(writeParams _writeParams) -> fee) and ensure it doesn't overflowing
 abstract contract ModuleBase is INotaModule, NotaEncoding {
     address public immutable REGISTRAR;
-    uint256 internal constant BPS_MAX = 10_000;
+    uint256 internal constant BPS_MAX = 10_000;  // TODO if fees set on registrar move this there
     string public _URI;
 
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
@@ -28,7 +29,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     constructor(address registrar) {
         if (registrar == address(0)) revert InitParamsInvalid();
         REGISTRAR = registrar;
-        emit ModuleBaseConstructed(registrar, block.timestamp);
+        emit ModuleBaseConstructed(registrar, block.timestamp);  // Fees
     }
 
     function processWrite(
@@ -411,7 +412,3 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
             );
     }
 }
-
-
-// TODO have inheritence for URIs
-// TODO how to handle erc721 inheritence

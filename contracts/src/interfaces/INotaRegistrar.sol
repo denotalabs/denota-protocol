@@ -7,7 +7,7 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 /**
  * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
  */
- // TODO: Uniswapv4 has this inherit a IFees interface here as well
+ // TODO: If Registrar fee storing, Uniswapv4 has this inherit a IFees interface here as well. 
  /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas

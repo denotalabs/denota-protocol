@@ -23,6 +23,10 @@ library Hooks {
     uint256 internal constant AFTER_FUND_FLAG = 1 << 152;
     uint256 internal constant BEFORE_CASH_FLAG = 1 << 151;
     uint256 internal constant AFTER_CASH_FLAG = 1 << 150;
+    // uint256 internal constant BEFORE_APPROVE_FLAG = 1 << 149;
+    // uint256 internal constant AFTER_APPROVE_FLAG = 1 << 148;
+    // uint256 internal constant BEFORE_BURN_FLAG = 1 << 147;
+    // uint256 internal constant AFTER_BURN_FLAG = 1 << 146;
 
     struct Calls {
         bool beforeInitialize;

@@ -21,7 +21,7 @@ import {Nota} from "../libraries/DataTypes.sol";
 Registrar has structure:
 
 {
-    attributes: [timecreated, currency, escrowed {INSERT_MODULE_ATTRIBUTES}],
+    attributes: [timecreated, currency, escrowed, {INSERT_MODULE_ATTRIBUTES}],
     {INSERT_MODULE_KEYS}
 }
  */
