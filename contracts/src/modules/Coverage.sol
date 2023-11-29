@@ -33,25 +33,25 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
     uint256 public yieldedFunds = 0;  // Kept separate reserve pool funds
 
-    uint256 public reservesLockupPeriod;  // LP locks for 6 months
-    uint256 public coveragePeriod;  // Nota coverage period
-    uint256 public reserveRatio;  // In BPS -> (reserveRatio / 10_000)%
-    address public usdc;
+    uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
+    uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
+    uint256 immutable public MAX_RESERVE_BPS;  // In BPS -> (reserveRatio / 10_000)% [ex. 2_000 = 20%]={backing=1 : coverage=5}
+    address immutable public USDC;
 
     constructor(
         address registrar,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI,
-        address _usdc,
+        address _USDC,
         uint256 _coveragePeriod,  // In seconds
         uint256 _reservesLockupPeriod,  // In seconds
         uint256 _reserveRatio
     ) ModuleBase(registrar, _fees) ERC20("DenotaCoverageToken", "DCT"){
         _URI = __baseURI;
-        usdc = _usdc;
-        coveragePeriod = _coveragePeriod;
-        reservesLockupPeriod = _reservesLockupPeriod;
-        reserveRatio = _reserveRatio;
+        USDC = _USDC;
+        COVERAGE_PERIOD = _coveragePeriod;
+        RESERVE_LOCKUP_PERIOD = _reservesLockupPeriod;
+        MAX_RESERVE_BPS = _reserveRatio;
     }
 
     function processWrite(
@@ -65,40 +65,38 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     ) public override onlyRegistrar returns (uint256) {
         require(isWhitelisted[caller], "Not whitelisted");
         require(_owner == address(this), "Risk fee not paid to pool"); // TODO registrar assumes that the owner is the one being paid
-        require(currency == usdc, "Incorrect currency");
+        require(currency == USDC, "Incorrect currency");
+        
+        (address coverageHolder, uint256 coverageAmount, uint256 riskScore) = abi.decode(
+            initData,
+            (address, uint256, uint256)
+        );
+        require(instant == (coverageAmount / 10_000) * riskScore, "Risk fee not paid");
 
-        uint256 maturityDate = block.timestamp + coveragePeriod;
-
+        uint256 maturityDate = block.timestamp + COVERAGE_PERIOD;
         if (poolStart == 0) {
             poolStart = block.timestamp;
-            reservesReleaseDate = block.timestamp + reservesLockupPeriod;
+            reservesReleaseDate = block.timestamp + RESERVE_LOCKUP_PERIOD;
         } else {
             require(maturityDate <= reservesReleaseDate);
         }
 
-        (address holder, uint256 amount, uint256 riskScore) = abi.decode(
-            initData,
-            (address, uint256, uint256)
-        );
-
-        require(instant == (amount / 10_000) * riskScore, "Risk fee not paid");
-
         uint256 currentCoverage = (totalReserves - availableReserves);
-        uint256 newCoverage = currentCoverage + amount;
-
+        uint256 newCoverage = currentCoverage + coverageAmount;
         uint256 newReserveBPS = (totalReserves * 10_000) / newCoverage;
-        if (newReserveBPS < reserveRatio) revert("Exceeds reserve ratio");
+        if (newReserveBPS < MAX_RESERVE_BPS) revert("Exceeds reserve ratio");
 
-        uint256 scaledAmount = (amount * reserveRatio) / 10_000;
+        uint256 scaledAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
         availableReserves -= scaledAmount; // scale down by reserve ratio (amount=100 => amount=5 if rR=2_000)
-
+        
         yieldedFunds += instant;
-        coverageInfo[notaId].coverageHolder = holder;
+        coverageInfo[notaId].coverageHolder = coverageHolder;
         coverageInfo[notaId].maturityDate = maturityDate;
-        coverageInfo[notaId].coverageAmount = amount;
+        coverageInfo[notaId].coverageAmount = coverageAmount;
         return 0;
     }
 
+    // TODO could change this to processCash();
     function claimCoverage(uint256 notaId) public {
         CoverageInfo storage coverage = coverageInfo[notaId];
 
@@ -106,7 +104,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         require(block.timestamp < coverage.maturityDate);
         // require(_msgSender() == coverage.coverageHolder);  // Question: require the coverage holder to call this?
 
-        IERC20(usdc).safeTransfer(
+        IERC20(USDC).safeTransfer(
             coverage.coverageHolder,
             coverage.coverageAmount
         );
@@ -117,7 +115,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     function deposit(uint256 fundingAmount) public {
         require(!fundingStarted, "Pool already funded");
 
-        IERC20(usdc).safeTransferFrom(_msgSender(), address(this), fundingAmount);
+        IERC20(USDC).safeTransferFrom(_msgSender(), address(this), fundingAmount);
 
         totalReserves = fundingAmount;
         availableReserves += fundingAmount;
@@ -153,7 +151,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
             yieldedFunds = 0;
         }
         
-        IERC20(usdc).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
+        IERC20(USDC).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
     }
 
     // Admin can add an address to the whitelist
