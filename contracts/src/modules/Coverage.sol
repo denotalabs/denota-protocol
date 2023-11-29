@@ -86,7 +86,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         uint256 currentCoverage = (totalReserves - availableReserves);
         uint256 newCoverage = currentCoverage + amount;
 
-        uint256 newReserveBPS = (totalReserves / newCoverage) * 100;  // 1_000 / 800 => 800 * 100 => 8_000
+        uint256 newReserveBPS = (totalReserves * 10_000) / newCoverage;
         if (newReserveBPS < reserveRatio) revert("Exceeds reserve ratio");
 
         uint256 scaledAmount = (amount * reserveRatio) / 10_000;
@@ -106,7 +106,6 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         require(block.timestamp < coverage.maturityDate);
         // require(_msgSender() == coverage.coverageHolder);  // Question: require the coverage holder to call this?
 
-        // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(
             coverage.coverageHolder,
             coverage.coverageAmount
