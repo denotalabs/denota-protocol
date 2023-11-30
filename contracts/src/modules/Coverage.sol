@@ -15,6 +15,12 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
+    // Constants
+    uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
+    uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
+    uint256 immutable public MAX_RESERVE_BPS;  // MAX_RESERVE_BPS/10_000 = x% (2_000 = 20% => 1$ reserved : 5$ covered)
+    address immutable public USDC;
+
     struct CoverageInfo {
         uint256 coverageAmount;
         uint256 maturityDate; 
@@ -27,16 +33,11 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
     bool public fundingStarted = false;  // If LP already funded don't allow another deposit
     uint256 public poolStart = 0;  // Time that first coverage happened
-    uint256 public reservesReleaseDate;  // Date when LP can withdraw
+    uint256 public reservesReleaseDate = 0;  // Date when LP can withdraw
 
     uint256 public totalReserves = 0; 
     uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
     uint256 public yieldedFunds = 0;  // Kept separate reserve pool funds
-
-    uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
-    uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
-    uint256 immutable public MAX_RESERVE_BPS;  // In BPS -> (reserveRatio / 10_000)% [ex. 2_000 = 20%]={backing=1 : coverage=5}
-    address immutable public USDC;
 
     constructor(
         address registrar,
@@ -64,31 +65,26 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         require(isWhitelisted[caller], "Not whitelisted");
-        require(_owner == address(this), "Risk fee not paid to pool"); // TODO registrar assumes that the owner is the one being paid
+        require(_owner == address(this), "Risk fee not paid to pool");
         require(currency == USDC, "Incorrect currency");
         
         (address coverageHolder, uint256 coverageAmount, uint256 riskScore) = abi.decode(
             initData,
             (address, uint256, uint256)
         );
-        require(instant == (coverageAmount / 10_000) * riskScore, "Risk fee not paid");
+        require(instant == (coverageAmount / 10_000) * riskScore, "Risk fee not paid");  // TODO ensure doesn't overflow
 
+        uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
+        availableReserves -= scaledCoverageAmount; // underflow reverts (max_reserve_ratio has been exceeded)
+        
         uint256 maturityDate = block.timestamp + COVERAGE_PERIOD;
         if (poolStart == 0) {
             poolStart = block.timestamp;
             reservesReleaseDate = block.timestamp + RESERVE_LOCKUP_PERIOD;
         } else {
-            require(maturityDate <= reservesReleaseDate);
+            require(maturityDate <= reservesReleaseDate, "Coverage period elapsed");
         }
 
-        uint256 currentCoverage = (totalReserves - availableReserves);
-        uint256 newCoverage = currentCoverage + coverageAmount;
-        uint256 newReserveBPS = (totalReserves * 10_000) / newCoverage;
-        if (newReserveBPS < MAX_RESERVE_BPS) revert("Exceeds reserve ratio");
-
-        uint256 scaledAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
-        availableReserves -= scaledAmount; // scale down by reserve ratio (amount=100 => amount=5 if rR=2_000)
-        
         yieldedFunds += instant;
         coverageInfo[notaId].coverageHolder = coverageHolder;
         coverageInfo[notaId].maturityDate = maturityDate;
@@ -102,7 +98,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
         require(!coverage.wasRedeemed);
         require(block.timestamp < coverage.maturityDate);
-        // require(_msgSender() == coverage.coverageHolder);  // Question: require the coverage holder to call this?
+        require(_msgSender() == coverage.coverageHolder);
 
         IERC20(USDC).safeTransfer(
             coverage.coverageHolder,
@@ -138,12 +134,13 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         // HACK: if the total supply isn't claimed the module is bricked (can't restart LP/Coverage pool)
         require(reservesReleaseDate >= block.timestamp);  // Yielding period is over, allow claims
         uint256 liquidityClaim = balanceOf(_msgSender());
-        uint256 claimPercentage = liquidityClaim / totalReserves;  // Percentage of yield they are entitled to
+        // TODO ensure safe math
+        uint256 claimPercentage = liquidityClaim / totalReserves; // Percentage of yield they are entitled to
         uint256 yieldClaim = yieldedFunds * claimPercentage; // TODO use safest math (round down)
 
         _burn(_msgSender(), liquidityClaim); // Withdraw() burns all the caller's tokens
 
-        if (totalSupply() == 0){
+        if (totalSupply() == 0){  // TODO consider a waiting period where this can be reset without supply=0
             fundingStarted = false;
             poolStart = 0;
             reservesReleaseDate = 0;
