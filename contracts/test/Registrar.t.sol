@@ -5,13 +5,13 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
+import {INotaModule} from "../src/interfaces/INotaModule.sol";
 import {DataTypes} from "../src/libraries/DataTypes.sol";
 
-// TODO add fail tests
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
-    TestERC20 public dai;
-    TestERC20 public usdc;
+    TestERC20 public DAI;
+    TestERC20 public USDC;
     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
 
     function isContract(address _addr) public view returns (bool) {
@@ -22,59 +22,76 @@ contract RegistrarTest is Test {
         return (size > 0);
     }
 
-    function setUp() public {
-        // sets up the registrar and ERC20s
-        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
-        dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
-        usdc = new TestERC20(0, "USDC", "USDC");
-        // REGISTRAR.whitelistToken(address(dai), true);
-        // REGISTRAR.whitelistToken(address(usdc), true);
+    function setUp() public virtual {
+        REGISTRAR = new NotaRegistrar(); 
+        DAI = new TestERC20(tokensCreated, "DAI", "DAI"); 
+        USDC = new TestERC20(0, "USDC", "USDC");
 
         vm.label(msg.sender, "Alice");
         vm.label(address(this), "TestingContract");
-        vm.label(address(dai), "TestDai");
-        vm.label(address(usdc), "TestUSDC");
+        vm.label(address(DAI), "TestDai");
+        vm.label(address(USDC), "TestUSDC");
         vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
     function whitelist(address module, string calldata moduleName) public {
         // Whitelists tokens, rules, modules
-        // REGISTRAR.whitelistRule(rule, true);
         REGISTRAR.whitelistModule(module, false, true, moduleName); // Whitelist bytecode
     }
 
-    /*//////////////////////////////////////////////////////////////
-                            WHITELIST TESTS
-    //////////////////////////////////////////////////////////////*/
     function testWhitelistToken() public {
-        address daiAddress = address(dai);
+        address DAIAddress = address(DAI);
         vm.prank(address(this));
 
         // Whitelist tokens
         assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
+            REGISTRAR.tokenWhitelisted(DAIAddress),
             "Unauthorized whitelist"
         );
-        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
+        REGISTRAR.whitelistToken(DAIAddress, true, "DAI");
         assertTrue(
-            REGISTRAR.tokenWhitelisted(daiAddress),
+            REGISTRAR.tokenWhitelisted(DAIAddress),
             "Whitelisting failed"
         );
-        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
+        REGISTRAR.whitelistToken(DAIAddress, false, "DAI");
         assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
+            REGISTRAR.tokenWhitelisted(DAIAddress),
             "Un-whitelisting failed"
         );
     }
 
-    /*//////////////////////////////////////////////////////////////
-                            MODULE TESTS
-    //////////////////////////////////////////////////////////////*/
-    function calcFee(
+    function safeFeeMult(
         uint256 fee,
         uint256 amount
     ) public pure returns (uint256) {
         return (amount * fee) / 10_000;
+    }
+
+    function calcTotalFees(
+        INotaModule module,
+        uint256 escrowed,
+        uint256 instant
+    ) public view returns (uint256) {
+        DataTypes.WTFCFees memory fees = module.getFees(address(0));
+        uint256 moduleFee = safeFeeMult(fees.writeBPS, instant + escrowed);
+        console.log("ModuleFee: ", moduleFee);
+        uint256 totalWithFees = escrowed + moduleFee;
+        console.log(escrowed, "-->", totalWithFees);
+        return totalWithFees;
+    }
+
+    function _preWriteTokens(address caller, TestERC20 token, uint256 escrowed, uint256 instant, INotaModule module) internal {
+        uint256 totalWithFees = calcTotalFees(
+            module,
+            escrowed,
+            instant
+        );
+        
+        vm.prank(caller);
+        token.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
+        token.transfer(caller, totalWithFees);
+        vm.assume(token.balanceOf(caller) >= totalWithFees);
+        // console.log(instant, totalWithFees);   
     }
 
     function registrarWriteBefore(address caller, address recipient) public {
@@ -88,7 +105,7 @@ contract RegistrarTest is Test {
         );
         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
-
+    
     function registrarWriteAfter(
         uint256 cheqId,
         address currency,
@@ -115,44 +132,15 @@ contract RegistrarTest is Test {
             REGISTRAR.cheqCurrency(cheqId) == currency,
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+
         assertTrue(
             REGISTRAR.cheqEscrowed(cheqId) == escrowed,
             "Incorrect escrow"
         );
+
         assertTrue(
             address(REGISTRAR.cheqModule(cheqId)) == module,
             "Incorrect module"
         );
     }
 }
-
-// // Whitelist module
-// ReversibleRelease reversibleRelease = new ReversibleRelease(
-//     address(REGISTRAR),
-//     DataTypes.WTFCFees(0, 0, 0, 0),
-//     "ipfs://"
-// );
-// address reversibleReleaseAddress = address(reversibleRelease);
-// (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
-//     .moduleWhitelisted(reversibleReleaseAddress);
-// assertFalse(
-//     addressWhitelisted || bytecodeWhitelisted,
-//     "Unauthorized whitelist"
-// );
-// REGISTRAR.whitelistModule(reversibleReleaseAddress, true, false); // whitelist bytecode, not address
-// (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-//     reversibleReleaseAddress
-// );
-// assertTrue(
-//     addressWhitelisted || bytecodeWhitelisted,
-//     "Whitelisting failed"
-// );
-// REGISTRAR.whitelistModule(reversibleReleaseAddress, false, false);
-// (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-//     reversibleReleaseAddress
-// );
-// assertFalse(
-//     addressWhitelisted || bytecodeWhitelisted,
-//     "Un-whitelisting failed"
-// );
