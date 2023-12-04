@@ -64,6 +64,7 @@ contract RegistrarTest is Test {
         uint256 fee,
         uint256 amount
     ) public pure returns (uint256) {
+        if (fee == 0) return 0;
         return (amount * fee) / 10_000;
     }
 
@@ -73,9 +74,11 @@ contract RegistrarTest is Test {
         uint256 instant
     ) public view returns (uint256) {
         DataTypes.WTFCFees memory fees = module.getFees(address(0));
-        uint256 moduleFee = safeFeeMult(fees.writeBPS, instant + escrowed);
-        console.log("ModuleFee: ", moduleFee);
-        uint256 totalWithFees = escrowed + moduleFee;
+        uint256 totalTransfer = instant + escrowed;
+        
+        uint256 moduleFee = safeFeeMult(fees.writeBPS, totalTransfer);
+        console.log("Module Fee: ", moduleFee);
+        uint256 totalWithFees = totalTransfer + moduleFee;
         console.log(escrowed, "-->", totalWithFees);
         return totalWithFees;
     }

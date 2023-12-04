@@ -72,6 +72,8 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
             initData,
             (address, uint256, uint256)
         );
+        require(coverageAmount > 0, "No coverage");
+        // require(coverageHolder != liquidityProvider, "");
         require(instant == (coverageAmount / 10_000) * riskScore, "Risk fee not paid");  // TODO ensure doesn't overflow
 
         uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
@@ -162,28 +164,28 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
         address /*from*/,
         address /*to*/,
         uint256 /*cheqId*/,
-        address currency,
-        uint256 escrowed,
+        address /*currency*/,
+        uint256 /*escrowed*/,
         uint256 /*createdAt*/,
-        bytes memory data
+        bytes memory /*data*/
     ) public override onlyRegistrar returns (uint256) {
         return 0;
     }
 
     function processFund(
         address /*caller*/,
-        address owner,
-        uint256 amount,
-        uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
-        bytes calldata initData
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*cheqId*/,
+        DataTypes.Nota calldata /*cheq*/,
+        bytes calldata /*initData*/
     ) public override onlyRegistrar returns (uint256) {
         return 0;
     }
@@ -212,7 +214,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     }
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 /*tokenId*/
     ) external view override returns (string memory) {
         return "";
     }
