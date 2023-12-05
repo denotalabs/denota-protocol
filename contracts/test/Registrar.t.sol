@@ -48,12 +48,16 @@ contract RegistrarTest is Test {
             REGISTRAR.tokenWhitelisted(DAIAddress),
             "Unauthorized whitelist"
         );
+
         REGISTRAR.whitelistToken(DAIAddress, true, "DAI");
+        
         assertTrue(
             REGISTRAR.tokenWhitelisted(DAIAddress),
             "Whitelisting failed"
         );
+        
         REGISTRAR.whitelistToken(DAIAddress, false, "DAI");
+        
         assertFalse(
             REGISTRAR.tokenWhitelisted(DAIAddress),
             "Un-whitelisting failed"
@@ -94,19 +98,18 @@ contract RegistrarTest is Test {
         token.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
         token.transfer(caller, totalWithFees);
         vm.assume(token.balanceOf(caller) >= totalWithFees);
-        // console.log(instant, totalWithFees);   
     }
 
     function registrarWriteBefore(address caller, address recipient) public {
-        assertTrue(
-            REGISTRAR.balanceOf(caller) == 0,
+        assertEq(
+            REGISTRAR.balanceOf(caller), 0,
             "Caller already had a cheq"
         );
-        assertTrue(
-            REGISTRAR.balanceOf(recipient) == 0,
+        assertEq(
+            REGISTRAR.balanceOf(recipient), 0,
             "Recipient already had a cheq"
         );
-        assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
+        assertEq(REGISTRAR.totalSupply(), 0, "Nota supply non-zero");
     }
     
     function registrarWriteAfter(
@@ -116,33 +119,33 @@ contract RegistrarTest is Test {
         address owner,
         address module
     ) public {
-        assertTrue(
-            REGISTRAR.totalSupply() == 1,
+        assertEq(
+            REGISTRAR.totalSupply(), 1,
             "Nota supply didn't increment"
         );
 
-        assertTrue(
-            REGISTRAR.balanceOf(owner) == 1,
+        assertEq(
+            REGISTRAR.balanceOf(owner), 1,
             "Owner balance didn't increment"
         );
 
-        assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
+        assertEq(
+            REGISTRAR.ownerOf(cheqId), owner,
             "`owner` isn't owner of cheq"
         );
 
-        assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == currency,
+        assertEq(
+            REGISTRAR.cheqCurrency(cheqId), currency,
             "Incorrect token"
         );
 
-        assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+        assertEq(
+            REGISTRAR.cheqEscrowed(cheqId), escrowed,
             "Incorrect escrow"
         );
 
-        assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+        assertEq(
+            address(REGISTRAR.cheqModule(cheqId)), module,
             "Incorrect module"
         );
     }

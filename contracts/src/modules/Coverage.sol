@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
+import "forge-std/console.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
@@ -60,13 +61,14 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         address _owner,
         uint256 notaId,
         address currency,
-        uint256 /*escrowed*/,
+        uint256 escrowed,
         uint256 instant,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         require(isWhitelisted[caller], "Not whitelisted");
         require(_owner == address(this), "Risk fee not paid to pool");
         require(currency == USDC, "Incorrect currency");
+        require(escrowed == 0, "Escrow unsupported");
         
         (address coverageHolder, uint256 coverageAmount, uint256 riskScore) = abi.decode(
             initData,

@@ -17,7 +17,6 @@ contract CoverageTest is Test, RegistrarTest {
     function setUp() public override {
         super.setUp();  // init registrar, tokens, and their labels
         
-        REGISTRAR.whitelistToken(address(DAI), true, "DAI");
         liquidityProvider = address(1);
 
         COVERAGE = new Coverage(
@@ -40,59 +39,82 @@ contract CoverageTest is Test, RegistrarTest {
         vm.label(liquidityProvider, "LiquidityProvider");
     }
 
+
     function testDeposit(uint256 fundingAmount) public {
         vm.assume(fundingAmount <= tokensCreated);
 
-        vm.prank(liquidityProvider);
-        DAI.approve(address(COVERAGE), fundingAmount);
-        // Ensure approval
-        assertTrue(DAI.allowance(liquidityProvider, address(COVERAGE)) == fundingAmount);
+        assertFalse(COVERAGE.fundingStarted());
+        // Give LP tokens, LP gives COVERAGE token approval, deposit()
+        _depositHelper(fundingAmount);
+
+        // Ensure that reserve variables were updated
+        assertEq(COVERAGE.totalReserves(), fundingAmount);
+        assertEq(COVERAGE.availableReserves(), fundingAmount);
+        assertTrue(COVERAGE.fundingStarted());
+        assertEq(COVERAGE.balanceOf(liquidityProvider), fundingAmount);  // LP ERC20 was minted
+    }
+    
+    function _depositHelper(uint256 fundingAmount) internal {
         // Give LP tokens
         DAI.transfer(liquidityProvider, fundingAmount);
         // Ensure LP has tokens
-        assertTrue(DAI.balanceOf(liquidityProvider) == fundingAmount);
+        assertEq(DAI.balanceOf(liquidityProvider), fundingAmount);
+        
+        vm.prank(liquidityProvider);
+        DAI.approve(address(COVERAGE), fundingAmount);
+        // Ensure approval
+        assertEq(DAI.allowance(liquidityProvider, address(COVERAGE)), fundingAmount);
 
-        assertFalse(COVERAGE.fundingStarted());
         vm.prank(liquidityProvider);
         COVERAGE.deposit(fundingAmount);
         // Ensure token balance was reduced
-        assertTrue(DAI.balanceOf(liquidityProvider) == 0);
-
-        assertTrue(COVERAGE.totalReserves() == fundingAmount);
-        assertTrue(COVERAGE.availableReserves() == fundingAmount);
-        assertTrue(COVERAGE.fundingStarted());
-        assertTrue(COVERAGE.balanceOf(liquidityProvider) == fundingAmount);  // ERC20 was minted
-
+        assertEq(DAI.balanceOf(liquidityProvider), 0);
     }
-    
-    function testWithdraw(uint256 fundingAmount) public {
+
+    function testAddToWhitelist(address _address) public {
+        // Not whitelisted test
+        assertFalse(COVERAGE.isWhitelisted(_address), "Already whitelisted");
+
+        // Whitelist
+        COVERAGE.addToWhitelist(_address);
+
+        // Whitelisted test
+        assertTrue(COVERAGE.isWhitelisted(_address), "Not whitelisted");
+    }
+
+    function testRemoveFromWhitelist(address _address) public {
+        testAddToWhitelist(_address);
+        // Un-whitelist
+        COVERAGE.removeFromWhitelist(_address);
+        // Whitelisted test
+        assertFalse(COVERAGE.isWhitelisted(_address), "Still whitelisted");
     }
 
     function testWrite(
         address caller,
         uint256 coverageAmount,
         uint256 escrowed,
-        uint256 instant,
         address coverageHolder
     ) public {
         vm.assume(caller != address(0) && caller != liquidityProvider && caller != coverageHolder && coverageHolder != address(0) && coverageAmount != 0);
-        vm.assume((escrowed < tokensCreated) && (instant < tokensCreated));
-        _preWriteTokens(caller, DAI, escrowed, instant, COVERAGE);
-        registrarWriteBefore(caller, coverageHolder);
+        vm.assume((escrowed == 0) && (coverageAmount < tokensCreated));
+        
+        uint256 premium = (coverageAmount / 10_000) * 50;       
+        _preWriteTokens(caller, DAI, escrowed, premium, COVERAGE);
 
         // Caller not whitelisted
-        COVERAGE.addToWhitelist(caller);
-        // ensure whitlisted
+        COVERAGE.addToWhitelist(caller); // Question: ensure whitelist?
+        
+        _depositHelper(coverageAmount);
 
-        // instant value
-        instant = (coverageAmount / 10_000) * 50;
-        console.log(instant);
-
+        // Write Nota
+        registrarWriteBefore(caller, coverageHolder);
+        REGISTRAR.whitelistToken(address(DAI), true, "DAI");  // TODO where should this be? In a setup function?
         vm.prank(caller);
         uint256 cheqId = REGISTRAR.write(
             address(DAI),
             escrowed,
-            instant,
+            premium, // instant
             address(COVERAGE),
             address(COVERAGE),
             abi.encode(
@@ -109,17 +131,23 @@ contract CoverageTest is Test, RegistrarTest {
             address(COVERAGE),
             address(COVERAGE)
         );
-
-        // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
-        console.log("TokenURI: ");
-        console.log(tokenURI);
-    }
-    function testAddToWhitelist() public {
-        // function addToWhitelist(address _address) external onlyOwner {
     }
 
-    function testRemoveFromWhitelist() public {
-        // function removeFromWhitelist(address _address) external onlyOwner {
+    function claimCoverage(uint256 fundingAmount) public {
+        // deposit
+        _depositHelper(fundingAmount);
+        // whitelist coverage writer
+
+        // 
+
+    }
+
+    function getYield(uint256 notaId) public {  // TODO inefficient
+
+    }
+
+    function testWithdraw(uint256 fundingAmount) public {
+        _depositHelper(fundingAmount);
+
     }
 }
