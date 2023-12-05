@@ -42,36 +42,39 @@ contract RegistrarTest is Test {
         return (amount * fee) / 10_000;
     }
 
-    function calcTotalFees(
+    function _calcTotalFees(
         INotaModule module,
         uint256 escrowed,
         uint256 instant
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         DataTypes.WTFCFees memory fees = module.getFees(address(0));
         uint256 totalTransfer = instant + escrowed;
         
         uint256 moduleFee = safeFeeMult(fees.writeBPS, totalTransfer);
         console.log("Module Fee: ", moduleFee);
         uint256 totalWithFees = totalTransfer + moduleFee;
-        console.log(escrowed, "-->", totalWithFees);
+        console.log(totalTransfer, "-->", totalWithFees);
         return totalWithFees;
     }
 
-    function _fundCallerApproveRegistrar(address caller, TestERC20 token, uint256 escrowed, uint256 instant, INotaModule module) internal {
+    function _tokenFundAddressApproveAddress(address caller, TestERC20 token, uint256 escrowed, uint256 instant, INotaModule module, address _toApprove) internal {
         // Calculate module's fees
-        uint256 totalWithFees = calcTotalFees(
+        uint256 totalWithFees = _calcTotalFees(  // TODO should this be moved outside of this func?
             module,
             escrowed,
             instant
         );
         
+        assertEq(token.balanceOf(caller), 0, "Token Transfer already happened");
         // Give caller enough tokens
         token.transfer(caller, totalWithFees);
-        // assertEq(token.balanceOf(caller), totalWithFees, "Token Transfer Failed");
+        assertEq(token.balanceOf(caller), totalWithFees, "Token Transfer Failed");
 
         // Caller gives registrar approval
+        assertEq(token.allowance(caller, _toApprove), 0);
         vm.prank(caller);
-        token.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
+        token.approve(_toApprove, totalWithFees); // Need to get the fee amounts beforehand
+        assertEq(token.allowance(caller, _toApprove), totalWithFees);
     }
 
     function registrarWriteBefore(address caller, address recipient) public {
@@ -124,7 +127,7 @@ contract RegistrarTest is Test {
         );
     }
 
-    function _writeHelper(        
+    function _registrarWriteHelper(        
         address caller,
         address currency,
         uint256 escrowed,
