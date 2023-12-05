@@ -9,7 +9,7 @@ import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {Coverage} from "../src/modules/Coverage.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
-
+// TODO Invariant test certain properties: ie coverageHolder, maturityDate, etc
 contract CoverageTest is Test, RegistrarTest {
     Coverage public COVERAGE;
     address liquidityProvider;
@@ -29,31 +29,32 @@ contract CoverageTest is Test, RegistrarTest {
             2_000
         );
 
-        REGISTRAR.whitelistModule(
-            address(COVERAGE),
-            true,
-            false,
-            "Coverage"
-        );
         vm.label(address(COVERAGE), "Coverage");
         vm.label(liquidityProvider, "LiquidityProvider");
     }
 
+    function _addWhitelistHelper(address _address) internal {
+        // Not whitelisted test
+        assertFalse(COVERAGE.isWhitelisted(_address), "Already whitelisted");
 
-    function testDeposit(uint256 fundingAmount) public {
-        vm.assume(fundingAmount <= tokensCreated);
+        // Whitelist
+        COVERAGE.addToWhitelist(_address);
 
-        assertFalse(COVERAGE.fundingStarted());
-        // Give LP tokens, LP gives COVERAGE token approval, deposit()
-        _depositHelper(fundingAmount);
-
-        // Ensure that reserve variables were updated
-        assertEq(COVERAGE.totalReserves(), fundingAmount);
-        assertEq(COVERAGE.availableReserves(), fundingAmount);
-        assertTrue(COVERAGE.fundingStarted());
-        assertEq(COVERAGE.balanceOf(liquidityProvider), fundingAmount);  // LP ERC20 was minted
+        // Whitelisted test
+        assertTrue(COVERAGE.isWhitelisted(_address), "Not whitelisted");
     }
-    
+    function testAddToWhitelist(address _address) public {
+        _addWhitelistHelper(_address);
+    }
+
+    function testRemoveFromWhitelist(address _address) public {
+        _addWhitelistHelper(_address);
+        // Un-whitelist
+        COVERAGE.removeFromWhitelist(_address);
+        // Whitelisted test
+        assertFalse(COVERAGE.isWhitelisted(_address), "Still whitelisted");
+    }
+
     function _depositHelper(uint256 fundingAmount) internal {
         // Give LP tokens
         DAI.transfer(liquidityProvider, fundingAmount);
@@ -71,23 +72,18 @@ contract CoverageTest is Test, RegistrarTest {
         assertEq(DAI.balanceOf(liquidityProvider), 0);
     }
 
-    function testAddToWhitelist(address _address) public {
-        // Not whitelisted test
-        assertFalse(COVERAGE.isWhitelisted(_address), "Already whitelisted");
+    function testDeposit(uint256 fundingAmount) public {
+        vm.assume(fundingAmount <= TOKENS_CREATED);
 
-        // Whitelist
-        COVERAGE.addToWhitelist(_address);
+        assertFalse(COVERAGE.fundingStarted());
+        // Give LP tokens, LP gives COVERAGE token approval, deposit()
+        _depositHelper(fundingAmount);
 
-        // Whitelisted test
-        assertTrue(COVERAGE.isWhitelisted(_address), "Not whitelisted");
-    }
-
-    function testRemoveFromWhitelist(address _address) public {
-        testAddToWhitelist(_address);
-        // Un-whitelist
-        COVERAGE.removeFromWhitelist(_address);
-        // Whitelisted test
-        assertFalse(COVERAGE.isWhitelisted(_address), "Still whitelisted");
+        // Ensure that reserve variables were updated
+        assertEq(COVERAGE.totalReserves(), fundingAmount);
+        assertEq(COVERAGE.availableReserves(), fundingAmount);
+        assertTrue(COVERAGE.fundingStarted());
+        assertEq(COVERAGE.balanceOf(liquidityProvider), fundingAmount);  // LP ERC20 was minted
     }
 
     function testWrite(
@@ -97,57 +93,85 @@ contract CoverageTest is Test, RegistrarTest {
         address coverageHolder
     ) public {
         vm.assume(caller != address(0) && caller != liquidityProvider && caller != coverageHolder && coverageHolder != address(0) && coverageAmount != 0);
-        vm.assume((escrowed == 0) && (coverageAmount < tokensCreated));
+        vm.assume((escrowed == 0) && (coverageAmount < TOKENS_CREATED));
         
-        uint256 premium = (coverageAmount / 10_000) * 50;       
-        _preWriteTokens(caller, DAI, escrowed, premium, COVERAGE);
-
-        // Caller not whitelisted
-        COVERAGE.addToWhitelist(caller); // Question: ensure whitelist?
-        
+        uint256 instant = (coverageAmount / 10_000) * 50;
+        _fundCallerApproveRegistrar(caller, DAI, escrowed, instant, COVERAGE);
+        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
+        _registrarTokenWhitelistHelper(address(DAI));
+        _addWhitelistHelper(caller);
         _depositHelper(coverageAmount);
-
-        // Write Nota
-        registrarWriteBefore(caller, coverageHolder);
-        REGISTRAR.whitelistToken(address(DAI), true, "DAI");  // TODO where should this be? In a setup function?
-        vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(
-            address(DAI),
-            escrowed,
-            premium, // instant
-            address(COVERAGE),
-            address(COVERAGE),
-            abi.encode(
-                coverageHolder, // coverageHolder
-                coverageAmount, // coverageAmount
-                50 // riskScore
+        
+        _writeHelper(
+            caller, // caller
+            address(DAI), // currency
+            escrowed, // escrowed
+            instant, // instant (premium)
+            address(COVERAGE), // owner
+            address(COVERAGE), // module
+            abi.encode(  // moduleData
+                coverageHolder, 
+                coverageAmount, 
+                50
             )
-        ); 
-
-        registrarWriteAfter(
-            cheqId,
-            address(DAI),
-            escrowed,
-            address(COVERAGE),
-            address(COVERAGE)
         );
     }
+    
+    function claimCoverage(
+        address caller,
+        uint256 coverageAmount,
+        uint256 escrowed,
+        address coverageHolder
+    ) public {
+        vm.assume(caller != address(0) && caller != liquidityProvider && caller != coverageHolder && coverageHolder != address(0) && coverageAmount != 0);
+        vm.assume((escrowed == 0) && (coverageAmount < TOKENS_CREATED));
+        vm.label(caller, "CoverageRequester");
+        vm.label(coverageHolder, "CoverageHolder");
+        
+        uint256 instant = (coverageAmount / 10_000) * 50;
 
-    function claimCoverage(uint256 fundingAmount) public {
-        // deposit
-        _depositHelper(fundingAmount);
-        // whitelist coverage writer
+        _fundCallerApproveRegistrar(caller, DAI, escrowed, instant, COVERAGE);
+        _addWhitelistHelper(caller);
+        _depositHelper(coverageAmount);
+        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
+        _registrarTokenWhitelistHelper(address(DAI));
+        
+        uint256 notaId = _writeHelper(
+            caller, // caller
+            address(DAI), // currency
+            escrowed, // escrowed
+            instant, // instant (premium)
+            address(COVERAGE), // owner
+            address(COVERAGE), // module
+            abi.encode(  // moduleData
+                coverageHolder, 
+                coverageAmount, 
+                50
+            )
+        );
 
-        // 
+        assertFalse(COVERAGE.coverageInfoWasRedeemed(notaId), "Nota Already Redeemed");
+        assertLt(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "Nota Matured");
+        assertEq(coverageHolder, COVERAGE.coverageInfoCoverageHolder(notaId), "Incorrect Coverage Holder");
+        assertEq(coverageAmount, COVERAGE.coverageInfoCoverageAmount(notaId), "Nota Already Redeemed");
+        assertEq(DAI.balanceOf(caller), 0, "Tokens Not Transferred");
+        
+        vm.warp(COVERAGE.coverageInfoMaturityDate(notaId));
+        COVERAGE.claimCoverage(notaId);
 
+        assertTrue(COVERAGE.coverageInfoWasRedeemed(notaId), "Nota Already Redeemed");
+        assertGe(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "Nota Matured");
+        assertEq(coverageHolder, COVERAGE.coverageInfoCoverageHolder(notaId), "Incorrect Coverage Holder");
+        assertEq(coverageAmount, COVERAGE.coverageInfoCoverageAmount(notaId), "Nota Already Redeemed");
+        assertEq(DAI.balanceOf(caller), coverageAmount, "Tokens Not Transferred");
     }
 
-    function getYield(uint256 notaId) public {  // TODO inefficient
+    // function getYield(uint256 notaId) public {  // TODO inefficient
 
-    }
+    // }
 
-    function testWithdraw(uint256 fundingAmount) public {
-        _depositHelper(fundingAmount);
+    // function testWithdraw(uint256 fundingAmount) public {
+    //     _depositHelper(fundingAmount);
 
-    }
+    // }
 }

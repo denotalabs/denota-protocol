@@ -220,4 +220,17 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     ) external view override returns (string memory) {
         return "";
     }
+
+    function coverageInfoCoverageAmount(uint256 notaId) public view returns(uint256){
+        return coverageInfo[notaId].coverageAmount;
+    }
+    function coverageInfoMaturityDate(uint256 notaId) public view returns(uint256){
+        return coverageInfo[notaId].maturityDate;
+    }
+    function coverageInfoCoverageHolder(uint256 notaId) public view returns(address){
+        return coverageInfo[notaId].coverageHolder;
+    }
+    function coverageInfoWasRedeemed(uint256 notaId) public view returns(bool){
+        return coverageInfo[notaId].wasRedeemed;
+    }
 }

@@ -118,8 +118,8 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         address module
     ) public view returns (bool, bool) {
         return (
-            _addressWhitelist[module],
-            _bytecodeWhitelist[_returnCodeHash(module)]
+            _bytecodeWhitelist[_returnCodeHash(module)],
+            _addressWhitelist[module]
         );
     }
 }
