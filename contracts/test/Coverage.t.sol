@@ -158,26 +158,35 @@ contract CoverageTest is Test, RegistrarTest {
 
         _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
         _writeHelper(caller, coverageAmount, premium, coverageHolder);
-        }
+    }
     
     function _claimCoverageHelper(
-        address caller,
         uint256 notaId
         ) internal {
-        // TODO before tests
-        vm.warp(COVERAGE.coverageInfoMaturityDate(notaId));
-        vm.prank(caller);
-        COVERAGE.claimCoverage(notaId);
+        // Nota state before write
+        address coverageHolderBefore = COVERAGE.coverageInfoCoverageHolder(notaId);
+        uint256 maturityDateBefore = COVERAGE.coverageInfoMaturityDate(notaId);
+        uint256 coverageAmountBefore = COVERAGE.coverageInfoCoverageAmount(notaId);
+        bool wasRedeemedBefore = COVERAGE.coverageInfoWasRedeemed(notaId);
+        uint256 coverageHolderTokensBefore = DAI.balanceOf(coverageHolderBefore);
 
-        // TODO after tests
-        // assertTrue(COVERAGE.coverageInfoWasRedeemed(notaId), "Nota Already Redeemed");
-        // assertGe(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "Nota Matured");
-        // assertEq(coverageHolder, COVERAGE.coverageInfoCoverageHolder(notaId), "Incorrect Coverage Holder");
-        // assertEq(coverageAmount, COVERAGE.coverageInfoCoverageAmount(notaId), "Nota Already Redeemed");
-        // assertEq(DAI.balanceOf(caller), coverageAmount, "Tokens Not Transferred");
+        assertNotEq(address(0), coverageHolderBefore, "Uninitialized Coverage Holder");
+        assertNotEq(0, maturityDateBefore, "Uninitialized Maturity Date");
+        assertNotEq(0, coverageAmountBefore, "Uninitialized Coverage Amount");
+        assertFalse(wasRedeemedBefore, "Already Claimed");
+        // TODO how to test maturity date and coverage holder conditions
+
+        vm.prank(coverageHolderBefore);
+        COVERAGE.claimCoverage(notaId);
+        
+        assertTrue(COVERAGE.coverageInfoWasRedeemed(notaId), "Nota Not Redeemed");
+        assertEq(coverageHolderBefore, COVERAGE.coverageInfoCoverageHolder(notaId), "Incorrect Coverage Holder");
+        assertEq(maturityDateBefore, COVERAGE.coverageInfoMaturityDate(notaId), "Nota Matured");
+        assertEq(coverageAmountBefore, COVERAGE.coverageInfoCoverageAmount(notaId), "Nota Already Redeemed");
+        assertEq(DAI.balanceOf(coverageHolderBefore), coverageHolderTokensBefore + coverageAmountBefore, "Tokens Not Transferred");
     }
 
-    function claimCoverage(
+    function testClaimCoverage(
         address caller,
         uint256 coverageAmount,
         address coverageHolder
@@ -193,19 +202,22 @@ contract CoverageTest is Test, RegistrarTest {
         _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
         uint256 notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
         
-        _claimCoverageHelper(caller, notaId);
+        _claimCoverageHelper(notaId);
     }
 
     function _getYieldHelper(uint256 notaId) internal {
-        /**
-        require(!coverage.wasRedeemed);
-        require(coverage.maturityDate <= block.timestamp);
+        assertLt(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "");
+        assertFalse(COVERAGE.coverageInfoWasRedeemed(notaId), "");
+        uint256 availableReservesBefore = COVERAGE.availableReserves();
+        uint256 maturityDate = COVERAGE.coverageInfoMaturityDate(notaId);
         
-        availableReserves += coverage.coverageAmount;
-        */
+        vm.warp(maturityDate);
+        COVERAGE.getYield(notaId);
+
+        assertEq(COVERAGE.availableReserves(), availableReservesBefore + COVERAGE.coverageInfoCoverageAmount(notaId));
     }
 
-    function getYield(
+    function testGetYield(
         address caller,
         uint256 coverageAmount,
         address coverageHolder
@@ -229,7 +241,7 @@ contract CoverageTest is Test, RegistrarTest {
     ) internal {
         // TODO Before tests
 
-        vm.prank(caller);
+        vm.prank(liquidityProvider);
         COVERAGE.withdraw();
 
         // TODO After tests

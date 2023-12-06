@@ -38,7 +38,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
     uint256 public totalReserves = 0; 
     uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
-    uint256 public yieldedFunds = 0;  // Kept separate reserve pool funds
+    uint256 public yieldedFunds = 0;  // Kept separate from reserve pool funds
 
     constructor(
         address registrar,
@@ -99,9 +99,9 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     function claimCoverage(uint256 notaId) public {
         CoverageInfo storage coverage = coverageInfo[notaId];
 
-        require(!coverage.wasRedeemed);
-        require(block.timestamp < coverage.maturityDate);
-        require(_msgSender() == coverage.coverageHolder);
+        require(!coverage.wasRedeemed, "Already redeemed");
+        require(block.timestamp < coverage.maturityDate, "Coverage expired");
+        require(_msgSender() == coverage.coverageHolder, "Not coverage holder");
 
         IERC20(USDC).safeTransfer(
             coverage.coverageHolder,
@@ -127,16 +127,18 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     function getYield(uint256 notaId) public {  // TODO inefficient
         CoverageInfo storage coverage = coverageInfo[notaId];
 
-        require(!coverage.wasRedeemed);
-        require(coverage.maturityDate <= block.timestamp);
+        require(!coverage.wasRedeemed, "Already redeemed");
+        require(coverage.maturityDate <= block.timestamp, "Not matured yet");
         
-        availableReserves += coverage.coverageAmount;
+        coverage.wasRedeemed = true;
+        availableReserves += coverage.coverageAmount;  // Release active capital
     }
 
     function withdraw() public {
         // HACK: if the total supply isn't claimed the module is bricked (can't restart LP/Coverage pool)
         require(reservesReleaseDate >= block.timestamp);  // Yielding period is over, allow claims
         uint256 liquidityClaim = balanceOf(_msgSender());
+        require(liquidityClaim != 0, "No LP tokens");
         // TODO ensure safe math
         uint256 claimPercentage = liquidityClaim / totalReserves; // Percentage of yield they are entitled to
         uint256 yieldClaim = yieldedFunds * claimPercentage; // TODO use safest math (round down)
