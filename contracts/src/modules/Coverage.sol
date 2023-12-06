@@ -75,8 +75,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
             (address, uint256, uint256)
         );
         require(coverageAmount > 0, "No coverage");
-        // require(coverageHolder != liquidityProvider, "");
-        require(instant == (coverageAmount / 10_000) * riskScore, "Risk fee not paid");  // TODO ensure doesn't overflow
+        require(instant != 0 && (instant == (coverageAmount / 10_000) * riskScore), "Risk fee not paid");  // TODO ensure doesn't overflow
 
         uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
         availableReserves -= scaledCoverageAmount; // underflow reverts (max_reserve_ratio has been exceeded)
