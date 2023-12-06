@@ -16,7 +16,6 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
-    // Constants
     uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
     uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
     uint256 immutable public MAX_RESERVE_BPS;  // MAX_RESERVE_BPS/10_000 = x% (2_000 = 20% => 1$ reserved : 5$ covered)
@@ -36,7 +35,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     uint256 public poolStart = 0;  // Time that first coverage happened
     uint256 public reservesReleaseDate = 0;  // Date when LP can withdraw
 
-    uint256 public totalReserves = 0; 
+    uint256 public totalReserves = 0;
     uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
     uint256 public yieldedFunds = 0;  // Kept separate from reserve pool funds
 
@@ -109,6 +108,18 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         );
 
         coverage.wasRedeemed = true;
+        // TODO need to deduct from reserves (available and yieldedFunds)
+    }
+
+    // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
+    function getYield(uint256 notaId) public {  // TODO inefficient
+        CoverageInfo storage coverage = coverageInfo[notaId];
+
+        require(!coverage.wasRedeemed, "Already redeemed");
+        require(coverage.maturityDate <= block.timestamp, "Not matured yet");
+        
+        coverage.wasRedeemed = true;
+        availableReserves += coverage.coverageAmount;  // Release active capital
     }
 
     function deposit(uint256 fundingAmount) public {
@@ -121,17 +132,6 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         fundingStarted = true;
 
         _mint(_msgSender(), fundingAmount);
-    }
-
-    // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
-    function getYield(uint256 notaId) public {  // TODO inefficient
-        CoverageInfo storage coverage = coverageInfo[notaId];
-
-        require(!coverage.wasRedeemed, "Already redeemed");
-        require(coverage.maturityDate <= block.timestamp, "Not matured yet");
-        
-        coverage.wasRedeemed = true;
-        availableReserves += coverage.coverageAmount;  // Release active capital
     }
 
     function withdraw() public {

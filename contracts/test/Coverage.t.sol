@@ -142,12 +142,11 @@ contract CoverageTest is Test, RegistrarTest {
         vm.label(coverageHolder, "Coverage Holder");
         return premium;
     }
-
-    function testWrite(
+    function _setupThenWrite(
         address caller,
         uint256 coverageAmount,
         address coverageHolder
-    ) public {
+    ) internal returns(uint256 notaId){
         uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
 
         _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
@@ -157,7 +156,15 @@ contract CoverageTest is Test, RegistrarTest {
         _depositHelper(coverageAmount);
 
         _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
-        _writeHelper(caller, coverageAmount, premium, coverageHolder);
+        notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
+    }
+
+    function testWrite(
+        address caller,
+        uint256 coverageAmount,
+        address coverageHolder
+    ) public {
+        _setupThenWrite(caller, coverageAmount, coverageHolder);
     }
     
     function _claimCoverageHelper(
@@ -191,17 +198,7 @@ contract CoverageTest is Test, RegistrarTest {
         uint256 coverageAmount,
         address coverageHolder
     ) public {
-        uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
-
-        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
-        _registrarTokenWhitelistHelper(address(DAI));
-        _addWhitelistHelper(caller);
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
-        _depositHelper(coverageAmount);
-
-        _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
-        uint256 notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
-        
+        uint256 notaId = _setupThenWrite(caller, coverageAmount, coverageHolder);
         _claimCoverageHelper(notaId);
     }
 
@@ -210,7 +207,7 @@ contract CoverageTest is Test, RegistrarTest {
         assertFalse(COVERAGE.coverageInfoWasRedeemed(notaId), "");
         uint256 availableReservesBefore = COVERAGE.availableReserves();
         uint256 maturityDate = COVERAGE.coverageInfoMaturityDate(notaId);
-        
+
         vm.warp(maturityDate);
         COVERAGE.getYield(notaId);
 
@@ -222,33 +219,15 @@ contract CoverageTest is Test, RegistrarTest {
         uint256 coverageAmount,
         address coverageHolder
         ) public {
-        uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
-
-        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
-        _registrarTokenWhitelistHelper(address(DAI));
-        _addWhitelistHelper(caller);
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
-        _depositHelper(coverageAmount);
-
-        _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
-        uint256 notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
+        uint256 notaId = _setupThenWrite(caller, coverageAmount, coverageHolder);
 
         _getYieldHelper(notaId);
     }
 
-    function _withdrawHelper(
-        address caller
-    ) internal {
+    function _withdrawHelper() internal {
         // TODO Before tests
-
-        vm.prank(liquidityProvider);
-        COVERAGE.withdraw();
-
-        // TODO After tests
-
-        // withdrawal logic
+        // assertTrue();  // require(reservesReleaseDate >= block.timestamp);
         /**
-        require(reservesReleaseDate >= block.timestamp);
         uint256 liquidityClaim = balanceOf(_msgSender());
         uint256 claimPercentage = liquidityClaim / totalReserves;
         uint256 yieldClaim = yieldedFunds * claimPercentage;
@@ -264,23 +243,20 @@ contract CoverageTest is Test, RegistrarTest {
         }
         
         IERC20(USDC).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
-         */
+        */
+
+        vm.prank(liquidityProvider);
+        COVERAGE.withdraw();
+
+        // TODO After tests
     }
 
-    function testWithdraw(address caller,
+    function testWithdraw(
+        address caller,
         uint256 coverageAmount,
         address coverageHolder
     ) public {
-        uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
-
-        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
-        _registrarTokenWhitelistHelper(address(DAI));
-        _addWhitelistHelper(caller);
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
-        _depositHelper(coverageAmount);
-
-        _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
-        uint256 notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
+        uint256 notaId = _setupThenWrite(caller, coverageAmount, coverageHolder);
         _getYieldHelper(notaId);
 
         _withdrawHelper(caller);
