@@ -203,8 +203,8 @@ contract CoverageTest is Test, RegistrarTest {
     }
 
     function _getYieldHelper(uint256 notaId) internal {
-        assertLt(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "");
-        assertFalse(COVERAGE.coverageInfoWasRedeemed(notaId), "");
+        assertLt(block.timestamp, COVERAGE.coverageInfoMaturityDate(notaId), "Already matured");
+        assertFalse(COVERAGE.coverageInfoWasRedeemed(notaId), "Already redeemed");
         uint256 availableReservesBefore = COVERAGE.availableReserves();
         uint256 maturityDate = COVERAGE.coverageInfoMaturityDate(notaId);
 
@@ -212,6 +212,7 @@ contract CoverageTest is Test, RegistrarTest {
         COVERAGE.getYield(notaId);
 
         assertEq(COVERAGE.availableReserves(), availableReservesBefore + COVERAGE.coverageInfoCoverageAmount(notaId));
+        assertTrue(COVERAGE.coverageInfoWasRedeemed(notaId), "Not redeemed");
     }
 
     function testGetYield(
@@ -224,31 +225,30 @@ contract CoverageTest is Test, RegistrarTest {
         _getYieldHelper(notaId);
     }
 
-    function _withdrawHelper() internal {
-        // TODO Before tests
-        // assertTrue();  // require(reservesReleaseDate >= block.timestamp);
-        /**
-        uint256 liquidityClaim = balanceOf(_msgSender());
-        uint256 claimPercentage = liquidityClaim / totalReserves;
-        uint256 yieldClaim = yieldedFunds * claimPercentage;
-
-        _burn(_msgSender(), liquidityClaim);
-
-        if (totalSupply() == 0){
-            fundingStarted = false;
-            poolStart = 0;
-            reservesReleaseDate = 0;
-            availableReserves = 0;
-            yieldedFunds = 0;
-        }
-        
-        IERC20(USDC).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
-        */
+    function _withdrawHelper(
+    ) internal {
+        uint256 liquidityDepositedBefore = COVERAGE.balanceOf(liquidityProvider);
+        uint256 claimPercentage = liquidityDepositedBefore / COVERAGE.totalReserves();
+        uint256 yieldClaim = COVERAGE.yieldedFunds() * claimPercentage;
+        assertGe(COVERAGE.reservesReleaseDate(), block.timestamp);
+        uint256 daiBalanceBefore = DAI.balanceOf(liquidityProvider);
+        uint256 totalSupplyBefore = COVERAGE.totalSupply();
 
         vm.prank(liquidityProvider);
         COVERAGE.withdraw();
 
-        // TODO After tests
+        if (COVERAGE.totalSupply() == 0){
+            assertFalse(COVERAGE.fundingStarted());
+            assertEq(COVERAGE.poolStart(), 0);
+            assertEq(COVERAGE.reservesReleaseDate(), 0);
+            assertEq(COVERAGE.availableReserves(), 0);
+            assertEq(COVERAGE.yieldedFunds(), 0);
+        }
+
+        assertEq(totalSupplyBefore - liquidityDepositedBefore, COVERAGE.totalSupply());
+        assertEq(COVERAGE.balanceOf(liquidityProvider), 0);
+
+        assertEq(daiBalanceBefore + liquidityDepositedBefore + yieldClaim, DAI.balanceOf(liquidityProvider)); 
     }
 
     function testWithdraw(
@@ -259,6 +259,6 @@ contract CoverageTest is Test, RegistrarTest {
         uint256 notaId = _setupThenWrite(caller, coverageAmount, coverageHolder);
         _getYieldHelper(notaId);
 
-        _withdrawHelper(caller);
+        _withdrawHelper();
     }
 }
