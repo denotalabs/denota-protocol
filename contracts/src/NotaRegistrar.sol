@@ -9,30 +9,26 @@ import {Nota} from "./libraries/DataTypes.sol";
 import  "./ERC4906.sol";
 import  "./NotaFees.sol";
 
-// TODO replace SafeERC20 to UniV4.currency
-// TODO remove Context dependancy
-// TODO noDelegateCall in WTFCAB
-// TODO use struct in write (write(INotaRegistrar.NotaParams({currency, escrowed, owner, module}), instant /*, instantRecipient*/, writeData)
-// TODO refactor cashing token transfer logic into an internal function for readability
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
     using SafeERC20 for IERC20;
     
     mapping(uint256 => Nota) private _notas;
     uint256 public totalSupply;
 
-    modifier isMinted(uint256 notaId) {  // Question: Allow burned Notas to be interacted with? Otherwise use ERC721._exists()
+    modifier isMinted(uint256 notaId) {
         if (notaId >= totalSupply) revert NotMinted();
         _;
     }
 
-    constructor() ERC4906("Denota", "NOTA") {}
+    constructor() ERC4906("Denota Protocol", "NOTA") {}
 
     function write(address currency, uint256 escrowed, uint256 instant, address owner,  address module, bytes calldata moduleData) public payable returns (uint256) {
         uint256 moduleFee = INotaModule(module).processWrite(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleData);
 
-        _transferTokens(escrowed, instant, currency, owner, moduleFee, module);
+        _transferTokens(escrowed, instant, currency, owner, moduleFee);
         _mint(owner, totalSupply);
         _notas[totalSupply] = Nota(escrowed, block.timestamp, currency, module);
+        _moduleRevenue[module][currency] += moduleFee;
 
         emit Written(msg.sender, totalSupply, owner, instant, currency, escrowed, block.timestamp, moduleFee, module, moduleData);
         unchecked { return totalSupply++; }
@@ -44,7 +40,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         emit MetadataUpdate(notaId);
     }
 
-    function safeTransferFrom(  // Question: is this needed?
+    function safeTransferFrom(
         address from,
         address to,
         uint256 notaId,
@@ -57,11 +53,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
 
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata fundData) public payable isMinted(notaId) {
         Nota memory nota = _notas[notaId];
-        address tokenOwner = ownerOf(notaId);
-        uint256 moduleFee = INotaModule(nota.module).processFund(msg.sender, tokenOwner, amount, instant, notaId, nota, fundData);
+        address notaOwner = ownerOf(notaId);
+        uint256 moduleFee = INotaModule(nota.module).processFund(msg.sender, notaOwner, amount, instant, notaId, nota, fundData);
 
-        _transferTokens(amount, instant, nota.currency, tokenOwner, moduleFee, nota.module);
+        _transferTokens(amount, instant, nota.currency, notaOwner, moduleFee);
         _notas[notaId].escrowed += amount;
+        _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
         emit Funded(msg.sender, notaId, amount, instant, fundData, moduleFee, block.timestamp);
         emit MetadataUpdate(notaId);
@@ -69,23 +66,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
 
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata cashData) public payable isMinted(notaId) {
         Nota memory nota = _notas[notaId];
-
-        uint256 moduleFee = INotaModule(nota.module).processCash( msg.sender, ownerOf(notaId), to, amount, notaId, nota, cashData);
+        uint256 moduleFee = INotaModule(nota.module).processCash(msg.sender, ownerOf(notaId), to, amount, notaId, nota, cashData);
         
-        // _transferTokens(amount + moduleFee, instant, nota.currency, tokenOwner, moduleFee, nota.module);
-        uint256 totalAmount = amount + moduleFee;
-
-        if (totalAmount > nota.escrowed)
-            revert InsufficientEscrow(totalAmount, nota.escrowed);
-        unchecked {
-            _notas[notaId].escrowed -= totalAmount;
-        } 
-        if (nota.currency == address(0)) {
-            (bool sent, ) = to.call{value: amount}("");
-            if (!sent) revert SendFailed();
-        } else {
-            IERC20(nota.currency).safeTransfer(to, amount);
-        }
+        uint256 totalAmount = amount + moduleFee;  // calced here since needed for check before transfer
+        if (totalAmount > nota.escrowed) revert InsufficientEscrow(totalAmount, nota.escrowed);
+        unchecked { _notas[notaId].escrowed -= totalAmount; } 
+        _unescrowTokens(nota.currency, to, amount);
         _moduleRevenue[nota.module][nota.currency] += moduleFee;
         emit Cashed(msg.sender, notaId, to, amount, cashData, moduleFee, block.timestamp);
     }
@@ -104,23 +90,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         return toJSON(nota, moduleAttributes, moduleKeys);
     }
     /*//////////////////////// HELPERS ///////////////////////////*/
-    function _transferTokens(  // Question: should this be broken into separate functions? What about the fee
-        uint256 escrowed,
-        uint256 instant,
-        address currency,
-        address payer,
-        uint256 moduleFee,
-        address module
-    ) private {
-        uint256 toEscrow = escrowed + moduleFee; // Module forces user to escrow moduleFee, even when escrowed == 0
-        if (toEscrow + instant != 0) {
-            if (toEscrow > 0) {
+    // NOTE: each throw on failure. Have additional checks here?
+    function _escrowTokens(uint256 toEscrow, address currency) private {
+        if (toEscrow > 0) {
                 if (currency == address(0)) {
-                    if (msg.value < toEscrow)
-                        // User must send sufficient value ahead of time
-                        revert InsufficientValue(toEscrow, msg.value);
+                    if (msg.value < toEscrow) revert InsufficientValue(toEscrow, msg.value);
+                    // Transfer already done in tx
                 } else {
-                    // User must approve sufficient value ahead of time
+                    // Transfer
                     IERC20(currency).safeTransferFrom(
                         msg.sender,
                         address(this),
@@ -128,24 +105,43 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
                     );
                 }
             }
-
-            if (instant > 0) {
+    }
+    function _instantTokens(address currency, uint256 instant, address recipient, uint256 escrow) private {
+        if (instant > 0) {
                 if (currency == address(0)) {
-                    if (msg.value != instant + toEscrow)
-                        // need to subtract toEscrow from msg.value
-                        revert InsufficientValue(instant + toEscrow, msg.value);
-                    (bool sent, ) = payer.call{value: instant}("");
+                    if (msg.value != instant + escrow) revert InsufficientValue(instant + escrow, msg.value);
+                    // Transfer
+                    (bool sent, ) = recipient.call{value: instant}(""); // forwards ETH to owner
                     if (!sent) revert SendFailed();
                 } else {
+                    // Transfer
                     IERC20(currency).safeTransferFrom(
                         msg.sender,
-                        payer,
+                        recipient,
                         instant
                     );
                 }
             }
-
-            _moduleRevenue[module][currency] += moduleFee;
+    }
+    function _unescrowTokens(address currency, address to, uint256 amount) private {
+        if (currency == address(0)) {
+            (bool sent, ) = to.call{value: amount}("");
+            if (!sent) revert SendFailed();
+        } else {
+            IERC20(currency).safeTransfer(to, amount);
+        }
+    }
+    function _transferTokens(
+        uint256 escrowed,
+        uint256 instant,
+        address currency,
+        address recipient,
+        uint256 moduleFee
+    ) private {
+        uint256 toEscrow = escrowed + moduleFee; // Module forces user to escrow moduleFee, even when escrowed == 0
+        if (toEscrow + instant!= 0) {
+            _escrowTokens(toEscrow, currency);
+            _instantTokens(currency, instant, recipient, toEscrow);
         }
     }
 
@@ -166,28 +162,27 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
             msg.sender,
             getApproved(notaId),
             owner,
-            from, // TODO Might not be needed
+            from,
             to,
             notaId,
             nota,
             moduleTransferData
         );
 
-        // Fee taking and escrowing
-        if (nota.escrowed > 0) {
-            // Can't take from 0 escrow
-            _notas[notaId].escrowed -= moduleFee;
+        // TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
+        if (moduleFee > 0){
+            _notas[notaId].escrowed -= moduleFee;  // If module doesn't revert then this will
             _moduleRevenue[nota.module][nota.currency] += moduleFee;
-            emit Transferred(
-                notaId,
-                owner,
-                to,
-                moduleFee,
-                block.timestamp
-            );
-        } else { // Must be case since fee's can't be taken without an escrow to take from
-            emit Transferred(notaId, owner, to, 0, block.timestamp);
         }
+        emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
+
+        // if (nota.escrowed > 0) {
+        //     _notas[notaId].escrowed -= moduleFee;
+        //     _moduleRevenue[nota.module][nota.currency] += moduleFee;
+        // } else { // Must be case since fee's can't be taken without an escrow to take from
+        //     emit Transferred(notaId, owner, to, 0, block.timestamp);
+        // }
+        // emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
     }
 
     function metadataUpdate(uint256 notaId) external {
@@ -214,20 +209,4 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
         return _notas[notaId].module;
     }
 }
-/**
-    function burn(uint256 notaId) public virtual {
-        Nota storage nota = _notas[notaId];
-        uint256 moduleFee = INotaModule(nota.module).processBurn(
-            msg.sender,
-            ownerOf(notaId),
-            to,
-            amount,
-            notaId,
-            nota,
-            cashData
-        );
 
-        _burn(notaId);
-    }
-}
-*/
