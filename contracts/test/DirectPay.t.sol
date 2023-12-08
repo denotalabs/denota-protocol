@@ -39,7 +39,7 @@ contract DirectPayTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
-    uint256 public immutable tokensCreated = 1_000_000_000_000e18;
+    uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function isContract(address _addr) public view returns (bool) {
         uint32 size;
@@ -52,7 +52,7 @@ contract DirectPayTest is Test {
     function setUp() public {
         // sets up the registrar and ERC20s
         REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
-        dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
+        dai = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
         // REGISTRAR.whitelistToken(address(usdc), true);
@@ -196,7 +196,7 @@ contract DirectPayTest is Test {
                 owner != address(0) &&
                 drawer != address(0)) &&
             // Testing conditions
-            (amount <= tokensCreated) && // Can't use more token than created
+            (amount <= TOKENS_CREATED) && // Can't use more token than created
             (caller != address(0)) && // Don't vm.prank from address(0)
             !isContract(owner); // Don't send notas to non-ERC721Reciever contracts
     }
@@ -261,7 +261,7 @@ contract DirectPayTest is Test {
         uint256 directAmount,
         address creditor
     ) public {
-        vm.assume(directAmount != 0 && directAmount <= tokensCreated);
+        vm.assume(directAmount != 0 && directAmount <= TOKENS_CREATED);
         vm.assume(
             debtor != address(0) &&
                 creditor != address(0) &&
@@ -325,7 +325,7 @@ contract DirectPayTest is Test {
         uint256 faceValue,
         address creditor
     ) public {
-        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
+        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
         address owner = creditor;
         vm.assume(
             debtor != address(0) &&
@@ -436,7 +436,7 @@ contract DirectPayTest is Test {
         uint256 faceValue,
         address recipient
     ) public {
-        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
+        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(
@@ -487,7 +487,7 @@ contract DirectPayTest is Test {
         uint256 faceValue,
         address recipient
     ) public {
-        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
+        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
         vm.assume(caller != recipient);
         vm.assume(caller != address(0));
         vm.assume(

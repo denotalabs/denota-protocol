@@ -35,7 +35,7 @@ pragma solidity ^0.8.16;
 //     //     NotaRegistrar public REGISTRAR;
 //     //     TestERC20 public dai;
 //     //     TestERC20 public usdc;
-//     //     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
+//     //     uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 //     //     function isContract(address _addr) public view returns (bool){
 //     //         uint32 size;
 //     //         assembly {size := extcodesize(_addr)}
@@ -43,7 +43,7 @@ pragma solidity ^0.8.16;
 //     //     }
 //     //     function setUp() public {  // sets up the registrar and ERC20s
 //     //         REGISTRAR = new NotaRegistrar(DataTypes.WTFCFees(0,0,0,0));  // ContractTest is the owner
-//     //         dai = new TestERC20(tokensCreated, "DAI", "DAI");  // Sends ContractTest the dai
+//     //         dai = new TestERC20(TOKENS_CREATED, "DAI", "DAI");  // Sends ContractTest the dai
 //     //         usdc = new TestERC20(0, "USDC", "USDC");
 //     //         // REGISTRAR.whitelistToken(address(dai), true);
 //     //         // REGISTRAR.whitelistToken(address(usdc), true);
@@ -111,7 +111,7 @@ pragma solidity ^0.8.16;
 //     //         return FEE;
 //     //     }
 //     //     function notaWriteCondition(address caller, uint256 amount, address recipient/*, uint256 duration*/) public view returns(bool){
-//     //         return amount <= tokensCreated &&   // Can't use more token than created
+//     //         return amount <= TOKENS_CREATED &&   // Can't use more token than created
 //     //                caller != recipient &&  // Don't self send
 //     //                caller != address(0) &&  // Don't vm.prank from address(0)
 //     //                recipient != address(0) &&   // Can't send to, or transact from, address(0)

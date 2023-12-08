@@ -1,35 +1,159 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
+import "forge-std/console.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
+import "openzeppelin/token/ERC20/ERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
-contract Coverage is Ownable, ModuleBase {
+// Assumes: a single LP, a single liquidity deposit, a single lockup period (with endDate buffer=endDate  - coverage maturity), coverage is fully backed
+// TODO add reserve pool specific events
+// TODO add custom errors
+contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
+    uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
+    uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
+    uint256 immutable public MAX_RESERVE_BPS;  // MAX_RESERVE_BPS/10_000 = x% (2_000 = 20% => 1$ reserved : 5$ covered)
+    address immutable public USDC;
+
     struct CoverageInfo {
-        uint256 coverageAmount; // Face value of the payment
+        uint256 coverageAmount;
+        uint256 maturityDate; 
         address coverageHolder;
         bool wasRedeemed;
     }
 
     mapping(uint256 => CoverageInfo) public coverageInfo;
-    mapping(address => bool) public isWhitelisted;
+    mapping(address => bool) public isWhitelisted; // Whitelisting addresses getting coverage
 
-    address public usdc;
+    bool public fundingStarted = false;  // If LP already funded don't allow another deposit
+    uint256 public poolStart = 0;  // Time that first coverage happened
+    uint256 public reservesReleaseDate = 0;  // Date when LP can withdraw
+
+    uint256 public totalReserves = 0;
+    uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
+    uint256 public yieldedFunds = 0;  // Kept separate from reserve pool funds
 
     constructor(
         address registrar,
         DataTypes.WTFCFees memory _fees,
         string memory __baseURI,
-        address _usdc
-    ) ModuleBase(registrar, _fees) {
+        address _USDC,
+        uint256 _coveragePeriod,  // In seconds
+        uint256 _reservesLockupPeriod,  // In seconds
+        uint256 _reserveRatio
+    ) ModuleBase(registrar, _fees) ERC20("DenotaCoverageToken", "DCT"){
         _URI = __baseURI;
-        usdc = _usdc;
+        USDC = _USDC;
+        COVERAGE_PERIOD = _coveragePeriod;
+        RESERVE_LOCKUP_PERIOD = _reservesLockupPeriod;
+        MAX_RESERVE_BPS = _reserveRatio;
+    }
+
+    function processWrite(
+        address caller,
+        address _owner,
+        uint256 notaId,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
+        bytes calldata initData
+    ) public override onlyRegistrar returns (uint256) {
+        require(isWhitelisted[caller], "Not whitelisted");
+        require(_owner == address(this), "Risk fee not paid to pool");
+        require(currency == USDC, "Incorrect currency");
+        require(escrowed == 0, "Escrow unsupported");
+        
+        (address coverageHolder, uint256 coverageAmount, uint256 riskScore) = abi.decode(
+            initData,
+            (address, uint256, uint256)
+        );
+        require(coverageAmount > 0, "No coverage");
+        require(instant != 0 && (instant == (coverageAmount / 10_000) * riskScore), "Risk fee not paid");  // TODO ensure doesn't overflow
+
+        uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
+        availableReserves -= scaledCoverageAmount; // underflow reverts (max_reserve_ratio has been exceeded)
+        
+        uint256 maturityDate = block.timestamp + COVERAGE_PERIOD;
+        if (poolStart == 0) {
+            poolStart = block.timestamp;
+            reservesReleaseDate = block.timestamp + RESERVE_LOCKUP_PERIOD;
+        } else {
+            require(maturityDate <= reservesReleaseDate, "Coverage period elapsed");
+        }
+
+        yieldedFunds += instant;
+        coverageInfo[notaId].coverageHolder = coverageHolder;
+        coverageInfo[notaId].maturityDate = maturityDate;
+        coverageInfo[notaId].coverageAmount = coverageAmount;
+        return 0;
+    }
+
+    // TODO could change this to processCash();
+    function claimCoverage(uint256 notaId) public {
+        CoverageInfo storage coverage = coverageInfo[notaId];
+
+        require(!coverage.wasRedeemed, "Already redeemed");
+        require(block.timestamp < coverage.maturityDate, "Coverage expired");
+        require(_msgSender() == coverage.coverageHolder, "Not coverage holder");
+
+        IERC20(USDC).safeTransfer(
+            coverage.coverageHolder,
+            coverage.coverageAmount
+        );
+
+        coverage.wasRedeemed = true;
+        // TODO need to deduct from reserves (available and yieldedFunds)
+    }
+
+    // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
+    function getYield(uint256 notaId) public {  // TODO inefficient
+        CoverageInfo storage coverage = coverageInfo[notaId];
+
+        require(!coverage.wasRedeemed, "Already redeemed");
+        require(coverage.maturityDate <= block.timestamp, "Not matured yet");
+        
+        coverage.wasRedeemed = true;
+        availableReserves += coverage.coverageAmount;  // Release active capital
+    }
+
+    function deposit(uint256 fundingAmount) public {
+        require(!fundingStarted, "Pool already funded");
+
+        IERC20(USDC).safeTransferFrom(_msgSender(), address(this), fundingAmount);
+
+        totalReserves = fundingAmount;
+        availableReserves += fundingAmount;
+        fundingStarted = true;
+
+        _mint(_msgSender(), fundingAmount);
+    }
+
+    function withdraw() public {
+        // HACK: if the total supply isn't claimed the module is bricked (can't restart LP/Coverage pool)
+        require(reservesReleaseDate >= block.timestamp);  // Yielding period is over, allow claims
+        uint256 liquidityClaim = balanceOf(_msgSender());
+        require(liquidityClaim != 0, "No LP tokens");
+        // TODO ensure safe math
+        uint256 claimPercentage = liquidityClaim / totalReserves; // Percentage of yield they are entitled to
+        uint256 yieldClaim = yieldedFunds * claimPercentage; // TODO use safest math (round down)
+
+        _burn(_msgSender(), liquidityClaim); // Withdraw() burns all the caller's tokens
+
+        if (totalSupply() == 0){  // TODO consider a waiting period where this can be reset without supply=0
+            fundingStarted = false;
+            poolStart = 0;
+            reservesReleaseDate = 0;
+            availableReserves = 0;
+            yieldedFunds = 0;
+        }
+        
+        IERC20(USDC).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
     }
 
     // Admin can add an address to the whitelist
@@ -42,78 +166,29 @@ contract Coverage is Ownable, ModuleBase {
         isWhitelisted[_address] = false;
     }
 
-    function fundPool(uint256 fundingAmount) public {
-        IERC20(usdc).safeTransferFrom(_msgSender(), address(this), fundingAmount);
-
-        // LPs receive pool tokens in return
-        // TODO: figure out token issuance and redemption
-    }
-
-    function processWrite(
-        address caller,
-        address _owner,
-        uint256 notaId,
-        address currency,
-        uint256 /*escrowed*/,
-        uint256 instant,
-        bytes calldata initData
-    ) public override onlyRegistrar returns (uint256) {
-        require(isWhitelisted[caller], "Not whitelisted");
-
-        (address holder, uint256 amount, uint256 riskScore) = abi.decode(
-            initData,
-            (address, uint256, uint256)
-        );
-
-        require(instant == (amount / 10000) * riskScore, "Risk fee not paid");
-        // TODO: maybe onramp should own nota? (currently the registrar assumes that the owner is the one being paid)
-        require(_owner == address(this), "Risk fee not paid to pool");
-        require(currency == usdc, "Incorrect currency");
-
-        coverageInfo[notaId].coverageHolder = holder;
-        coverageInfo[notaId].coverageAmount = amount;
-        coverageInfo[notaId].wasRedeemed = false;
-        return 0;
-    }
-
-    function recoverFunds(uint256 notaId) public {
-        CoverageInfo storage coverage = coverageInfo[notaId];
-
-        require(!coverage.wasRedeemed);
-        require(_msgSender() == coverage.coverageHolder);
-
-        // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
-        IERC20(usdc).safeTransfer(
-            coverage.coverageHolder,
-            coverage.coverageAmount
-        );
-
-        coverage.wasRedeemed = true;
-    }
-
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        address currency,
-        uint256 escrowed,
+        address /*currency*/,
+        uint256 /*escrowed*/,
         uint256 /*createdAt*/,
-        bytes memory data
+        bytes memory /*data*/
     ) public override onlyRegistrar returns (uint256) {
         return 0;
     }
 
     function processFund(
         address /*caller*/,
-        address owner,
-        uint256 amount,
-        uint256 instant,
-        uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes calldata initData
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) public override onlyRegistrar returns (uint256) {
         return 0;
     }
@@ -142,8 +217,21 @@ contract Coverage is Ownable, ModuleBase {
     }
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 /*tokenId*/
     ) external view override returns (string memory) {
         return "";
+    }
+
+    function coverageInfoCoverageAmount(uint256 notaId) public view returns(uint256){
+        return coverageInfo[notaId].coverageAmount;
+    }
+    function coverageInfoMaturityDate(uint256 notaId) public view returns(uint256){
+        return coverageInfo[notaId].maturityDate;
+    }
+    function coverageInfoCoverageHolder(uint256 notaId) public view returns(address){
+        return coverageInfo[notaId].coverageHolder;
+    }
+    function coverageInfoWasRedeemed(uint256 notaId) public view returns(bool){
+        return coverageInfo[notaId].wasRedeemed;
     }
 }

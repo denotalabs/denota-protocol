@@ -63,5 +63,11 @@ interface INotaModule {
 
     function processTokenURI(
         uint256 tokenId
-    ) external view returns (string memory);
+    ) external view returns (string memory); // TODO how to format IPFS payloads to insert into the metadata
+    
+    function getFees(
+        address dappOperator
+    ) external view returns (DataTypes.WTFCFees memory);
+    
+    function withdrawFees(address token) external;
 }

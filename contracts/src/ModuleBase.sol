@@ -5,6 +5,7 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 
 // TODO separate fee and non-fee modules (perhaps URI distinction ones as well?)
+// Question: should make constructor call out to the NotaRegistrar to set fees? Would need to store that on both if there are subowners/dappOperators within the module so it can credit/withdraw those on the module's side
 // ERC-4906: EIP-721 Metadata Update Extension
 abstract contract ModuleBase is INotaModule {
     address public immutable REGISTRAR; // Question: Make this a hardcoded address?
