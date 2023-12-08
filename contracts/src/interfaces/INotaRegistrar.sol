@@ -103,8 +103,6 @@ interface INotaRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
-    // function burn(uint256 tokenId) external;
-
     // nota data
     function notaInfo(
         uint256 notaId
@@ -118,13 +116,9 @@ interface INotaRegistrar {
 
     function notaModule(uint256 notaId) external view returns (address);
 
-    // function ownerOf(uint256 notaId) external view returns (address);
-
-    // function totalSupply() public view returns (uint256);
-
-    // function moduleWithdraw(
-    //     address token,
-    //     uint256 amount,
-    //     address payoutAccount
-    // ) external;
+    function moduleWithdraw(
+        address token,
+        uint256 amount,
+        address payoutAccount
+    ) external;
 }

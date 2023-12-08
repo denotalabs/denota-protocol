@@ -7,11 +7,11 @@ import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {Nota} from "./libraries/DataTypes.sol";
 import  "./ERC4906.sol";
-import  "./NotaFees.sol";
 
-contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
+contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding {
     using SafeERC20 for IERC20;
     
+    mapping(address => mapping(address => uint256)) internal _moduleRevenue;
     mapping(uint256 => Nota) private _notas;
     uint256 public totalSupply;
 
@@ -175,20 +175,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaFees, NotaEncoding {
             _moduleRevenue[nota.module][nota.currency] += moduleFee;
         }
         emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
-
-        // if (nota.escrowed > 0) {
-        //     _notas[notaId].escrowed -= moduleFee;
-        //     _moduleRevenue[nota.module][nota.currency] += moduleFee;
-        // } else { // Must be case since fee's can't be taken without an escrow to take from
-        //     emit Transferred(notaId, owner, to, 0, block.timestamp);
-        // }
-        // emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
     }
 
     function metadataUpdate(uint256 notaId) external {
         Nota memory nota = _notas[notaId];
         require(msg.sender == nota.module, "NOT_MODULE");
         emit MetadataUpdate(notaId);
+    }
+
+    function moduleWithdraw(address token, uint256 amount, address to) external {
+        _moduleRevenue[msg.sender][token] -= amount;  // reverts on underflow
+        IERC20(token).safeTransferFrom(address(this), to, amount);
     }
 
     function notaInfo(

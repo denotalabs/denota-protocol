@@ -4,7 +4,6 @@ import {Nota, WTFCFees} from "./libraries/DataTypes.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
-import {INotaFees} from "./interfaces/INotaFees.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
@@ -256,7 +255,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
         uint256 payoutAmount = revenue[msg.sender][token];
         revenue[msg.sender][token] = 0;
         if (payoutAmount > 0)
-            INotaFees(REGISTRAR).moduleWithdraw(
+            INotaRegistrar(REGISTRAR).moduleWithdraw(
                 token,
                 payoutAmount,
                 msg.sender
@@ -405,7 +404,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
         uint256 payoutAmount = revenue[token];
         revenue[token] = 0;
         if (payoutAmount > 0)
-            INotaFees(REGISTRAR).moduleWithdraw(
+            INotaRegistrar(REGISTRAR).moduleWithdraw(
                 token,
                 payoutAmount,
                 msg.sender
