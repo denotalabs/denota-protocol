@@ -24,7 +24,7 @@ contract DirectPay is ModuleBase {
     mapping(uint256 => Payment) public payInfo;
 
     event PaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         string memoHash,
         uint256 amount,
         uint256 timestamp,
@@ -53,7 +53,7 @@ contract DirectPay is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -77,41 +77,41 @@ contract DirectPay is ModuleBase {
         if (caller == owner) // Invoice
         {
             if (instant != 0) revert InvoiceWithPay();
-            payInfo[cheqId].creditor = caller;
-            payInfo[cheqId].debtor = toNotify;
-            payInfo[cheqId].amount = amount;
+            payInfo[notaId].creditor = caller;
+            payInfo[notaId].debtor = toNotify;
+            payInfo[notaId].amount = amount;
         } else if (owner == toNotify) // Payment
         {
             if (owner == address(0)) revert AddressZero();
-            payInfo[cheqId].creditor = toNotify;
-            payInfo[cheqId].debtor = caller;
-            payInfo[cheqId].amount = instant;
-            payInfo[cheqId].wasPaid = true;
+            payInfo[notaId].creditor = toNotify;
+            payInfo[notaId].debtor = caller;
+            payInfo[notaId].amount = instant;
+            payInfo[notaId].wasPaid = true;
         } else {
             revert Disallowed();
         }
-        // payInfo[cheqId].timestamp = timestamp;
-        payInfo[cheqId].memoHash = memoHash;
-        payInfo[cheqId].imageURI = imageURI;
+        // payInfo[notaId].timestamp = timestamp;
+        payInfo[notaId].memoHash = memoHash;
+        payInfo[notaId].imageURI = imageURI;
 
-        _logPaymentCreated(cheqId, dappOperator, dueDate);
+        _logPaymentCreated(notaId, dappOperator, dueDate);
 
         return takeReturnFee(currency, instant, dappOperator, 0);
     }
 
     function _logPaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         address referer,
         uint256 dueDate
     ) private {
         emit PaymentCreated(
-            cheqId,
-            payInfo[cheqId].memoHash,
-            payInfo[cheqId].amount,
+            notaId,
+            payInfo[notaId].memoHash,
+            payInfo[notaId].amount,
             block.timestamp,
             referer,
-            payInfo[cheqId].creditor,
-            payInfo[cheqId].debtor,
+            payInfo[notaId].creditor,
+            payInfo[notaId].debtor,
             dueDate
         );
     }
@@ -122,7 +122,7 @@ contract DirectPay is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -138,19 +138,19 @@ contract DirectPay is ModuleBase {
         address owner,
         uint256 amount,
         uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         if (owner == address(0)) revert AddressZero();
         if (amount != 0) revert EscrowUnsupported();
-        if (instant != payInfo[cheqId].amount) revert InsufficientPayment();
-        if (payInfo[cheqId].wasPaid) revert Disallowed();
-        // require(caller == payInfo[cheqId].debtor, "Only debtor"); // Should anyone be allowed to pay?
-        payInfo[cheqId].wasPaid = true;
+        if (instant != payInfo[notaId].amount) revert InsufficientPayment();
+        if (payInfo[notaId].wasPaid) revert Disallowed();
+        // require(caller == payInfo[notaId].debtor, "Only debtor"); // Should anyone be allowed to pay?
+        payInfo[notaId].wasPaid = true;
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount + instant,
                 abi.decode(initData, (address)),
                 2
@@ -162,8 +162,8 @@ contract DirectPay is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*amount*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -173,12 +173,12 @@ contract DirectPay is ModuleBase {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
-        // require(wasPaid[cheqId], "Module: Must be cashed first");
+        // require(wasPaid[notaId], "Module: Must be cashed first");
     }
 
     function processTokenURI(

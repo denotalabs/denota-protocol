@@ -106,23 +106,22 @@ contract RegistrarTest is Test {
             "Owner balance didn't increment"
         );
 
-        assertEq(
-            REGISTRAR.ownerOf(notaId), owner,
+        assertTrue(
+            REGISTRAR.ownerOf(notaId) == owner,
             "`owner` isn't owner of nota"
         );
 
-        assertEq(
-            REGISTRAR.cheqCurrency(notaId), currency,
+        assertTrue(
+            REGISTRAR.notaCurrency(notaId) == currency,
             "Incorrect token"
         );
-
-        assertEq(
-            REGISTRAR.cheqEscrowed(notaId), escrowed,
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
+        assertTrue(
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
-
-        assertEq(
-            address(REGISTRAR.cheqModule(notaId)), module,
+        assertTrue(
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }

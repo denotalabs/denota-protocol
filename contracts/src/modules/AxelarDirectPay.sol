@@ -23,7 +23,7 @@ contract AxelarDirectPay is ModuleBase {
     mapping(uint256 => Payment) public payInfo;
 
     event PaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         string memoHash,
         uint256 amount,
         address creditor,
@@ -33,7 +33,7 @@ contract AxelarDirectPay is ModuleBase {
     );
     /**
         event PaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         string memoHash,
         uint256 amount,
         uint256 timestamp,
@@ -64,7 +64,7 @@ contract AxelarDirectPay is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -86,7 +86,7 @@ contract AxelarDirectPay is ModuleBase {
             );
         if (amount == 0) revert AmountZero();
 
-        payInfo[cheqId] = Payment(
+        payInfo[notaId] = Payment(
             amount,
             sourceChain,
             imageURI,
@@ -94,22 +94,22 @@ contract AxelarDirectPay is ModuleBase {
             sender
         );
 
-        _logPaymentCreated(cheqId, owner, sourceChain);
+        _logPaymentCreated(notaId, owner, sourceChain);
 
         return takeReturnFee(currency, instant, dappOperator, 0);
     }
 
     function _logPaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         address creditor,
         uint256 sourceChain
     ) private {
         emit PaymentCreated(
-            cheqId,
-            payInfo[cheqId].memoHash,
-            payInfo[cheqId].amount,
+            notaId,
+            payInfo[notaId].memoHash,
+            payInfo[notaId].amount,
             creditor,
-            payInfo[cheqId].sender,
+            payInfo[notaId].sender,
             sourceChain,
             block.chainid
         );
@@ -121,7 +121,7 @@ contract AxelarDirectPay is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -137,8 +137,8 @@ contract AxelarDirectPay is ModuleBase {
         address /*owner*/,
         uint256 /*amount*/,
         uint256 /*instant*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -149,8 +149,8 @@ contract AxelarDirectPay is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*amount*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         revert Disallowed();
@@ -160,12 +160,12 @@ contract AxelarDirectPay is ModuleBase {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
-        // require(wasPaid[cheqId], "Module: Must be cashed first");
+        // require(wasPaid[notaId], "Module: Must be cashed first");
     }
 
     function processTokenURI(

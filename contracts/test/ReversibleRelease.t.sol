@@ -142,7 +142,7 @@ contract ReversibleReleaseTest is Test {
         return (amount * fee) / 10_000;
     }
 
-    // function cheqWriteCondition(
+    // function notaWriteCondition(
     //     address caller,
     //     uint256 amount,
     //     uint256 escrowed,
@@ -155,30 +155,30 @@ contract ReversibleReleaseTest is Test {
     //         (drawer != recipient) && // Drawer and recipient aren't the same
     //         (owner == drawer || owner == recipient) && // Either drawer or recipient must be owner
     //         (caller == drawer || caller == recipient) && // Delegated pay/requesting not allowed
-    //         (escrowed == 0 || escrowed == amount) && // Either send unfunded or fully funded cheq
+    //         (escrowed == 0 || escrowed == amount) && // Either send unfunded or fully funded nota
     //         (recipient != address(0) &&
     //             owner != address(0) &&
     //             drawer != address(0)) &&
     //         // Testing conditions
     //         (amount <= TOKENS_CREATED) && // Can't use more token than created
     //         (caller != address(0)) && // Don't vm.prank from address(0)
-    //         !isContract(owner); // Don't send cheqs to non-ERC721Reciever contracts
+    //         !isContract(owner); // Don't send notas to non-ERC721Reciever contracts
     // }
 
     function registrarWriteBefore(address caller, address recipient) public {
         assertTrue(
             REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a cheq"
+            "Caller already had a nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(recipient) == 0,
-            "Recipient already had a cheq"
+            "Recipient already had a nota"
         );
         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 escrowed,
         address owner,
         address module
@@ -188,8 +188,8 @@ contract ReversibleReleaseTest is Test {
             "Nota supply didn't increment"
         );
         assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
-            "`owner` isn't owner of cheq"
+            REGISTRAR.ownerOf(notaId) == owner,
+            "`owner` isn't owner of nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 1,
@@ -197,22 +197,22 @@ contract ReversibleReleaseTest is Test {
         );
 
         // NotaRegistrar wrote correctly to its storage
-        // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        // assertTrue(REGISTRAR.notaDrawer(notaId) == drawer, "Incorrect drawer");
         // assertTrue(
-        //     REGISTRAR.cheqRecipient(cheqId) == recipient,
+        //     REGISTRAR.notaRecipient(notaId) == recipient,
         //     "Incorrect recipient"
         // );
         assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == address(dai),
+            REGISTRAR.notaCurrency(notaId) == address(dai),
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
         assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
         assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }
@@ -248,7 +248,7 @@ contract ReversibleReleaseTest is Test {
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv" // imageURI
         );
         vm.prank(debtor);
-        uint256 cheqId = REGISTRAR.write(
+        uint256 notaId = REGISTRAR.write(
             address(dai),
             escrowed,
             0, // instant
@@ -257,14 +257,14 @@ contract ReversibleReleaseTest is Test {
             initData
         );
         registrarWriteAfter(
-            cheqId,
+            notaId,
             escrowed, // Escrowed
             creditor, // Owner
             address(reversibleRelease)
         );
 
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -319,7 +319,7 @@ contract ReversibleReleaseTest is Test {
 
         console.log(amount, instant, totalWithFees);
         vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(
+        uint256 notaId = REGISTRAR.write(
             address(dai),
             escrowed,
             instant,
@@ -328,20 +328,20 @@ contract ReversibleReleaseTest is Test {
             initData
         ); // Sets caller as owner
         registrarWriteAfter(
-            cheqId,
+            notaId,
             escrowed,
             owner,
             address(reversibleRelease)
         );
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
-        return (cheqId, reversibleRelease);
+        return (notaId, reversibleRelease);
     }
 
     function fundHelper(
-        uint256 cheqId,
+        uint256 notaId,
         ReversibleRelease reversibleRelease,
         uint256 fundAmount,
         address debtor,
@@ -363,7 +363,7 @@ contract ReversibleReleaseTest is Test {
 
         vm.prank(debtor);
         REGISTRAR.fund(
-            cheqId,
+            notaId,
             fundAmount, // Escrow amount
             0, // Instant amount
             abi.encode(address(0)) // Fund data
@@ -413,7 +413,7 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
 
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
+        (uint256 notaId, ReversibleRelease reversibleRelease) = writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -423,8 +423,8 @@ contract ReversibleReleaseTest is Test {
             address(this)
         );
 
-        // Fund cheq
-        fundHelper(cheqId, reversibleRelease, faceValue, debtor, creditor);
+        // Fund nota
+        fundHelper(notaId, reversibleRelease, faceValue, debtor, creditor);
     }
 
     function testFundTransferInvoice(
@@ -434,7 +434,7 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
 
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
+        (uint256 notaId, ReversibleRelease reversibleRelease) = writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -444,14 +444,14 @@ contract ReversibleReleaseTest is Test {
             address(this)
         );
 
-        // Fund cheq
-        fundHelper(cheqId, reversibleRelease, faceValue, debtor, creditor);
+        // Fund nota
+        fundHelper(notaId, reversibleRelease, faceValue, debtor, creditor);
 
         vm.prank(creditor);
         REGISTRAR.safeTransferFrom(
             creditor,
             address(1),
-            cheqId,
+            notaId,
             abi.encode(bytes32("")) // transfer data
         );
     }
@@ -463,7 +463,7 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
         (
-            uint256 cheqId /*ReversibleRelease reversibleRelease*/,
+            uint256 notaId /*ReversibleRelease reversibleRelease*/,
 
         ) = writeHelper(
                 debtor, // Caller
@@ -478,7 +478,7 @@ contract ReversibleReleaseTest is Test {
         uint256 balanceBefore = dai.balanceOf(creditor);
         vm.prank(address(this));
         REGISTRAR.cash(
-            cheqId, //
+            notaId, //
             faceValue, // amount to cash
             creditor, // to
             bytes(abi.encode(""))
@@ -495,7 +495,7 @@ contract ReversibleReleaseTest is Test {
         writeAssumptions(debtor, faceValue, creditor);
 
         (
-            uint256 cheqId /*ReversibleRelease reversibleRelease*/,
+            uint256 notaId /*ReversibleRelease reversibleRelease*/,
 
         ) = writeHelper(
                 debtor, // Who the caller should be
@@ -510,7 +510,7 @@ contract ReversibleReleaseTest is Test {
         uint256 balanceBefore = dai.balanceOf(creditor);
         vm.prank(address(this));
         REGISTRAR.cash(
-            cheqId, //
+            notaId, //
             faceValue, // amount
             debtor, // to
             bytes(abi.encode(""))
@@ -529,7 +529,7 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
 
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
+        (uint256 notaId, ReversibleRelease reversibleRelease) = writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -539,13 +539,13 @@ contract ReversibleReleaseTest is Test {
             address(this)
         );
 
-        // Fund cheq
-        fundHelper(cheqId, reversibleRelease, faceValue, debtor, creditor);
+        // Fund nota
+        fundHelper(notaId, reversibleRelease, faceValue, debtor, creditor);
 
         uint256 balanceBefore = dai.balanceOf(creditor);
         vm.prank(address(this));
         REGISTRAR.cash(
-            cheqId,
+            notaId,
             faceValue, // amount to cash
             creditor, // to
             bytes(abi.encode(address(0))) // dappOperator
@@ -561,7 +561,7 @@ contract ReversibleReleaseTest is Test {
     ) public {
         writeAssumptions(debtor, faceValue, creditor);
 
-        (uint256 cheqId, ReversibleRelease reversibleRelease) = writeHelper(
+        (uint256 notaId, ReversibleRelease reversibleRelease) = writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -571,7 +571,7 @@ contract ReversibleReleaseTest is Test {
             address(this)
         );
 
-        // Fund cheq
-        fundHelper(cheqId, reversibleRelease, faceValue, debtor, creditor);
+        // Fund nota
+        fundHelper(notaId, reversibleRelease, faceValue, debtor, creditor);
     }
 }

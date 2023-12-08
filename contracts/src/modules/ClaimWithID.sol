@@ -1007,10 +1007,10 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
     }
     mapping(uint256 => Lock) public locks;
 
-    event Locked(uint256 cheqId, uint256 claimPeriod, uint64 requiredProof);
+    event Locked(uint256 notaId, uint256 claimPeriod, uint64 requiredProof);
 
-    function _requireProof(address prover, uint256 cheqId) internal view {
-        require(proofs[prover][locks[cheqId].requiredProof], "Proof failed");
+    function _requireProof(address prover, uint256 notaId) internal view {
+        require(proofs[prover][locks[notaId].requiredProof], "Proof failed");
     }
 
     constructor(
@@ -1024,7 +1024,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
     function processWrite(
         address caller,
         address /*owner*/,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 /*instant*/,
@@ -1033,11 +1033,11 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         (uint64 requiredProof, uint256 claimPeriod, address dappOperator) = abi
             .decode(initData, (uint64, uint256, address));
 
-        locks[cheqId].requiredProof = requiredProof;
-        locks[cheqId].claimPeriod = claimPeriod;
-        locks[cheqId].sender = caller;
+        locks[notaId].requiredProof = requiredProof;
+        locks[notaId].claimPeriod = claimPeriod;
+        locks[notaId].sender = caller;
 
-        emit Locked(cheqId, claimPeriod, requiredProof);
+        emit Locked(notaId, claimPeriod, requiredProof);
         return takeReturnFee(currency, escrowed, dappOperator, 0);
     }
 
@@ -1047,14 +1047,14 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address owner,
         address /*from*/,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         address /*currency*/,
         uint256 /*escrowed*/,
         uint256 /*createdAt*/,
         bytes memory /*data*/
     ) external view override onlyRegistrar returns (uint256) {
         require(caller == owner || caller == approved, "Not owner or approved");
-        _requireProof(to, cheqId);
+        _requireProof(to, notaId);
         return 0;
     }
 
@@ -1063,8 +1063,8 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address /*owner*/,
         uint256 /*amount*/,
         uint256 /*instant*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -1076,17 +1076,17 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address owner,
         address /*to*/,
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        require(amount == cheq.escrowed, "Must fully cash");
+        require(amount == nota.escrowed, "Must fully cash");
 
         if (caller == owner) {
-            _requireProof(owner, cheqId);
-        } else if (caller == locks[cheqId].sender) {
+            _requireProof(owner, notaId);
+        } else if (caller == locks[notaId].sender) {
             require(
-                cheq.createdAt + locks[cheqId].claimPeriod >= block.timestamp,
+                nota.createdAt + locks[notaId].claimPeriod >= block.timestamp,
                 "Not expired yet"
             );
         } else {
@@ -1095,7 +1095,7 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
 
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -1106,8 +1106,8 @@ contract ClaimWithID is ModuleBase, ZKPVerifier {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");

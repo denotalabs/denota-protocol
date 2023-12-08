@@ -87,27 +87,27 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         uint256 instant,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // Writes milestones to mapping, writes totalMilestones into invoice (rest of invoice is filled out later)
-//         require(tokenWhitelist[cheq.currency], "Module: Token not whitelisted"); // QUESTION: should this be a require or return false?
+//         require(tokenWhitelist[nota.currency], "Module: Token not whitelisted"); // QUESTION: should this be a require or return false?
 //         IWriteRule(writeRule).canWrite(
 //             caller,
 //             owner,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             instant,
 //             initData
 //         ); // Should the assumption be that this is only for freelancers to send as an invoice??
 //         // require(caller == owner, "Not invoice");
-//         // require(cheq.drawer == caller, "Can't send on behalf");
-//         // require(cheq.recipient != owner, "Can't self send");
-//         // require(cheq.amount > 0, "Can't send cheq with 0 value");
+//         // require(nota.drawer == caller, "Can't send on behalf");
+//         // require(nota.recipient != owner, "Can't self send");
+//         // require(nota.amount > 0, "Can't send nota with 0 value");
 
-//         // require(milestonePrices.sum() == cheq.amount);
+//         // require(milestonePrices.sum() == nota.amount);
 
 //         (
 //             address drawer,
@@ -119,7 +119,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         require(numMilestones > 1, "Module: Insufficient milestones"); // First milestone is upfront payment
 
 //         for (uint256 i = 0; i < numMilestones; i++) {
-//             milestones[cheqId].push(
+//             milestones[notaId].push(
 //                 Milestone({
 //                     price: milestonePrices[i],
 //                     workerFinished: false,
@@ -128,10 +128,10 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //                 })
 //             ); // Can optimize on gas much more
 //         }
-//         invoices[cheqId].drawer = drawer;
-//         invoices[cheqId].recipient = recipient;
-//         invoices[cheqId].documentHash = documentHash;
-//         invoices[cheqId].totalMilestones = numMilestones;
+//         invoices[notaId].drawer = drawer;
+//         invoices[notaId].recipient = recipient;
+//         invoices[notaId].documentHash = documentHash;
+//         invoices[notaId].totalMilestones = numMilestones;
 //         return fees.writeBPS;
 //     }
 
@@ -141,8 +141,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address from,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ITransferRule(transferRule).canTransfer(
@@ -151,8 +151,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             owner,
 //             from,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         ); // Checks if caller is ownerOrApproved
 //         return fees.transferBPS;
@@ -167,8 +167,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         uint256 amount,
 //         uint256 instant,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // Client escrows the first milestone (is the upfront)
@@ -193,30 +193,30 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             // bytes32 documentHash;
 //         }
 //          */
-//         // require(caller == cheq.recipient, "Module: Only client can fund");
+//         // require(caller == nota.recipient, "Module: Only client can fund");
 //         IFundRule(fundRule).canFund(
 //             caller,
 //             owner,
 //             amount,
 //             instant,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 
-//         if (invoices[cheqId].startTime == 0)
-//             invoices[cheqId].startTime = block.timestamp;
+//         if (invoices[notaId].startTime == 0)
+//             invoices[notaId].startTime = block.timestamp;
 
-//         invoices[cheqId].clientStatus = Status.Ready;
+//         invoices[notaId].clientStatus = Status.Ready;
 
-//         uint256 oldMilestone = invoices[cheqId].currentMilestone;
+//         uint256 oldMilestone = invoices[notaId].currentMilestone;
 //         require(
-//             amount == milestones[cheqId][oldMilestone].price,
+//             amount == milestones[notaId][oldMilestone].price,
 //             "Module: Incorrect milestone amount"
 //         ); // Question should module throw on insufficient fund or enforce the amount?
-//         milestones[cheqId][oldMilestone].workerFinished = true;
-//         milestones[cheqId][oldMilestone].clientReleased = true;
-//         invoices[cheqId].currentMilestone += 1;
+//         milestones[notaId][oldMilestone].workerFinished = true;
+//         milestones[notaId][oldMilestone].clientReleased = true;
+//         invoices[notaId].currentMilestone += 1;
 //         return fees.fundBPS;
 //     }
 
@@ -226,8 +226,8 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address owner,
 //         address to,
 //         uint256 amount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         // require(caller == owner, "");
@@ -236,16 +236,16 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //             owner,
 //             to,
 //             amount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 //         require(
-//             invoices[cheqId].currentMilestone > 0,
+//             invoices[notaId].currentMilestone > 0,
 //             "Module: Can't cash yet"
 //         );
-//         uint256 lastMilestone = invoices[cheqId].currentMilestone - 1;
-//         milestones[cheqId][lastMilestone].workerCashed = true; //
+//         uint256 lastMilestone = invoices[notaId].currentMilestone - 1;
+//         milestones[notaId][lastMilestone].workerCashed = true; //
 //         return fees.cashBPS;
 //     }
 
@@ -253,16 +253,16 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         address caller,
 //         address owner,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(
 //             caller,
 //             owner,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 //     }
@@ -290,26 +290,26 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 //         return _URI;
 //     }
 
-//     function getMilestones(uint256 cheqId)
+//     function getMilestones(uint256 notaId)
 //         public
 //         view
 //         returns (Milestone[] memory)
 //     {
-//         return milestones[cheqId];
+//         return milestones[notaId];
 //     }
 
-//     function setStatus(uint256 cheqId, Status newStatus) public {
-//         Invoice storage invoice = invoices[cheqId];
+//     function setStatus(uint256 notaId, Status newStatus) public {
+//         Invoice storage invoice = invoices[notaId];
 
 //         // (address drawer, address recipient) = INotaRegistrar(REGISTRAR)
-//         //     .cheqDrawerRecipient(cheqId);
+//         //     .notaDrawerRecipient(notaId);
 //         require(
-//             _msgSender() == invoices[cheqId].drawer ||
-//                 _msgSender() == invoices[cheqId].recipient,
+//             _msgSender() == invoices[notaId].drawer ||
+//                 _msgSender() == invoices[notaId].recipient,
 //             "Module: Unauthorized"
 //         );
 
-//         bool isWorker = _msgSender() == invoices[cheqId].drawer;
+//         bool isWorker = _msgSender() == invoices[notaId].drawer;
 //         Status oldStatus = isWorker
 //             ? invoice.workerStatus
 //             : invoice.clientStatus;
@@ -347,38 +347,38 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 // (/*uint256 startTime, Status workerStatus, Status clientStatus, */Milestone[] memory milestones) = abi.decode(initData, (/*uint256, Status, Status,*/ Milestone[]));
 // require(milestones.length > 0, "No milestones");
 // // Really only need milestone price array for each milestone
-// // invoices[cheqId].startTime = startTime;
-// // invoices[cheqId].workerStatus = workerStatus;
-// // invoices[cheqId].clientStatus = clientStatus;
-// for (uint256 i = 0; i < milestones.length; i++){ // invoices[cheqId].milestones = milestones;
-//     invoices[cheqId].milestones.push(milestones[i]);  // Can optimize on gas much more
+// // invoices[notaId].startTime = startTime;
+// // invoices[notaId].workerStatus = workerStatus;
+// // invoices[notaId].clientStatus = clientStatus;
+// for (uint256 i = 0; i < milestones.length; i++){ // invoices[notaId].milestones = milestones;
+//     invoices[notaId].milestones.push(milestones[i]);  // Can optimize on gas much more
 // }
 // (uint256 startTime, Status workerStatus, Status clientStatus) = abi.decode(initData, (uint256, Status, Status));
 
 // // BUG what if funder doesnt fund the invoice for too long??
 // function cashable(
-//     uint256 cheqId,
+//     uint256 notaId,
 //     address caller,
 //     uint256 /* amount */
 // ) public view returns (uint256) {
-//     // Invoice funder can cash before period, cheq writer can cash before period
+//     // Invoice funder can cash before period, nota writer can cash before period
 //     // Chargeback case
 //     if (
-//         cheqFunder[cheqId] == caller &&
+//         notaFunder[notaId] == caller &&
 //         (block.timestamp <
-//             cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])
+//             notaCreated[notaId] + notaInspectionPeriod[notaId])
 //     ) {
 //         // Funding party can rescind before the inspection period elapses
-//         return cheq.cheqEscrowed(cheqId);
+//         return nota.notaEscrowed(notaId);
 //     } else if (
-//         cheq.ownerOf(cheqId) == caller &&
+//         nota.ownerOf(notaId) == caller &&
 //         (block.timestamp >=
-//             cheqCreated[cheqId] + cheqInspectionPeriod[cheqId])
+//             notaCreated[notaId] + notaInspectionPeriod[notaId])
 //     ) {
 //         // Receiving/Owning party can cash after inspection period
-//         return cheq.cheqEscrowed(cheqId);
-//     } else if (isReleased[cheqId]) {
-//         return cheq.cheqEscrowed(cheqId);
+//         return nota.notaEscrowed(notaId);
+//     } else if (isReleased[notaId]) {
+//         return nota.notaEscrowed(notaId);
 //     } else {
 //         return 0;
 //     }

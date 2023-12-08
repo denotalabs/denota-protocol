@@ -68,7 +68,7 @@ abstract contract ModuleBase is INotaModule {
     // function processWrite(
     //     address caller,
     //     address owner,
-    //     uint256 cheqId,
+    //     uint256 notaId,
     //     address currency,
     //     uint256 escrowed,
     //     uint256 instant,
@@ -84,7 +84,7 @@ abstract contract ModuleBase is INotaModule {
     //     address owner,
     //     address from,
     //     address to,
-    //     uint256 cheqId,
+    //     uint256 notaId,
     //     address currency,
     //     uint256 escrowed,
     //     uint256 createdAt,
@@ -99,8 +99,8 @@ abstract contract ModuleBase is INotaModule {
     //     address owner,
     //     uint256 amount,
     //     uint256 instant,
-    //     uint256 cheqId,
-    //     DataTypes.Nota calldata cheq,
+    //     uint256 notaId,
+    //     DataTypes.Nota calldata nota,
     //     bytes calldata initData
     // ) external virtual override onlyRegistrar returns (uint256) {
     //     // Add module logic here
@@ -112,8 +112,8 @@ abstract contract ModuleBase is INotaModule {
     //     address owner,
     //     address to,
     //     uint256 amount,
-    //     uint256 cheqId,
-    //     DataTypes.Nota calldata cheq,
+    //     uint256 notaId,
+    //     DataTypes.Nota calldata nota,
     //     bytes calldata initData
     // ) external virtual override onlyRegistrar returns (uint256) {
     //     // Add module logic here
@@ -124,8 +124,8 @@ abstract contract ModuleBase is INotaModule {
     //     address caller,
     //     address owner,
     //     address to,
-    //     uint256 cheqId,
-    //     DataTypes.Nota calldata cheq,
+    //     uint256 notaId,
+    //     DataTypes.Nota calldata nota,
     //     bytes memory initData
     // ) external virtual override onlyRegistrar {
     //     // Add module logic here

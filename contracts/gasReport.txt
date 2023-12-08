@@ -10,9 +10,9 @@
 | cash                                         | 27404           | 29532  | 30576  | 30616  | 3       |
 | tokenURI                                     | 34207           | 35259  | 34901  | 36571  | 10      |
 | balanceOf                                    | 678             | 2011   | 2678   | 2678   | 36      |
-| cheqCurrency                                 | 587             | 587    | 587    | 587    | 12      |
-| cheqEscrowed                                 | 533             | 533    | 533    | 533    | 12      |
-| cheqModule                                   | 616             | 616    | 616    | 616    | 12      |
+| notaCurrency                                 | 587             | 587    | 587    | 587    | 12      |
+| notaEscrowed                                 | 533             | 533    | 533    | 533    | 12      |
+| notaModule                                   | 616             | 616    | 616    | 616    | 12      |
 | moduleWhitelisted                            | 934             | 2267   | 934    | 4934   | 6       |
 | ownerOf                                      | 558             | 558    | 558    | 558    | 12      |
 | tokenWhitelisted                             | 670             | 1336   | 670    | 2670   | 9       |
@@ -64,9 +64,9 @@
 | cash                                         | 27402           | 29530  | 30574  | 30614  | 3       |
 | tokenURI                                     | 34115           | 35211  | 34809  | 36680  | 10      |
 | balanceOf                                    | 678             | 2011   | 2678   | 2678   | 36      |
-| cheqCurrency                                 | 587             | 587    | 587    | 587    | 12      |
-| cheqEscrowed                                 | 489             | 489    | 489    | 489    | 12      |
-| cheqModule                                   | 594             | 594    | 594    | 594    | 12      |
+| notaCurrency                                 | 587             | 587    | 587    | 587    | 12      |
+| notaEscrowed                                 | 489             | 489    | 489    | 489    | 12      |
+| notaModule                                   | 594             | 594    | 594    | 594    | 12      |
 | moduleWhitelisted                            | 956             | 2289   | 956    | 4956   | 6       |
 | ownerOf                                      | 558             | 558    | 558    | 558    | 12      |
 | tokenWhitelisted                             | 670             | 1336   | 670    | 2670   | 9       |

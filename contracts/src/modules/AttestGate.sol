@@ -67,13 +67,13 @@ contract AttestSendLock is ModuleBase {
         );
     }
 
-    modifier onlyAttested(address about, uint256 cheqId) {
+    modifier onlyAttested(address about, uint256 notaId) {
         _onlyAttestation(
-            attestGates[cheqId].attSource,
+            attestGates[notaId].attSource,
             about,
-            attestGates[cheqId].key,
-            attestGates[cheqId].index,
-            attestGates[cheqId].expectedVal
+            attestGates[notaId].key,
+            attestGates[notaId].index,
+            attestGates[notaId].expectedVal
         );
         _;
     }
@@ -89,7 +89,7 @@ contract AttestSendLock is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -110,10 +110,10 @@ contract AttestSendLock is ModuleBase {
 
         _onlyAttestation(attSource, owner, key, index, expectedVal);
 
-        attestGates[cheqId].attSource = attSource;
-        attestGates[cheqId].key = key;
-        attestGates[cheqId].index = index;
-        attestGates[cheqId].expectedVal = expectedVal;
+        attestGates[notaId].attSource = attSource;
+        attestGates[notaId].key = key;
+        attestGates[notaId].index = index;
+        attestGates[notaId].expectedVal = expectedVal;
 
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
@@ -124,7 +124,7 @@ contract AttestSendLock is ModuleBase {
         address /*owner*/,
         address /*from*/,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         address /*currency*/,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -134,7 +134,7 @@ contract AttestSendLock is ModuleBase {
         view
         override
         onlyRegistrar
-        onlyAttested(to, cheqId)
+        onlyAttested(to, notaId)
         returns (uint256)
     {
         // return takeReturnFee(currency, escrowed, dappOperator);
@@ -146,14 +146,14 @@ contract AttestSendLock is ModuleBase {
         address owner,
         uint256 amount,
         uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(caller == owner, "Not owner");
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount + instant,
                 abi.decode(initData, (address)),
                 2
@@ -165,13 +165,13 @@ contract AttestSendLock is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 amount,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata cheq,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -182,8 +182,8 @@ contract AttestSendLock is ModuleBase {
         address /*caller*/,
         address /*owner*/,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {}
 
@@ -197,8 +197,8 @@ contract AttestSendLock is ModuleBase {
         }
     }
 
-    function updateURI(uint256 cheqId, bytes calldata newURI) public {
-        require(msg.sender == ERC721(REGISTRAR).ownerOf(cheqId), "Only Owner");
-        tokenURIs[cheqId] = newURI;
+    function updateURI(uint256 notaId, bytes calldata newURI) public {
+        require(msg.sender == ERC721(REGISTRAR).ownerOf(notaId), "Only Owner");
+        tokenURIs[notaId] = newURI;
     }
 }

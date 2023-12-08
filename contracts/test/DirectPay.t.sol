@@ -178,7 +178,7 @@ contract DirectPayTest is Test {
         return (amount * fee) / 10_000;
     }
 
-    function cheqWriteCondition(
+    function notaWriteCondition(
         address caller,
         uint256 amount,
         uint256 escrowed,
@@ -191,30 +191,30 @@ contract DirectPayTest is Test {
             (drawer != recipient) && // Drawer and recipient aren't the same
             (owner == drawer || owner == recipient) && // Either drawer or recipient must be owner
             (caller == drawer || caller == recipient) && // Delegated pay/requesting not allowed
-            (escrowed == 0 || escrowed == amount) && // Either send unfunded or fully funded cheq
+            (escrowed == 0 || escrowed == amount) && // Either send unfunded or fully funded nota
             (recipient != address(0) &&
                 owner != address(0) &&
                 drawer != address(0)) &&
             // Testing conditions
             (amount <= TOKENS_CREATED) && // Can't use more token than created
             (caller != address(0)) && // Don't vm.prank from address(0)
-            !isContract(owner); // Don't send cheqs to non-ERC721Reciever contracts
+            !isContract(owner); // Don't send notas to non-ERC721Reciever contracts
     }
 
     function registrarWriteBefore(address caller, address recipient) public {
         assertTrue(
             REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a cheq"
+            "Caller already had a nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(recipient) == 0,
-            "Recipient already had a cheq"
+            "Recipient already had a nota"
         );
         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 /*amount*/,
         uint256 escrowed,
         address owner,
@@ -227,8 +227,8 @@ contract DirectPayTest is Test {
             "Nota supply didn't increment"
         );
         assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
-            "`owner` isn't owner of cheq"
+            REGISTRAR.ownerOf(notaId) == owner,
+            "`owner` isn't owner of nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 1,
@@ -236,22 +236,22 @@ contract DirectPayTest is Test {
         );
 
         // NotaRegistrar wrote correctly to its storage
-        // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        // assertTrue(REGISTRAR.notaDrawer(notaId) == drawer, "Incorrect drawer");
         // assertTrue(
-        //     REGISTRAR.cheqRecipient(cheqId) == recipient,
+        //     REGISTRAR.notaRecipient(notaId) == recipient,
         //     "Incorrect recipient"
         // );
         assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == address(dai),
+            REGISTRAR.notaCurrency(notaId) == address(dai),
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
         assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
         assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }
@@ -296,7 +296,7 @@ contract DirectPayTest is Test {
             "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
         );
         vm.prank(debtor);
-        uint256 cheqId = REGISTRAR.write(
+        uint256 notaId = REGISTRAR.write(
             address(dai),
             0,
             directAmount,
@@ -305,7 +305,7 @@ contract DirectPayTest is Test {
             initData
         );
         registrarWriteAfter(
-            cheqId,
+            notaId,
             directAmount,
             0,
             creditor, // Owner
@@ -315,7 +315,7 @@ contract DirectPayTest is Test {
         );
 
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -334,7 +334,7 @@ contract DirectPayTest is Test {
         );
         vm.assume(debtor != creditor);
 
-        (uint256 cheqId, DirectPay directPay) = writeHelper(
+        (uint256 notaId, DirectPay directPay) = writeHelper(
             creditor, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -345,7 +345,7 @@ contract DirectPayTest is Test {
         );
 
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -411,7 +411,7 @@ contract DirectPayTest is Test {
 
         console.log(amount, directAmount, totalWithFees);
         vm.prank(caller);
-        uint256 cheqId = REGISTRAR.write(
+        uint256 notaId = REGISTRAR.write(
             address(dai),
             escrowed,
             directAmount,
@@ -420,7 +420,7 @@ contract DirectPayTest is Test {
             initData
         ); // Sets caller as owner
         registrarWriteAfter(
-            cheqId,
+            notaId,
             amount,
             0,
             owner,
@@ -428,7 +428,7 @@ contract DirectPayTest is Test {
             recipient,
             address(directPay)
         );
-        return (cheqId, directPay);
+        return (notaId, directPay);
     }
 
     function testFundInvoice(
@@ -445,7 +445,7 @@ contract DirectPayTest is Test {
                 !isContract(caller)
         );
 
-        (uint256 cheqId, DirectPay directPay) = writeHelper(
+        (uint256 notaId, DirectPay directPay) = writeHelper(
             caller, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -455,7 +455,7 @@ contract DirectPayTest is Test {
             caller // The owner
         );
 
-        // Fund cheq
+        // Fund nota
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
             directPay,
@@ -470,7 +470,7 @@ contract DirectPayTest is Test {
         uint256 balanceBefore = dai.balanceOf(caller);
         vm.prank(recipient);
         REGISTRAR.fund(
-            cheqId,
+            notaId,
             0, // Escrow amount
             faceValue, // Instant amount
             abi.encode(bytes32("")) // Fund data
@@ -495,7 +495,7 @@ contract DirectPayTest is Test {
                 recipient != address(0) &&
                 !isContract(caller)
         );
-        (uint256 cheqId, DirectPay directPay) = writeHelper(
+        (uint256 notaId, DirectPay directPay) = writeHelper(
             caller, // Who the caller should be
             faceValue, // Face value of invoice
             0, // escrowed amount
@@ -504,7 +504,7 @@ contract DirectPayTest is Test {
             recipient,
             caller // The owner
         );
-        // Fund cheq
+        // Fund nota
         uint256 totalWithFees = calcTotalFees(
             REGISTRAR,
             directPay,
@@ -518,7 +518,7 @@ contract DirectPayTest is Test {
         uint256 balanceBefore = dai.balanceOf(caller);
         vm.prank(recipient);
         REGISTRAR.fund(
-            cheqId,
+            notaId,
             0, // Escrow amount
             faceValue, // Instant amount
             abi.encode(bytes32("")) // Fund data
@@ -529,9 +529,9 @@ contract DirectPayTest is Test {
         // REGISTRAR.safeTransferFrom(
         //     caller,
         //     address(1),
-        //     cheqId,
+        //     notaId,
         //     abi.encode(bytes32("")) // transfer data
         // );
-        REGISTRAR.transferFrom(caller, address(1), cheqId);
+        REGISTRAR.transferFrom(caller, address(1), notaId);
     }
 }

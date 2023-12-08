@@ -56,7 +56,7 @@ pragma solidity ^0.8.16;
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
+//         uint256 notaId,
 //         address currency,
 //         uint256 escrowed,
 //         uint256 instant,
@@ -76,18 +76,18 @@ pragma solidity ^0.8.16;
 //             "Must send full"
 //         );
 //         if (caller == owner) {
-//             payInfo[cheqId].payee = caller;
-//             payInfo[cheqId].payer = toNotify;
+//             payInfo[notaId].payee = caller;
+//             payInfo[notaId].payer = toNotify;
 //         } else {
 //             require(instant == amount, "No payment");
-//             payInfo[cheqId].payee = toNotify;
-//             payInfo[cheqId].payer = caller;
-//             payInfo[cheqId].wasPaid = true;
+//             payInfo[notaId].payee = toNotify;
+//             payInfo[notaId].payer = caller;
+//             payInfo[notaId].wasPaid = true;
 //             attestPayment(owner, instant); // IDEA comment out when not on polygon
 //         }
-//         payInfo[cheqId].amount = amount;
-//         payInfo[cheqId].timestamp = timestamp;
-//         payInfo[cheqId].memoHash = memoHash;
+//         payInfo[notaId].amount = amount;
+//         payInfo[notaId].timestamp = timestamp;
+//         payInfo[notaId].memoHash = memoHash;
 //         require(
 //             owner == caller || owner == toNotify,
 //             "caller != owner && owner != toNotify"
@@ -101,7 +101,7 @@ pragma solidity ^0.8.16;
 //         }
 //         revenue[dappOperator][currency] += moduleFee;
 
-//         emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+//         emit PaymentCreated(notaId, memoHash, amount, timestamp, dappOperator);
 //         return moduleFee;
 //     }
 
@@ -111,7 +111,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address, /*from*/
 //         address, /*to*/
-//         uint256, /*cheqId*/
+//         uint256, /*notaId*/
 //         address currency,
 //         uint256 escrowed,
 //         uint256, /*createdAt*/
@@ -122,7 +122,7 @@ pragma solidity ^0.8.16;
 //             "Only owner or approved"
 //         );
 
-//         // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
+//         // require(payInfo[notaId].wasPaid, "Module: Only after cashing");
 //         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
 //         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to NotaRegistrarOwner
 //         return moduleFee;
@@ -133,20 +133,20 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         uint256 amount,
 //         uint256 instant,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
 //         // require(caller != owner, "Owner doesn't fund");
-//         require(caller == payInfo[cheqId].payer, "Only drawer/recipient");
-//         require(!payInfo[cheqId].wasPaid, "Module: Already cashed");
-//         require(instant == payInfo[cheqId].amount, "Only full direct amount");
-//         payInfo[cheqId].wasPaid = true;
+//         require(caller == payInfo[notaId].payer, "Only drawer/recipient");
+//         require(!payInfo[notaId].wasPaid, "Module: Already cashed");
+//         require(instant == payInfo[notaId].amount, "Only full direct amount");
+//         payInfo[notaId].wasPaid = true;
 //         attestPayment(owner, instant); // IDEA comment out when not on polygon
 
 //         uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-//         revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
+//         revenue[abi.decode(initData, (address))][nota.currency] += moduleFee;
 //         return moduleFee;
 //     }
 
@@ -180,15 +180,15 @@ pragma solidity ^0.8.16;
 //         address, /*owner*/
 //         address, /*to*/
 //         uint256, /*amount*/
-//         uint256, /*cheqId*/
-//         DataTypes.Nota calldata, /*cheq*/
+//         uint256, /*notaId*/
+//         DataTypes.Nota calldata, /*nota*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Disallowed");
 //         // address referer = abi.decode(initData, (address));
-//         // payInfo[cheqId].wasPaid = true;
+//         // payInfo[notaId].wasPaid = true;
 //         // uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-//         // revenue[referer][cheq.currency] += moduleFee;
+//         // revenue[referer][nota.currency] += moduleFee;
 //         return 0;
 //     }
 
@@ -196,12 +196,12 @@ pragma solidity ^0.8.16;
 //         address caller,
 //         address owner,
 //         address, /*to*/
-//         uint256, /*cheqId*/
-//         DataTypes.Nota calldata, /*cheq*/
+//         uint256, /*notaId*/
+//         DataTypes.Nota calldata, /*nota*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(caller == owner, "Only owner");
-//         // require(wasPaid[cheqId], "Module: Must be cashed first");
+//         // require(wasPaid[notaId], "Module: Must be cashed first");
 //     }
 // }
 
@@ -217,7 +217,7 @@ pragma solidity ^0.8.16;
 //     mapping(uint256 => Payment) public payInfo;
 
 //     event PaymentCreated(
-//         uint256 cheqId,
+//         uint256 notaId,
 //         bytes32 memoHash,
 //         uint256 amount,
 //         uint256 timestamp,
@@ -235,7 +235,7 @@ pragma solidity ^0.8.16;
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
+//         uint256 notaId,
 //         address currency,
 //         uint256 escrowed,
 //         uint256 instant,
@@ -256,17 +256,17 @@ pragma solidity ^0.8.16;
 //             "Must send full"
 //         );
 //         if (caller == owner) {
-//             payInfo[cheqId].payee = caller;
-//             payInfo[cheqId].payer = toNotify;
+//             payInfo[notaId].payee = caller;
+//             payInfo[notaId].payer = toNotify;
 //         } else {
 //             require(instant == amount, "No payment");
-//             payInfo[cheqId].payee = toNotify;
-//             payInfo[cheqId].payer = caller;
-//             payInfo[cheqId].wasPaid = true;
+//             payInfo[notaId].payee = toNotify;
+//             payInfo[notaId].payer = caller;
+//             payInfo[notaId].wasPaid = true;
 //         }
-//         payInfo[cheqId].amount = amount;
-//         payInfo[cheqId].timestamp = timestamp;
-//         payInfo[cheqId].memoHash = memoHash;
+//         payInfo[notaId].amount = amount;
+//         payInfo[notaId].timestamp = timestamp;
+//         payInfo[notaId].memoHash = memoHash;
 //         // require(drawer != recipient, "Rule: Drawer == recipient");
 //         require(
 //             owner == caller || owner == toNotify,
@@ -281,7 +281,7 @@ pragma solidity ^0.8.16;
 //         }
 //         revenue[dappOperator][currency] += moduleFee;
 
-//         emit PaymentCreated(cheqId, memoHash, amount, timestamp, dappOperator);
+//         emit PaymentCreated(notaId, memoHash, amount, timestamp, dappOperator);
 //         return moduleFee;
 //     }
 
@@ -291,7 +291,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address, /*from*/
 //         address, /*to*/
-//         uint256, /*cheqId*/
+//         uint256, /*notaId*/
 //         address currency,
 //         uint256 escrowed,
 //         uint256, /*createdAt*/
@@ -302,7 +302,7 @@ pragma solidity ^0.8.16;
 //             "Only owner or approved"
 //         );
 
-//         // require(payInfo[cheqId].wasPaid, "Module: Only after cashing");
+//         // require(payInfo[notaId].wasPaid, "Module: Only after cashing");
 //         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
 //         revenue[abi.decode(data, (address))][currency] += moduleFee; // TODO who does this go to if no bytes? Set to NotaRegistrarOwner
 //         return moduleFee;
@@ -313,18 +313,18 @@ pragma solidity ^0.8.16;
 //         address, /*owner*/
 //         uint256 amount,
 //         uint256 instant,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
 //         // require(caller != owner, "Owner doesn't fund");
-//         require(caller == payInfo[cheqId].payer, "Only drawer/recipient");
-//         require(!payInfo[cheqId].wasPaid, "Module: Already cashed");
-//         require(instant == payInfo[cheqId].amount, "Only full direct amount");
-//         payInfo[cheqId].wasPaid = true;
+//         require(caller == payInfo[notaId].payer, "Only drawer/recipient");
+//         require(!payInfo[notaId].wasPaid, "Module: Already cashed");
+//         require(instant == payInfo[notaId].amount, "Only full direct amount");
+//         payInfo[notaId].wasPaid = true;
 //         uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-//         revenue[abi.decode(initData, (address))][cheq.currency] += moduleFee;
+//         revenue[abi.decode(initData, (address))][nota.currency] += moduleFee;
 //         return moduleFee;
 //     }
 
@@ -333,15 +333,15 @@ pragma solidity ^0.8.16;
 //         address, /*owner*/
 //         address, /*to*/
 //         uint256, /*amount*/
-//         uint256, /*cheqId*/
-//         DataTypes.Nota calldata, /*cheq*/
+//         uint256, /*notaId*/
+//         DataTypes.Nota calldata, /*nota*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Rule: Disallowed");
 //         // address referer = abi.decode(initData, (address));
-//         // payInfo[cheqId].wasPaid = true;
+//         // payInfo[notaId].wasPaid = true;
 //         // uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
-//         // revenue[referer][cheq.currency] += moduleFee;
+//         // revenue[referer][nota.currency] += moduleFee;
 //         return 0;
 //     }
 
@@ -349,12 +349,12 @@ pragma solidity ^0.8.16;
 //         address, /*caller*/
 //         address, /*owner*/
 //         address, /*to*/
-//         uint256, /*cheqId*/
-//         DataTypes.Nota calldata, /*cheq*/
+//         uint256, /*notaId*/
+//         DataTypes.Nota calldata, /*nota*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(false, "Rule: Disallowed");
-//         // require(wasPaid[cheqId], "Module: Must be cashed first");
+//         // require(wasPaid[notaId], "Module: Must be cashed first");
 //     }
 
 //     function processTokenURI(uint256 tokenId)
