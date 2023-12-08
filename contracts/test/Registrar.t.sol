@@ -7,7 +7,6 @@ import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaModule} from "../src/interfaces/INotaModule.sol";
 import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
-
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public DAI;
@@ -151,6 +150,54 @@ contract RegistrarTest is Test {
             escrowed,
             owner,
             module
+        );
+    }
+
+    function _registrarTokenWhitelistHelper(address token) internal {
+        assertFalse(
+            REGISTRAR.tokenWhitelisted(token),
+            "Already Whitelisted"
+        );
+
+        REGISTRAR.whitelistToken(token, true, "DAI");
+        
+        assertTrue(
+            REGISTRAR.tokenWhitelisted(token),
+            "Whitelisting failed"
+        );
+    }
+
+    function _registrarModuleWhitelistHelper(address module, bool bytecode, bool _address, string memory name) internal {
+        assertTrue(bytecode != _address, "Can't do both");  // TODO make sure one is true
+
+        (bool bytecodeWhitelist, bool addressWhitelist) = REGISTRAR.moduleWhitelisted(module);
+        assertFalse(bytecodeWhitelist, "Already Whitelisted");
+        assertFalse(addressWhitelist, "Already Whitelisted");
+
+        REGISTRAR.whitelistModule(
+            module,
+            bytecode,
+            _address,
+            name
+        );
+
+        (bytecodeWhitelist, addressWhitelist) = REGISTRAR.moduleWhitelisted(module);
+        if (bytecode){
+            assertTrue(bytecodeWhitelist, "Bytecode Not Whitelisted");
+        } else{
+            assertTrue(addressWhitelist, "Address Not Whitelisted");
+        }
+    }
+
+    function testWhitelistToken() public {
+        // Add whitelist
+         _registrarTokenWhitelistHelper(address(DAI));
+        
+        // Remove whitelist
+        REGISTRAR.whitelistToken(address(DAI), false, "DAI");
+        assertFalse(
+            REGISTRAR.tokenWhitelisted(address(DAI)),
+            "Un-whitelisting failed"
         );
     }
 

@@ -15,7 +15,7 @@ contract MilestonesTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
-    uint256 public immutable tokensCreated = 1_000_000_000_000e18;
+    uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function isContract(address _addr) public view returns (bool) {
         uint32 size;
@@ -28,7 +28,7 @@ contract MilestonesTest is Test {
     function setUp() public {
         // sets up the registrar and ERC20s
         REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
-        dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
+        dai = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
         // REGISTRAR.whitelistToken(address(usdc), true);
@@ -156,7 +156,7 @@ contract MilestonesTest is Test {
             REGISTRAR.balanceOf(owner) == 0,
             "Recipient already had a nota"
         );
-        assertTrue(REGISTRAR.totalSupply() == 0, "nota supply non-zero");
+        assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
@@ -167,7 +167,7 @@ contract MilestonesTest is Test {
     ) public {
         assertTrue(
             REGISTRAR.totalSupply() == 1,
-            "nota supply didn't increment"
+            "Nota supply didn't increment"
         );
         assertTrue(
             REGISTRAR.ownerOf(notaId) == owner,
@@ -227,7 +227,7 @@ contract MilestonesTest is Test {
         uint256 amount = firstMilestone + secondMilestone;
         return
             (amount != 0) &&
-            (amount <= tokensCreated) &&
+            (amount <= TOKENS_CREATED) &&
             (secondMilestone != 0) &&
             (debtor != creditor) &&
             (debtor != address(0) && creditor != address(0)) &&
@@ -514,7 +514,7 @@ contract MilestonesTest is Test {
 }
 
 // function testCashPay(address caller, uint256 amount, address drawer, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     vm.assume(amount != 0 && amount <= TOKENS_CREATED);
 //     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
@@ -527,7 +527,7 @@ contract MilestonesTest is Test {
 // }
 
 // function testTransferPay(address caller, uint256 amount, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     vm.assume(amount != 0 && amount <= TOKENS_CREATED);
 //     (address drawer, uint256 directAmount, address owner) = (caller, amount, recipient);
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
@@ -538,7 +538,7 @@ contract MilestonesTest is Test {
 // }
 
 // function testTransferInvoice(address caller, uint256 amount, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     vm.assume(amount != 0 && amount <= TOKENS_CREATED);
 //     (address drawer, uint256 directAmount, address owner) = (caller, amount, caller);
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
@@ -549,7 +549,7 @@ contract MilestonesTest is Test {
 // }
 
 // function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
-//     vm.assume(amount != 0 && amount <= tokensCreated);
+//     vm.assume(amount != 0 && amount <= TOKENS_CREATED);
 //     (address drawer, uint256 escrowed, address owner) = (caller, amount, caller);
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);

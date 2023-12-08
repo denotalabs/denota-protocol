@@ -13,7 +13,7 @@ contract ReversibleReleaseTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public dai;
     TestERC20 public usdc;
-    uint256 public immutable tokensCreated = 1_000_000_000_000e18;
+    uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function isContract(address _addr) public view returns (bool) {
         uint32 size;

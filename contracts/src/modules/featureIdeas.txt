@@ -17,10 +17,10 @@ General Features:
     function processX() { require(!blacklisted[notaId.owner]) }
 * Yield Generation
     function yieldWrite() {AAVE.deposit(token); REGISTRAR.write(aToken, address(this), ...)}
-* nota Buy-Backs
-    function buynota(notaId) {REGISTRAR.transferFrom(notaId, caller, address(this)); ERC20._mint(caller, nota.escrowed)}; // AMM style nota buybacks and issue tokens
+* Nota Buy-Backs
+    function buyNota(notaId) {REGISTRAR.transferFrom(notaId, caller, address(this)); ERC20._mint(caller, nota.escrowed)}; // AMM style nota buybacks and issue tokens
 * ZK proving of past payments
-    function proveModuleTotalSuccessfulPayment(address) { ZK.recovernotaAmountsByAccount(address); }
+    function proveModuleTotalSuccessfulPayment(address) { ZK.recoverNotaAmountsByAccount(address); }
 * Dynamically charging fees based on caller, notaId, or other (if intervention was needed for ex)
 Admin role abilities: 
 1. Global pausing of WTFCA
@@ -79,7 +79,7 @@ Cashing
 * Payment Splitting
     function cashable() { cashable = 0xSplits.isAmountByMember[_msgSender()]; }
 * Spite Disputation
-    function spite() onlynotaOwner { invoice.status == status.Spited; }
+    function spite() onlyNotaOwner { invoice.status == status.Spited; }
     function cash() { nota.module.processCash(msg.sender, ...) } (amount to cash is half for each caller)
     function setSpitePercent(uint) onlyOwner { SPITE_BPS = uint; }
     function cash() { if (msg.sender==drawer) {nota.amount*SPIT_BPS} else if (msg.sender==recipient){SPITE_BPS} }

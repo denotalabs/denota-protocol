@@ -47,7 +47,7 @@ pragma solidity ^0.8.16;
 //     //         return "";
 //     //     }
 
-//     //     function voidnota(uint256 notaId) external {
+//     //     function voidNota(uint256 notaId) external {
 //     //         require(notaAuditor[notaId]==_msgSender(), "Only auditor");
 //     //         notaVoided[notaId] = true;
 //     //         // crx.cash(notaId, crx.notaDrawer(notaId), crx.notaEscrowed(notaId));  // Return escrow to drawer

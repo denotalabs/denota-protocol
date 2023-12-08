@@ -35,7 +35,7 @@ pragma solidity ^0.8.16;
 //     //     NotaRegistrar public REGISTRAR;
 //     //     TestERC20 public dai;
 //     //     TestERC20 public usdc;
-//     //     uint256 public immutable tokensCreated = 1_000_000_000_000e18;
+//     //     uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 //     //     function isContract(address _addr) public view returns (bool){
 //     //         uint32 size;
 //     //         assembly {size := extcodesize(_addr)}
@@ -58,7 +58,7 @@ pragma solidity ^0.8.16;
 //     //     //     REGISTRAR.whitelistModule(module, false, true);  // Whitelist bytecode
 //     //     // }
 //     //     /*//////////////////////////////////////////////////////////////
-//     //                                CHEQ TESTS
+//     //                                nota TESTS
 //     //     //////////////////////////////////////////////////////////////*/
 //     //     // function testWhitelistToken() public {
 //     //     //     address daiAddress = address(dai);
@@ -111,7 +111,7 @@ pragma solidity ^0.8.16;
 //     //         return FEE;
 //     //     }
 //     //     function notaWriteCondition(address caller, uint256 amount, address recipient/*, uint256 duration*/) public view returns(bool){
-//     //         return amount <= tokensCreated &&   // Can't use more token than created
+//     //         return amount <= TOKENS_CREATED &&   // Can't use more token than created
 //     //                caller != recipient &&  // Don't self send
 //     //                caller != address(0) &&  // Don't vm.prank from address(0)
 //     //                recipient != address(0) &&   // Can't send to, or transact from, address(0)
@@ -119,7 +119,7 @@ pragma solidity ^0.8.16;
 //     //             //    duration < type(uint).max &&  // Causes overflow
 //     //             //    (duration >> 2) + (block.timestamp >> 2) <= (type(uint).max >> 2) ; // Causes overflow
 //     //     }
-//     //     function testWritenota(address caller, uint256 amount, address recipient) public {
+//     //     function testWriteNota(address caller, uint256 amount, address recipient) public {
 //     //         vm.assume(notaWriteCondition(caller, amount, recipient));
 //     //         vm.assume(amount > 0);
 //     //         REGISTRAR.whitelistToken(address(dai), true);
@@ -141,8 +141,8 @@ pragma solidity ^0.8.16;
 //     //         dai.transfer(caller, totalWithFees);
 //     //         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a nota");
 //     //         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient already had a nota");
-//     //         assertTrue(REGISTRAR.totalSupply() == 0, "nota supply non-zero");
-//     //         Nota memory nota = Nota({
+//     //         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
+//     //         DataTypes.Nota memory nota = DataTypes.Nota({
 //     //             currency: address(dai),
 //     //             amount: amount,
 //     //             escrowed: amount,
@@ -156,7 +156,7 @@ pragma solidity ^0.8.16;
 //     //         bytes memory initData = abi.encode(prices);
 //     //         vm.prank(caller);
 //     //         uint256 notaId = REGISTRAR.write(nota, initData, caller);
-//     //         assertTrue(REGISTRAR.totalSupply() == 1, "nota supply didn't increment");
+//     //         assertTrue(REGISTRAR.totalSupply() == 1, "Nota supply didn't increment");
 //     //         assertTrue(REGISTRAR.ownerOf(notaId) == caller, "Recipient isn't owner");
 //     //         assertTrue(REGISTRAR.balanceOf(caller) == 1, "Sender got a nota");
 //     //         // assertTrue(REGISTRAR.balanceOf(recipient) == 1, "Recipient didnt get a nota");
@@ -192,12 +192,12 @@ pragma solidity ^0.8.16;
 //     // //         vm.assume(duration < type(uint256).max);
 //     // //         assertTrue(REGISTRAR.balanceOf(caller) == 0, "Caller already had a nota");
 //     // //         assertTrue(REGISTRAR.balanceOf(recipient) == 0);
-//     // //         assertTrue(REGISTRAR.totalSupply() == 0, "nota supply non-zero");
+//     // //         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         vm.prank(caller);
-//     // //         uint256 notaId = sstl.writenota(dai, amount, 0, recipient, duration);
+//     // //         uint256 notaId = sstl.writeNota(dai, amount, 0, recipient, duration);
 //     // //         assertTrue(REGISTRAR.deposits(caller, dai) == 0, "Writer gained a deposit");
-//     // //         assertTrue(REGISTRAR.totalSupply() == 1, "nota supply didn't increment");
+//     // //         assertTrue(REGISTRAR.totalSupply() == 1, "Nota supply didn't increment");
 //     // //         assertTrue(REGISTRAR.balanceOf(caller) == 1, "Invoicer didn't get a nota");
 //     // //         assertTrue(REGISTRAR.balanceOf(recipient) == 0, "Recipient gained a nota");
 //     // //         assertTrue(REGISTRAR.ownerOf(notaId) == caller, "Invoicer isn't owner");
@@ -208,12 +208,12 @@ pragma solidity ^0.8.16;
 //     // //         assertTrue(REGISTRAR.notaRecipient(notaId) == recipient, "Incorrect recipient");
 //     // //         assertTrue(address(nota.notaModule(notaId)) == address(sstl), "Incorrect module");
 //     // //         // INotaModule wrote correctly to it's storage
-//     // //         assertTrue(sstl.notaFunder(notaId) == recipient, "nota reciever is same as on nota");
-//     // //         assertTrue(sstl.notaReceiver(notaId) == caller, "nota reciever is same as on SSTL");
-//     // //         assertTrue(sstl.notaCreated(notaId) == block.timestamp, "nota created not at block.timestamp");
+//     // //         assertTrue(sstl.notaFunder(notaId) == recipient, "Nota reciever is same as on nota");
+//     // //         assertTrue(sstl.notaReceiver(notaId) == caller, "Nota reciever is same as on SSTL");
+//     // //         assertTrue(sstl.notaCreated(notaId) == block.timestamp, "Nota created not at block.timestamp");
 //     // //         assertTrue(sstl.notaInspectionPeriod(notaId) == duration, "Expired");
 //     // //     }
-//     // //     function testFailWritenota(address caller, uint256 amount, address recipient, uint256 duration) public {
+//     // //     function testFailWriteNota(address caller, uint256 amount, address recipient, uint256 duration) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -225,22 +225,22 @@ pragma solidity ^0.8.16;
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         // Can't write nota without a deposit on crx
 //     // //         vm.prank(caller);
-//     // //         sstl.writenota(dai, amount, amount, recipient, duration);
+//     // //         sstl.writeNota(dai, amount, amount, recipient, duration);
 //     // //         // Can't write notaues with insufficient balance
 //     // //         depositHelper(amount, caller);
-//     // //         sstl.writenota(dai, amount, amount + 1, recipient, duration);  // Not enough escrow and amount!=escrow && escrow>0
-//     // //         sstl.writenota(dai, amount + 1, amount + 1, recipient, duration);  // Not enough escrow
+//     // //         sstl.writeNota(dai, amount, amount + 1, recipient, duration);  // Not enough escrow and amount!=escrow && escrow>0
+//     // //         sstl.writeNota(dai, amount + 1, amount + 1, recipient, duration);  // Not enough escrow
 //     // //         // Can't write directly from nota
 //     // //         vm.prank(caller);
 //     // //         nota.write(caller, caller, recipient, dai, amount, amount, recipient);
 //     // //         // Can't write a 0 amount nota??
 //     // //         vm.prank(caller);
-//     // //         sstl.writenota(dai, 0, amount, recipient, duration);
+//     // //         sstl.writeNota(dai, 0, amount, recipient, duration);
 //     // //         // Can't write a nota with a higher escrow than amount??
 //     // //         vm.prank(caller);
-//     // //         sstl.writenota(dai, amount, amount + 1, recipient, duration);
+//     // //         sstl.writeNota(dai, amount, amount + 1, recipient, duration);
 //     // //     }
-//     // //     function helpernotaInfo(uint256 notaId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
+//     // //     function helperNotaInfo(uint256 notaId, uint256 amount, address sender, address recipient, SelfSignTimeLock sstl, uint256 duration) public {
 //     // //         // INotaModule wrote correctly to NotaRegistrar storage
 //     // //         assertTrue(nota.notaAmount(notaId) == amount, "Incorrect amount");
 //     // //         assertTrue(nota.notaToken(notaId) == dai, "Incorrect token");
@@ -248,16 +248,16 @@ pragma solidity ^0.8.16;
 //     // //         assertTrue(nota.notaRecipient(notaId) == recipient, "Incorrect recipient");
 //     // //         assertTrue(address(nota.notaModule(notaId)) == address(sstl), "Incorrect module");
 //     // //         // INotaModule wrote correctly to it's storage
-//     // //         if (sstl.notaFunder(notaId) == sender){  // nota
+//     // //         if (sstl.notaFunder(notaId) == sender){  // Nota
 //     // //             assertTrue(nota.notaEscrowed(notaId) == amount, "Incorrect escrowed amount");
-//     // //             assertTrue(sstl.notaFunder(notaId) == nota.notaDrawer(notaId), "nota funder is not the sender");
-//     // //             assertTrue(sstl.notaReceiver(notaId) == recipient, "nota reciever is not recipient");
+//     // //             assertTrue(sstl.notaFunder(notaId) == nota.notaDrawer(notaId), "Nota funder is not the sender");
+//     // //             assertTrue(sstl.notaReceiver(notaId) == recipient, "Nota reciever is not recipient");
 //     // //         } else {  // Invoice
 //     // //             assertTrue(nota.notaEscrowed(notaId) == 0, "Incorrect escrowed amount");
-//     // //             assertTrue(sstl.notaFunder(notaId) == nota.notaRecipient(notaId), "nota reciever is same as on nota");
-//     // //             assertTrue(sstl.notaReceiver(notaId) == nota.notaDrawer(notaId), "nota reciever is same as on SSTL");
+//     // //             assertTrue(sstl.notaFunder(notaId) == nota.notaRecipient(notaId), "Nota reciever is same as on nota");
+//     // //             assertTrue(sstl.notaReceiver(notaId) == nota.notaDrawer(notaId), "Nota reciever is same as on SSTL");
 //     // //         }
-//     // //         assertTrue(sstl.notaCreated(notaId) == block.timestamp, "nota created not at block.timestamp");
+//     // //         assertTrue(sstl.notaCreated(notaId) == block.timestamp, "Nota created not at block.timestamp");
 //     // //         assertTrue(sstl.notaInspectionPeriod(notaId) == duration, "Expired");
 //     // //     }
 //     // //     function writeHelper(address sender, uint256 amount, uint256 escrow, address recipient, uint256 duration, SelfSignTimeLock sstl) public returns(uint256){
@@ -267,9 +267,9 @@ pragma solidity ^0.8.16;
 //     // //         assertTrue(nota.balanceOf(sender) == 0, "Caller already got a nota");
 //     // //         assertTrue(nota.balanceOf(recipient) == 0);
 //     // //         vm.prank(sender);
-//     // //         uint256 notaId = sstl.writenota(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
-//     // //         helpernotaInfo(notaId, amount, sender, recipient, sstl, duration);
-//     // //         if (escrow == amount && amount != 0){ // nota
+//     // //         uint256 notaId = sstl.writeNota(dai, amount, escrow, recipient, duration);  // Change dai to arbitrary token
+//     // //         helperNotaInfo(notaId, amount, sender, recipient, sstl, duration);
+//     // //         if (escrow == amount && amount != 0){ // Nota
 //     // //             assertTrue(nota.deposits(sender, dai) == 0, "Writer gained a deposit");
 //     // //             assertTrue(nota.balanceOf(sender) == senderBalanceOf, "Recipient gained a nota");
 //     // //             assertTrue(nota.balanceOf(recipient) == recipientBalanceOf + 1, "Recipient didnt get a nota");
@@ -280,10 +280,10 @@ pragma solidity ^0.8.16;
 //     // //             assertTrue(nota.balanceOf(recipient) == recipientBalanceOf, "Funder gained a nota");
 //     // //             assertTrue(nota.ownerOf(notaId) == sender, "Invoicer isn't owner");
 //     // //         }
-//     // //         assertTrue(nota.totalSupply() == notaSupply + 1, "nota supply didn't increment");
+//     // //         assertTrue(nota.totalSupply() == notaSupply + 1, "Nota supply didn't increment");
 //     // //         return notaId;
 //     // //     }
-//     // //     function testTransfernota(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
+//     // //     function testTransferNota(address caller,  uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -297,18 +297,18 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 notaId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //     }
-//     // //     function testFailTransfernota(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
+//     // //     function testFailTransferNota(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, caller);  // caller is writer
 //     // //         uint256 notaId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         // Non-owner transfer
 //     // //         vm.prank(caller);
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //         // Transfer of non-existent nota
 //     // //         vm.prank(caller);
-//     // //         sstl.transfernota(notaId+1, to);
+//     // //         sstl.transferNota(notaId+1, to);
 //     // //     }
 //     // //     function testTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
@@ -325,28 +325,28 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 notaId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(caller);
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //     }
 //     // //     function testFailTransferInvoice(address caller, uint256 amount, address recipient, uint256 duration, address to) public {
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, caller);
 //     // //         uint256 notaId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         // Non-owner transfer
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //         vm.prank(recipient);
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //         // Transfer to address(0)
 //     // //         vm.prank(caller);
-//     // //         sstl.transfernota(notaId, address(0));
+//     // //         sstl.transferNota(notaId, address(0));
 //     // //         // Transfer to contract
 //     // //         vm.prank(caller);
-//     // //         sstl.transfernota(notaId, address(this));
+//     // //         sstl.transferNota(notaId, address(this));
 //     // //         // Transfer of non-existent nota
-//     // //         sstl.transfernota(notaId+1, to);
+//     // //         sstl.transferNota(notaId+1, to);
 //     // //     }
 //     // //     function transferHelper(uint256 notaId, address to, SelfSignTimeLock sstl) public {
 //     // //         vm.prank(nota.ownerOf(notaId));
-//     // //         sstl.transfernota(notaId, to);
+//     // //         sstl.transferNota(notaId, to);
 //     // //     }
 //     // //     function testFundInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {  //
 //     // //         vm.assume(amount <= dai.totalSupply());
@@ -362,9 +362,9 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 notaId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);  // This can be anybody
-//     // //         sstl.fundnota(notaId, amount);
+//     // //         sstl.fundNota(notaId, amount);
 //     // //         vm.expectRevert(bytes("Cant fund this amount"));
-//     // //         sstl.fundnota(notaId, amount);
+//     // //         sstl.fundNota(notaId, amount);
 //     // //     }
 //     // //     function testFailFundInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(random != 0);
@@ -372,20 +372,20 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 notaId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundnota(notaId, amount);
+//     // //         sstl.fundNota(notaId, amount);
 //     // //         vm.prank(caller);
-//     // //         sstl.fundnota(notaId, amount);
+//     // //         sstl.fundNota(notaId, amount);
 //     // //         // invoice but not correct amount?
 //     // //         depositHelper(amount, recipient);  // Recipient will be the funder
 //     // //         uint256 notaId2 = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundnota(notaId2, amount+random);
-//     // //         sstl.fundnota(notaId2, amount-random);
+//     // //         sstl.fundNota(notaId2, amount+random);
+//     // //         sstl.fundNota(notaId2, amount-random);
 //     // //         vm.prank(caller);
-//     // //         sstl.fundnota(notaId2, amount+random);
-//     // //         sstl.fundnota(notaId2, amount-random);
+//     // //         sstl.fundNota(notaId2, amount+random);
+//     // //         sstl.fundNota(notaId2, amount-random);
 //     // //     }
-//     // //     function testCashnota(address caller, uint256 amount, address recipient, uint256 duration) public {
+//     // //     function testCashNota(address caller, uint256 amount, address recipient, uint256 duration) public {
 //     // //         vm.assume(amount <= dai.totalSupply());
 //     // //         vm.assume(amount > 0);
 //     // //         vm.assume(caller != recipient);
@@ -401,7 +401,7 @@ pragma solidity ^0.8.16;
 //     // //         uint256 notaId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         vm.startPrank(recipient);
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId));
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId));
 //     // //         vm.stopPrank();
 //     // //     }
 //     // //     function testCashInvoice(address caller, uint256 amount, address recipient, uint256 duration) public {
@@ -417,25 +417,25 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 notaId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         vm.prank(recipient);
-//     // //         sstl.fundnota(notaId, amount);
+//     // //         sstl.fundNota(notaId, amount);
 //     // //         vm.startPrank(caller);
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId));
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId));
 //     // //         vm.stopPrank();
 //     // //     }
-//     // //     function testFailCashnota(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
+//     // //     function testFailCashNota(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(amount != 0);
 //     // //         SelfSignTimeLock sstl = setUpTimelock(caller);
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 notaId = writeHelper(caller, amount, amount, recipient, duration, sstl);
 //     // //         // Can't cash until its time
 //     // //         vm.prank(recipient);
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId));
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId));
 //     // //         // Can't cash unless owner
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId));
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId));
 //     // //         // Can't cash different amount
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId)-random);
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId)-random);
 //     // //     }
 //     // //     function testFailCashInvoice(address caller, uint256 amount, address recipient, uint256 duration, uint256 random) public {
 //     // //         vm.assume(random != 0);
@@ -455,12 +455,12 @@ pragma solidity ^0.8.16;
 //     // //         depositHelper(amount, recipient);
 //     // //         uint256 notaId = writeHelper(caller, amount, 0, recipient, duration, sstl);
 //     // //         // Can't cash before inspection
-//     // //         sstl.cashnota(notaId+1, nota.notaEscrowed(notaId));
+//     // //         sstl.cashNota(notaId+1, nota.notaEscrowed(notaId));
 //     // //         // Cant cash wrong nota
 //     // //         vm.warp(block.timestamp + duration);
-//     // //         sstl.cashnota(notaId+1, nota.notaEscrowed(notaId));  // You can cash an unfunded nota after inspectionPeriod
+//     // //         sstl.cashNota(notaId+1, nota.notaEscrowed(notaId));  // You can cash an unfunded nota after inspectionPeriod
 //     // //         // cant cash wrong amount
-//     // //         sstl.cashnota(notaId, nota.notaEscrowed(notaId)+1);
+//     // //         sstl.cashNota(notaId, nota.notaEscrowed(notaId)+1);
 //     // //     }
 // }
 // // // Need invoice encoded

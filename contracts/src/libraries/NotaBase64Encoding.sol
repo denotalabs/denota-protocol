@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import "../../lib/openzeppelin-contracts/contracts/utils/Base64.sol";
-import "openzeppelin/utils/Strings.sol";
-import {Nota} from "../libraries/DataTypes.sol";
 
 /**
 {
@@ -17,18 +14,13 @@ import {Nota} from "../libraries/DataTypes.sol";
     "animation_url": A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV, and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas, WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
     "youtube_url": A URL to a YT video
 }
-
-Registrar has structure:
-
-{
-    attributes: [timecreated, currency, escrowed, {INSERT_MODULE_ATTRIBUTES}],
-    {INSERT_MODULE_KEYS}
-}
  */
 
-contract NotaEncoding {
-    using Strings for address;  // TODO move into NotaEncoding
-    using Base64 for bytes;
+contract NotaBase64Encoding {
+    // string constant MODULE = '},{"trait_type": "Module","value":"';
+    // string constant END = '"}]';
+    // string constant TOKENDATA_CLOSE = '"}';
+
     /// https://stackoverflow.com/questions/47129173/how-to-convert-uint-to-string-in-solidity
     function itoa32(uint x) private pure returns (uint y) {
         unchecked {
@@ -148,33 +140,125 @@ contract NotaEncoding {
         }
     }
 
-    function toJSON(
-        Nota memory nota,
-        string memory moduleAttributes,
-        string memory moduleKeys
+    function buildMetadata(
+        string memory currency,
+        string memory escrowed,
+        // string memory createdAt,
+        string memory module,
+        string memory _tokenData
     ) internal pure returns (string memory) {
+        // 76460 with storage constants, 74861 without
         return
             string(
                 abi.encodePacked(
                     "data:application/json;base64,",
-                    bytes(
-                        abi.encodePacked(
-                            '{"attributes":[{"trait_type":"Currency","value":"',
-                            Strings.toHexString(uint256(uint160(nota.currency)), 20),
-                            '"},{"trait_type":"Escrowed","display_type":"number","value":',
-                            itoa(nota.escrowed),
-                            '},{"trait_type":"CreatedAt","display_type":"number","value":',
-                            itoa(nota.createdAt),
-                            '},{"trait_type":"Module","value":"',
-                            Strings.toHexString(uint256(uint160(nota.module)), 20),
-                            '"}',
-                            moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
-                            ']',
-                            moduleKeys, // of form: ',{"<key>":"<value>"}
-                            '}'
+                    encode(
+                        bytes(
+                            abi.encodePacked(
+                                '{"attributes":[{"trait_type":"Currency","value":"',
+                                currency,
+                                '"},{"trait_type":"Escrowed","display_type":"number","value":',
+                                escrowed,
+                                '},{"trait_type":"Module","value":"',
+                                module,
+                                '"}]',
+                                _tokenData,
+                                '"}'
+                            )
                         )
-                    ).encode()
+                    )
                 )
             );
+    }
+
+    /**
+     * @dev Base64 Encoding/Decoding Table
+     */
+    string internal constant _TABLE =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    /**
+     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     */
+    function encode(bytes memory data) internal pure returns (string memory) {
+        /**
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+         */
+        if (data.length == 0) return "";
+
+        // Loads the table into memory
+        string memory table = _TABLE;
+
+        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
+        // and split into 4 numbers of 6 bits.
+        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 *`              -> 4 characters for each chunk
+        string memory result = new string(4 * ((data.length + 2) / 3));
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Prepare the lookup table (skip the first "length" byte)
+            let tablePtr := add(table, 1)
+
+            // Prepare result pointer, jump over length
+            let resultPtr := add(result, 32)
+
+            // Run over the input, 3 bytes at a time
+            for {
+                let dataPtr := data
+                let endPtr := add(data, mload(data))
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // Advance 3 bytes
+                dataPtr := add(dataPtr, 3)
+                let input := mload(dataPtr)
+
+                // To write each character, shift the 3 bytes (18 bits) chunk
+                // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
+                // and apply logical AND with 0x3F which is the number of
+                // the previous character in the ASCII table prior to the Base64 Table
+                // The result is then added to the table to get the character to write,
+                // and finally write it in the result pointer but with a left shift
+                // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
+
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(18, input), 0x3F)))
+                )
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(12, input), 0x3F)))
+                )
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(
+                    resultPtr,
+                    mload(add(tablePtr, and(shr(6, input), 0x3F)))
+                )
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+            }
+
+            // When data `bytes` is not exactly 3 bytes long
+            // it is padded with `=` characters at the end
+            switch mod(mload(data), 3)
+            case 1 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+                mstore8(sub(resultPtr, 2), 0x3d)
+            }
+            case 2 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+            }
+        }
+
+        return result;
     }
 }
