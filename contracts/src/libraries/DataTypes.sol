@@ -4,10 +4,14 @@ import "openzeppelin/token/ERC20/IERC20.sol";
 
 
 struct Nota {
-    uint256 escrowed;
-    uint256 createdAt; // Set by caller and immutable
-    address currency; // Set by caller and immutable
-    address module; // Set by caller and immutable
+    uint256 escrowed; // Slot 1
+    uint256 createdAt; // Slot 2
+    address currency; // Slot3 (120)
+    address module; // Slot3 (240)
+    // 16 bits free
+    // address owner; // Slot4 (120)
+    // address approved // Slot4 (240)
+    // 16 bits free
 }
 
 struct WTFCFees {

@@ -10,8 +10,7 @@ contract DeployRegistrar is Script {
         vm.startBroadcast(deployerPrivateKey);
         vm.startBroadcast();
 
-        address registrar = address(new NotaRegistrar());
-        console.log(registrar);
+        NotaRegistrar registrar = new NotaRegistrar();
 
         vm.stopBroadcast();
     }
