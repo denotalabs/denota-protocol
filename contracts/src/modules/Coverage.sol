@@ -4,10 +4,11 @@ pragma solidity ^0.8.16;
 import {ModuleBase} from "../ModuleBase.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
+import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 
-contract Coverage is ModuleBase {
+contract Coverage is Ownable, ModuleBase {
     using SafeERC20 for IERC20;
 
     struct CoverageInfo {
@@ -19,14 +20,7 @@ contract Coverage is ModuleBase {
     mapping(uint256 => CoverageInfo) public coverageInfo;
     mapping(address => bool) public isWhitelisted;
 
-    address public admin; // admin address
     address public usdc;
-
-    // Only Admin modifier
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Not authorized");
-        _;
-    }
 
     constructor(
         address registrar,
@@ -35,22 +29,21 @@ contract Coverage is ModuleBase {
         address _usdc
     ) ModuleBase(registrar, _fees) {
         _URI = __baseURI;
-        admin = msg.sender; // set the contract deployer as the admin
         usdc = _usdc;
     }
 
     // Admin can add an address to the whitelist
-    function addToWhitelist(address _address) external onlyAdmin {
+    function addToWhitelist(address _address) external onlyOwner {
         isWhitelisted[_address] = true;
     }
 
     // Admin can remove an address from the whitelist
-    function removeFromWhitelist(address _address) external onlyAdmin {
+    function removeFromWhitelist(address _address) external onlyOwner {
         isWhitelisted[_address] = false;
     }
 
     function fundPool(uint256 fundingAmount) public {
-        IERC20(usdc).safeTransferFrom(msg.sender, address(this), fundingAmount);
+        IERC20(usdc).safeTransferFrom(_msgSender(), address(this), fundingAmount);
 
         // LPs receive pool tokens in return
         // TODO: figure out token issuance and redemption
@@ -58,10 +51,10 @@ contract Coverage is ModuleBase {
 
     function processWrite(
         address caller,
-        address owner,
+        address _owner,
         uint256 notaId,
         address currency,
-        uint256 escrowed,
+        uint256 /*escrowed*/,
         uint256 instant,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
@@ -74,7 +67,7 @@ contract Coverage is ModuleBase {
 
         require(instant == (amount / 10000) * riskScore, "Risk fee not paid");
         // TODO: maybe onramp should own nota? (currently the registrar assumes that the owner is the one being paid)
-        require(owner == address(this), "Risk fee not paid to pool");
+        require(_owner == address(this), "Risk fee not paid to pool");
         require(currency == usdc, "Incorrect currency");
 
         coverageInfo[notaId].coverageHolder = holder;
@@ -87,7 +80,7 @@ contract Coverage is ModuleBase {
         CoverageInfo storage coverage = coverageInfo[notaId];
 
         require(!coverage.wasRedeemed);
-        require(msg.sender == coverage.coverageHolder);
+        require(_msgSender() == coverage.coverageHolder);
 
         // MVP: just send funds to the holder (doesn't scale but makes the demo easier)
         IERC20(usdc).safeTransfer(
