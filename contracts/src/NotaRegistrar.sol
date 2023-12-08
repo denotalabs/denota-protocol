@@ -20,9 +20,9 @@ import {NotaBase64Encoding} from "./libraries/NotaBase64Encoding.sol";
 
 /**
  * @title  The Nota Payment Registrar
- * @notice The main contract where users can WTFCA cheqs
+ * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
- * @dev    Tracks ownership of cheqs' data + escrow, whitelists tokens/modules, and collects revenue.
+ * @dev    Tracks ownership of notas' data + escrow, whitelists tokens/modules, and collects revenue.
  */
 contract NotaRegistrar is
     ERC721,
@@ -51,7 +51,6 @@ contract NotaRegistrar is
         address module,
         bytes calldata moduleWriteData
     ) public payable returns (uint256) {
-        // require(msg.value >= _writeFlatFee, "INSUF_FEE"); // IDEA: discourages spamming of 0 value cheqs
         if (!validWrite(module, currency))
             revert InvalidWrite(module, currency); // Module+token whitelist check
 
@@ -94,31 +93,31 @@ contract NotaRegistrar is
     function transferFrom(
         address from,
         address to,
-        uint256 cheqId
+        uint256 notaId
     ) public override(ERC721, INotaRegistrar) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        _transferHookTakeFee(from, to, cheqId, abi.encode(""));
-        _transfer(from, to, cheqId);
+        if (notaId >= _totalSupply) revert NotMinted();
+        _transferHookTakeFee(from, to, notaId, abi.encode(""));
+        _transfer(from, to, notaId);
     }
 
     function fund(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         uint256 instant,
         bytes calldata fundData
     ) external payable {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        DataTypes.Nota storage cheq = _notaInfo[cheqId]; // TODO module MUST check that token exists
-        address owner = ownerOf(cheqId); // Is used twice
+        if (notaId >= _totalSupply) revert NotMinted();
+        DataTypes.Nota storage nota = _notaInfo[notaId]; // TODO module MUST check that token exists
+        address owner = ownerOf(notaId); // Is used twice
 
         // Module hook
-        uint256 moduleFee = INotaModule(cheq.module).processFund(
+        uint256 moduleFee = INotaModule(nota.module).processFund(
             _msgSender(),
             owner,
             amount,
             instant,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             fundData
         );
 
@@ -126,17 +125,17 @@ contract NotaRegistrar is
         _transferTokens(
             amount,
             instant,
-            cheq.currency,
+            nota.currency,
             owner,
             moduleFee,
-            cheq.module
+            nota.module
         );
 
-        _notaInfo[cheqId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
+        _notaInfo[notaId].escrowed += amount; // Question: is this cheaper than testing if amount == 0?
 
         emit Events.Funded(
             _msgSender(),
-            cheqId,
+            notaId,
             amount,
             instant,
             fundData,
@@ -146,22 +145,22 @@ contract NotaRegistrar is
     }
 
     function cash(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 amount,
         address to,
         bytes calldata cashData
     ) external payable {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        DataTypes.Nota storage cheq = _notaInfo[cheqId];
+        if (notaId >= _totalSupply) revert NotMinted();
+        DataTypes.Nota storage nota = _notaInfo[notaId];
 
         // Module Hook
-        uint256 moduleFee = INotaModule(cheq.module).processCash(
+        uint256 moduleFee = INotaModule(nota.module).processCash(
             _msgSender(),
-            ownerOf(cheqId),
+            ownerOf(notaId),
             to,
             amount,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             cashData
         );
 
@@ -169,22 +168,22 @@ contract NotaRegistrar is
         uint256 totalAmount = amount + moduleFee;
 
         // Un-escrowing
-        if (totalAmount > cheq.escrowed)
-            revert InsufficientEscrow(totalAmount, cheq.escrowed);
+        if (totalAmount > nota.escrowed)
+            revert InsufficientEscrow(totalAmount, nota.escrowed);
         unchecked {
-            cheq.escrowed -= totalAmount;
+            nota.escrowed -= totalAmount;
         } // Could this just underflow and revert anyway (save gas)?
-        if (cheq.currency == address(0)) {
+        if (nota.currency == address(0)) {
             (bool sent, ) = to.call{value: amount}("");
             if (!sent) revert SendFailed();
         } else {
-            IERC20(cheq.currency).safeTransfer(to, amount);
+            IERC20(nota.currency).safeTransfer(to, amount);
         }
-        _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
+        _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
         emit Events.Cashed(
             _msgSender(),
-            cheqId,
+            notaId,
             to,
             amount,
             cashData,
@@ -195,40 +194,40 @@ contract NotaRegistrar is
 
     function approve(
         address to,
-        uint256 cheqId
+        uint256 notaId
     ) public override(ERC721, INotaRegistrar) {
-        if (cheqId >= _totalSupply) revert NotMinted();
+        if (notaId >= _totalSupply) revert NotMinted();
         if (to == _msgSender()) revert SelfApproval();
 
         // Module hook
-        DataTypes.Nota memory cheq = _notaInfo[cheqId];
-        INotaModule(cheq.module).processApproval(
+        DataTypes.Nota memory nota = _notaInfo[notaId];
+        INotaModule(nota.module).processApproval(
             _msgSender(),
-            ownerOf(cheqId),
+            ownerOf(notaId),
             to,
-            cheqId,
-            cheq,
+            notaId,
+            nota,
             ""
         );
 
         // Approve
-        _approve(to, cheqId);
+        _approve(to, notaId);
     }
 
     function tokenURI(
-        uint256 cheqId
+        uint256 notaId
     ) public view override returns (string memory) {
-        if (cheqId >= _totalSupply) revert NotMinted();
+        if (notaId >= _totalSupply) revert NotMinted();
 
-        string memory _tokenData = INotaModule(_notaInfo[cheqId].module)
-            .processTokenURI(cheqId);
+        string memory _tokenData = INotaModule(_notaInfo[notaId].module)
+            .processTokenURI(notaId);
 
         return
             buildMetadata(
-                _tokenName[_notaInfo[cheqId].currency],
-                itoa(_notaInfo[cheqId].escrowed),
-                // itoa(_notaInfo[_cheqId].createdAt),
-                _moduleName[_notaInfo[cheqId].module],
+                _tokenName[_notaInfo[notaId].currency],
+                itoa(_notaInfo[notaId].escrowed),
+                // itoa(_notaInfo[_notaId].createdAt),
+                _moduleName[_notaInfo[notaId].module],
                 _tokenData
             );
     }
@@ -282,36 +281,36 @@ contract NotaRegistrar is
     function _transferHookTakeFee(
         address from,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         bytes memory moduleTransferData
     ) internal {
         if (moduleTransferData.length == 0)
             moduleTransferData = abi.encode(owner());
-        address owner = ownerOf(cheqId); // require(from == owner,  "") ?
-        DataTypes.Nota storage cheq = _notaInfo[cheqId]; // Better to assign than to index?
+        address owner = ownerOf(notaId); // require(from == owner,  "") ?
+        DataTypes.Nota storage nota = _notaInfo[notaId]; // Better to assign than to index?
         // No approveOrOwner check, allow module to decide
 
         // Module hook
-        uint256 moduleFee = INotaModule(cheq.module).processTransfer(
+        uint256 moduleFee = INotaModule(nota.module).processTransfer(
             _msgSender(),
-            getApproved(cheqId),
+            getApproved(notaId),
             owner,
             from, // TODO Might not be needed
             to,
-            cheqId,
-            cheq.currency,
-            cheq.escrowed,
-            cheq.createdAt,
+            notaId,
+            nota.currency,
+            nota.escrowed,
+            nota.createdAt,
             moduleTransferData
         );
 
         // Fee taking and escrowing
-        if (cheq.escrowed > 0) {
+        if (nota.escrowed > 0) {
             // Can't take from 0 escrow
-            cheq.escrowed = cheq.escrowed - moduleFee;
-            _moduleRevenue[cheq.module][cheq.currency] += moduleFee;
+            nota.escrowed = nota.escrowed - moduleFee;
+            _moduleRevenue[nota.module][nota.currency] += moduleFee;
             emit Events.Transferred(
-                cheqId,
+                notaId,
                 owner,
                 to,
                 moduleFee,
@@ -319,46 +318,46 @@ contract NotaRegistrar is
             );
         } else {
             // Must be case since fee's can't be taken without an escrow to take from
-            emit Events.Transferred(cheqId, owner, to, 0, block.timestamp);
+            emit Events.Transferred(notaId, owner, to, 0, block.timestamp);
         }
     }
 
     function safeTransferFrom(
         address from,
         address to,
-        uint256 cheqId,
+        uint256 notaId,
         bytes memory moduleTransferData
     ) public override(ERC721, INotaRegistrar) {
-        _transferHookTakeFee(from, to, cheqId, moduleTransferData);
-        _safeTransfer(from, to, cheqId, moduleTransferData);
+        _transferHookTakeFee(from, to, notaId, moduleTransferData);
+        _safeTransfer(from, to, notaId, moduleTransferData);
     }
 
     /*///////////////////////// VIEW ////////////////////////////*/
-    function cheqInfo(
-        uint256 cheqId
+    function notaInfo(
+        uint256 notaId
     ) public view returns (DataTypes.Nota memory) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _notaInfo[cheqId];
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId];
     }
 
-    function cheqCurrency(uint256 cheqId) public view returns (address) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _notaInfo[cheqId].currency;
+    function notaCurrency(uint256 notaId) public view returns (address) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].currency;
     }
 
-    function cheqEscrowed(uint256 cheqId) public view returns (uint256) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _notaInfo[cheqId].escrowed;
+    function notaEscrowed(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].escrowed;
     }
 
-    function cheqModule(uint256 cheqId) public view returns (address) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _notaInfo[cheqId].module;
+    function notaModule(uint256 notaId) public view returns (address) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].module;
     }
 
-    function cheqCreatedAt(uint256 cheqId) public view returns (uint256) {
-        if (cheqId >= _totalSupply) revert NotMinted();
-        return _notaInfo[cheqId].createdAt;
+    function notaCreatedAt(uint256 notaId) public view returns (uint256) {
+        if (notaId >= _totalSupply) revert NotMinted();
+        return _notaInfo[notaId].createdAt;
     }
 
     function totalSupply() public view returns (uint256) {

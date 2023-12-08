@@ -39,7 +39,7 @@ contract ReversableTimelock is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -53,10 +53,10 @@ contract ReversableTimelock is ModuleBase {
         ) = abi.decode(initData, (address, uint256, address, bytes32));
         require((caller != owner) && (owner != address(0)), "Invalid Params");
 
-        payments[cheqId].inspector = inspector;
-        payments[cheqId].inspectionEnd = inspectionEnd;
-        payments[cheqId].drawer = caller;
-        payments[cheqId].memoHash = memoHash;
+        payments[notaId].inspector = inspector;
+        payments[notaId].inspectionEnd = inspectionEnd;
+        payments[notaId].drawer = caller;
+        payments[notaId].memoHash = memoHash;
 
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
@@ -67,7 +67,7 @@ contract ReversableTimelock is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -85,8 +85,8 @@ contract ReversableTimelock is ModuleBase {
         address, // owner,
         uint256, // amount,
         uint256, // instant,
-        uint256, // cheqId,
-        DataTypes.Nota calldata, // cheq,
+        uint256, // notaId,
+        DataTypes.Nota calldata, // nota,
         bytes calldata // initData
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "");
@@ -98,17 +98,17 @@ contract ReversableTimelock is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(
-            caller == payments[cheqId].inspector,
+            caller == payments[notaId].inspector,
             "Inspector cash for owner"
         );
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -119,8 +119,8 @@ contract ReversableTimelock is ModuleBase {
         address caller,
         address owner,
         address to,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes memory initData
     ) external override onlyRegistrar {}
 

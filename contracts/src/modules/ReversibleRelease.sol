@@ -21,7 +21,7 @@ contract ReversibleRelease is ModuleBase {
     mapping(uint256 => Payment) public payInfo;
 
     event PaymentCreated(
-        uint256 cheqId,
+        uint256 notaId,
         string memoHash,
         uint256 amount,
         uint256 timestamp,
@@ -52,7 +52,7 @@ contract ReversibleRelease is ModuleBase {
     function processWrite(
         address caller,
         address owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -73,38 +73,38 @@ contract ReversibleRelease is ModuleBase {
         {
             if (instant != 0) revert InvoiceWithPay();
             if (amount == 0) revert AmountZero();
-            payInfo[cheqId].creditor = caller;
-            payInfo[cheqId].debtor = toNotify;
-            payInfo[cheqId].amount = amount;
+            payInfo[notaId].creditor = caller;
+            payInfo[notaId].debtor = toNotify;
+            payInfo[notaId].amount = amount;
         } else if (owner == toNotify) // Payment
         {
             if (owner == address(0)) revert AddressZero();
-            payInfo[cheqId].creditor = toNotify;
-            payInfo[cheqId].debtor = caller;
-            payInfo[cheqId].amount = escrowed;
+            payInfo[notaId].creditor = toNotify;
+            payInfo[notaId].debtor = caller;
+            payInfo[notaId].amount = escrowed;
         } else {
             revert Disallowed();
         }
 
-        payInfo[cheqId].inspector = inspector;
-        payInfo[cheqId].memoHash = memoHash;
-        payInfo[cheqId].imageURI = imageURI;
+        payInfo[notaId].inspector = inspector;
+        payInfo[notaId].memoHash = memoHash;
+        payInfo[notaId].imageURI = imageURI;
 
-        _logPaymentCreated(cheqId, dappOperator);
+        _logPaymentCreated(notaId, dappOperator);
 
         return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
-    function _logPaymentCreated(uint256 cheqId, address referer) private {
+    function _logPaymentCreated(uint256 notaId, address referer) private {
         emit PaymentCreated(
-            cheqId,
-            payInfo[cheqId].memoHash,
-            payInfo[cheqId].amount,
+            notaId,
+            payInfo[notaId].memoHash,
+            payInfo[notaId].amount,
             block.timestamp,
             referer,
-            payInfo[cheqId].creditor,
-            payInfo[cheqId].debtor,
-            payInfo[cheqId].inspector
+            payInfo[notaId].creditor,
+            payInfo[notaId].debtor,
+            payInfo[notaId].inspector
         );
     }
 
@@ -114,7 +114,7 @@ contract ReversibleRelease is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -130,18 +130,18 @@ contract ReversibleRelease is ModuleBase {
         address owner,
         uint256 amount,
         uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         if (owner == address(0)) revert AddressZero();
-        if (amount != payInfo[cheqId].amount) revert InsufficientPayment();
-        // if (caller != payInfo[cheqId].debtor) revert OnlyDebtor(); // Should anyone be allowed to pay?
-        // if (payInfo[cheqId].wasPaid) revert Disallowed();
-        // payInfo[cheqId].wasPaid = true;
+        if (amount != payInfo[notaId].amount) revert InsufficientPayment();
+        // if (caller != payInfo[notaId].debtor) revert OnlyDebtor(); // Should anyone be allowed to pay?
+        // if (payInfo[notaId].wasPaid) revert Disallowed();
+        // payInfo[notaId].wasPaid = true;
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount + instant,
                 abi.decode(initData, (address)),
                 2
@@ -153,16 +153,16 @@ contract ReversibleRelease is ModuleBase {
         address owner,
         address to,
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        if (caller != payInfo[cheqId].inspector) revert OnlyInspector();
-        if (to != payInfo[cheqId].debtor && to != owner)
+        if (caller != payInfo[notaId].inspector) revert OnlyInspector();
+        if (to != payInfo[notaId].debtor && to != owner)
             revert OnlyToDebtorOrOwner();
         return
             takeReturnFee(
-                cheq.currency,
+                nota.currency,
                 amount,
                 abi.decode(initData, (address)),
                 3
@@ -173,8 +173,8 @@ contract ReversibleRelease is ModuleBase {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();

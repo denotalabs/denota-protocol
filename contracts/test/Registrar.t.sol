@@ -80,17 +80,17 @@ contract RegistrarTest is Test {
     function registrarWriteBefore(address caller, address recipient) public {
         assertTrue(
             REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a cheq"
+            "Caller already had a nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(recipient) == 0,
-            "Recipient already had a cheq"
+            "Recipient already had a nota"
         );
         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         address owner,
@@ -107,21 +107,21 @@ contract RegistrarTest is Test {
         );
 
         assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
-            "`owner` isn't owner of cheq"
+            REGISTRAR.ownerOf(notaId) == owner,
+            "`owner` isn't owner of nota"
         );
 
         assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == currency,
+            REGISTRAR.notaCurrency(notaId) == currency,
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
         assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
         assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }

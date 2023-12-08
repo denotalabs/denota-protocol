@@ -12,7 +12,7 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
  */
 contract SimpleTimelock is ModuleBase {
     mapping(uint256 => uint256) public releaseDate;
-    event Timelock(uint256 cheqId, uint256 _releaseDate);
+    event Timelock(uint256 notaId, uint256 _releaseDate);
 
     constructor(
         address registrar,
@@ -25,7 +25,7 @@ contract SimpleTimelock is ModuleBase {
     function processWrite(
         address /*caller*/,
         address /*owner*/,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 escrowed,
         uint256 instant,
@@ -35,10 +35,10 @@ contract SimpleTimelock is ModuleBase {
         (uint256 _releaseDate, address dappOperator) = abi.decode(
             initData,
             (uint256, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-        releaseDate[cheqId] = _releaseDate;
+        ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+        releaseDate[notaId] = _releaseDate;
 
-        emit Timelock(cheqId, _releaseDate);
+        emit Timelock(notaId, _releaseDate);
         return takeReturnFee(currency, escrowed, dappOperator, 0);
     }
 
@@ -48,7 +48,7 @@ contract SimpleTimelock is ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address /*currency*/,
         uint256 /*escrowed*/,
         uint256 /*createdAt*/,
@@ -63,8 +63,8 @@ contract SimpleTimelock is ModuleBase {
         address /*owner*/,
         uint256 /*amount*/,
         uint256 /*instant*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "Only sending and cashing");
@@ -76,23 +76,23 @@ contract SimpleTimelock is ModuleBase {
         address owner,
         address to,
         uint256 amount,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(to == owner, "Only cashable to owner");
-        require(amount == cheq.escrowed, "Must fully cash");
-        require(releaseDate[cheqId] < block.timestamp, "TIMELOCK");
+        require(amount == nota.escrowed, "Must fully cash");
+        require(releaseDate[notaId] < block.timestamp, "TIMELOCK");
         address dappOperator = abi.decode(initData, (address));
-        return takeReturnFee(cheq.currency, amount, dappOperator, 3);
+        return takeReturnFee(nota.currency, amount, dappOperator, 3);
     }
 
     function processApproval(
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");

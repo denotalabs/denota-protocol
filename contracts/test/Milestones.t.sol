@@ -148,17 +148,17 @@ contract MilestonesTest is Test {
     function registrarWriteBefore(address caller, address owner) public {
         assertTrue(
             REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a cheq"
+            "Caller already had a nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 0,
-            "Recipient already had a cheq"
+            "Recipient already had a nota"
         );
         assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
     }
 
     function registrarWriteAfter(
-        uint256 cheqId,
+        uint256 notaId,
         uint256 escrowed,
         address owner,
         address module
@@ -168,8 +168,8 @@ contract MilestonesTest is Test {
             "Nota supply didn't increment"
         );
         assertTrue(
-            REGISTRAR.ownerOf(cheqId) == owner,
-            "`owner` isn't owner of cheq"
+            REGISTRAR.ownerOf(notaId) == owner,
+            "`owner` isn't owner of nota"
         );
         assertTrue(
             REGISTRAR.balanceOf(owner) == 1,
@@ -177,22 +177,22 @@ contract MilestonesTest is Test {
         );
 
         // NotaRegistrar wrote correctly to its storage
-        // assertTrue(REGISTRAR.cheqDrawer(cheqId) == drawer, "Incorrect drawer");
+        // assertTrue(REGISTRAR.notaDrawer(notaId) == drawer, "Incorrect drawer");
         // assertTrue(
-        //     REGISTRAR.cheqRecipient(cheqId) == recipient,
+        //     REGISTRAR.notaRecipient(notaId) == recipient,
         //     "Incorrect recipient"
         // );
         assertTrue(
-            REGISTRAR.cheqCurrency(cheqId) == address(dai),
+            REGISTRAR.notaCurrency(notaId) == address(dai),
             "Incorrect token"
         );
-        // assertTrue(REGISTRAR.cheqAmount(cheqId) == amount, "Incorrect amount");
+        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
         assertTrue(
-            REGISTRAR.cheqEscrowed(cheqId) == escrowed,
+            REGISTRAR.notaEscrowed(notaId) == escrowed,
             "Incorrect escrow"
         );
         assertTrue(
-            address(REGISTRAR.cheqModule(cheqId)) == module,
+            address(REGISTRAR.notaModule(notaId)) == module,
             "Incorrect module"
         );
     }
@@ -229,7 +229,7 @@ contract MilestonesTest is Test {
             (secondMilestone != 0) &&
             (debtor != creditor) &&
             (debtor != address(0) && creditor != address(0)) &&
-            !isContract(creditor); // Don't send cheqs to non-ERC721Reciever contracts
+            !isContract(creditor); // Don't send notas to non-ERC721Reciever contracts
     }
 
     function _writePayment(
@@ -285,10 +285,10 @@ contract MilestonesTest is Test {
             milestoneAmounts
         );
 
-        uint256 cheqId;
+        uint256 notaId;
         if (caller == owner) {
             vm.prank(caller);
-            cheqId = REGISTRAR.write(
+            notaId = REGISTRAR.write(
                 address(dai),
                 0,
                 0,
@@ -297,13 +297,13 @@ contract MilestonesTest is Test {
                 initData
             ); // Sets caller as owner
             registrarWriteAfter(
-                cheqId,
+                notaId,
                 0, // escrowed
                 owner,
                 address(milestones)
             );
         } else {
-            cheqId = _writePayment(
+            notaId = _writePayment(
                 milestones,
                 firstMilestone,
                 secondMilestone,
@@ -312,18 +312,18 @@ contract MilestonesTest is Test {
                 initData
             );
             registrarWriteAfter(
-                cheqId,
+                notaId,
                 secondMilestone, // escrowed
                 owner,
                 address(milestones)
             );
         }
 
-        return (cheqId, milestones);
+        return (notaId, milestones);
     }
 
     function fundHelper(
-        uint256 cheqId,
+        uint256 notaId,
         address debtor,
         uint256 escrowed,
         uint256 instant,
@@ -343,7 +343,7 @@ contract MilestonesTest is Test {
 
         bytes memory fundData = abi.encode(bytes32(""));
         vm.prank(debtor);
-        REGISTRAR.fund(cheqId, escrowed, instant, fundData); // Send direct amount
+        REGISTRAR.fund(notaId, escrowed, instant, fundData); // Send direct amount
         assertTrue(
             debtorBalanceBefore - (escrowed + instant) == dai.balanceOf(debtor),
             "Didnt decrement balance"
@@ -367,7 +367,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             debtor, // caller
             secondMilestone, // escrowed amount
             firstMilestone, // instant amount
@@ -376,7 +376,7 @@ contract MilestonesTest is Test {
         );
 
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -398,7 +398,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -407,7 +407,7 @@ contract MilestonesTest is Test {
         );
 
         // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(cheqId);
+        string memory tokenURI = REGISTRAR.tokenURI(notaId);
         console.log("TokenURI: ");
         console.log(tokenURI);
     }
@@ -428,7 +428,7 @@ contract MilestonesTest is Test {
             )
         );
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -437,7 +437,7 @@ contract MilestonesTest is Test {
         );
 
         fundHelper(
-            cheqId,
+            notaId,
             debtor, // debtor
             secondMilestone, // escrowed
             firstMilestone, // instant
@@ -462,7 +462,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             debtor, // caller
             secondMilestone, // escrowed amount
             firstMilestone, // instant amount
@@ -470,11 +470,11 @@ contract MilestonesTest is Test {
             creditor // The owner
         ); // Instant pay the first, escrow second
 
-        fundHelper(cheqId, debtor, 0, 0, milestones); // release second
+        fundHelper(notaId, debtor, 0, 0, milestones); // release second
 
         bytes memory cashData = abi.encode(1, address(0)); // cash second milestone
         vm.prank(creditor);
-        REGISTRAR.cash(cheqId, secondMilestone, creditor, cashData);
+        REGISTRAR.cash(notaId, secondMilestone, creditor, cashData);
     }
 
     function testCashInvoice(
@@ -494,7 +494,7 @@ contract MilestonesTest is Test {
         );
 
         // First milestone must be escrowed (or instant and second escrowed)
-        (uint256 cheqId, Milestones milestones) = writeHelper(
+        (uint256 notaId, Milestones milestones) = writeHelper(
             creditor, // caller
             secondMilestone, // instant amount
             firstMilestone, // escrowed amount
@@ -502,12 +502,12 @@ contract MilestonesTest is Test {
             creditor // The owner
         );
 
-        fundHelper(cheqId, debtor, secondMilestone, firstMilestone, milestones);
-        fundHelper(cheqId, debtor, 0, 0, milestones);
+        fundHelper(notaId, debtor, secondMilestone, firstMilestone, milestones);
+        fundHelper(notaId, debtor, 0, 0, milestones);
 
         bytes memory cashData = abi.encode(1, address(0)); // cash second milestone
         vm.prank(creditor);
-        REGISTRAR.cash(cheqId, secondMilestone, creditor, cashData);
+        REGISTRAR.cash(notaId, secondMilestone, creditor, cashData);
     }
 }
 
@@ -517,11 +517,11 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     (uint256 notaId, ) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 //     bytes memory cashData =  abi.encode(bytes32(""));
 
 //     vm.prank(owner);
-//     REGISTRAR.cash(cheqId, escrowed, owner, cashData);
+//     REGISTRAR.cash(notaId, escrowed, owner, cashData);
 // }
 
 // function testTransferPay(address caller, uint256 amount, address recipient) public {
@@ -530,9 +530,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+//     REGISTRAR.transferFrom(owner, drawer, notaId);
 // }
 
 // function testTransferInvoice(address caller, uint256 amount, address recipient) public {
@@ -541,9 +541,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, directAmount, drawer, recipient, owner);
 //     vm.expectRevert(bytes("Rule: Disallowed"));
-//     REGISTRAR.transferFrom(owner, drawer, cheqId);
+//     REGISTRAR.transferFrom(owner, drawer, notaId);
 // }
 
 // function testFundPay(address caller, uint256 amount, address drawer, address recipient) public {
@@ -552,9 +552,9 @@ contract MilestonesTest is Test {
 //     vm.assume(caller != address(0) && recipient != address(0) && !isContract(owner));
 //     vm.assume(drawer != recipient);
 
-//     (uint256 cheqId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
+//     (uint256 notaId, Milestones milestones) = writeHelper(caller, amount, escrowed, drawer, recipient, owner);
 //     bytes memory fundData =  abi.encode(bytes32(""));
 
 //     vm.expectRevert(bytes("Rule: Only recipient"));
-//     REGISTRAR.fund(cheqId, 0, amount, fundData);
+//     REGISTRAR.fund(notaId, 0, amount, fundData);
 // }

@@ -11,7 +11,7 @@ pragma solidity ^0.8.16;
 //  */
 // contract GiftCard is ModuleBase {
 //     mapping(uint256 => bytes32) public dataHash;
-//     event DataWritten(uint256 cheqId, bytes32 dataHash);
+//     event DataWritten(uint256 notaId, bytes32 dataHash);
 
 //     constructor(
 //         address registrar,
@@ -39,7 +39,7 @@ pragma solidity ^0.8.16;
 //     function processWrite(
 //         address caller,
 //         address owner,
-//         uint256 cheqId,
+//         uint256 notaId,
 //         address currency,
 //         uint256 escrowed,
 //         uint256 instant,
@@ -48,7 +48,7 @@ pragma solidity ^0.8.16;
 //         IWriteRule(writeRule).canWrite(
 //             caller,
 //             owner,
-//             cheqId,
+//             notaId,
 //             currency,
 //             escrowed,
 //             instant,
@@ -58,14 +58,14 @@ pragma solidity ^0.8.16;
 //         (bytes32 hashedData, address referer) = abi.decode(
 //             initData,
 //             (bytes32, address)
-//         ); // Frontend uploads (encrypted) memo document and the URI is linked to cheqId here (URI and content hash are set as the same)
-//         dataHash[cheqId] = hashedData;
+//         ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+//         dataHash[notaId] = hashedData;
 
 //         uint256 totalAmount = escrowed + instant;
 //         uint256 moduleFee = (totalAmount * fees.writeBPS) / BPS_MAX;
 //         revenue[referer][currency] += moduleFee;
 
-//         emit DataWritten(cheqId, hashedData);
+//         emit DataWritten(notaId, hashedData);
 //         return moduleFee;
 //     }
 
@@ -75,7 +75,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address from,
 //         address to,
-//         uint256 cheqId,
+//         uint256 notaId,
 //         address currency,
 //         uint256 escrowed,
 //         uint256 createdAt,
@@ -87,13 +87,13 @@ pragma solidity ^0.8.16;
 //         //     owner,
 //         //     from,
 //         //     to,
-//         //     cheqId,
+//         //     notaId,
 //         //     currency,
 //         //     escrowed,
 //         //     data
 //         // );
 //         uint256 moduleFee = (escrowed * fees.transferBPS) / BPS_MAX;
-//         // revenue[referer][cheq.currency] += moduleFee; // TODO who does this go to if no bytes?
+//         // revenue[referer][nota.currency] += moduleFee; // TODO who does this go to if no bytes?
 //         return moduleFee;
 //     }
 
@@ -102,8 +102,8 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         uint256 amount,
 //         uint256 instant,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         IFundRule(fundRule).canFund(
@@ -111,14 +111,14 @@ pragma solidity ^0.8.16;
 //             owner,
 //             amount,
 //             instant,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
-//         // require(!isCashed[cheqId], "Module: Already cashed");
+//         // require(!isCashed[notaId], "Module: Already cashed");
 //         address referer = abi.decode(initData, (address));
 //         uint256 moduleFee = ((amount + instant) * fees.fundBPS) / BPS_MAX;
-//         revenue[referer][cheq.currency] += moduleFee;
+//         revenue[referer][nota.currency] += moduleFee;
 //         return moduleFee;
 //     }
 
@@ -127,8 +127,8 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address to,
 //         uint256 amount,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes calldata initData
 //     ) external override onlyRegistrar returns (uint256) {
 //         ICashRule(cashRule).canCash(
@@ -136,8 +136,8 @@ pragma solidity ^0.8.16;
 //             owner,
 //             to,
 //             amount,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 //         uint256 moduleFee = (amount * fees.cashBPS) / BPS_MAX;
@@ -148,16 +148,16 @@ pragma solidity ^0.8.16;
 //         address caller,
 //         address owner,
 //         address to,
-//         uint256 cheqId,
-//         DataTypes.Nota calldata cheq,
+//         uint256 notaId,
+//         DataTypes.Nota calldata nota,
 //         bytes memory initData
 //     ) external override onlyRegistrar {
 //         IApproveRule(approveRule).canApprove(
 //             caller,
 //             owner,
 //             to,
-//             cheqId,
-//             cheq,
+//             notaId,
+//             nota,
 //             initData
 //         );
 //     }

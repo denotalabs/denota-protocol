@@ -52,7 +52,7 @@ contract Coverage is Ownable, ModuleBase {
     function processWrite(
         address caller,
         address _owner,
-        uint256 cheqId,
+        uint256 notaId,
         address currency,
         uint256 /*escrowed*/,
         uint256 instant,
@@ -70,9 +70,9 @@ contract Coverage is Ownable, ModuleBase {
         require(_owner == address(this), "Risk fee not paid to pool");
         require(currency == usdc, "Incorrect currency");
 
-        coverageInfo[cheqId].coverageHolder = holder;
-        coverageInfo[cheqId].coverageAmount = amount;
-        coverageInfo[cheqId].wasRedeemed = false;
+        coverageInfo[notaId].coverageHolder = holder;
+        coverageInfo[notaId].coverageAmount = amount;
+        coverageInfo[notaId].wasRedeemed = false;
         return 0;
     }
 
@@ -97,7 +97,7 @@ contract Coverage is Ownable, ModuleBase {
         address owner,
         address /*from*/,
         address /*to*/,
-        uint256 /*cheqId*/,
+        uint256 /*notaId*/,
         address currency,
         uint256 escrowed,
         uint256 /*createdAt*/,
@@ -111,8 +111,8 @@ contract Coverage is Ownable, ModuleBase {
         address owner,
         uint256 amount,
         uint256 instant,
-        uint256 cheqId,
-        DataTypes.Nota calldata cheq,
+        uint256 notaId,
+        DataTypes.Nota calldata nota,
         bytes calldata initData
     ) public override onlyRegistrar returns (uint256) {
         return 0;
@@ -123,8 +123,8 @@ contract Coverage is Ownable, ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*amount*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes calldata /*initData*/
     ) public view override onlyRegistrar returns (uint256) {
         return 0;
@@ -134,8 +134,8 @@ contract Coverage is Ownable, ModuleBase {
         address caller,
         address owner,
         address /*to*/,
-        uint256 /*cheqId*/,
-        DataTypes.Nota calldata /*cheq*/,
+        uint256 /*notaId*/,
+        DataTypes.Nota calldata /*nota*/,
         bytes memory /*initData*/
     ) public view override onlyRegistrar {
         // if (caller != owner) revert;

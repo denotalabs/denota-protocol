@@ -12,7 +12,7 @@ abstract contract SimpleAdmin is Pausable, ModuleBase {
 
 }
 
-/// @notice allows the cheq creator to set an admin that can pause WTFC for that particular cheq
+/// @notice allows the nota creator to set an admin that can pause WTFC for that particular nota
 abstract contract SetAdmin is ModuleBase {
 
 }
