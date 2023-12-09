@@ -159,7 +159,7 @@ contract RegistrarTest is Test {
             "Already Whitelisted"
         );
 
-        REGISTRAR.whitelistToken(token, true, "DAI");
+        REGISTRAR.whitelistToken(token, true);
         
         assertTrue(
             REGISTRAR.tokenWhitelisted(token),
@@ -167,26 +167,14 @@ contract RegistrarTest is Test {
         );
     }
 
-    function _registrarModuleWhitelistHelper(address module, bool bytecode, bool _address, string memory name) internal {
-        assertTrue(bytecode != _address, "Can't do both");  // TODO make sure one is true
-
-        (bool bytecodeWhitelist, bool addressWhitelist) = REGISTRAR.moduleWhitelisted(module);
-        assertFalse(bytecodeWhitelist, "Already Whitelisted");
+    function _registrarModuleWhitelistHelper(address module, bool _address) internal {
+        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
         assertFalse(addressWhitelist, "Already Whitelisted");
 
-        REGISTRAR.whitelistModule(
-            module,
-            bytecode,
-            _address,
-            name
-        );
+        REGISTRAR.whitelistModule(module, _address);
 
-        (bytecodeWhitelist, addressWhitelist) = REGISTRAR.moduleWhitelisted(module);
-        if (bytecode){
-            assertTrue(bytecodeWhitelist, "Bytecode Not Whitelisted");
-        } else{
-            assertTrue(addressWhitelist, "Address Not Whitelisted");
-        }
+        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
+        assertTrue(addressWhitelist, "Address Not Whitelisted");
     }
 
     function testWhitelistToken() public {
@@ -194,7 +182,7 @@ contract RegistrarTest is Test {
          _registrarTokenWhitelistHelper(address(DAI));
         
         // Remove whitelist
-        REGISTRAR.whitelistToken(address(DAI), false, "DAI");
+        REGISTRAR.whitelistToken(address(DAI), false);
         assertFalse(
             REGISTRAR.tokenWhitelisted(address(DAI)),
             "Un-whitelisting failed"

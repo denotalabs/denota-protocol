@@ -26,7 +26,7 @@ contract ReversibleReleaseTest is Test {
     function setUp() public {
         // sets up the registrar and ERC20s
         REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
-        dai = new TestERC20(tokensCreated, "DAI", "DAI"); // Sends ContractTest the dai
+        dai = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); // Sends ContractTest the dai
         usdc = new TestERC20(0, "USDC", "USDC");
         // REGISTRAR.whitelistToken(address(dai), true);
         // REGISTRAR.whitelistToken(address(usdc), true);
@@ -381,7 +381,7 @@ contract ReversibleReleaseTest is Test {
         address creditor
     ) public view {
         vm.assume(debtor != creditor);
-        vm.assume(faceValue != 0 && faceValue <= tokensCreated);
+        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
         vm.assume(
             debtor != address(0) &&
                 creditor != address(0) &&

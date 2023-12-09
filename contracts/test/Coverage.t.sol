@@ -5,7 +5,7 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
 import {Coverage} from "../src/modules/Coverage.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
@@ -21,7 +21,7 @@ contract CoverageTest is Test, RegistrarTest {
 
         COVERAGE = new Coverage(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
+            WTFCFees(0, 0, 0, 0),
             "ipfs://", 
             address(DAI),
             120 days,
@@ -149,7 +149,7 @@ contract CoverageTest is Test, RegistrarTest {
     ) internal returns(uint256 notaId){
         uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
 
-        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
+        _registrarModuleWhitelistHelper(address(COVERAGE), true);
         _registrarTokenWhitelistHelper(address(DAI));
         _addWhitelistHelper(caller);
         _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
