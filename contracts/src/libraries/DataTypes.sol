@@ -10,7 +10,7 @@ struct Nota {
     address module; // Slot3 (240)
     // 16 bits free
     // address owner; // Slot4 (120)
-    // address approved // Slot4 (240)
+    // address approved; // Slot4 (240)
     // 16 bits free
 }
 
