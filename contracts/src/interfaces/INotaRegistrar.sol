@@ -25,7 +25,7 @@ interface INotaRegistrar {
         uint256 escrowed,
         uint256 createdAt,
         uint256 moduleFee,
-        address module,
+        INotaModule module,
         bytes moduleData
     );
     event Transferred(  // TODO does this need `from` since ERC721 already has it?
@@ -66,7 +66,7 @@ interface INotaRegistrar {
         uint256 escrowed,
         uint256 instant,
         address owner,
-        address module,
+        INotaModule module,
         bytes calldata moduleWriteData
     ) external payable returns (uint256);
 
@@ -115,7 +115,7 @@ interface INotaRegistrar {
 
     function notaEscrowed(uint256 notaId) external view returns (uint256);
 
-    function notaModule(uint256 notaId) external view returns (address);
+    function notaModule(uint256 notaId) external view returns (INotaModule);
 
     function moduleWithdraw(
         address token,

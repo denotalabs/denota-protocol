@@ -30,7 +30,7 @@ contract NoopTest is Test, RegistrarTest {
             escrowed, 
             instant,
             owner, 
-            address(NOOP), // module
+            NOOP, // module
             "" // moduleData
         );
         return notaId;
@@ -57,7 +57,7 @@ contract NoopTest is Test, RegistrarTest {
     ) internal returns(uint256 notaId){
         _writeNoopAssumptions(caller, escrowed, instant, owner);
 
-        _registrarModuleWhitelistHelper(address(NOOP), true);
+        _registrarModuleWhitelistHelper(NOOP, true);
         _registrarTokenWhitelistHelper(address(DAI));
 
         _tokenFundAddressApproveAddress(caller, DAI, escrowed, instant, NOOP, address(REGISTRAR));

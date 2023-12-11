@@ -103,13 +103,13 @@ contract RegistrarTest is Test {
         );
     }
    
-   function _registrarModuleWhitelistHelper(address module, bool _address) internal {
-        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
+   function _registrarModuleWhitelistHelper(INotaModule module, bool _address) internal {
+        bool addressWhitelist = REGISTRAR.moduleWhitelisted(address(module));
         assertFalse(addressWhitelist, "Already Whitelisted");
 
-        REGISTRAR.whitelistModule(module, _address);
+        REGISTRAR.whitelistModule(address(module), _address);
 
-        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
+        addressWhitelist = REGISTRAR.moduleWhitelisted(address(module));
         assertTrue(addressWhitelist, "Address Not Whitelisted");
     }
 
@@ -134,7 +134,7 @@ contract RegistrarTest is Test {
         address currency,
         uint256 escrowed,
         address owner,
-        address module
+        INotaModule module
     ) public {
         assertEq(
             REGISTRAR.totalSupply(), 1,
@@ -162,7 +162,7 @@ contract RegistrarTest is Test {
         );
 
         assertEq(
-            address(REGISTRAR.notaModule(notaId)), module,
+            address(REGISTRAR.notaModule(notaId)), address(module),
             "Incorrect module"
         );
     }
@@ -173,7 +173,7 @@ contract RegistrarTest is Test {
         uint256 escrowed,
         uint256 instant,
         address owner,
-        address module,
+        INotaModule module,
         bytes memory moduleWriteData) internal returns(uint256 notaId) {
 
         registrarWriteBefore(caller, owner);

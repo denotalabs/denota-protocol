@@ -4,14 +4,14 @@ import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
+import {INotaModule} from "./interfaces/INotaModule.sol";
 
 // Idea Registrar could take different fees from different modules. Business related ones would be charged but not social ones?
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
-    mapping(address => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
+    mapping(INotaModule => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
     mapping(address => bool) internal _addressWhitelist;
     mapping(address => bool) internal _tokenWhitelist;
-
 
     function whitelistModule(
         address module,
