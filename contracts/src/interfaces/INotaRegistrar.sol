@@ -7,13 +7,14 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 /**
  * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
  */
- // TODO: If Registrar fee storing, Uniswapv4 has this inherit a IFees interface here as well. 
+ // NOTE: If Registrar fee storing, Uniswapv4 has this inherit a IFees interface here as well. 
  /**
  * @title  The Nota Payment Registrar
  * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
+ // Question Do these need timestamps?
 interface INotaRegistrar {
     event Written(
         address indexed caller,
@@ -27,13 +28,13 @@ interface INotaRegistrar {
         address module,
         bytes moduleData
     );
-    event Transferred(
+    event Transferred(  // TODO does this need `from` since ERC721 already has it?
         uint256 indexed tokenId,
         address indexed from,
         address indexed to,
         uint256 moduleFee,
         uint256 timestamp
-    );
+    ); // TODO needs moduleBytes
     event Funded(
         address indexed funder,
         uint256 indexed notaId,

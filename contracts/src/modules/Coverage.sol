@@ -166,62 +166,6 @@ contract Coverage is Ownable, OperatorFeeModuleBase, ERC20 {
         isWhitelisted[_address] = false;
     }
 
-    function processTransfer(
-        address /*caller*/,
-        address /*approved*/,
-        address /*owner*/,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        address /*currency*/,
-        uint256 /*escrowed*/,
-        uint256 /*createdAt*/,
-        bytes memory /*data*/
-    ) public onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processFund(
-        address /*caller*/,
-        address /*owner*/,
-        uint256 /*amount*/,
-        uint256 /*instant*/,
-        uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes calldata /*initData*/
-    ) public override onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processCash(
-        address /*caller*/,
-        address /*owner*/,
-        address /*to*/,
-        uint256 /*amount*/,
-        uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes calldata /*initData*/
-    ) public view override onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processApproval(
-        address caller,
-        address owner,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
-    ) public view override onlyRegistrar {
-        // if (caller != owner) revert;
-    }
-
-    function processTokenURI(
-        uint256 /*tokenId*/
-    ) external view override returns (string memory, string memory) {
-        return ("", "");
-    }
-
     function coverageInfoCoverageAmount(uint256 notaId) public view returns(uint256){
         return coverageInfo[notaId].coverageAmount;
     }

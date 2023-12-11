@@ -7,6 +7,8 @@ import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaModule} from "../src/interfaces/INotaModule.sol";
 import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
+
+// TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public DAI;
@@ -73,6 +75,46 @@ contract RegistrarTest is Test {
         vm.prank(caller);
         token.approve(_toApprove, totalWithFees); // Need to get the fee amounts beforehand
         assertEq(token.allowance(caller, _toApprove), totalWithFees);
+    }
+
+    function _registrarTokenWhitelistHelper(address token) internal {
+        assertFalse(
+            REGISTRAR.tokenWhitelisted(token),
+            "Already Whitelisted"
+        );
+
+        REGISTRAR.whitelistToken(token, true);
+        
+        assertTrue(
+            REGISTRAR.tokenWhitelisted(token),
+            "Whitelisting failed"
+        );
+    }
+
+    function testWhitelistToken() public {
+        // Add whitelist
+         _registrarTokenWhitelistHelper(address(DAI));
+        
+        // Remove whitelist
+        REGISTRAR.whitelistToken(address(DAI), false);
+        assertFalse(
+            REGISTRAR.tokenWhitelisted(address(DAI)),
+            "Un-whitelisting failed"
+        );
+    }
+   
+   function _registrarModuleWhitelistHelper(address module, bool _address) internal {
+        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
+        assertFalse(addressWhitelist, "Already Whitelisted");
+
+        REGISTRAR.whitelistModule(module, _address);
+
+        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
+        assertTrue(addressWhitelist, "Address Not Whitelisted");
+    }
+
+    function testWhitelistModule() public {
+        // TODO
     }
 
     function registrarWriteBefore(address caller, address recipient) public {
@@ -153,43 +195,18 @@ contract RegistrarTest is Test {
         );
     }
 
-    function _registrarTokenWhitelistHelper(address token) internal {
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(token),
-            "Already Whitelisted"
-        );
+    function registrarTransferBefore(address from, address to, uint256 notaId) public {}
 
-        REGISTRAR.whitelistToken(token, true);
-        
-        assertTrue(
-            REGISTRAR.tokenWhitelisted(token),
-            "Whitelisting failed"
-        );
-    }
+    function registrarTransferAfter(address from, address to, uint256 notaId) public {}
 
-    function _registrarModuleWhitelistHelper(address module, bool _address) internal {
-        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
-        assertFalse(addressWhitelist, "Already Whitelisted");
+    function _registrarTransferHelper(address from, address to, uint256 notaId) internal {}
 
-        REGISTRAR.whitelistModule(module, _address);
+    function registrarFundBefore(uint256 notaId, uint256 amount, uint256 instant) public {}
 
-        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
-        assertTrue(addressWhitelist, "Address Not Whitelisted");
-    }
+    function registrarFundAfter(uint256 notaId, uint256 amount, uint256 instant) public {}
 
-    function testWhitelistToken() public {
-        // Add whitelist
-         _registrarTokenWhitelistHelper(address(DAI));
-        
-        // Remove whitelist
-        REGISTRAR.whitelistToken(address(DAI), false);
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(address(DAI)),
-            "Un-whitelisting failed"
-        );
-    }
+    function registrarCashBefore(uint256 notaId, uint256 amount, address to) public {}
 
-    function testWhitelistModule() public {
-        // TODO
-    }
+    function registrarCashAfter(uint256 notaId, uint256 amount, address to) public {}
+    
 }
