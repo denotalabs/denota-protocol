@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
+import {INotaModule} from "./INotaModule.sol";
 
 interface IRegistrarGov {
     event ModuleWhitelisted(
         address indexed user,
-        address indexed module,
+        INotaModule indexed module,
         bool isAccepted,
         uint256 timestamp
     );
@@ -17,13 +18,13 @@ interface IRegistrarGov {
     );
     
     function moduleWhitelisted(
-        address module
+        INotaModule module
     ) external view returns (bool); // addressWhitelisted, bytecodeWhitelisted
 
     function tokenWhitelisted(address token) external view returns (bool);
 
     // function moduleWithdraw(
-    //     address token,
+    //     address currency,
     //     uint256 amount,
     //     address payoutAccount
     // ) external;

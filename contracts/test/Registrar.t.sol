@@ -104,12 +104,12 @@ contract RegistrarTest is Test {
     }
    
    function _registrarModuleWhitelistHelper(INotaModule module, bool _address) internal {
-        bool addressWhitelist = REGISTRAR.moduleWhitelisted(address(module));
+        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
         assertFalse(addressWhitelist, "Already Whitelisted");
 
-        REGISTRAR.whitelistModule(address(module), _address);
+        REGISTRAR.whitelistModule(module, _address);
 
-        addressWhitelist = REGISTRAR.moduleWhitelisted(address(module));
+        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
         assertTrue(addressWhitelist, "Address Not Whitelisted");
     }
 

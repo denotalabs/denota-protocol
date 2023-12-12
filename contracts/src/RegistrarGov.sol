@@ -10,11 +10,11 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
     mapping(INotaModule => mapping(address => uint256)) internal _moduleRevenue; // Could collapse this into a single mapping
-    mapping(address => bool) internal _addressWhitelist;
+    mapping(INotaModule => bool) internal _addressWhitelist;
     mapping(address => bool) internal _tokenWhitelist;
 
     function whitelistModule(
-        address module,
+        INotaModule module,
         bool addressAccepted
     ) external onlyOwner {
         _addressWhitelist[module] = addressAccepted;
@@ -31,7 +31,6 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         address _token,
         bool accepted
     ) external onlyOwner {
-        // Whitelist for safety, modules can be more restrictive
         _tokenWhitelist[_token] = accepted;
         emit TokenWhitelisted(
             _msgSender(),
@@ -41,27 +40,22 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         );
     }
 
-    function validModule(address module) public view returns (bool) {
-        return
-            _addressWhitelist[module];
-    }
-
     function tokenWhitelisted(address token) public view returns (bool) {
         return _tokenWhitelist[token];
     }
 
-    function validWrite(
-        address module,
-        address token
-    ) public view returns (bool) {
-        return validModule(module) && tokenWhitelisted(token); // Valid module and whitelisted currency
-    }
-
     function moduleWhitelisted(
-        address module
+        INotaModule module
     ) public view returns (bool) {
         return (
             _addressWhitelist[module]
         );
+    }
+
+    function validWrite(
+        INotaModule module,
+        address token
+    ) public view returns (bool) {
+        return moduleWhitelisted(module) && tokenWhitelisted(token); // Valid module and whitelisted currency
     }
 }
