@@ -150,7 +150,7 @@ contract NotaEncoding {
     function toJSON(
         string memory currency,
         string memory escrowed,
-        string memory createdAt,
+        // string memory createdAt,
         string memory module,
         string memory moduleAttributes,
         string memory moduleKeys
@@ -165,8 +165,8 @@ contract NotaEncoding {
                             currency,
                             '"},{"trait_type":"Escrowed","display_type":"number","value":',
                             escrowed,
-                            '},{"trait_type":"CreatedAt","display_type":"number","value":',
-                            createdAt,
+                            // '},{"trait_type":"CreatedAt","display_type":"number","value":',
+                            // createdAt,
                             '},{"trait_type":"Module","value":"',
                             module,
                             '"}',

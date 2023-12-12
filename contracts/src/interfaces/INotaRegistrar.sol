@@ -108,8 +108,6 @@ interface INotaRegistrar {
     function notaInfo(
         uint256 notaId
     ) external view returns (Nota memory);
-
-    function notaCreatedAt(uint256 notaId) external view returns (uint256);
     
     function notaCurrency(uint256 notaId) external view returns (address);
 

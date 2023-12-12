@@ -29,7 +29,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
 
         _transferTokens(currency, owner, escrowed, instant, moduleFee);
         _mint(owner, totalSupply);
-        _notas[totalSupply] = Nota(escrowed, block.timestamp, currency, module);
+        _notas[totalSupply] = Nota(escrowed, currency, module);
         
         _moduleRevenue[module][currency] += moduleFee;
 
@@ -93,7 +93,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         return toJSON(
                 Strings.toHexString(uint256(uint160(_notas[notaId].currency)), 20),
                 itoa(_notas[notaId].escrowed),
-                itoa(_notas[notaId].createdAt),
+                // itoa(_notas[notaId].createdAt),
                 Strings.toHexString(uint256(uint160(address(_notas[notaId].module))), 20),
                 moduleAttributes,
                 moduleKeys
@@ -181,9 +181,9 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     function notaEscrowed(uint256 notaId) public view isMinted(notaId) returns (uint256) {
         return _notas[notaId].escrowed;
     }
-    function notaCreatedAt(uint256 notaId) public view isMinted(notaId) returns (uint256) {
-        return _notas[notaId].createdAt;
-    }
+    // function notaCreatedAt(uint256 notaId) public view isMinted(notaId) returns (uint256) {
+    //     return _notas[notaId].createdAt;
+    // }
     function notaCurrency(uint256 notaId) public view isMinted(notaId) returns (address) {
         return _notas[notaId].currency;
     }
