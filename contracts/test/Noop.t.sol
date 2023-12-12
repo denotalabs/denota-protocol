@@ -18,24 +18,6 @@ contract NoopTest is Test, RegistrarTest {
         vm.label(address(NOOP), "Noop");
     }
 
-    function _writeHelper(
-        address caller,
-        uint256 escrowed,
-        uint256 instant,
-        address owner
-    ) internal returns (uint256){
-        uint256 notaId = _registrarWriteHelper(
-            caller, 
-            address(DAI), // currency
-            escrowed, 
-            instant,
-            owner, 
-            NOOP, // module
-            "" // moduleData
-        );
-        return notaId;
-    }
-
     function _writeNoopAssumptions(
         address caller,
         uint256 escrow,
@@ -57,11 +39,19 @@ contract NoopTest is Test, RegistrarTest {
     ) internal returns(uint256 notaId){
         _writeNoopAssumptions(caller, escrowed, instant, owner);
 
-        _registrarModuleWhitelistHelper(NOOP, true);
-        _registrarTokenWhitelistHelper(address(DAI));
+        _registrarModuleWhitelistToggleHelper(NOOP, false); // startedAs=false
+        _registrarTokenWhitelistToggleHelper(address(DAI), false);
 
-        _tokenFundAddressApproveAddress(caller, DAI, escrowed, instant, NOOP, address(REGISTRAR));
-        notaId = _writeHelper(caller, escrowed, instant, owner);
+        _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
+        notaId = _registrarWriteHelper(
+            caller, 
+            address(DAI), // currency
+            escrowed, 
+            instant,
+            owner, 
+            NOOP, // module
+            "" // moduleData
+        );
     }
 
     function testWrite(
@@ -82,7 +72,7 @@ contract NoopTest is Test, RegistrarTest {
     ) public {
         vm.assume(owner != address(0) && to != address(0));  // Doesn't allow transfer to the zero address
         uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
-        REGISTRAR.transferFrom(owner, to, notaId); // TODO need to try from non owner address
+        _registrarTransferHelper(owner, to, notaId);
     }
 
     function testFund(
@@ -93,7 +83,9 @@ contract NoopTest is Test, RegistrarTest {
     ) public {
         vm.assume((escrowed/2 + instant/2) < TOKENS_CREATED / 4);
         uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
-        _tokenFundAddressApproveAddress(caller, DAI, escrowed, instant, NOOP, address(REGISTRAR));
+
+        // Give more tokens for funding
+        _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
 
         vm.prank(caller);
         REGISTRAR.fund(notaId, escrowed, instant, abi.encode(""));

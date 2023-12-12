@@ -27,7 +27,7 @@ contract RegistrarTest is Test {
         vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
-    function isContract(address _addr) public view returns (bool) {
+    function isContract(address _addr) internal view returns (bool) {
         uint32 size;
         assembly {
             size := extcodesize(_addr)
@@ -38,7 +38,7 @@ contract RegistrarTest is Test {
     function safeFeeMult(
         uint256 fee,
         uint256 amount
-    ) public pure returns (uint256) {
+    ) internal pure returns (uint256) {
         if (fee == 0) return 0;
         return (amount * fee) / 10_000;
     }
@@ -58,115 +58,68 @@ contract RegistrarTest is Test {
         return totalWithFees;
     }
 
-    function _tokenFundAddressApproveAddress(address caller, TestERC20 token, uint256 escrowed, uint256 instant, INotaModule module, address _toApprove) internal {
-        uint256 totalWithFees = _calcTotalFees(  // TODO should this be moved outside of this func?
-            module,
-            escrowed,
-            instant
-        );
-        
-        assertEq(token.balanceOf(caller), 0, "Token Transfer already happened");
+    function _tokenFundAddressApproveAddress(address caller, TestERC20 token, uint256 total, address _toApprove) internal {
+        // TODO need to make this state aware TODO
+        // assertEq(token.balanceOf(caller), 0, "Token Transfer already happened");
         // Give caller enough tokens
-        token.transfer(caller, totalWithFees);
-        assertEq(token.balanceOf(caller), totalWithFees, "Token Transfer Failed");
+        token.transfer(caller, total);
+        // assertEq(token.balanceOf(caller), total, "Token Transfer Failed");
 
         // Caller gives registrar approval
-        assertEq(token.allowance(caller, _toApprove), 0);
+        // assertEq(token.allowance(caller, _toApprove), 0);
         vm.prank(caller);
-        token.approve(_toApprove, totalWithFees); // Need to get the fee amounts beforehand
-        assertEq(token.allowance(caller, _toApprove), totalWithFees);
+        token.approve(_toApprove, total); // Need to get the fee amounts beforehand
+        // assertEq(token.allowance(caller, _toApprove), total);
     }
 
-    function _registrarTokenWhitelistHelper(address token) internal {
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(token),
-            "Already Whitelisted"
-        );
+    function _registrarTokenWhitelistToggleHelper(address token, bool alreadyWhitelisted) internal {
+        bool isWhitelisted = REGISTRAR.tokenWhitelisted(token);
+        if (alreadyWhitelisted){ // from whitelisted to not
+            assertTrue(isWhitelisted, "Not Whitelisted");
 
-        REGISTRAR.whitelistToken(token, true);
-        
-        assertTrue(
-            REGISTRAR.tokenWhitelisted(token),
-            "Whitelisting failed"
-        );
+            REGISTRAR.whitelistToken(token, false);
+
+            assertFalse(REGISTRAR.tokenWhitelisted(token), "Address Still Whitelisted");
+        } else {  // from not whitelisted to whitelisted
+            assertFalse(isWhitelisted, "Already Whitelisted");
+
+            REGISTRAR.whitelistToken(token, true);
+
+            assertTrue(REGISTRAR.tokenWhitelisted(token), "Address Not Whitelisted");
+        }
     }
 
     function testWhitelistToken() public {
+        // Add to whitelist
+         _registrarTokenWhitelistToggleHelper(address(DAI), false); // false -> true
+        // Remove from whitelist
+        _registrarTokenWhitelistToggleHelper(address(DAI), true); // true -> false
+    }
+    function _registrarModuleWhitelistToggleHelper(INotaModule module, bool alreadyWhitelisted) internal {
+        bool isWhitelisted = REGISTRAR.moduleWhitelisted(module);
+        if (alreadyWhitelisted){
+            assertTrue(isWhitelisted, "Not Whitelisted");
+
+            REGISTRAR.whitelistModule(module, false);
+
+            assertFalse(REGISTRAR.moduleWhitelisted(module), "Address Still Whitelisted");
+        } else {
+            assertFalse(isWhitelisted, "Already Whitelisted");
+
+            REGISTRAR.whitelistModule(module, true);
+
+            assertTrue(REGISTRAR.moduleWhitelisted(module), "Address Not Whitelisted");
+        }
+    }
+
+    function testWhitelistModule(INotaModule module) public {
         // Add whitelist
-         _registrarTokenWhitelistHelper(address(DAI));
-        
+        _registrarModuleWhitelistToggleHelper(module, false);
         // Remove whitelist
-        REGISTRAR.whitelistToken(address(DAI), false);
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(address(DAI)),
-            "Un-whitelisting failed"
-        );
-    }
-   
-   function _registrarModuleWhitelistHelper(INotaModule module, bool _address) internal {
-        bool addressWhitelist = REGISTRAR.moduleWhitelisted(module);
-        assertFalse(addressWhitelist, "Already Whitelisted");
-
-        REGISTRAR.whitelistModule(module, _address);
-
-        addressWhitelist = REGISTRAR.moduleWhitelisted(module);
-        assertTrue(addressWhitelist, "Address Not Whitelisted");
+        _registrarModuleWhitelistToggleHelper(module, true);
     }
 
-    function testWhitelistModule() public {
-        // TODO
-    }
-
-    function registrarWriteBefore(address caller, address recipient) public {
-        assertEq(
-            REGISTRAR.balanceOf(caller), 0,
-            "Caller already had a nota"
-        );
-        assertEq(
-            REGISTRAR.balanceOf(recipient), 0,
-            "Recipient already had a nota"
-        );
-        assertEq(REGISTRAR.totalSupply(), 0, "Nota supply non-zero");
-    }
-    
-    function registrarWriteAfter(
-        uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        address owner,
-        INotaModule module
-    ) public {
-        assertEq(
-            REGISTRAR.totalSupply(), 1,
-            "Nota supply didn't increment"
-        );
-
-        assertEq(
-            REGISTRAR.balanceOf(owner), 1,
-            "Owner balance didn't increment"
-        );
-
-        assertEq(
-            REGISTRAR.ownerOf(notaId), owner,
-            "`owner` isn't owner of nota"
-        );
-
-        assertEq(
-            REGISTRAR.notaCurrency(notaId), currency,
-            "Incorrect token"
-        );
-
-        assertEq(
-            REGISTRAR.notaEscrowed(notaId), escrowed,
-            "Incorrect escrow"
-        );
-
-        assertEq(
-            address(REGISTRAR.notaModule(notaId)), address(module),
-            "Incorrect module"
-        );
-    }
-
+/*---------------------------------- Can't test these without a module ------------------------------------*/
     function _registrarWriteHelper(        
         address caller,
         address currency,
@@ -174,39 +127,60 @@ contract RegistrarTest is Test {
         uint256 instant,
         address owner,
         INotaModule module,
-        bytes memory moduleWriteData) internal returns(uint256 notaId) {
+        bytes memory moduleBytes
+        ) internal returns(uint256 notaId) {
+        uint256 initialTotalSupply = REGISTRAR.totalSupply();
+        uint256 initialOwnerBalance = REGISTRAR.balanceOf(owner);
+        uint256 initialTokenBalance = IERC20(currency).balanceOf(caller);
+        uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(module, currency);
+        uint256 totalAmount = _calcTotalFees(module, escrowed, instant);
+        uint256 moduleFee = totalAmount - (escrowed + instant);
+        
+        // bytes4 selector = bytes4(keccak256("NotMinted()"));
+        // vm.expectRevert(abi.encodeWithSelector(selector, 1, 2) ); // TODO not working (0x4d5e5fb3 != ), not hardcoding (0x4d5e5fb3 != 0x4d5e5fb3)
+        // REGISTRAR.notaInfo(initialTotalSupply);
 
-        registrarWriteBefore(caller, owner);
         vm.prank(caller);
         notaId = REGISTRAR.write(
-            currency,
+            address(currency),
             escrowed,
             instant,
             owner,
             module,
-            moduleWriteData
+            moduleBytes
         ); 
-        registrarWriteAfter(
-            notaId,
-            currency,
-            escrowed,
-            owner,
-            module
-        );
+        
+        assertEq(REGISTRAR.totalSupply(), initialTotalSupply + 1, "Nota supply didn't increment");
+        assertEq(REGISTRAR.balanceOf(owner), initialOwnerBalance + 1, "Owner balance didn't increment");
+        assertEq(REGISTRAR.ownerOf(notaId), owner, "`owner` isn't owner of nota");
+        assertEq(REGISTRAR.moduleRevenue(module, currency), initialModuleRevenue + moduleFee, "Caller currency balance didn't decrease");
+
+        Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
+        assertEq(postNota.currency, currency, "Incorrect token");
+        assertEq(postNota.escrowed, escrowed, "Incorrect escrow");
+        assertEq(address(postNota.module), address(module), "Incorrect module");
+
+        assertEq(IERC20(currency).balanceOf(caller), initialTokenBalance - totalAmount, "Caller currency balance didn't decrease");
     }
 
-    function registrarTransferBefore(address from, address to, uint256 notaId) public {}
+    function _registrarTransferHelper(address from, address to, uint256 notaId) internal {
+        // Initial state
+        uint256 initialTotalSupply = REGISTRAR.totalSupply();
+        uint256 initialFromBalance = REGISTRAR.balanceOf(from);
+        uint256 initialToBalance = REGISTRAR.balanceOf(to);
+        assertEq(REGISTRAR.ownerOf(notaId), from, "Recipient should be the new owner of the token");
 
-    function registrarTransferAfter(address from, address to, uint256 notaId) public {}
+        REGISTRAR.transferFrom(from, to, notaId);
 
-    function _registrarTransferHelper(address from, address to, uint256 notaId) internal {}
+        // Verify state transition
+        assertEq(REGISTRAR.totalSupply(), initialTotalSupply, "Total supply should remain unchanged");
+        assertEq(REGISTRAR.balanceOf(from), initialFromBalance - 1, "Sender's balance should decrease by 1");
+        assertEq(REGISTRAR.balanceOf(to), initialToBalance + 1, "Recipient's balance should increase by 1");
+        assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
+    }
 
-    function registrarFundBefore(uint256 notaId, uint256 amount, uint256 instant) public {}
+    function _registrarFundHelper(uint256 notaId, uint256 amount, uint256 instant) internal {}
 
-    function registrarFundAfter(uint256 notaId, uint256 amount, uint256 instant) public {}
+    function _registrarCashHelper(uint256 notaId, uint256 amount, uint256 instant) internal {}
 
-    function registrarCashBefore(uint256 notaId, uint256 amount, address to) public {}
-
-    function registrarCashAfter(uint256 notaId, uint256 amount, address to) public {}
-    
 }
