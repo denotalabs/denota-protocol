@@ -57,7 +57,7 @@ interface INotaRegistrar {
     error SendFailed();
     error SelfApproval();
     error NotMinted();
-    error InvalidWrite(address, address);
+    error InvalidWrite(INotaModule, address);
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
 

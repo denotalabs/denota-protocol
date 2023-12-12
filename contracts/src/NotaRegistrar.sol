@@ -24,9 +24,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     constructor() ERC4906("Denota Protocol", "NOTA") {}
 
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata moduleBytes) public payable returns (uint256) {
+        require(validWrite(module, currency), "INVALID_WRITE"); // GAS:                      |  155911 | 176593 | 183488 | 183488
         uint256 moduleFee = module.processWrite(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes);
 
-        _transferTokens(escrowed, instant, currency, owner, moduleFee);
+        _transferTokens(currency, owner, escrowed, instant, moduleFee);
         _mint(owner, totalSupply);
         _notas[totalSupply] = Nota(escrowed, block.timestamp, currency, module);
         
@@ -49,7 +50,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         bytes memory moduleTransferData
     ) public override(ERC721, IERC721, INotaRegistrar) {
         _transferHookTakeFee(from, to, notaId, moduleTransferData);
-        _safeTransfer(from, to, notaId, moduleTransferData);
+        _safeTransfer(from, to, notaId, abi.encode(""));  // NOTE: seems like a vulnerability if passed through
         emit MetadataUpdate(notaId);
     }
 
@@ -58,7 +59,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         address notaOwner = ownerOf(notaId);
         uint256 moduleFee = nota.module.processFund(msg.sender, notaOwner, amount, instant, notaId, nota, moduleBytes);
 
-        _transferTokens(amount, instant, nota.currency, notaOwner, moduleFee);
+        _transferTokens(nota.currency, notaOwner, amount, instant, moduleFee);
         _notas[notaId].escrowed += amount;
         _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
@@ -131,10 +132,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
             }
     }
     function _transferTokens(
-        uint256 escrowed,
-        uint256 instant,
         address currency,
         address recipient,
+        uint256 escrowed,
+        uint256 instant,
         uint256 moduleFee
     ) private {
         uint256 toEscrow = escrowed + moduleFee;
