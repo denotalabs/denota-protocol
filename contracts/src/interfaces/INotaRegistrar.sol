@@ -120,4 +120,6 @@ interface INotaRegistrar {
         uint256 amount,
         address payoutAccount
     ) external;
+
+    function moduleRevenue(INotaModule module, address currency) external view returns(uint256);
 }

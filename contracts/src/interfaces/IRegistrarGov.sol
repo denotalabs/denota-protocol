@@ -17,15 +17,7 @@ interface IRegistrarGov {
         uint256 timestamp
     );
     
-    function moduleWhitelisted(
-        INotaModule module
-    ) external view returns (bool); // addressWhitelisted, bytecodeWhitelisted
+    function moduleWhitelisted(INotaModule module) external view returns (bool);
 
     function tokenWhitelisted(address token) external view returns (bool);
-
-    // function moduleWithdraw(
-    //     address currency,
-    //     uint256 amount,
-    //     address payoutAccount
-    // ) external;
 }

@@ -13,6 +13,7 @@ import  "./ERC4906.sol";
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     using SafeERC20 for IERC20;
     
+    mapping(INotaModule => mapping(address => uint256)) private _moduleRevenue;
     mapping(uint256 => Nota) private _notas;
     uint256 public totalSupply;
 
@@ -24,7 +25,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     constructor() ERC4906("Denota Protocol", "NOTA") {}
 
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata moduleBytes) public payable returns (uint256) {
-        require(validWrite(module, currency), "INVALID_WRITE"); // GAS:                      |  155911 | 176593 | 183488 | 183488
+        require(validWrite(module, currency), "INVALID_WRITE");
         uint256 moduleFee = module.processWrite(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes);
 
         _transferTokens(currency, owner, escrowed, instant, moduleFee);
@@ -148,12 +149,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         address from,
         address to,
         uint256 notaId,
-        bytes memory moduleTransferData
+        bytes memory moduleBytes
     ) private {
-        if (moduleTransferData.length == 0) moduleTransferData = abi.encode("");
+        if (moduleBytes.length == 0) moduleBytes = abi.encode("");
         Nota memory nota = _notas[notaId];
         address owner = ownerOf(notaId);
-        uint256 moduleFee = INotaModule(nota.module).processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, moduleTransferData);
+        uint256 moduleFee = INotaModule(nota.module).processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, moduleBytes);
 
         if (moduleFee > 0){
             _notas[notaId].escrowed -= moduleFee;  // If module doesn't revert then this will
@@ -168,6 +169,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
+    function moduleRevenue(INotaModule module, address currency) public view returns(uint256) {
+        return _moduleRevenue[module][currency];
+    }
+
     function moduleWithdraw(address token, uint256 amount, address to) external {
         _moduleRevenue[INotaModule(msg.sender)][token] -= amount;  // reverts on underflow
         IERC20(token).safeTransferFrom(address(this), to, amount);
@@ -178,15 +183,15 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     ) public view isMinted(notaId) returns (Nota memory) {
         return _notas[notaId];
     }
+
     function notaEscrowed(uint256 notaId) public view isMinted(notaId) returns (uint256) {
         return _notas[notaId].escrowed;
     }
-    // function notaCreatedAt(uint256 notaId) public view isMinted(notaId) returns (uint256) {
-    //     return _notas[notaId].createdAt;
-    // }
+
     function notaCurrency(uint256 notaId) public view isMinted(notaId) returns (address) {
         return _notas[notaId].currency;
     }
+
     function notaModule(uint256 notaId) public view isMinted(notaId) returns (INotaModule) {
         return _notas[notaId].module;
     }
