@@ -9,6 +9,7 @@ import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {Noop} from "../src/modules/Noop.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
+// TODO test when Nota owner is NotaRegistrar
 contract NoopTest is Test, RegistrarTest {
     Noop public NOOP;
 
@@ -25,6 +26,7 @@ contract NoopTest is Test, RegistrarTest {
         address owner
     ) internal {
         vm.assume(caller != address(0) && caller != owner && owner != address(0));
+        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR));
         vm.assume((escrow/2 + instant/2) < TOKENS_CREATED / 2);
 
         vm.label(caller, "Caller");
@@ -35,7 +37,8 @@ contract NoopTest is Test, RegistrarTest {
         address caller,
         uint256 escrowed,
         uint256 instant,
-        address owner
+        address owner,
+        bytes memory moduleBytes
     ) internal returns(uint256 notaId){
         _writeNoopAssumptions(caller, escrowed, instant, owner);
 
@@ -50,7 +53,7 @@ contract NoopTest is Test, RegistrarTest {
             instant,
             owner, 
             NOOP, // module
-            "" // moduleData
+            moduleBytes
         );
     }
 
@@ -60,7 +63,7 @@ contract NoopTest is Test, RegistrarTest {
         uint256 instant,
         address owner
     ) public {
-        _setupThenWrite(caller, escrowed, instant, owner);
+        _setupThenWrite(caller, escrowed, instant, owner, "");
     }
 
     function testTransfer(
@@ -70,35 +73,40 @@ contract NoopTest is Test, RegistrarTest {
         address owner, 
         address to
     ) public {
-        vm.assume(owner != address(0) && to != address(0));  // Doesn't allow transfer to the zero address
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
-        _registrarTransferHelper(owner, to, notaId);
+        vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
+        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
+        
+        // Todo: test with an approved address
+        _registrarTransferHelper(caller, owner, to, notaId);
     }
 
     function testFund(
         address caller,
         uint256 escrowed,
         uint256 instant,
-        address owner
+        address owner,
+        uint256 fundEscrow,
+        uint256 fundInstant
     ) public {
         vm.assume((escrowed/2 + instant/2) < TOKENS_CREATED / 4);
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
+        vm.assume((fundEscrow/2 + fundInstant/2) < TOKENS_CREATED / 4);
+        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
 
         // Give more tokens for funding
-        _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
-
-        vm.prank(caller);
-        REGISTRAR.fund(notaId, escrowed, instant, abi.encode(""));
+        _tokenFundAddressApproveAddress(caller, DAI, fundEscrow + fundInstant, address(REGISTRAR));
+        _registrarFundHelper(caller, notaId, fundEscrow, fundInstant, abi.encode(""));
     }
 
     function testCash(
         address caller,
         uint256 escrowed,
         uint256 instant,
-        address owner
+        address owner,
+        uint256 cashAmount
     ) public {
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
-        REGISTRAR.cash(notaId, escrowed, caller, abi.encode(""));
-    }
+        vm.assume(cashAmount <= escrowed);
+        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
 
+        _registrarCashHelper(caller, notaId, cashAmount, abi.encode(""));
+    }
 }
