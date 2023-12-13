@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {OperatorFeeModuleBase} from "../ModuleBase.sol";
+import {ModuleBase} from "../ModuleBase.sol";
 import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
@@ -10,7 +10,7 @@ import "openzeppelin/utils/Strings.sol";
 /**
  * Note: Allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversibleRelease is OperatorFeeModuleBase {
+contract ReversibleRelease is ModuleBase {
     struct Payment {
         address inspector;
         address creditor;
@@ -42,12 +42,7 @@ contract ReversibleRelease is OperatorFeeModuleBase {
     error OnlyToDebtorOrOwner();
     error OnlyOwnerOrApproved();
 
-    constructor(
-        address registrar,
-        WTFCFees memory _fees,
-        string memory __baseURI
-    ) OperatorFeeModuleBase(registrar, _fees) {
-        _URI = __baseURI;
+    constructor(address registrar) ModuleBase(registrar) {
     }
 
     function processWrite(
