@@ -59,18 +59,16 @@ contract RegistrarTest is Test {
         return totalWithFees;
     }
 
-    function _tokenFundAddressApproveAddress(address caller, TestERC20 token, uint256 total, address _toApprove) internal {
-        // TODO need to make this state aware TODO
-        // assertEq(token.balanceOf(caller), 0, "Token Transfer already happened");
-        // Give caller enough tokens
-        token.transfer(caller, total);
-        // assertEq(token.balanceOf(caller), total, "Token Transfer Failed");
+    function _tokenFundAddressApproveAddress(address caller, TestERC20 token, uint256 total, address toApprove) internal {
+        uint256 initialBalance = token.balanceOf(caller);
+        uint256 initialAllowance = token.allowance(caller, toApprove);
 
-        // Caller gives registrar approval
-        // assertEq(token.allowance(caller, _toApprove), 0);
+        token.transfer(caller, total);
+        assertEq(token.balanceOf(caller), initialBalance + total, "Token Transfer Failed");
+
         vm.prank(caller);
-        token.approve(_toApprove, total); // Need to get the fee amounts beforehand
-        // assertEq(token.allowance(caller, _toApprove), total);
+        token.approve(toApprove, total);
+        assertEq(token.allowance(caller, toApprove), initialAllowance + total);
     }
 
     function _registrarTokenWhitelistToggleHelper(address token, bool alreadyWhitelisted) internal {
@@ -221,7 +219,6 @@ contract RegistrarTest is Test {
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
          assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + amount, "Owner currency balance didn't increase");
          assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
-
     }
 
 }

@@ -74,7 +74,7 @@ contract CoverageTest is Test, RegistrarTest {
     function testDeposit(uint256 fundingAmount) public {
         vm.assume(fundingAmount <= TOKENS_CREATED);
         // Give LP tokens, LP gives COVERAGE token approval
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, fundingAmount, COVERAGE, address(COVERAGE));
+        _tokenFundAddressApproveAddress(liquidityProvider, DAI, fundingAmount, address(COVERAGE));
         _depositHelper(fundingAmount);
     }
 
@@ -102,7 +102,7 @@ contract CoverageTest is Test, RegistrarTest {
             0, // escrowed
             instant, // instant (premium)
             address(COVERAGE), // owner
-            address(COVERAGE), // module
+            COVERAGE, // module
             abi.encode(  // moduleData
                 coverageHolder, 
                 coverageAmount, 
@@ -149,13 +149,13 @@ contract CoverageTest is Test, RegistrarTest {
     ) internal returns(uint256 notaId){
         uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
 
-        _registrarModuleWhitelistHelper(address(COVERAGE), true);
-        _registrarTokenWhitelistHelper(address(DAI));
+        _registrarModuleWhitelistToggleHelper(COVERAGE, false);
+        _registrarTokenWhitelistToggleHelper(address(DAI), false);
         _addWhitelistHelper(caller);
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
+        _tokenFundAddressApproveAddress(liquidityProvider, DAI, coverageAmount, address(COVERAGE));
         _depositHelper(coverageAmount);
 
-        _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
+        _tokenFundAddressApproveAddress(caller, DAI, premium, address(REGISTRAR));
         notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
     }
 
