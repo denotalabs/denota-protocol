@@ -9,6 +9,7 @@ import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {Noop} from "../src/modules/Noop.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
+// TODO move the whitelisting into setup?
 // TODO test when Nota owner is NotaRegistrar
 contract NoopTest is Test, RegistrarTest {
     Noop public NOOP;
@@ -76,8 +77,8 @@ contract NoopTest is Test, RegistrarTest {
         vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
         uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
         
-        // Todo: test with an approved address
-        _registrarTransferHelper(caller, owner, to, notaId);
+        // TODO: test with an approved address
+        _registrarTransferHelper(owner, owner, to, notaId); // NOTE: `caller` parameter must be owner or approved
     }
 
     function testFund(

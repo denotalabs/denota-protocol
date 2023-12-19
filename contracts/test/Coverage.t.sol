@@ -104,8 +104,8 @@ contract CoverageTest is Test, RegistrarTest {
             address(COVERAGE), // owner
             COVERAGE, // module
             abi.encode(  // moduleData
-                coverageHolder, 
-                coverageAmount, 
+                coverageHolder,
+                coverageAmount,
                 50
             )
         );
@@ -142,6 +142,7 @@ contract CoverageTest is Test, RegistrarTest {
         vm.label(coverageHolder, "Coverage Holder");
         return premium;
     }
+
     function _setupThenWrite(
         address caller,
         uint256 coverageAmount,

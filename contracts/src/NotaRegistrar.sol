@@ -17,8 +17,8 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     mapping(uint256 => Nota) private _notas;
     uint256 public totalSupply;
 
-    modifier isMinted(uint256 notaId) {
-        if (notaId >= totalSupply) revert NotMinted();
+    modifier exists(uint256 notaId) {
+        if (_ownerOf(notaId) == address(0)) revert NonExistent();
         _;
     }
 
@@ -38,9 +38,9 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         unchecked { return totalSupply++; }
     }
 
-    function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+    function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
-        _transfer(from, to, notaId);
+        ERC721.transferFrom(from, to, notaId);
         emit MetadataUpdate(notaId);
     }
 
@@ -48,14 +48,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         address from,
         address to,
         uint256 notaId,
-        bytes memory moduleTransferData
+        bytes memory moduleBytes
     ) public override(ERC721, IERC721, INotaRegistrar) {
-        _transferHookTakeFee(from, to, notaId, moduleTransferData);
-        _safeTransfer(from, to, notaId, abi.encode(""));  // NOTE: seems like a vulnerability if passed through
+        _transferHookTakeFee(from, to, notaId, moduleBytes);
+        ERC721.safeTransferFrom(from, to, notaId, abi.encode(""));
         emit MetadataUpdate(notaId);
     }
 
-    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata moduleBytes) public payable isMinted(notaId) {
+    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata moduleBytes) public payable exists(notaId) {
         Nota memory nota = _notas[notaId];
         address notaOwner = ownerOf(notaId);
         uint256 moduleFee = nota.module.processFund(msg.sender, notaOwner, amount, instant, notaId, nota, moduleBytes);
@@ -68,7 +68,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
-    function cash(uint256 notaId, uint256 amount, address to, bytes calldata moduleBytes) public payable isMinted(notaId) {
+    function cash(uint256 notaId, uint256 amount, address to, bytes calldata moduleBytes) public payable exists(notaId) {
         Nota memory nota = _notas[notaId];
         uint256 moduleFee = nota.module.processCash(msg.sender, ownerOf(notaId), to, amount, notaId, nota, moduleBytes);
         
@@ -81,70 +81,27 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
-    function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) isMinted(notaId) {
+    function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         Nota memory nota = _notas[notaId];
-        nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota, ""); // TODO remove the bytes argument
-        _approve(to, notaId);
+        nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota, "");
+
+        ERC721.approve(to, notaId);
         emit MetadataUpdate(notaId);
     }
     
-    function tokenURI(uint256 notaId) public view override isMinted(notaId) returns (string memory) {
+    function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
         Nota memory nota = _notas[notaId];
         (string memory moduleAttributes, string memory moduleKeys) = INotaModule(nota.module).processTokenURI(notaId);
+        
         return toJSON(
                 Strings.toHexString(uint256(uint160(_notas[notaId].currency)), 20),
                 itoa(_notas[notaId].escrowed),
-                // itoa(_notas[notaId].createdAt),
                 Strings.toHexString(uint256(uint160(address(_notas[notaId].module))), 20),
                 moduleAttributes,
                 moduleKeys
             );
     }
     /*//////////////////////// HELPERS ///////////////////////////*/
-    function _escrowTokens(address currency, uint256 amount) private {
-        if (amount > 0) {
-                if (currency == address(0)) {
-                    if (msg.value < amount) revert InsufficientValue(amount, msg.value);
-                } else {
-                    IERC20(currency).safeTransferFrom(msg.sender, address(this), amount);
-                }
-            }
-    }
-    function _unescrowTokens(address currency, address to, uint256 amount) private {
-        if (amount > 0) {
-            if (currency == address(0)) {
-                (bool sent, ) = to.call{value: amount}("");
-                if (!sent) revert SendFailed();
-            } else {
-                IERC20(currency).safeTransfer(to, amount);
-            }
-        }
-    }
-    function _instantTokens(address currency, address to, uint256 instant, uint256 escrowed) private {
-        if (instant > 0) {
-                if (currency == address(0)) {
-                    uint256 totalTransfer = instant + escrowed;
-                    if (msg.value != totalTransfer) revert InsufficientValue(totalTransfer, msg.value);
-                    (bool sent, ) = to.call{value: instant}("");
-                    if (!sent) revert SendFailed();
-                } else {
-                    IERC20(currency).safeTransferFrom(msg.sender, to, instant);
-                }
-            }
-    }
-    function _transferTokens(
-        address currency,
-        address recipient,
-        uint256 escrowed,
-        uint256 instant,
-        uint256 moduleFee
-    ) private {
-        uint256 toEscrow = escrowed + moduleFee;
-        if (toEscrow + instant != 0) { // Coupled since native instant also needs escrow amount transferred (single transfer in function call)
-            _escrowTokens(currency, toEscrow);
-            _instantTokens(currency, recipient, instant, toEscrow);
-        }
-    }
     function _transferHookTakeFee(
         address from,
         address to,
@@ -156,11 +113,30 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         address owner = ownerOf(notaId);
         uint256 moduleFee = INotaModule(nota.module).processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, moduleBytes);
 
-        if (moduleFee > 0){
-            _notas[notaId].escrowed -= moduleFee;  // If module doesn't revert then this will
-            _moduleRevenue[nota.module][nota.currency] += moduleFee;
-        }
+        _notas[notaId].escrowed -= moduleFee;
+        _moduleRevenue[nota.module][nota.currency] += moduleFee;  // NOTE could do this unchecked
         emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
+    }
+
+    function _instantTokens(address currency, address to, uint256 instant) private {
+        if (instant > 0) IERC20(currency).safeTransferFrom(msg.sender, to, instant);
+    }
+    function _escrowTokens(address currency, uint256 toEscrow) private {
+        if (toEscrow > 0) IERC20(currency).safeTransferFrom(msg.sender, address(this), toEscrow);
+    }
+    function _unescrowTokens(address currency, address to, uint256 amount) private {
+        if (amount > 0) IERC20(currency).safeTransfer(to, amount);
+    }
+    function _transferTokens(
+        address currency,
+        address recipient,
+        uint256 escrowed,
+        uint256 instant,
+        uint256 moduleFee
+    ) private {
+        uint256 toEscrow = escrowed + moduleFee;
+        _escrowTokens(currency, toEscrow);
+        _instantTokens(currency, recipient, instant);
     }
 
     function metadataUpdate(uint256 notaId) external {
@@ -180,20 +156,19 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
 
     function notaInfo(
         uint256 notaId
-    ) public view isMinted(notaId) returns (Nota memory) {
+    ) public view exists(notaId) returns (Nota memory) {
         return _notas[notaId];
     }
 
-    function notaEscrowed(uint256 notaId) public view isMinted(notaId) returns (uint256) {
+    function notaEscrowed(uint256 notaId) public view exists(notaId) returns (uint256) {
         return _notas[notaId].escrowed;
     }
 
-    function notaCurrency(uint256 notaId) public view isMinted(notaId) returns (address) {
+    function notaCurrency(uint256 notaId) public view exists(notaId) returns (address) {
         return _notas[notaId].currency;
     }
 
-    function notaModule(uint256 notaId) public view isMinted(notaId) returns (INotaModule) {
+    function notaModule(uint256 notaId) public view exists(notaId) returns (INotaModule) {
         return _notas[notaId].module;
     }
 }
-

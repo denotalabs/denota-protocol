@@ -100,18 +100,6 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     ) external view virtual override returns (string memory, string memory) {
         return ("", "");
     }
-
-    function getFees(
-        address /*dappOperator*/
-    ) public view virtual returns (WTFCFees memory) {
-        return WTFCFees(0, 0, 0, 0);
-    }
-    function _takeReturnFee(
-        address /*currency*/,
-        uint256 /*amount*/,
-        address /*dappOperator*/,
-        uint8 /*_WTFC*/
-    ) internal returns (uint256 fee) { return 0;}
 }
 
 abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {

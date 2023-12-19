@@ -56,7 +56,7 @@ interface INotaRegistrar {
 
     error SendFailed();
     error SelfApproval();
-    error NotMinted();
+    error NonExistent();
     error InvalidWrite(INotaModule, address);
     error InsufficientValue(uint256, uint256);
     error InsufficientEscrow(uint256, uint256);
@@ -104,7 +104,6 @@ interface INotaRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
-    // nota data
     function notaInfo(
         uint256 notaId
     ) external view returns (Nota memory);
