@@ -120,6 +120,21 @@ contract RegistrarTest is Test {
     }
 
 /*---------------------------------- Can't test these without a module ------------------------------------*/
+
+    function _registrarWriteAssumptions(
+        address caller,
+        uint256 escrow,
+        uint256 instant,
+        address owner
+    ) internal {
+        vm.assume(caller != address(0) && caller != owner && owner != address(0));
+        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
+        vm.assume((escrow/2 + instant/2) < TOKENS_CREATED / 2);
+
+        vm.label(caller, "Caller");
+        vm.label(owner, "Nota Owner");
+    }
+
     function _registrarWriteHelper(        
         address caller,
         address currency,

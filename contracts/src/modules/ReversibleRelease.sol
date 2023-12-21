@@ -88,7 +88,7 @@ contract ReversibleRelease is ModuleBase {
 
         _logPaymentCreated(notaId, dappOperator);
 
-        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return 0;
     }
 
     function _logPaymentCreated(uint256 notaId, address referer) private {
@@ -115,8 +115,7 @@ contract ReversibleRelease is ModuleBase {
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
         if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        return
-            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+        return 0;
     }
 
     function processFund(
@@ -133,13 +132,7 @@ contract ReversibleRelease is ModuleBase {
         // if (caller != payInfo[notaId].debtor) revert OnlyDebtor(); // Should anyone be allowed to pay?
         // if (payInfo[notaId].wasPaid) revert Disallowed();
         // payInfo[notaId].wasPaid = true;
-        return
-            _takeReturnFee(
-                nota.currency,
-                amount + instant,
-                abi.decode(initData, (address)),
-                2
-            );
+        return 0;
     }
 
     function processCash(
@@ -154,13 +147,7 @@ contract ReversibleRelease is ModuleBase {
         if (caller != payInfo[notaId].inspector) revert OnlyInspector();
         if (to != payInfo[notaId].debtor && to != owner)
             revert OnlyToDebtorOrOwner();
-        return
-            _takeReturnFee(
-                nota.currency,
-                amount,
-                abi.decode(initData, (address)),
-                3
-            );
+        return 0;
     }
 
     function processApproval(
@@ -188,6 +175,121 @@ contract ReversibleRelease is ModuleBase {
             Strings.toHexString(uint256(uint160(payment.debtor))),
             '"},{"trait_type":"Amount","value":"',
             Strings.toHexString(payment.amount),
+            '"}'));
+        
+        if (bytes(_URI).length == 0) {
+            return (attributes, "");
+        } else {
+            return (attributes,  string(abi.encodePacked(',"image":"', _URI, payment.imageURI, '"',
+                ',"external_url":"', _URI, payment.memoHash, '"')));
+        }
+    }
+}
+
+contract ReversibleReleasePayment is ModuleBase {
+    struct Payment {
+        address inspector;
+        string memoHash;
+        string imageURI;
+    }
+    mapping(uint256 => Payment) public payments;
+
+
+    event PaymentCreated( uint256 notaId, string memoHash, address inspector);
+    error OnlyOwner();
+    error Disallowed();
+    error AddressZero();
+    error OnlyInspector();
+
+    constructor(address registrar) ModuleBase(registrar) {
+    }
+
+    function processWrite(
+        address caller,
+        address owner,
+        uint256 notaId,
+        address currency,
+        uint256 escrowed,
+        uint256 instant,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        (
+            address inspector,
+            string memory memoHash,
+            string memory imageURI
+        ) = abi.decode(
+                initData,
+                (address, string, string)
+            );
+        
+        if (inspector == address(0)) revert AddressZero();
+
+        payments[notaId].inspector = inspector;
+        payments[notaId].memoHash = memoHash;
+        payments[notaId].imageURI = imageURI;
+
+        emit PaymentCreated(notaId, memoHash, inspector);
+
+        return 0;
+    }
+
+    function processTransfer(
+        address caller,
+        address approved,
+        address owner,
+        address /*from*/,
+        address /*to*/,
+        uint256 /*notaId*/,
+        Nota calldata nota,
+        bytes memory data
+    ) external override onlyRegistrar returns (uint256) {
+        return 0;
+    }
+
+    function processFund(
+        address /*caller*/,
+        address owner,
+        uint256 amount,
+        uint256 instant,
+        uint256 notaId,
+        Nota calldata nota,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        revert Disallowed();
+    }
+
+    function processCash(
+        address caller,
+        address owner,
+        address to,
+        uint256 amount,
+        uint256 notaId,
+        Nota calldata nota,
+        bytes calldata initData
+    ) external override onlyRegistrar returns (uint256) {
+        if (caller != payments[notaId].inspector) revert OnlyInspector();
+        require(to == owner, "ONLY_TO_OWNER");
+        return 0;
+    }
+
+    function processApproval(
+        address caller,
+        address owner,
+        address /*to*/,
+        uint256 /*notaId*/,
+        Nota calldata /*nota*/,
+        bytes memory /*initData*/
+    ) external view override onlyRegistrar {
+    }
+
+    function processTokenURI(
+        uint256 tokenId
+    ) external view override returns (string memory, string memory) {
+        Payment memory payment = payments[tokenId];
+
+         string memory attributes = string(abi.encodePacked(
+            ',{"trait_type":"Inspector","value":"',
+            Strings.toHexString(uint256(uint160(payment.inspector))),
             '"}'));
         
         if (bytes(_URI).length == 0) {

@@ -5,11 +5,9 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-// import {DataTypes} from "../src/libraries/DataTypes.sol";
 import {Noop} from "../src/modules/Noop.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
-// TODO move the whitelisting into setup?
 // TODO test when Nota owner is NotaRegistrar
 contract NoopTest is Test, RegistrarTest {
     Noop public NOOP;

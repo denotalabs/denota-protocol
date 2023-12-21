@@ -11,7 +11,7 @@ interface INotaModule {
         address currency,
         uint256 escrowed,
         uint256 instant,
-        bytes calldata initData
+        bytes calldata moduleBytes
     ) external returns (uint256);
 
     function processTransfer(
@@ -21,8 +21,8 @@ interface INotaModule {
         address from,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes calldata data
+        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
+        bytes calldata moduleBytes
     ) external returns (uint256);
 
     function processFund(
@@ -32,7 +32,7 @@ interface INotaModule {
         uint256 instant,
         uint256 notaId,
         Nota calldata nota,
-        bytes calldata initData
+        bytes calldata moduleBytes
     ) external returns (uint256);
 
     function processCash(
@@ -42,7 +42,7 @@ interface INotaModule {
         uint256 amount,
         uint256 notaId,
         Nota calldata nota,
-        bytes calldata initData
+        bytes calldata moduleBytes
     ) external returns (uint256);
 
     function processApproval(
@@ -51,7 +51,7 @@ interface INotaModule {
         address to,
         uint256 notaId,
         Nota calldata nota,
-        bytes memory initData
+        bytes memory moduleBytes
     ) external;
 
     function processTokenURI(
