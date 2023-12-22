@@ -2,8 +2,8 @@
 pragma solidity ^0.8.16;
 
 import "forge-std/console.sol";
-import {OperatorFeeModuleBase} from "../ModuleBase.sol";
-import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
+import {ModuleBase} from "../ModuleBase.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
@@ -13,7 +13,7 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 // Assumes: a single LP, a single liquidity deposit, a single lockup period (with endDate buffer=endDate  - coverage maturity), coverage is fully backed
 // TODO add reserve pool specific events
 // TODO add custom errors
-contract Coverage is Ownable, OperatorFeeModuleBase, ERC20 {
+contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
     uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
@@ -41,13 +41,12 @@ contract Coverage is Ownable, OperatorFeeModuleBase, ERC20 {
 
     constructor(
         address registrar,
-        WTFCFees memory _fees,
         string memory __baseURI,
         address _USDC,
         uint256 _coveragePeriod,  // In seconds
         uint256 _reservesLockupPeriod,  // In seconds
         uint256 _reserveRatio
-    ) OperatorFeeModuleBase(registrar, _fees) ERC20("DenotaCoverageToken", "DCT"){
+    ) ModuleBase(registrar) ERC20("DenotaCoverageToken", "DCT"){
         _URI = __baseURI;
         USDC = _USDC;
         COVERAGE_PERIOD = _coveragePeriod;

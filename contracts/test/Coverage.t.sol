@@ -5,12 +5,13 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
 import {Coverage} from "../src/modules/Coverage.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO Invariant test certain properties: ie coverageHolder, maturityDate, etc
 contract CoverageTest is Test, RegistrarTest {
+    
     Coverage public COVERAGE;
     address liquidityProvider;
 
@@ -21,7 +22,6 @@ contract CoverageTest is Test, RegistrarTest {
 
         COVERAGE = new Coverage(
             address(REGISTRAR),
-            WTFCFees(0, 0, 0, 0),
             "ipfs://", 
             address(DAI),
             120 days,

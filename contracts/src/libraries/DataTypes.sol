@@ -12,11 +12,3 @@ struct Nota {
     // address approved; // Slot3 (240)
     // 16 bits free
 }
-
-struct WTFCFees {
-    uint256 writeBPS;
-    uint256 transferBPS;
-    uint256 fundBPS;
-    uint256 cashBPS;
-}
-

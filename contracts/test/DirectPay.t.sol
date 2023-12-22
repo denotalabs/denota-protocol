@@ -5,7 +5,7 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
 import {DirectPayment} from "../src/modules/DirectPay.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 

@@ -3,7 +3,7 @@ pragma solidity >=0.8.14;
 
 // import "openzeppelin/access/Ownable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
-import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 
 /// @notice allows whoever finds the correct hash to claim the written nota
 abstract contract PseudoChain is ModuleBase {
@@ -165,3 +165,31 @@ abstract contract HashFinder is ModuleBase {
     }
 
 }
+
+/// @notice disputation mechanism is a settlement time w/ an extension if disputed. This can be counter disputed until one party gives up
+abstract contract DisputeVolley is ModuleBase {
+
+}
+abstract contract Subscription is ModuleBase {}
+
+/// @notice Sender pays reciever and can spite where the sender gets back the money after X amount of time
+abstract contract SpiteLockup is ModuleBase {
+
+}
+
+abstract contract SimpleNFTGate is ModuleBase {}
+
+abstract contract SimpleCrowdRaise is ModuleBase {}
+
+/// @notice allows the module owner to pause functionalities
+abstract contract SimpleAdmin is /*Pausable,*/ ModuleBase {
+
+}
+
+/// @notice allows the nota creator to set an admin that can pause WTFC for that particular nota
+abstract contract SetAdmin is ModuleBase {
+
+}
+
+// Require both sender and receiver to approve each other
+abstract contract HandshakeTimeLock is ModuleBase {}

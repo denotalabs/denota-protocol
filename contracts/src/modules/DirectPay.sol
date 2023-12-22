@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {OperatorFeeModuleBase, ModuleBase} from "../ModuleBase.sol";
-import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 

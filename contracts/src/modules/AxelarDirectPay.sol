@@ -2,7 +2,7 @@
 // pragma solidity ^0.8.16;
 
 // import {ModuleBase} from "../ModuleBase.sol";
-// import {Nota, WTFCFees} from "../libraries/DataTypes.sol";
+// import {Nota} from "../libraries/DataTypes.sol";
 // import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 // import {BridgeReceiver} from "../axelar/BridgeReceiver.sol";
 

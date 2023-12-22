@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {Nota, WTFCFees} from "./libraries/DataTypes.sol";
+import {Nota} from "./libraries/DataTypes.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {NotaEncoding} from "./libraries/Base64Encoding.sol";
@@ -11,7 +11,6 @@ import "openzeppelin/utils/Strings.sol";
 // TODO simplify fee calculation (writeFee(writeParams _writeParams) -> fee) and ensure it doesn't overflowing
 abstract contract ModuleBase is INotaModule, NotaEncoding {
     address public immutable REGISTRAR;
-    uint256 internal constant BPS_MAX = 10_000;  // TODO if fees set on registrar move this there
     string public _URI;
 
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
@@ -103,6 +102,12 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
 }
 
 abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
+    struct WTFCFees {
+        uint256 writeBPS;
+        uint256 transferBPS;
+        uint256 fundBPS;
+        uint256 cashBPS;
+    }
     address public immutable REGISTRAR;
     mapping(address => mapping(address => uint256)) public revenue; // rewardAddress => token => rewardAmount
     mapping(address => WTFCFees) public dappOperatorFees;
@@ -252,9 +257,15 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
 }
 
 abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
+    struct WTFCFees {
+        uint256 writeBPS;
+        uint256 transferBPS;
+        uint256 fundBPS;
+        uint256 cashBPS;
+    }
     address public immutable REGISTRAR;
     mapping(address => uint256) public revenue; // token => rewardAmount
-    WTFCFees public  fees;
+    WTFCFees public fees;
     uint256 internal constant BPS_MAX = 10_000;
     string public _URI;
 

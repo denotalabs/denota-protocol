@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaModule} from "../src/interfaces/INotaModule.sol";
-import {Nota, WTFCFees} from "../src/libraries/DataTypes.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
 
 // TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
 // TODO test event emission
