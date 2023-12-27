@@ -9,7 +9,7 @@ import {Noop} from "../src/modules/Noop.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO test when Nota owner is NotaRegistrar
-contract NoopTest is Test, RegistrarTest {
+contract NoopTest is RegistrarTest {
     Noop public NOOP;
 
     function setUp() public override {

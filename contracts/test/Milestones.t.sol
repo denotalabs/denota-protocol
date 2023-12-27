@@ -10,7 +10,7 @@ import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO add fail tests
 /// TODO Failing occasionally on invoice functions
-contract MilestonesTest is Test, RegistrarTest {
+contract MilestonesTest is RegistrarTest {
     MilestonesPayment public MILESTONES;
 
     function setUp() public override {

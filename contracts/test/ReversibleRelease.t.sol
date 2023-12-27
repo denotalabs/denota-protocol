@@ -10,7 +10,7 @@ import {ReversibleReleasePayment} from "../src/modules/ReversibleRelease.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO add fail tests
-contract ReversibleReleaseTest is Test, RegistrarTest {
+contract ReversibleReleaseTest is RegistrarTest {
     ReversibleReleasePayment public REVERSIBLE_RELEASE;
 
     function setUp() public override {

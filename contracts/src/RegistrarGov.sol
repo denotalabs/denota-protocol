@@ -9,8 +9,8 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(INotaModule => bool) internal _addressWhitelist;
-    mapping(address => bool) internal _tokenWhitelist;
+    mapping(INotaModule => bool) internal _addressWhitelist;  // Could combine the two whitelists into one `address => bool`
+    mapping(address => bool) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
 
     function whitelistModule(
         INotaModule module,

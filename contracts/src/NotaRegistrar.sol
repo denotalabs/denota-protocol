@@ -24,6 +24,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
 
     constructor() ERC4906("Denota Protocol", "NOTA") {}
 
+    /**
+     * @notice Mints a Nota and transfers tokens
+     * @dev Requires module & currency whitelisted, and sends instant tokens to `owner`
+     */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata moduleBytes) public payable returns (uint256) {
         require(validWrite(module, currency), "INVALID_WRITE");
         uint256 moduleFee = module.processWrite(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes);
@@ -38,9 +42,13 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         unchecked { return totalSupply++; }
     }
 
+    /**
+     * @notice Standard ERC721 transfer function
+     * @dev Assumes the module enforces the transfer requirements (isApprovedOrOwner)
+     */
     function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
-        ERC721.transferFrom(from, to, notaId);
+        _transfer(from, to, notaId);
         emit MetadataUpdate(notaId);
     }
 
@@ -51,10 +59,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         bytes memory moduleBytes
     ) public override(ERC721, IERC721, INotaRegistrar) {
         _transferHookTakeFee(from, to, notaId, moduleBytes);
-        ERC721.safeTransferFrom(from, to, notaId, abi.encode(""));
+        _safeTransfer(from, to, notaId, abi.encode(""));
         emit MetadataUpdate(notaId);
     }
 
+    /**
+     * @notice 
+     * @dev No requirements except what the module enforces
+     */
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata moduleBytes) public payable exists(notaId) {
         Nota memory nota = _notas[notaId];
         address notaOwner = ownerOf(notaId);
@@ -68,6 +80,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
+    /**
+     * @notice 
+     * @dev No requirements except what the module enforces
+     */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata moduleBytes) public payable exists(notaId) {
         Nota memory nota = _notas[notaId];
         uint256 moduleFee = nota.module.processCash(msg.sender, ownerOf(notaId), to, amount, notaId, nota, moduleBytes);
@@ -85,7 +101,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         Nota memory nota = _notas[notaId];
         nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota, "");
 
-        ERC721.approve(to, notaId);
+        ERC721.approve(to, notaId);  // Keep checks? Is owner or operator && to != owner
         emit MetadataUpdate(notaId);
     }
     

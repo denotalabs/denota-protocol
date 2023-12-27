@@ -10,7 +10,7 @@ import {Coverage} from "../src/modules/Coverage.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO Invariant test certain properties: ie coverageHolder, maturityDate, etc
-contract CoverageTest is Test, RegistrarTest {
+contract CoverageTest is RegistrarTest {
     
     Coverage public COVERAGE;
     address liquidityProvider;

@@ -36,7 +36,7 @@ Celo:
     Celo price: 0.63
     Write Price: 0.0056
 */
-contract DirectPayTest is Test, RegistrarTest {
+contract DirectPayTest is RegistrarTest {
     DirectPayment public DIRECT_PAY;
 
     function setUp() public override {

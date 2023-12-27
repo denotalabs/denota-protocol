@@ -188,6 +188,7 @@ contract ReversibleRelease is ModuleBase {
 
 contract ReversibleReleasePayment is ModuleBase {
     struct Payment {
+        address sender;
         address inspector;
         string memoHash;
         string imageURI;
@@ -195,7 +196,7 @@ contract ReversibleReleasePayment is ModuleBase {
     mapping(uint256 => Payment) public payments;
 
 
-    event PaymentCreated( uint256 notaId, string memoHash, address inspector);
+    event PaymentCreated(uint256 notaId, string memoHash, address inspector);
     error OnlyOwner();
     error Disallowed();
     error AddressZero();
@@ -224,6 +225,7 @@ contract ReversibleReleasePayment is ModuleBase {
         
         if (inspector == address(0)) revert AddressZero();
 
+        payments[notaId].sender = caller;
         payments[notaId].inspector = inspector;
         payments[notaId].memoHash = memoHash;
         payments[notaId].imageURI = imageURI;
@@ -267,8 +269,8 @@ contract ReversibleReleasePayment is ModuleBase {
         Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        if (caller != payments[notaId].inspector) revert OnlyInspector();
-        require(to == owner, "ONLY_TO_OWNER");
+        require(caller == payments[notaId].inspector, "ONLY_INSPECTOR");
+        require(to == owner || to == payments[notaId].sender, "ONLY_TO_OWNER_OR_SENDER");
         return 0;
     }
 
