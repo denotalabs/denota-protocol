@@ -193,7 +193,7 @@ contract ReversibleReleasePayment is ModuleBase {
         string memoHash;
         string imageURI;
     }
-    mapping(uint256 => Payment) public payments;
+    mapping(uint256 notaId => Payment payment) public payments;
 
     event PaymentCreated(uint256 notaId, string memoHash, address inspector);
     error OnlyOwner();

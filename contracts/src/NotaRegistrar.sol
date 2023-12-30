@@ -29,21 +29,13 @@ import  "./ERC4906.sol";
  * HOW TO USE:
  * The main relevant functions for most Notas will be WTFCAT or Write (mint), Transfer, Fund, Cash, Approve, and TokenURI.
  * Writing a Nota requires approval of: your tokens so they can be escrowed, and both module and tokens you wish to use 
- * * NOTE The `moduleBytes` parameter are special arguments needed from the module being referenced. Please refer to the module for what (if any) bytes argument format it is expecting.
+ * * NOTE The `moduleBytes` parameter are special arguments needed from the module being referenced. Please refer to the module for what (if any) bytes argument format it is expecting and use an abi.encode website to assist.
  * Whitelisting of modules and tokens is controlled by the deployer (me, for now) but only apply when creating new Notas. It's permissioned for safety purposes and is the only thing the NotaRegistrar's owner controls.
  * Notas are compatible with NFT marketplaces, and provide detailed and trustable metadata for display.
  * HOW TO PROFIT:
- * Each module can charge a fee every time a Nota that references it is used. Deploying modules
+ * Each module can charge a fee every time a Nota that references it is used. Registering your account to a module allows you to collect the fees the module generates
  */
-// TODO add info in the disclaimer about module revenue
 
-// NOTE Must approve token transfer first. Must encode module bytes if needed (look at module, then use abi.encode website, then paste), and if images are going to be sent then they must be uploaded to IPFS first (brave flow).
-
-// TODO Add contractMetadata here https://docs.opensea.io/docs/contract-level-metadata
-//// add functions to update this metadata
-// TODO show display_type as date when it's related to time from module tokenURI
-// TODO add max_value when it's supposed to increase in escrow to a certain value
-// TODO add variable names to the mappings so you can see it in the block explorer
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     using SafeERC20 for IERC20;
     
@@ -155,12 +147,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     }
 
     // function contractMetadata() public view returns (string memory) {
+    //// TODO add function to update this metadata
+    //     emit ContractURIUpdated();
     //     return registrarJSON(
     //         name(), 
     //         symbol()
     //         );
-        
-    //     emit ContractURIUpdated();
     // }
 
     /*//////////////////////// HELPERS ///////////////////////////*/

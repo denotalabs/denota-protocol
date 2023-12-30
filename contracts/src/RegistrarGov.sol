@@ -10,37 +10,37 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(INotaModule => bool) internal _moduleWhitelist;  // Could combine the two whitelists into one `address => bool`
-    mapping(address => bool) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
+    mapping(INotaModule module => bool isWhitelisted) internal _moduleWhitelist;  // Could combine the two whitelists into one `address => bool`
+    mapping(address token => bool isWhitelisted) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
 
     function whitelistModule(
         INotaModule module,
-        bool isAccepted
+        bool isWhitelisted
     ) external onlyOwner {
-        require(_moduleWhitelist[module] != isAccepted, "REDUNDANT_WHITELIST");
+        require(_moduleWhitelist[module] != isWhitelisted, "REDUNDANT_WHITELIST");
 
-        _moduleWhitelist[module] = isAccepted;
+        _moduleWhitelist[module] = isWhitelisted;
 
         emit ModuleWhitelisted(
             _msgSender(),
             module,
-            isAccepted,
+            isWhitelisted,
             block.timestamp
         );
     }
 
     function whitelistToken(
         address token,
-        bool isAccepted
+        bool isWhitelisted
     ) external onlyOwner {
-        require(_tokenWhitelist[token] != isAccepted, "REDUNDANT_WHITELIST");
+        require(_tokenWhitelist[token] != isWhitelisted, "REDUNDANT_WHITELIST");
 
-        _tokenWhitelist[token] = isAccepted;
+        _tokenWhitelist[token] = isWhitelisted;
 
         emit TokenWhitelisted(
             _msgSender(),
             token,
-            isAccepted,
+            isWhitelisted,
             block.timestamp
         );
     }
