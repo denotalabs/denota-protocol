@@ -188,19 +188,19 @@ contract ReversibleRelease is ModuleBase {
 
 contract ReversibleReleasePayment is ModuleBase {
     struct Payment {
-        address sender;
+        address payer;
         address inspector;
         string memoHash;
         string imageURI;
     }
     mapping(uint256 => Payment) public payments;
 
-
     event PaymentCreated(uint256 notaId, string memoHash, address inspector);
     error OnlyOwner();
     error Disallowed();
     error AddressZero();
     error OnlyInspector();
+    error OnlyOwnerOrApproved();
 
     constructor(address registrar) ModuleBase(registrar) {
     }
@@ -225,7 +225,7 @@ contract ReversibleReleasePayment is ModuleBase {
         
         if (inspector == address(0)) revert AddressZero();
 
-        payments[notaId].sender = caller;
+        payments[notaId].payer = caller;
         payments[notaId].inspector = inspector;
         payments[notaId].memoHash = memoHash;
         payments[notaId].imageURI = imageURI;
@@ -245,6 +245,7 @@ contract ReversibleReleasePayment is ModuleBase {
         Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
+        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
         return 0;
     }
 
@@ -264,13 +265,13 @@ contract ReversibleReleasePayment is ModuleBase {
         address caller,
         address owner,
         address to,
-        uint256 amount,
+        uint256 /*amount*/,
         uint256 notaId,
-        Nota calldata nota,
-        bytes calldata initData
+        Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) external override onlyRegistrar returns (uint256) {
         require(caller == payments[notaId].inspector, "ONLY_INSPECTOR");
-        require(to == owner || to == payments[notaId].sender, "ONLY_TO_OWNER_OR_SENDER");
+        require(to == owner || to == payments[notaId].payer, "ONLY_TO_OWNER_OR_SENDER");
         return 0;
     }
 
@@ -289,16 +290,27 @@ contract ReversibleReleasePayment is ModuleBase {
     ) external view override returns (string memory, string memory) {
         Payment memory payment = payments[tokenId];
 
-         string memory attributes = string(abi.encodePacked(
-            ',{"trait_type":"Inspector","value":"',
-            Strings.toHexString(uint256(uint160(payment.inspector))),
-            '"}'));
-        
-        if (bytes(_URI).length == 0) {
-            return (attributes, "");
-        } else {
-            return (attributes,  string(abi.encodePacked(',"image":"', _URI, payment.imageURI, '"',
-                ',"external_url":"', _URI, payment.memoHash, '"')));
-        }
+         string memory attributes = string(
+            abi.encodePacked(
+                ',{"trait_type":"Inspector","value":"',
+                Strings.toHexString(uint256(uint160(payment.inspector))),
+                '"},{"trait_type":"Payer","value":"',
+                Strings.toHexString(uint256(uint160(payment.payer))),
+                '"}')
+            );
+        return (
+                attributes, 
+                string(
+                    abi.encodePacked(
+                        ',"image":"', 
+                        payment.imageURI, 
+                        '","name":"Reversible Release Nota (ID #',
+                        Strings.toHexString(tokenId),
+                        ')","external_url":"', 
+                        payment.memoHash,
+                        '","description":"The Reversible Release module allows the payer to choose the inspector who is allowed to release the escrowed amount to the owner or back to the payer."'
+                    )
+                )
+            );
     }
 }
