@@ -6,35 +6,41 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 
+
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(INotaModule => bool) internal _addressWhitelist;  // Could combine the two whitelists into one `address => bool`
+    mapping(INotaModule => bool) internal _moduleWhitelist;  // Could combine the two whitelists into one `address => bool`
     mapping(address => bool) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
 
     function whitelistModule(
         INotaModule module,
-        bool addressAccepted
+        bool isAccepted
     ) external onlyOwner {
-        _addressWhitelist[module] = addressAccepted;
+        require(_moduleWhitelist[module] != isAccepted, "REDUNDANT_WHITELIST");
+
+        _moduleWhitelist[module] = isAccepted;
 
         emit ModuleWhitelisted(
             _msgSender(),
             module,
-            addressAccepted,
+            isAccepted,
             block.timestamp
         );
     }
 
     function whitelistToken(
-        address _token,
-        bool accepted
+        address token,
+        bool isAccepted
     ) external onlyOwner {
-        _tokenWhitelist[_token] = accepted;
+        require(_tokenWhitelist[token] != isAccepted, "REDUNDANT_WHITELIST");
+
+        _tokenWhitelist[token] = isAccepted;
+
         emit TokenWhitelisted(
             _msgSender(),
-            _token,
-            accepted,
+            token,
+            isAccepted,
             block.timestamp
         );
     }
@@ -47,7 +53,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         INotaModule module
     ) public view returns (bool) {
         return (
-            _addressWhitelist[module]
+            _moduleWhitelist[module]
         );
     }
 

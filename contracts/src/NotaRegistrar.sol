@@ -10,11 +10,45 @@ import {Nota} from "./libraries/DataTypes.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
 
+/**
+ * DISCLAIMER OF LIABILITY
+ * =======================
+ * Denota Protocol is provided "as is", without warranty of any kind. Use at your own risk.
+ * The author(s) of this smart contract and Denota Protocol shall not be liable for any damages or losses caused by the use or inability to use this protocol.
+ * This protocol has NOT undergone a formal security audit. As such, there may be risks of vulnerabilities or bugs that could lead to financial loss. 
+ * Users are advised to carefully assess their risk tolerance and only interact with this protocol if they understand and accept these risks.
+ * This protocol is experimental and should not be considered as a fully secure or reliable financial service. 
+ * We strongly recommend reviewing the source code and conducting thorough testing before committing any value or conducting transactions through this protocol.
+ * =======================
+ * @title Denota Protocol
+ * @author Almaraz.eth
+ * @custom:description Denota Protocol (beta)- an token agreement protocol.
+ * The core primitive is the Nota, an NFT that represents the ownership of underlying assets and issued by the NotaRegistrar.
+ * Each Nota can escrow ERC20s and references a module which enforces the rules of both the Nota's ownership and it's escrowed funds.
+ * 
+ * HOW TO USE:
+ * The main relevant functions for most Notas will be WTFCAT or Write (mint), Transfer, Fund, Cash, Approve, and TokenURI.
+ * Writing a Nota requires approval of: your tokens so they can be escrowed, and both module and tokens you wish to use 
+ * * NOTE The `moduleBytes` parameter are special arguments needed from the module being referenced. Please refer to the module for what (if any) bytes argument format it is expecting.
+ * Whitelisting of modules and tokens is controlled by the deployer (me, for now) but only apply when creating new Notas. It's permissioned for safety purposes and is the only thing the NotaRegistrar's owner controls.
+ * Notas are compatible with NFT marketplaces, and provide detailed and trustable metadata for display.
+ * HOW TO PROFIT:
+ * Each module can charge a fee every time a Nota that references it is used. Deploying modules
+ */
+// TODO add info in the disclaimer about module revenue
+
+// NOTE Must approve token transfer first. Must encode module bytes if needed (look at module, then use abi.encode website, then paste), and if images are going to be sent then they must be uploaded to IPFS first (brave flow).
+
+// TODO Add contractMetadata here https://docs.opensea.io/docs/contract-level-metadata
+//// add functions to update this metadata
+// TODO show display_type as date when it's related to time from module tokenURI
+// TODO add max_value when it's supposed to increase in escrow to a certain value
+// TODO add variable names to the mappings so you can see it in the block explorer
 contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     using SafeERC20 for IERC20;
     
-    mapping(INotaModule => mapping(address => uint256)) private _moduleRevenue;
-    mapping(uint256 => Nota) private _notas;
+    mapping(INotaModule module => mapping(address token => uint256 revenue)) private _moduleRevenue;
+    mapping(uint256 notaId => Nota) private _notas;
     uint256 public totalSupply;
 
     modifier exists(uint256 notaId) {
@@ -22,11 +56,13 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         _;
     }
 
-    constructor() ERC4906("Denota Protocol", "NOTA") {}
+    constructor(address newOwner) ERC4906("Denota Protocol (beta)", "NOTA") {
+        transferOwnership(newOwner);  // Needed if using create2
+    }
 
     /**
      * @notice Mints a Nota and transfers tokens
-     * @dev Requires module & currency whitelisted, and sends instant tokens to `owner`
+     * @dev Requires module & currency whitelisted. Transfers tokens from msg.sender and also sends instant tokens to `owner`
      */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata moduleBytes) public payable returns (uint256) {
         require(validWrite(module, currency), "INVALID_WRITE");
@@ -64,7 +100,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     }
 
     /**
-     * @notice 
+     * @notice Adds to the escrowed amount of a Nota
      * @dev No requirements except what the module enforces
      */
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata moduleBytes) public payable exists(notaId) {
@@ -81,7 +117,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     }
 
     /**
-     * @notice 
+     * @notice Removes from the escrowed amount of a Nota
      * @dev No requirements except what the module enforces
      */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata moduleBytes) public payable exists(notaId) {
@@ -109,7 +145,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         Nota memory nota = _notas[notaId];
         (string memory moduleAttributes, string memory moduleKeys) = INotaModule(nota.module).processTokenURI(notaId);
         
-        return toJSON(
+        return notaJSON(
                 Strings.toHexString(uint256(uint160(_notas[notaId].currency)), 20),
                 itoa(_notas[notaId].escrowed),
                 Strings.toHexString(uint256(uint160(address(_notas[notaId].module))), 20),
@@ -117,6 +153,16 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
                 moduleKeys
             );
     }
+
+    // function contractMetadata() public view returns (string memory) {
+    //     return registrarJSON(
+    //         name(), 
+    //         symbol()
+    //         );
+        
+    //     emit ContractURIUpdated();
+    // }
+
     /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferHookTakeFee(
         address from,
@@ -156,18 +202,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     }
 
     function metadataUpdate(uint256 notaId) external {
-        Nota memory nota = _notas[notaId];
-        require(INotaModule(msg.sender) == nota.module, "NOT_MODULE");
+        require(INotaModule(msg.sender) ==  _notas[notaId].module, "NOT_MODULE");
         emit MetadataUpdate(notaId);
-    }
-
-    function moduleRevenue(INotaModule module, address currency) public view returns(uint256) {
-        return _moduleRevenue[module][currency];
     }
 
     function moduleWithdraw(address token, uint256 amount, address to) external {
         _moduleRevenue[INotaModule(msg.sender)][token] -= amount;  // reverts on underflow
-        IERC20(token).safeTransferFrom(address(this), to, amount);
+        _unescrowTokens(token, to, amount);
+    }
+
+    function moduleRevenue(INotaModule module, address currency) public view returns(uint256) {
+        return _moduleRevenue[module][currency];
     }
 
     function notaInfo(
