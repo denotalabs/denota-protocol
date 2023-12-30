@@ -147,7 +147,7 @@ contract NotaEncoding {
         }
     }
 
-    function toJSON(
+    function notaJSON(
         string memory currency,
         string memory escrowed,
         // string memory createdAt,
@@ -165,8 +165,6 @@ contract NotaEncoding {
                             currency,
                             '"},{"trait_type":"Escrowed","display_type":"number","value":',
                             escrowed,
-                            // '},{"trait_type":"CreatedAt","display_type":"number","value":',
-                            // createdAt,
                             '},{"trait_type":"Module","value":"',
                             module,
                             '"}',
@@ -174,6 +172,26 @@ contract NotaEncoding {
                             ']',
                             moduleKeys, // of form: ',{"<key>":"<value>"}
                             '}'
+                        )
+                    ).encode()
+                )
+            );
+    }
+
+    function registrarJSON(
+    ) internal pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    bytes(
+                        abi.encodePacked(
+                            '{"name":"Denota Protocol"',
+                            '"description:"A token agreement protocol"',
+                            '"image": "ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v"',
+                            '"banner_image": "ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq"',
+                            '"external_link":"https://denota.xyz/"',
+                            '"collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]'
                         )
                     ).encode()
                 )

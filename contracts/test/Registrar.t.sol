@@ -18,7 +18,7 @@ contract RegistrarTest is Test {
     uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function setUp() public virtual {
-        REGISTRAR = new NotaRegistrar(); 
+        REGISTRAR = new NotaRegistrar(address(this)); 
         DAI = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); 
         USDC = new TestERC20(0, "USDC", "USDC");  // TODO necessary?
 

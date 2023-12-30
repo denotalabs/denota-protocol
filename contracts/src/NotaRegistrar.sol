@@ -22,7 +22,7 @@ import  "./ERC4906.sol";
  * =======================
  * @title Denota Protocol
  * @author Almaraz.eth
- * @custom:description Denota Protocol (beta)- an token agreement protocol.
+ * @custom:description Denota Protocol (beta)- a token agreement protocol.
  * The core primitive is the Nota, an NFT that represents the ownership of underlying assets and issued by the NotaRegistrar.
  * Each Nota can escrow ERC20s and references a module which enforces the rules of both the Nota's ownership and it's escrowed funds.
  * 
