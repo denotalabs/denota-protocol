@@ -19,6 +19,9 @@ contract RegistrarTest is Test {
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this)); 
+        // REGISTRAR.setContractURI('"{"name":"Denota Protocol","description:"A token agreement protocol","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq","external_link":"https://denota.xyz/","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}"');
+        // console.log(REGISTRAR.contractURI());
+
         DAI = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); 
         USDC = new TestERC20(0, "USDC", "USDC");  // TODO necessary?
 
@@ -178,6 +181,7 @@ contract RegistrarTest is Test {
 
         assertEq(IERC20(currency).balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
         assertEq(IERC20(currency).balanceOf(owner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
+        console.log(REGISTRAR.tokenURI(notaId));
     }
 
     function _registrarTransferHelper(address caller, address from, address to, uint256 notaId) internal {

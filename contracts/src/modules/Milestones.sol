@@ -266,25 +266,20 @@ contract Milestones is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) public view override onlyRegistrar returns (string memory, string memory) {
-        // require(exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         string memory __baseURI = _baseURI();
 
         Invoice memory invoice = invoices[tokenId];
         string memory attributes = string(abi.encodePacked(
-            ',{"trait_type":"Start Time","value":', itoa(invoice.startTime), '},',
-            '{"trait_type":"Current Milestone","value":', itoa(invoice.currentMilestone), '},',
-            '{"trait_type":"Total Milestones","value":', itoa(invoice.totalMilestones), '},',
+            ',{"trait_type":"Start Time","value":', Strings.toString(invoice.startTime), '},',
+            '{"trait_type":"Current Milestone","value":', Strings.toString(invoice.currentMilestone), '},',
+            '{"trait_type":"Total Milestones","value":', Strings.toString(invoice.totalMilestones), '},',
             '{"trait_type":"Client","value":"', Strings.toHexString(uint256(uint160(invoice.client))), '"},',
             '{"trait_type":"Worker","value":"', Strings.toHexString(uint256(uint160(invoice.worker))), '"},',
             '{"trait_type":"DocumentHash","value":"', string(abi.encodePacked(invoice.documentHash)), '"},',
             '{"trait_type":"Revoked","value":', invoice.isRevoked ? 'true' : 'false', '}'
         ));
-        // TODO move Document Hash into external URL?
-        if (bytes(__baseURI).length == 0) {
-            return (attributes, "");
-        } else {
-            return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), itoa(tokenId), '"')));
-        }
+        
+        return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), Strings.toString(tokenId), '"')));
     }
 
     function _baseURI() internal view returns (string memory) {
@@ -483,8 +478,8 @@ contract MilestonesPayment is ModuleBase {
 
         Payment memory payment = payments[tokenId];
         string memory attributes = string(abi.encodePacked(
-            ',{"trait_type":"Current Milestone","value":', itoa(payment.currentMilestone), '},',
-            '{"trait_type":"Total Milestones","value":', itoa(payment.totalMilestones), '},',
+            ',{"trait_type":"Current Milestone","value":', Strings.toString(payment.currentMilestone), '},',
+            '{"trait_type":"Total Milestones","value":', Strings.toString(payment.totalMilestones), '},',
             '{"trait_type":"Payer","value":"', Strings.toHexString(uint256(uint160(payment.payer))), '"},',
             '{"trait_type":"DocumentHash","value":"', string(abi.encodePacked(payment.documentHash)), '"},',
             '{"trait_type":"Revoked","value":', payment.isRevoked ? 'true' : 'false', '}'
@@ -494,7 +489,7 @@ contract MilestonesPayment is ModuleBase {
         if (bytes(__baseURI).length == 0) {
             return (attributes, "");
         } else {
-            return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), itoa(tokenId), '"')));
+            return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), Strings.toString(tokenId), '"')));
         }
     }
 

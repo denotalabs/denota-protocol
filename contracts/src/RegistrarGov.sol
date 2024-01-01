@@ -12,6 +12,14 @@ contract RegistrarGov is Ownable, IRegistrarGov {
 
     mapping(INotaModule module => bool isWhitelisted) internal _moduleWhitelist;  // Could combine the two whitelists into one `address => bool`
     mapping(address token => bool isWhitelisted) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
+    string internal _contractURI;
+
+    event ContractURIUpdated();
+
+    function setContractURI(string memory uri) external onlyOwner {
+        _contractURI = uri;
+        emit ContractURIUpdated();
+    }
 
     function whitelistModule(
         INotaModule module,

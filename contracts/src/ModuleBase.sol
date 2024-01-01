@@ -3,19 +3,19 @@ pragma solidity ^0.8.16;
 import {Nota} from "./libraries/DataTypes.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
-import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
 // TODO have Owner/OperatorFee inherit ModuleBase (if possible)
 // TODO simplify fee calculation (writeFee(writeParams _writeParams) -> fee) and ensure it doesn't overflowing
-abstract contract ModuleBase is INotaModule, NotaEncoding {
+// TODO show display_type as date when it's related to time from module tokenURI
+// TODO add max_value when it's supposed to increase in escrow to a certain value
+abstract contract ModuleBase is INotaModule {
     address public immutable REGISTRAR;
     string public _URI;
 
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
 
-    error FeeTooHigh();
     error NotRegistrar();
     error InitParamsInvalid();
 
@@ -101,7 +101,7 @@ abstract contract ModuleBase is INotaModule, NotaEncoding {
     }
 }
 
-abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
+abstract contract OperatorFeeModuleBase is INotaModule {
     struct WTFCFees {
         uint256 writeBPS;
         uint256 transferBPS;
@@ -256,7 +256,7 @@ abstract contract OperatorFeeModuleBase is INotaModule, NotaEncoding {
     }
 }
 
-abstract contract OwnerFeeModuleBase is INotaModule, Ownable, NotaEncoding {
+abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
     struct WTFCFees {
         uint256 writeBPS;
         uint256 transferBPS;

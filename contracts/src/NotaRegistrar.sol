@@ -3,9 +3,10 @@
 pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin/utils/Base64.sol";
+import "openzeppelin/utils/Strings.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
-import {NotaEncoding} from "./libraries/Base64Encoding.sol";
 import {Nota} from "./libraries/DataTypes.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
@@ -36,7 +37,7 @@ import  "./ERC4906.sol";
  * Each module can charge a fee every time a Nota that references it is used. Registering your account to a module allows you to collect the fees the module generates
  */
 
-contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
+contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     using SafeERC20 for IERC20;
     
     mapping(INotaModule module => mapping(address token => uint256 revenue)) private _moduleRevenue;
@@ -49,7 +50,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     }
 
     constructor(address newOwner) ERC4906("Denota Protocol (beta)", "NOTA") {
-        transferOwnership(newOwner);  // Needed if using create2
+        transferOwnership(newOwner);  // Needed when using create2
     }
 
     /**
@@ -135,25 +136,39 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
     
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
         Nota memory nota = _notas[notaId];
-        (string memory moduleAttributes, string memory moduleKeys) = INotaModule(nota.module).processTokenURI(notaId);
+        (string memory moduleAttributes, string memory moduleKeys) = nota.module.processTokenURI(notaId);
         
-        return notaJSON(
-                Strings.toHexString(uint256(uint160(_notas[notaId].currency)), 20),
-                itoa(_notas[notaId].escrowed),
-                Strings.toHexString(uint256(uint160(address(_notas[notaId].module))), 20),
-                moduleAttributes,
-                moduleKeys
+        return string(
+                abi.encodePacked(
+                    "data:application/json;base64,", 
+                    Base64.encode(
+                        bytes(
+                            abi.encodePacked(
+                                '{"attributes":[{"trait_type":"Currency","value":"',
+                                Strings.toHexString(nota.currency),
+                                '"},{"trait_type":"Escrowed","display_type":"number","value":',
+                                Strings.toString(nota.escrowed),
+                                '},{"trait_type":"Module","value":"',
+                                Strings.toHexString(address(nota.module)),
+                                '"}',
+                                moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
+                                ']',
+                                moduleKeys, // of form: ',{"<key>":"<value>"}
+                                '}'
+                            )
+                        )
+                    )
+                )
             );
     }
 
-    // function contractMetadata() public view returns (string memory) {
-    //// TODO add function to update this metadata
-    //     emit ContractURIUpdated();
-    //     return registrarJSON(
-    //         name(), 
-    //         symbol()
-    //         );
-    // }
+    function contractURI() public view returns (string memory) {
+        return string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(bytes(contractURI())))
+            );
+    }
 
     /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferHookTakeFee(
@@ -193,6 +208,9 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, NotaEncoding, RegistrarGov {
         _instantTokens(currency, recipient, instant);
     }
 
+    /**
+     * @notice Updates the metadata of a Nota when module state changes without calling the registrar
+     */
     function metadataUpdate(uint256 notaId) external {
         require(INotaModule(msg.sender) ==  _notas[notaId].module, "NOT_MODULE");
         emit MetadataUpdate(notaId);
