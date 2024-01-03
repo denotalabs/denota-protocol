@@ -29,19 +29,23 @@ Things to address and when to address them
 * Check `if (_ownerOf(notaId) == address(0)) revert NotMinted();` OR `require(_exists(notaId), "");` in isMinted() saves more gas ✅
 * Update DirectPay to be simpler (Pay module vs Invoice one) ✅
 * Finish unit tests for (ReversibleRelease, DirectPay, Milestones) ✅
+* Remove the bytes argument from processApproval() ✅
+* Add ERC721 transfer checks IN ADDITION to whatever the module sets ✅
 * Check that if module address has no code (DNE) transaction should fail
 
 ### V1 Audited Deployment [ABI_Breaking]
-* Reconsider bytecode approval and make constructor relaxed for customization. Can allow DAO to approve since metadata display is trusted
+* Add functions for gettting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
+* Do events need timestamps?
+* Consider removing nota struct in processX since only currency and escrowed matter
+* Reconsider module bytecode approval and make constructor relaxed for customization. Can allow DAO to approve since metadata display is trusted
 * Address bit flags (understand how incorrect bit flags affect things)     [000000 -> 111111] => [00 -> FF]
     * Could have standard WTFC subfunctions and module overrides. 
-        * Ie `if (module.transferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
+        * Ie `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
         * `emit MetadataUpdate(notaId)` if module hook is used
 * Add noDelegateCall in WTFCAB (if permissionless)
 * Add burn(). Safety of transfers, reduces module transfer logic (gas cheaper)
-* Ensure non-standard ERC20s function as expected
+* Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
-* remove the bytes argument from processApproval()
 * use struct in write (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
 * instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
 * Remove datatypes library? Remove WTFCFees struct?

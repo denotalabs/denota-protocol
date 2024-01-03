@@ -26,7 +26,6 @@ contract ReversableTimelock is OperatorFeeModuleBase {
     error AddressZero();
     error Disallowed();
     error OnlyOwner();
-    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
@@ -62,19 +61,15 @@ contract ReversableTimelock is OperatorFeeModuleBase {
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
         Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
-        require(
-            caller == owner || caller == approved,
-            "Only owner or approved"
-        );
         return _takeReturnFee(nota.currency, 0, abi.decode(data, (address)), 1);
     }
 
@@ -118,8 +113,7 @@ contract ReversableTimelock is OperatorFeeModuleBase {
         address owner,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes memory initData
+        Nota calldata nota
     ) external override onlyRegistrar {}
 
     function processTokenURI(

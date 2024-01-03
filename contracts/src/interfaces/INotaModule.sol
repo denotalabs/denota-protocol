@@ -31,7 +31,7 @@ interface INotaModule {
         uint256 amount,
         uint256 instant,
         uint256 notaId,
-        Nota calldata nota,
+        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
         bytes calldata moduleBytes
     ) external returns (uint256);
 
@@ -41,7 +41,7 @@ interface INotaModule {
         address to,
         uint256 amount,
         uint256 notaId,
-        Nota calldata nota,
+        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
         bytes calldata moduleBytes
     ) external returns (uint256);
 
@@ -50,8 +50,7 @@ interface INotaModule {
         address owner,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes memory moduleBytes
+        Nota calldata nota // Does this still make sense since it's only currency, escrowed, module?
     ) external;
 
     function processTokenURI(

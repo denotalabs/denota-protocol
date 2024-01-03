@@ -64,17 +64,16 @@ contract Milestones is ModuleBase {
         address caller,
         address owner,
         uint256 notaId,
-        address currency,
+        address /*currency*/,
         uint256 escrowed,
         uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (
             address toNotify,
-            address dappOperator,
             bytes32 docHash,
             uint256[] memory milestoneAmounts
-        ) = abi.decode(initData, (address, address, bytes32, uint256[]));
+        ) = abi.decode(initData, (address, bytes32, uint256[]));
         uint256 totalMilestones = milestoneAmounts.length;
         if (totalMilestones < 2) revert InsufficientMilestones();
 
@@ -140,30 +139,14 @@ contract Milestones is ModuleBase {
         return 0;
     }
 
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved(); // Question: enable for invoice factoring?
-        // revert Disallowed();
-        return 0;
-    }
-
-
     function processFund(
         address /*caller*/,
         address /*owner*/,
         uint256 escrowed,
         uint256 instant,
         uint256 notaId,
-        Nota calldata nota,
-        bytes calldata initData
+        Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) external override onlyRegistrar returns (uint256) {
         Milestone[] memory milestoneAmounts = milestones[notaId];
 
@@ -217,13 +200,13 @@ contract Milestones is ModuleBase {
         address to,
         uint256 amount, // Question: This could function as the milestone index if the cashing amount was determined by the module's return value for `amount`
         uint256 notaId,
-        Nota calldata nota,
+        Nota calldata /*nota*/,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         // Any caller can cash milestones < currentMilestone (when `to` == owner)
-        (uint256 cashingMilestone, address dappOperator) = abi.decode(
+        (uint256 cashingMilestone) = abi.decode(
             initData,
-            (uint256, address)
+            (uint256)
         );
         if (invoices[notaId].startTime == 0) revert NotFundedYet();
 
@@ -255,8 +238,7 @@ contract Milestones is ModuleBase {
         address /*owner*/,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initDat*/
+        Nota calldata /*nota*/
     ) external view override onlyRegistrar {
         // if (caller != owner) revert OnlyOwner(); // Question: enable for invoice factoring?
         revert Disallowed();
@@ -266,7 +248,6 @@ contract Milestones is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) public view override onlyRegistrar returns (string memory, string memory) {
-        string memory __baseURI = _baseURI();
 
         Invoice memory invoice = invoices[tokenId];
         string memory attributes = string(abi.encodePacked(

@@ -6,7 +6,7 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 
-
+// TODO setting contractURI makes tests hand for some reason
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
@@ -16,7 +16,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
 
     event ContractURIUpdated();
 
-    function setContractURI(string memory uri) external onlyOwner {
+    function setContractURI(string calldata uri) external onlyOwner {
         _contractURI = uri;
         emit ContractURIUpdated();
     }
@@ -69,7 +69,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         INotaModule module,
         address token
     ) public view returns (bool) {
-        return moduleWhitelisted(module) && tokenWhitelisted(token); // Valid module and whitelisted currency
+        return moduleWhitelisted(module) && tokenWhitelisted(token);
     }
 
 }

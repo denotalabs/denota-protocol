@@ -10,7 +10,7 @@ import "openzeppelin/utils/Strings.sol";
 /**
  * Note: Allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversibleRelease is ModuleBase {
+contract ReversibleReleaseInvoice is ModuleBase {
     struct Payment {
         address inspector;
         address creditor;
@@ -49,72 +49,47 @@ contract ReversibleRelease is ModuleBase {
         address caller,
         address owner,
         uint256 notaId,
-        address currency,
+        address /*currency*/,
         uint256 escrowed,
         uint256 instant,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (
-            address toNotify,
+            address debtor,
             address inspector,
-            address dappOperator,
             uint256 amount,
             string memory memoHash,
             string memory imageURI
         ) = abi.decode(
                 initData,
-                (address, address, address, uint256, string, string)
+                (address, address, uint256, string, string)
             );
-        if (caller == owner) // Invoice
-        {
-            if (instant != 0) revert InvoiceWithPay();
-            if (amount == 0) revert AmountZero();
-            payInfo[notaId].creditor = caller;
-            payInfo[notaId].debtor = toNotify;
-            payInfo[notaId].amount = amount;
-        } else if (owner == toNotify) // Payment
-        {
-            if (owner == address(0)) revert AddressZero();
-            payInfo[notaId].creditor = toNotify;
-            payInfo[notaId].debtor = caller;
-            payInfo[notaId].amount = escrowed;
-        } else {
-            revert Disallowed();
-        }
 
-        payInfo[notaId].inspector = inspector;
-        payInfo[notaId].memoHash = memoHash;
-        payInfo[notaId].imageURI = imageURI;
+        if (caller != owner) revert();
+        if (instant != 0) revert InvoiceWithPay();
+        if (amount == 0) revert AmountZero();
+        if (inspector == address(0)) revert AddressZero();
+        
+        payInfo[notaId] = Payment({
+            inspector: inspector,
+            creditor: caller,
+            debtor: debtor,
+            amount: amount,
+            memoHash: memoHash,
+            imageURI: imageURI
+        });
 
-        _logPaymentCreated(notaId, dappOperator);
-
-        return 0;
-    }
-
-    function _logPaymentCreated(uint256 notaId, address referer) private {
         emit PaymentCreated(
             notaId,
-            payInfo[notaId].memoHash,
-            payInfo[notaId].amount,
+            memoHash,
+            amount,
             block.timestamp,
-            referer,
-            payInfo[notaId].creditor,
-            payInfo[notaId].debtor,
-            payInfo[notaId].inspector
+            msg.sender,
+            caller,
+            debtor,
+            inspector
         );
-    }
 
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
         return 0;
     }
 
@@ -122,10 +97,10 @@ contract ReversibleRelease is ModuleBase {
         address /*caller*/,
         address owner,
         uint256 amount,
-        uint256 instant,
+        uint256 /*instant*/,
         uint256 notaId,
-        Nota calldata nota,
-        bytes calldata initData
+        Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) external override onlyRegistrar returns (uint256) {
         if (owner == address(0)) revert AddressZero();
         if (amount != payInfo[notaId].amount) revert InsufficientPayment();
@@ -155,8 +130,7 @@ contract ReversibleRelease is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
+        Nota calldata /*nota*/
     ) external view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();
     }
@@ -207,11 +181,11 @@ contract ReversibleReleasePayment is ModuleBase {
 
     function processWrite(
         address caller,
-        address owner,
+        address /*owner*/,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*instant*/,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (
@@ -225,38 +199,26 @@ contract ReversibleReleasePayment is ModuleBase {
         
         if (inspector == address(0)) revert AddressZero();
 
-        payments[notaId].payer = caller;
-        payments[notaId].inspector = inspector;
-        payments[notaId].memoHash = memoHash;
-        payments[notaId].imageURI = imageURI;
+        payments[notaId] = Payment({
+            payer: caller,
+            inspector: inspector,
+            memoHash: memoHash,
+            imageURI: imageURI
+        });
 
         emit PaymentCreated(notaId, memoHash, inspector);
 
         return 0;
     }
 
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        return 0;
-    }
-
     function processFund(
         address /*caller*/,
-        address owner,
-        uint256 amount,
-        uint256 instant,
-        uint256 notaId,
-        Nota calldata nota,
-        bytes calldata initData
+        address /*owner*/,
+        uint256 /*amount*/,
+        uint256 /*instant*/,
+        uint256 /*notaId*/,
+        Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) external override onlyRegistrar returns (uint256) {
         revert Disallowed();
     }
@@ -280,8 +242,7 @@ contract ReversibleReleasePayment is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
+        Nota calldata /*nota*/
     ) external view override onlyRegistrar {
     }
 
@@ -290,16 +251,16 @@ contract ReversibleReleasePayment is ModuleBase {
     ) external view override returns (string memory, string memory) {
         Payment memory payment = payments[tokenId];
 
-         string memory attributes = string(
-            abi.encodePacked(
-                ',{"trait_type":"Inspector","value":"',
-                Strings.toHexString(uint256(uint160(payment.inspector))),
-                '"},{"trait_type":"Payer","value":"',
-                Strings.toHexString(uint256(uint160(payment.payer))),
-                '"}')
-            );
         return (
-                attributes, 
+                string(
+                    abi.encodePacked(
+                        ',{"trait_type":"Inspector","value":"',
+                        Strings.toHexString(payment.inspector),
+                        '"},{"trait_type":"Payer","value":"',
+                        Strings.toHexString(payment.payer),
+                        '"}'
+                    )
+                ), 
                 string(
                     abi.encodePacked(
                         ',"image":"', 

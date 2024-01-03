@@ -88,8 +88,7 @@ abstract contract ModuleBase is INotaModule {
         address owner,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes memory initData
+        Nota calldata nota
     ) external virtual override onlyRegistrar {
         // Add module logic here
     }
@@ -226,8 +225,7 @@ abstract contract OperatorFeeModuleBase is INotaModule {
         address owner,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes memory initData
+        Nota calldata nota
     ) external virtual override onlyRegistrar {
         // Add module logic here
     }
@@ -325,9 +323,8 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
         address currency,
         uint256 escrowed,
         uint256 instant,
-        bytes calldata writeData
+        bytes calldata /*writeData*/
     ) external virtual override onlyRegistrar returns (uint256) {
-        address dappOperator = abi.decode(writeData, (address));
         // Add module logic here
         return _takeReturnFee(currency, escrowed + instant, 0);
     }
@@ -342,7 +339,6 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
         Nota calldata nota,
         bytes calldata transferData
     ) external virtual override onlyRegistrar returns (uint256) {
-        address dappOperator = abi.decode(transferData, (address));
         // Add module logic here
         return _takeReturnFee(nota.currency, nota.escrowed, 1);
     }
@@ -356,7 +352,6 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
         Nota calldata nota,
         bytes calldata fundData
     ) external virtual override onlyRegistrar returns (uint256) {
-        address dappOperator = abi.decode(fundData, (address));
         // Add module logic here
         return _takeReturnFee(nota.currency, amount + instant, 2);
     }
@@ -370,7 +365,6 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
         Nota calldata nota,
         bytes calldata cashData
     ) external virtual override onlyRegistrar returns (uint256) {
-        address dappOperator = abi.decode(cashData, (address));
         // Add module logic here
         return _takeReturnFee(nota.currency, amount, 3);
     }
@@ -380,8 +374,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
         address owner,
         address to,
         uint256 notaId,
-        Nota calldata nota,
-        bytes memory initData
+        Nota calldata nota
     ) external virtual override onlyRegistrar {
         // Add module logic here
     }
@@ -406,7 +399,7 @@ abstract contract OwnerFeeModuleBase is INotaModule, Ownable {
             INotaRegistrar(REGISTRAR).moduleWithdraw(
                 token,
                 payoutAmount,
-                msg.sender
+                owner()
             );
     }
 }

@@ -14,8 +14,9 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
- // Question Do these need timestamps?
+
 interface INotaRegistrar {
+
     event Written(
         address indexed caller,
         uint256 notaId,
@@ -23,7 +24,7 @@ interface INotaRegistrar {
         uint256 instant,
         address indexed currency,
         uint256 escrowed,
-        uint256 createdAt,
+        uint256 timestamp, // Question Do these events need timestamps?
         uint256 moduleFee,
         INotaModule module,
         bytes moduleData
@@ -33,6 +34,7 @@ interface INotaRegistrar {
         address indexed from,
         address indexed to,
         uint256 moduleFee,
+        bytes fundData,
         uint256 timestamp
     ); // TODO needs moduleBytes
     event Funded(

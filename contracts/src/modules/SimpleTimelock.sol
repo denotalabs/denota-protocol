@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {OperatorFeeModuleBase} from "../ModuleBase.sol";
+import {ModuleBase} from "../ModuleBase.sol";
 import {Nota} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
@@ -10,15 +10,16 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
  * @notice A simple time release module
  * Escrowed tokens are cashable after the releaseDate
  */
-contract SimpleTimelock is OperatorFeeModuleBase {
+contract SimpleTimelock is ModuleBase {
     mapping(uint256 => uint256) public releaseDate;
+
     event Timelock(uint256 notaId, uint256 _releaseDate);
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
-        WTFCFees memory _fees,
         string memory __baseURI
-    ) OperatorFeeModuleBase(registrar, _fees) {
+    ) ModuleBase(registrar) {
         _URI = __baseURI;
     }
 
@@ -32,27 +33,10 @@ contract SimpleTimelock is OperatorFeeModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(instant == 0, "Instant not supported");
-        (uint256 _releaseDate, address dappOperator) = abi.decode(
-            initData,
-            (uint256, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+        (uint256 _releaseDate) = abi.decode(initData, (uint256));
         releaseDate[notaId] = _releaseDate;
 
         emit Timelock(notaId, _releaseDate);
-        return _takeReturnFee(currency, escrowed, dappOperator, 0);
-    }
-
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory /*data*/
-    ) external view override onlyRegistrar returns (uint256) {
-        require(caller == owner || caller == approved, "Not owner or approved");
         return 0;
     }
 
@@ -81,8 +65,7 @@ contract SimpleTimelock is OperatorFeeModuleBase {
         require(to == owner, "Only cashable to owner");
         require(amount == nota.escrowed, "Must fully cash");
         require(releaseDate[notaId] < block.timestamp, "TIMELOCK");
-        address dappOperator = abi.decode(initData, (address));
-        return _takeReturnFee(nota.currency, amount, dappOperator, 3);
+        return 0;
     }
 
     function processApproval(
@@ -90,8 +73,7 @@ contract SimpleTimelock is OperatorFeeModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
+        Nota calldata /*nota*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }
@@ -111,15 +93,16 @@ contract SimpleTimelock is OperatorFeeModuleBase {
  * Escrowed tokens are cashable after the releaseDate
  * Question: Allow nota creator to update the URI?
  */
-contract SimpleTimelockFee is OperatorFeeModuleBase {
+contract SimpleTimelockFee is ModuleBase {
     mapping(uint256 => uint256) public releaseDate;
+
     event Timelock(uint256 notaId, uint256 _releaseDate);
+    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
-        WTFCFees memory _fees,
         string memory __baseURI
-    ) OperatorFeeModuleBase(registrar, _fees) {
+    ) ModuleBase(registrar) {
         _URI = __baseURI;
     }
 
@@ -127,33 +110,15 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         address /*caller*/,
         address /*owner*/,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*instant*/,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
-        (uint256 _releaseDate, address dappOperator) = abi.decode(
-            initData,
-            (uint256, address)
-        ); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
+        (uint256 _releaseDate) = abi.decode(initData, (uint256)); // Frontend uploads (encrypted) memo document and the URI is linked to notaId here (URI and content hash are set as the same)
         releaseDate[notaId] = _releaseDate;
         emit Timelock(notaId, _releaseDate);
-        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
-    }
-
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
-    ) external override onlyRegistrar returns (uint256) {
-        require(caller == owner || caller == approved, "Not owner or approved");
-        return
-            _takeReturnFee(nota.currency, nota.escrowed, abi.decode(data, (address)), 1);
+        return 0;
     }
 
     function processFund(
@@ -176,16 +141,10 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         uint256 amount,
         uint256 /*notaId*/,
         Nota calldata nota,
-        bytes calldata initData
+        bytes calldata /*initData*/
     ) external override onlyRegistrar returns (uint256) {
         require(amount == nota.escrowed, "Must fully cash");
-        return
-            _takeReturnFee(
-                nota.currency,
-                amount,
-                abi.decode(initData, (address)),
-                3
-            );
+        return 0;
     }
 
     function processApproval(
@@ -193,8 +152,7 @@ contract SimpleTimelockFee is OperatorFeeModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
+        Nota calldata /*nota*/
     ) external view override onlyRegistrar {
         require(caller == owner, "Only owner can approve");
     }

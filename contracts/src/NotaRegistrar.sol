@@ -55,7 +55,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     /**
      * @notice Mints a Nota and transfers tokens
-     * @dev Requires module & currency whitelisted. Transfers tokens from msg.sender and also sends instant tokens to `owner`
+     * @dev Requires module & currency whitelisted and `owner` != address(0). Transfers instant/escrow tokens from msg.sender, sends instant tokens to `owner`
      */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata moduleBytes) public payable returns (uint256) {
         require(validWrite(module, currency), "INVALID_WRITE");
@@ -72,8 +72,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     /**
-     * @notice Standard ERC721 transfer function
-     * @dev Assumes the module enforces the transfer requirements (isApprovedOrOwner)
+     * @dev Enforces the transfer requirements (isApprovedOrOwner) before transferHook is called
      */
     function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
@@ -97,7 +96,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      * @dev No requirements except what the module enforces
      */
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata moduleBytes) public payable exists(notaId) {
-        Nota memory nota = _notas[notaId];
+        Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
         uint256 moduleFee = nota.module.processFund(msg.sender, notaOwner, amount, instant, notaId, nota, moduleBytes);
 
@@ -114,12 +113,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      * @dev No requirements except what the module enforces
      */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata moduleBytes) public payable exists(notaId) {
-        Nota memory nota = _notas[notaId];
+        Nota memory nota = notaInfo(notaId);
         uint256 moduleFee = nota.module.processCash(msg.sender, ownerOf(notaId), to, amount, notaId, nota, moduleBytes);
-        
-        uint256 totalAmount = amount + moduleFee; 
-        _notas[notaId].escrowed -= totalAmount;  // Removed from nota's escrow but moduleFee isn't sent
-        _unescrowTokens(nota.currency, to, amount);
+
+        _notas[notaId].escrowed -= amount;
+        _unescrowTokens(nota.currency, to, amount - moduleFee);  // moduleFee stays in escrow. Should amount include the moduleFee or have it removed on after?
         _moduleRevenue[nota.module][nota.currency] += moduleFee;
 
         emit Cashed(msg.sender, notaId, to, amount, moduleBytes, moduleFee, block.timestamp);
@@ -127,15 +125,15 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
-        Nota memory nota = _notas[notaId];
-        nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota, "");
+        Nota memory nota = notaInfo(notaId);
+        nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota);
 
-        ERC721.approve(to, notaId);  // Keep checks? Is owner or operator && to != owner
+        ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit MetadataUpdate(notaId);
     }
-    
+
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
-        Nota memory nota = _notas[notaId];
+        Nota memory nota = notaInfo(notaId);
         (string memory moduleAttributes, string memory moduleKeys) = nota.module.processTokenURI(notaId);
         
         return string(
@@ -166,7 +164,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         return string(
                 abi.encodePacked(
                     "data:application/json;base64,",
-                    Base64.encode(bytes(contractURI())))
+                    Base64.encode(bytes(_contractURI)))
             );
     }
 
@@ -177,14 +175,16 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         uint256 notaId,
         bytes memory moduleBytes
     ) private {
+        require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
+
         if (moduleBytes.length == 0) moduleBytes = abi.encode("");
-        Nota memory nota = _notas[notaId];
+        Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 moduleFee = INotaModule(nota.module).processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, moduleBytes);
+        uint256 moduleFee = nota.module.processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, moduleBytes);
 
         _notas[notaId].escrowed -= moduleFee;
         _moduleRevenue[nota.module][nota.currency] += moduleFee;  // NOTE could do this unchecked
-        emit Transferred(notaId, owner, to, moduleFee, block.timestamp);
+        emit Transferred(notaId, owner, to, moduleFee, moduleBytes, block.timestamp);
     }
 
     function _instantTokens(address currency, address to, uint256 instant) private {
@@ -212,7 +212,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      * @notice Updates the metadata of a Nota when module state changes without calling the registrar
      */
     function metadataUpdate(uint256 notaId) external {
-        require(INotaModule(msg.sender) ==  _notas[notaId].module, "NOT_MODULE");
+        require(msg.sender == address(_notas[notaId].module), "NOT_MODULE");
         emit MetadataUpdate(notaId);
     }
 
@@ -221,7 +221,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         _unescrowTokens(token, to, amount);
     }
 
-    function moduleRevenue(INotaModule module, address currency) public view returns(uint256) {
+    function moduleRevenue(INotaModule module, address currency) external view returns(uint256) {
         return _moduleRevenue[module][currency];
     }
 

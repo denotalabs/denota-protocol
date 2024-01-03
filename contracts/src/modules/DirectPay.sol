@@ -365,28 +365,14 @@ contract DirectInvoice is ModuleBase {
         return 0;
     }
 
-    function processTransfer(
-        address caller,
-        address approved,
-        address owner,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
-    ) public override onlyRegistrar returns (uint256) {
-        // if (caller != owner && caller != approved) revert OnlyOwnerOrApproved();
-        return 0;
-    }
-
     function processFund(
         address /*caller*/,
-        address owner,
+        address /*owner*/,
         uint256 amount,
         uint256 instant,
         uint256 notaId,
-        Nota calldata nota,
-        bytes calldata initData
+        Nota calldata /*nota*/,
+        bytes calldata /*initData*/
     ) public override onlyRegistrar returns (uint256) {
         if (amount == 0) revert EscrowUnsupported();
         if (instant != invoices[notaId].amount) revert InsufficientPayment();
@@ -413,8 +399,7 @@ contract DirectInvoice is ModuleBase {
         address owner,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata /*nota*/,
-        bytes memory /*initData*/
+        Nota calldata /*nota*/
     ) public view override onlyRegistrar {
         if (caller != owner) revert OnlyOwner();  // Doesn't erc721 check this?
         // require(wasPaid[notaId], "Module: Must be cashed first");
