@@ -3,10 +3,11 @@ pragma solidity ^0.8.16;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "./mock/erc20.sol";
+import "openzeppelin/utils/Base64.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaModule} from "../src/interfaces/INotaModule.sol";
 import {Nota} from "../src/libraries/DataTypes.sol";
+import "./mock/erc20.sol";
 
 // TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
 // TODO test event emission
@@ -14,21 +15,16 @@ import {Nota} from "../src/libraries/DataTypes.sol";
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public DAI;
-    TestERC20 public USDC;
     uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this)); 
-        // REGISTRAR.setContractURI('"{"name":"Denota Protocol","description:"A token agreement protocol","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq","external_link":"https://denota.xyz/","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}"');
-        // console.log(REGISTRAR.contractURI());
 
         DAI = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); 
-        USDC = new TestERC20(0, "USDC", "USDC");  // TODO necessary?
 
         vm.label(msg.sender, "Alice");
         vm.label(address(this), "TestingContract");
         vm.label(address(DAI), "TestDai");
-        vm.label(address(USDC), "TestUSDC");
         vm.label(address(REGISTRAR), "NotaRegistrarContract");
     }
 
@@ -122,6 +118,25 @@ contract RegistrarTest is Test {
         _registrarModuleWhitelistToggleHelper(module, true);
     }
 
+    function base64URIFormat(string memory _string) internal pure returns (string memory) {
+        return string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(bytes(_string)))
+            );
+    }
+
+    function testSetContractURI() public {
+        string memory initialContractURI = REGISTRAR.contractURI();
+        assertEq(initialContractURI, base64URIFormat(""), "Initial contract URI should be empty");
+        
+        string memory newContractURI = '"{"name":"Denota Protocol","description:"A token agreement protocol","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq","external_link":"https://denota.xyz/","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}"';
+        
+        vm.prank(address(this));
+        REGISTRAR.setContractURI(newContractURI);
+        assertEq(REGISTRAR.contractURI(), base64URIFormat(newContractURI), "Contract URI should be updated");
+    }
+
 /*---------------------------------- Can't test these without a module ------------------------------------*/
 
     function _registrarWriteAssumptions(
@@ -137,6 +152,18 @@ contract RegistrarTest is Test {
         vm.label(caller, "Caller");
         vm.label(owner, "Nota Owner");
     }
+
+    function _registrarTransferAssumptions(
+        address caller,
+        address owner
+    ) internal {
+        vm.assume(caller != address(0) && caller != owner && owner != address(0));
+        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
+
+        vm.label(caller, "Caller");
+        vm.label(owner, "Nota Owner");
+    }
+
 
     function _registrarWriteHelper(        
         address caller,
