@@ -10,8 +10,7 @@ import {INotaModule} from "./interfaces/INotaModule.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(INotaModule module => bool isWhitelisted) internal _moduleWhitelist;  // Could combine the two whitelists into one `address => bool`
-    mapping(address token => bool isWhitelisted) internal _tokenWhitelist;  // Could also use a merkle tree for both of these
+    mapping(bytes32 module => bool isWhitelisted) internal _codeHashWhitelist;  // Could combine the two whitelists into one `address => bool`
     string internal _contractURI;
 
     event ContractURIUpdated();
@@ -21,48 +20,37 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         emit ContractURIUpdated();
     }
 
-    function whitelistModule(
-        INotaModule module,
-        bool isWhitelisted
-    ) external onlyOwner {
-        require(_moduleWhitelist[module] != isWhitelisted, "REDUNDANT_WHITELIST");
+    function whitelistModule(INotaModule module, bool isWhitelisted) external onlyOwner {
+        bytes32 codeHash;
+        assembly { codeHash := extcodehash(module) }
 
-        _moduleWhitelist[module] = isWhitelisted;
+        require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
+        _codeHashWhitelist[codeHash] = isWhitelisted;
 
-        emit ModuleWhitelisted(
-            _msgSender(),
-            module,
-            isWhitelisted,
-            block.timestamp
-        );
+        emit ModuleWhitelisted(_msgSender(), module, isWhitelisted, block.timestamp);
     }
 
-    function whitelistToken(
-        address token,
-        bool isWhitelisted
-    ) external onlyOwner {
-        require(_tokenWhitelist[token] != isWhitelisted, "REDUNDANT_WHITELIST");
+    function whitelistToken(address token, bool isWhitelisted) external onlyOwner {
+        bytes32 codeHash;
+        assembly { codeHash := extcodehash(token) }
 
-        _tokenWhitelist[token] = isWhitelisted;
+        require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
 
-        emit TokenWhitelisted(
-            _msgSender(),
-            token,
-            isWhitelisted,
-            block.timestamp
-        );
+        _codeHashWhitelist[codeHash] = isWhitelisted;
+
+        emit TokenWhitelisted(_msgSender(), token, isWhitelisted, block.timestamp);
     }
 
     function tokenWhitelisted(address token) public view returns (bool) {
-        return _tokenWhitelist[token];
+        bytes32 codeHash;
+        assembly { codeHash := extcodehash(token) }
+        return _codeHashWhitelist[codeHash];
     }
 
-    function moduleWhitelisted(
-        INotaModule module
-    ) public view returns (bool) {
-        return (
-            _moduleWhitelist[module]
-        );
+    function moduleWhitelisted(INotaModule module) public view returns (bool) {
+        bytes32 codeHash;
+        assembly { codeHash := extcodehash(module) }
+        return _codeHashWhitelist[codeHash];
     }
 
     function validWrite(

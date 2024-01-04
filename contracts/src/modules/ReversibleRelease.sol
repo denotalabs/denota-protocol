@@ -199,15 +199,9 @@ contract ReversibleReleasePayment is ModuleBase {
         
         if (inspector == address(0)) revert AddressZero();
 
-        payments[notaId] = Payment({
-            payer: caller,
-            inspector: inspector,
-            memoHash: memoHash,
-            imageURI: imageURI
-        });
+        payments[notaId] = Payment(caller, inspector, memoHash, imageURI);
 
         emit PaymentCreated(notaId, memoHash, inspector);
-
         return 0;
     }
 
@@ -265,11 +259,11 @@ contract ReversibleReleasePayment is ModuleBase {
                     abi.encodePacked(
                         ',"image":"', 
                         payment.imageURI, 
-                        '","name":"Reversible Release Nota (ID #',
+                        '","name":"Reversible Release Nota #',
                         Strings.toHexString(tokenId),
-                        ')","external_url":"', 
+                        '","external_url":"', 
                         payment.memoHash,
-                        '","description":"The Reversible Release module allows the payer to choose the inspector who is allowed to release the escrowed amount to the owner or back to the payer."'
+                        '","description":"The Reversible Release module allows the payer to choose the inspector who is then allowed to release the escrowed amount to the owner OR back to the payer."'
                     )
                 )
             );

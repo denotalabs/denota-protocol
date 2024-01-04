@@ -161,11 +161,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     function contractURI() public view returns (string memory) {
-        return string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(bytes(_contractURI)))
-            );
+        return string.concat("data:application/json;utf8,", _contractURI);
     }
 
     /*//////////////////////// HELPERS ///////////////////////////*/
