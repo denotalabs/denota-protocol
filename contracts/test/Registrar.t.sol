@@ -118,23 +118,19 @@ contract RegistrarTest is Test {
         _registrarModuleWhitelistToggleHelper(module, true);
     }
 
-    function base64URIFormat(string memory _string) internal pure returns (string memory) {
-        return string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(bytes(_string)))
-            );
+    function _URIFormat(string memory _string) internal pure returns (string memory) {
+        return string(abi.encodePacked("data:application/json;utf8,", _string));
     }
 
     function testSetContractURI() public {
         string memory initialContractURI = REGISTRAR.contractURI();
-        assertEq(initialContractURI, base64URIFormat(""), "Initial contract URI should be empty");
+        assertEq(initialContractURI, _URIFormat(""), "Initial contract URI should be empty");
         
         string memory newContractURI = '"{"name":"Denota Protocol","description:"A token agreement protocol","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq","external_link":"https://denota.xyz/","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}"';
         
         vm.prank(address(this));
         REGISTRAR.setContractURI(newContractURI);
-        assertEq(REGISTRAR.contractURI(), base64URIFormat(newContractURI), "Contract URI should be updated");
+        assertEq(REGISTRAR.contractURI(), _URIFormat(newContractURI), "Contract URI should be updated");
     }
 
 /*---------------------------------- Can't test these without a module ------------------------------------*/
