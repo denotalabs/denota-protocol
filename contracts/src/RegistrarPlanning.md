@@ -34,24 +34,25 @@ Things to address and when to address them
 * Check that if module address has no code (DNE) transaction should fail
 
 ### V1 Audited Deployment [ABI_Breaking]
+* Update the events so that Written doesn't have Transfer fields and Module is indexed
+* Remove the libraries from foundry bc they show up in the verification
+* Make verification multi-part since it's so long for block explorer users to find the right part
 * Add functions for gettting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
 * Do events need timestamps?
-* Consider removing nota struct in processX since only currency and escrowed matter
+* Remove Nota struct in processX since only currency and escrowed matter
 * Reconsider module bytecode approval and make constructor relaxed for customization. Can allow DAO to approve since metadata display is trusted
-* Address bit flags (understand how incorrect bit flags affect things)     [000000 -> 111111] => [00 -> FF]
-    * Could have standard WTFC subfunctions and module overrides. 
-        * Ie `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
-        * `emit MetadataUpdate(notaId)` if module hook is used
+* Address bit flags (understand how incorrect bit flags affect safety)     [000000 -> 111111] => [00 -> FF]
+    * Could have standard WTFC subfunctions and module overrides, ie: `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
+    * `emit MetadataUpdate(notaId)` only if hook is used
+* Add `burn()` safer transfers, reduces module transfer logic (gas cheaper)
+* Use struct in write (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
 * Add noDelegateCall in WTFCAB (if permissionless)
-* Add burn(). Safety of transfers, reduces module transfer logic (gas cheaper)
 * Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
-* use struct in write (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
 * instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
-* Remove datatypes library? Remove WTFCFees struct?
+* Remove datatypes library is possible
 * ModuleDecode(INotaModule module) external returns(string): ModuleDecode[module]=>“Writebytes(address,uint256,etc)”
-* _abiDecode(bytes calldata moduleBytes){}
-* Is `from` in processTransfer() needed? Can remove `from` from Written event as well
+    * _abiDecode(bytes calldata moduleBytes){}
 * Add moduleFee on approvals (changes ABI, does this affect the app?)
 * Ensure consistency in function parameters for WTFCA and hooks
     [write(currency, escrowed, instant, owner, module, moduleBytes) -> 
@@ -59,31 +60,31 @@ Things to address and when to address them
 * Is it okay to pass storage variables like `totalSupply` to modules?
 * rename processX() to beforeX()?
 * remove ERC721's _msgSender()/Context dependency and hook functions? Could use Solmate
-* is safeTransferFrom needed? Also add safeWrite()?
 * add `approved` to fund and cash?
-* how to improve the toJSON and importing?
 * optimize gas by inspecting each OPCODE being used (get WTFCs cheaper)
 * Should require statements be part of the module interface? canWrite(), canCash(), etc would allow people to query beforehand
 * add module.getWTFCFee(params) -> uint256 within Registrar?
 * isMinted() modifier allows interacting with burnt notas. isMinted(uint256 notaId)->if (_ownerOf(notaId) == address(0)) revert NotMinted(); increases gas (+70ish) for some reason
+* Consider safeWrite()
 
 ### V2 Audited Deployment
-* Allow token deposit()/withdrawal() to avoid ERC20.transferFrom()'s
-* Does tload and tstore factor here?
-* Escrowing of ERC20/721/1155 tokens? (with deposit feature could still allow module fees)
-* Allow modules to perform the escrow functionality? They can return the token that is escrowed (and fee) and registrar can check before and after module hook token.balanceOf()
-* Combine Nota struct with `owner` and `approved` variables?
+* Allow token `deposit()` / `withdrawal()` to avoid ERC20.transferFrom()'s
+* Combine Nota struct with `owner` and `approved` variables
 * before AND after hooks 
 * ERC1155 instead of 721 for NOTAs
+* Universal escrowing (ERC20/721/1155) tokens. (could take from deposit or require another token transfer)
+* Multiple escrowing per Nota ie: mapping(address currency => uint256 escrow) in Nota struct
 * Should we return selector vs fee for hooks  // Test if fallback not returning a uint256(BPSfee) fails
+* Encode module properties within registrar (modules[module] => currency, prevents the need to save currency inside every Nota)
+* Use tload and tstore if applicable
+* Allow modules to perform the escrow functionality? They can return the token that is escrowed (and fee) and registrar can check before and after module hook token.balanceOf()
 * Set fees on module construction by storing it on the registrar (+static, +immutable, +trusted, +predictable, -less custom) OR module fees using address bitmap? 
 * Better packing of Nota packing (costly to store module address for every Nota) 
-* Encode module properties within registrar (modules[module] => currency, prevents the need to save currency inside every Nota)
 * Add referal in Nota struct? extra bits referral ID w/ mapping(uint16=>address) not use module fee (would only allow 65536 but could pay rent)
-* Add mapping(address currency => uint256 escrow) to Nota struct
 * 65 bits -> 16Hex (way too hard) but could be bit masks Fee=true/false: 1000[WTFC]= feeOnWrite only
     ModuleFees could be: 65 [uint72] (WTFC), 81 [88] (WTFCA), 97 [104] (WTFCAB)
     * 14bits has been used for very official (delegate.cash, Seaport)
+
 
 ### Front-End
 * ChatGPT formatting of parameters "Send someone a direct payment with this URI"-> which is then formatted to the panel

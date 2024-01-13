@@ -12,7 +12,6 @@ import "openzeppelin/utils/Strings.sol";
 // TODO add max_value when it's supposed to increase in escrow to a certain value
 abstract contract ModuleBase is INotaModule {
     address public immutable REGISTRAR;
-    string public _URI;
 
     event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
 

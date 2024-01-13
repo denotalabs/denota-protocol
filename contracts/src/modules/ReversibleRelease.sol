@@ -16,14 +16,14 @@ contract ReversibleReleaseInvoice is ModuleBase {
         address creditor;
         address debtor;
         uint256 amount;
-        string memoHash;
+        string external_url;
         string imageURI;
     }
     mapping(uint256 => Payment) public payInfo;
 
     event PaymentCreated(
         uint256 notaId,
-        string memoHash,
+        string external_url,
         uint256 amount,
         uint256 timestamp,
         address referer,
@@ -58,7 +58,7 @@ contract ReversibleReleaseInvoice is ModuleBase {
             address debtor,
             address inspector,
             uint256 amount,
-            string memory memoHash,
+            string memory external_url,
             string memory imageURI
         ) = abi.decode(
                 initData,
@@ -75,13 +75,13 @@ contract ReversibleReleaseInvoice is ModuleBase {
             creditor: caller,
             debtor: debtor,
             amount: amount,
-            memoHash: memoHash,
+            external_url: external_url,
             imageURI: imageURI
         });
 
         emit PaymentCreated(
             notaId,
-            memoHash,
+            external_url,
             amount,
             block.timestamp,
             msg.sender,
@@ -155,7 +155,7 @@ contract ReversibleReleaseInvoice is ModuleBase {
             return (attributes, "");
         } else {
             return (attributes,  string(abi.encodePacked(',"image":"', _URI, payment.imageURI, '"',
-                ',"external_url":"', _URI, payment.memoHash, '"')));
+                ',"external_url":"', _URI, payment.external_url, '"')));
         }
     }
 }
@@ -164,12 +164,12 @@ contract ReversibleReleasePayment is ModuleBase {
     struct Payment {
         address payer;
         address inspector;
-        string memoHash;
+        string external_url;
         string imageURI;
     }
     mapping(uint256 notaId => Payment payment) public payments;
 
-    event PaymentCreated(uint256 notaId, string memoHash, address inspector);
+    event PaymentCreated(uint256 notaId, string external_url, address inspector);
     error OnlyOwner();
     error Disallowed();
     error AddressZero();
@@ -190,7 +190,7 @@ contract ReversibleReleasePayment is ModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         (
             address inspector,
-            string memory memoHash,
+            string memory external_url,
             string memory imageURI
         ) = abi.decode(
                 initData,
@@ -199,9 +199,9 @@ contract ReversibleReleasePayment is ModuleBase {
         
         if (inspector == address(0)) revert AddressZero();
 
-        payments[notaId] = Payment(caller, inspector, memoHash, imageURI);
+        payments[notaId] = Payment(caller, inspector, external_url, imageURI);
 
-        emit PaymentCreated(notaId, memoHash, inspector);
+        emit PaymentCreated(notaId, external_url, inspector);
         return 0;
     }
 
@@ -262,7 +262,7 @@ contract ReversibleReleasePayment is ModuleBase {
                         '","name":"Reversible Release Nota #',
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
-                        payment.memoHash,
+                        payment.external_url,
                         '","description":"The Reversible Release module allows the payer to choose the inspector who is then allowed to release the escrowed amount to the owner OR back to the payer."'
                     )
                 )
