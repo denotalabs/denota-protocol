@@ -5,6 +5,7 @@ import {AxelarExecutable} from "axelarnetwork/executable/AxelarExecutable.sol";
 import {IAxelarGateway} from "axelarnetwork/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "axelarnetwork/interfaces/IAxelarGasService.sol";
 import "../NotaRegistrar.sol";
+import {INotaModule} from "../../src/interfaces/INotaModule.sol";
 
 contract BridgeReceiver is AxelarExecutable {
     IAxelarGasService public immutable gasReceiver;
@@ -51,6 +52,6 @@ contract BridgeReceiver is AxelarExecutable {
             sender
         );
 
-        nota.write(_token, 0, 0, owner, directPayAxelar, modulePayload);
+        nota.write(_token, 0, 0, owner, INotaModule(directPayAxelar), modulePayload);
     }
 }

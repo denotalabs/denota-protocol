@@ -1,21 +1,74 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 
 /**
  * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
- * Question: Take Flat fees in gas through WFC and Percent through module and transfers (reduces nota.escrowed)?
- * TODO: pass nota as a struct or individual variables?
  */
+ // NOTE: If Registrar fee storing, Uniswapv4 has this inherit a IFees interface here as well. 
+ /**
+ * @title  The Nota Payment Registrar
+ * @notice The main contract where users can WTFCA notas
+ * @author Alejandro Almaraz
+ * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
+ */
+
 interface INotaRegistrar {
+
+    event Written(
+        address indexed caller,
+        uint256 notaId,
+        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
+        uint256 instant,
+        address indexed currency,
+        uint256 escrowed,
+        uint256 timestamp, // Question Do these events need timestamps?
+        uint256 moduleFee,
+        INotaModule module,
+        bytes moduleData
+    );
+    event Transferred(  // TODO does this need `from` since ERC721 already has it?
+        uint256 indexed tokenId,
+        address indexed from,
+        address indexed to,
+        uint256 moduleFee,
+        bytes fundData,
+        uint256 timestamp
+    ); // TODO needs moduleBytes
+    event Funded(
+        address indexed funder,
+        uint256 indexed notaId,
+        uint256 amount,
+        uint256 instant,
+        bytes indexed fundData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+    event Cashed(
+        address indexed casher,
+        uint256 indexed notaId,
+        address to,
+        uint256 amount,
+        bytes indexed cashData,
+        uint256 moduleFee,
+        uint256 timestamp
+    );
+
+    error SendFailed();
+    error SelfApproval();
+    error NonExistent();
+    error InvalidWrite(INotaModule, address);
+    error InsufficientValue(uint256, uint256);
+    error InsufficientEscrow(uint256, uint256);
+
     function write(
         address currency,
         uint256 escrowed,
         uint256 instant,
         address owner,
-        address module,
+        INotaModule module,
         bytes calldata moduleWriteData
     ) external payable returns (uint256);
 
@@ -53,33 +106,21 @@ interface INotaRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
-    // function burn(uint256 tokenId) external;
-
-    // Nota data
     function notaInfo(
         uint256 notaId
-    ) external view returns (DataTypes.Nota memory); // Question: Should this be the only _notaInfo view method?
-
+    ) external view returns (Nota memory);
+    
     function notaCurrency(uint256 notaId) external view returns (address);
 
     function notaEscrowed(uint256 notaId) external view returns (uint256);
 
-    function notaModule(uint256 notaId) external view returns (address);
+    function notaModule(uint256 notaId) external view returns (INotaModule);
 
-    // function ownerOf(uint256 notaId) external view returns (address);
+    function moduleWithdraw(
+        address token,
+        uint256 amount,
+        address payoutAccount
+    ) external;
 
-    // function totalSupply() public view returns (uint256);
-
-    // /// Whitlistings
-    // function moduleWhitelisted(
-    //     address module
-    // ) external view returns (bool, bool); // addressWhitelisted, bytecodeWhitelisted
-
-    // function tokenWhitelisted(address token) external view returns (bool);
-
-    // function moduleWithdraw(
-    //     address token,
-    //     uint256 amount,
-    //     address payoutAccount
-    // ) external;
+    function moduleRevenue(INotaModule module, address currency) external view returns(uint256);
 }

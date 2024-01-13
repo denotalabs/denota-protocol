@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {ModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {OperatorFeeModuleBase} from "../ModuleBase.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 
 /**
  * Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversableTimelock is ModuleBase {
+contract ReversableTimelock is OperatorFeeModuleBase {
     struct Payment {
         address inspector;
         address drawer;
@@ -26,13 +26,12 @@ contract ReversableTimelock is ModuleBase {
     error AddressZero();
     error Disallowed();
     error OnlyOwner();
-    error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
-        DataTypes.WTFCFees memory _fees,
+        WTFCFees memory _fees,
         string memory __baseURI
-    ) ModuleBase(registrar, _fees) {
+    ) OperatorFeeModuleBase(registrar, _fees) {
         _URI = __baseURI;
     }
 
@@ -58,26 +57,20 @@ contract ReversableTimelock is ModuleBase {
         payments[notaId].drawer = caller;
         payments[notaId].memoHash = memoHash;
 
-        return takeReturnFee(currency, escrowed + instant, dappOperator, 0);
+        return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);
     }
 
     function processTransfer(
-        address caller,
-        address approved,
-        address owner,
+        address /*caller*/,
+        address /*approved*/,
+        address /*owner*/,
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        address currency,
-        uint256 escrowed,
-        uint256 /*createdAt*/,
+        Nota calldata nota,
         bytes memory data
     ) external override onlyRegistrar returns (uint256) {
-        require(
-            caller == owner || caller == approved,
-            "Only owner or approved"
-        );
-        return takeReturnFee(currency, 0, abi.decode(data, (address)), 1);
+        return _takeReturnFee(nota.currency, 0, abi.decode(data, (address)), 1);
     }
 
     function processFund(
@@ -86,7 +79,7 @@ contract ReversableTimelock is ModuleBase {
         uint256, // amount,
         uint256, // instant,
         uint256, // notaId,
-        DataTypes.Nota calldata, // nota,
+        Nota calldata, // nota,
         bytes calldata // initData
     ) external view override onlyRegistrar returns (uint256) {
         require(false, "");
@@ -99,7 +92,7 @@ contract ReversableTimelock is ModuleBase {
         address /*to*/,
         uint256 amount,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
+        Nota calldata nota,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(
@@ -107,7 +100,7 @@ contract ReversableTimelock is ModuleBase {
             "Inspector cash for owner"
         );
         return
-            takeReturnFee(
+            _takeReturnFee(
                 nota.currency,
                 amount,
                 abi.decode(initData, (address)),
@@ -120,17 +113,16 @@ contract ReversableTimelock is ModuleBase {
         address owner,
         address to,
         uint256 notaId,
-        DataTypes.Nota calldata nota,
-        bytes memory initData
+        Nota calldata nota
     ) external override onlyRegistrar {}
 
     function processTokenURI(
         uint256 tokenId
-    ) external view override returns (string memory) {
-        return
+    ) external view override returns (string memory, string memory) {
+        return ("",
             bytes(_URI).length > 0
                 ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
-                : "";
+                : "");
 
         // return string(abi.encode(_URI, payments[tokenId].memoHash));
     }

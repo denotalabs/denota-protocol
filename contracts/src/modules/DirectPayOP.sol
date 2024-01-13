@@ -46,7 +46,7 @@ pragma solidity ^0.8.16;
 
 //     constructor(
 //         address registrar,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI,
 //         AttestationStation _AT_STAT
 //     ) DirectPay(registrar, _fees, __baseURI) {
@@ -134,7 +134,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
@@ -181,7 +181,7 @@ pragma solidity ^0.8.16;
 //         address, /*to*/
 //         uint256, /*amount*/
 //         uint256, /*notaId*/
-//         DataTypes.Nota calldata, /*nota*/
+//         Nota calldata, /*nota*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Disallowed");
@@ -197,7 +197,7 @@ pragma solidity ^0.8.16;
 //         address owner,
 //         address, /*to*/
 //         uint256, /*notaId*/
-//         DataTypes.Nota calldata, /*nota*/
+//         Nota calldata, /*nota*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(caller == owner, "Only owner");
@@ -226,7 +226,7 @@ pragma solidity ^0.8.16;
 
 //     constructor(
 //         address registrar,
-//         DataTypes.WTFCFees memory _fees,
+//         WTFCFees memory _fees,
 //         string memory __baseURI
 //     ) ModuleBase(registrar, _fees) {
 //         _URI = __baseURI;
@@ -314,7 +314,7 @@ pragma solidity ^0.8.16;
 //         uint256 amount,
 //         uint256 instant,
 //         uint256 notaId,
-//         DataTypes.Nota calldata nota,
+//         Nota calldata nota,
 //         bytes calldata initData
 //     ) public override onlyRegistrar returns (uint256) {
 //         require(amount == 0, "Only direct pay");
@@ -334,7 +334,7 @@ pragma solidity ^0.8.16;
 //         address, /*to*/
 //         uint256, /*amount*/
 //         uint256, /*notaId*/
-//         DataTypes.Nota calldata, /*nota*/
+//         Nota calldata, /*nota*/
 //         bytes calldata /*initData*/
 //     ) public view override onlyRegistrar returns (uint256) {
 //         require(false, "Rule: Disallowed");
@@ -350,7 +350,7 @@ pragma solidity ^0.8.16;
 //         address, /*owner*/
 //         address, /*to*/
 //         uint256, /*notaId*/
-//         DataTypes.Nota calldata, /*nota*/
+//         Nota calldata, /*nota*/
 //         bytes memory /*initData*/
 //     ) public view override onlyRegistrar {
 //         require(false, "Rule: Disallowed");

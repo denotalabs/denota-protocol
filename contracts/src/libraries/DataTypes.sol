@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC20/IERC20.sol";
+import {INotaModule} from "../interfaces/INotaModule.sol";
 
-// Might be able to just incorporate this into the NotaRegistrar
-library DataTypes {
-    struct Nota {
-        uint256 escrowed;
-        uint256 createdAt; // Set by caller and immutable
-        address currency; // Set by caller and immutable
-        address module;
-        // bool isFungible; // IDEA: Allow escrowing a single NFT
-        // bool nftEscrowed;
-    }
+// enum AssetType {ERC20, ERC721, ERC1155}
 
-    struct WTFCFees {
-        uint256 writeBPS;
-        uint256 transferBPS;
-        uint256 fundBPS;
-        uint256 cashBPS;
-    }
+struct Nota {
+    uint256 escrowed; // Slot 1 (256)
+    address currency; // Slot2 (160)
+    // 96 bits free
+    INotaModule module; // Slot3 (160) // mapping(INotaModule module => uint96 index) and store uint96 here
+    // 96 bits free
+
+    // address owner; // Slot4 (160)
+    // 96 bits free
+
+    // address approved; // Slot5 (160)
+    // 96 bits free
+
+    // AssetType assetType; (8 bits)
 }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import "forge-std/console.sol";
 import {ModuleBase} from "../ModuleBase.sol";
-import {DataTypes} from "../libraries/DataTypes.sol";
+import {Nota} from "../libraries/DataTypes.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
@@ -41,13 +41,12 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
     constructor(
         address registrar,
-        DataTypes.WTFCFees memory _fees,
         string memory __baseURI,
         address _USDC,
         uint256 _coveragePeriod,  // In seconds
         uint256 _reservesLockupPeriod,  // In seconds
         uint256 _reserveRatio
-    ) ModuleBase(registrar, _fees) ERC20("DenotaCoverageToken", "DCT"){
+    ) ModuleBase(registrar) ERC20("DenotaCoverageToken", "DCT"){
         _URI = __baseURI;
         USDC = _USDC;
         COVERAGE_PERIOD = _coveragePeriod;
@@ -164,62 +163,6 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     // Admin can remove an address from the whitelist
     function removeFromWhitelist(address _address) external onlyOwner {
         isWhitelisted[_address] = false;
-    }
-
-    function processTransfer(
-        address /*caller*/,
-        address /*approved*/,
-        address /*owner*/,
-        address /*from*/,
-        address /*to*/,
-        uint256 /*notaId*/,
-        address /*currency*/,
-        uint256 /*escrowed*/,
-        uint256 /*createdAt*/,
-        bytes memory /*data*/
-    ) public override onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processFund(
-        address /*caller*/,
-        address /*owner*/,
-        uint256 /*amount*/,
-        uint256 /*instant*/,
-        uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
-        bytes calldata /*initData*/
-    ) public override onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processCash(
-        address /*caller*/,
-        address /*owner*/,
-        address /*to*/,
-        uint256 /*amount*/,
-        uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
-        bytes calldata /*initData*/
-    ) public view override onlyRegistrar returns (uint256) {
-        return 0;
-    }
-
-    function processApproval(
-        address caller,
-        address owner,
-        address /*to*/,
-        uint256 /*notaId*/,
-        DataTypes.Nota calldata /*nota*/,
-        bytes memory /*initData*/
-    ) public view override onlyRegistrar {
-        // if (caller != owner) revert;
-    }
-
-    function processTokenURI(
-        uint256 /*tokenId*/
-    ) external view override returns (string memory) {
-        return "";
     }
 
     function coverageInfoCoverageAmount(uint256 notaId) public view returns(uint256){

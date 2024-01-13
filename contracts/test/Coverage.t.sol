@@ -5,12 +5,13 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
 import {Coverage} from "../src/modules/Coverage.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO Invariant test certain properties: ie coverageHolder, maturityDate, etc
-contract CoverageTest is Test, RegistrarTest {
+contract CoverageTest is RegistrarTest {
+    
     Coverage public COVERAGE;
     address liquidityProvider;
 
@@ -21,7 +22,6 @@ contract CoverageTest is Test, RegistrarTest {
 
         COVERAGE = new Coverage(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://", 
             address(DAI),
             120 days,
@@ -74,7 +74,7 @@ contract CoverageTest is Test, RegistrarTest {
     function testDeposit(uint256 fundingAmount) public {
         vm.assume(fundingAmount <= TOKENS_CREATED);
         // Give LP tokens, LP gives COVERAGE token approval
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, fundingAmount, COVERAGE, address(COVERAGE));
+        _tokenFundAddressApproveAddress(liquidityProvider, DAI, fundingAmount, address(COVERAGE));
         _depositHelper(fundingAmount);
     }
 
@@ -102,10 +102,10 @@ contract CoverageTest is Test, RegistrarTest {
             0, // escrowed
             instant, // instant (premium)
             address(COVERAGE), // owner
-            address(COVERAGE), // module
+            COVERAGE, // module
             abi.encode(  // moduleData
-                coverageHolder, 
-                coverageAmount, 
+                coverageHolder,
+                coverageAmount,
                 50
             )
         );
@@ -142,6 +142,7 @@ contract CoverageTest is Test, RegistrarTest {
         vm.label(coverageHolder, "Coverage Holder");
         return premium;
     }
+
     function _setupThenWrite(
         address caller,
         uint256 coverageAmount,
@@ -149,13 +150,13 @@ contract CoverageTest is Test, RegistrarTest {
     ) internal returns(uint256 notaId){
         uint256 premium = _writeCoverageAssumptions(caller, coverageAmount, coverageHolder);
 
-        _registrarModuleWhitelistHelper(address(COVERAGE), true, false, "Coverage");
-        _registrarTokenWhitelistHelper(address(DAI));
+        _registrarModuleWhitelistToggleHelper(COVERAGE, false);
+        _registrarTokenWhitelistToggleHelper(address(DAI), false);
         _addWhitelistHelper(caller);
-        _tokenFundAddressApproveAddress(liquidityProvider, DAI, 0, coverageAmount, COVERAGE, address(COVERAGE));
+        _tokenFundAddressApproveAddress(liquidityProvider, DAI, coverageAmount, address(COVERAGE));
         _depositHelper(coverageAmount);
 
-        _tokenFundAddressApproveAddress(caller, DAI, 0, premium, COVERAGE, address(REGISTRAR));
+        _tokenFundAddressApproveAddress(caller, DAI, premium, address(REGISTRAR));
         notaId = _writeHelper(caller, coverageAmount, premium, coverageHolder);
     }
 

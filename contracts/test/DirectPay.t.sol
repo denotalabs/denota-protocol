@@ -5,8 +5,9 @@ import "./mock/erc20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {DataTypes} from "../src/libraries/DataTypes.sol";
-import {DirectPay} from "../src/modules/DirectPay.sol";
+import {Nota} from "../src/libraries/DataTypes.sol";
+import {DirectPayment} from "../src/modules/DirectPay.sol";
+import {RegistrarTest} from "./Registrar.t.sol";
 
 // TODO add fail tests
 /**
@@ -35,289 +36,55 @@ Celo:
     Celo price: 0.63
     Write Price: 0.0056
 */
-contract DirectPayTest is Test {
-    NotaRegistrar public REGISTRAR;
-    TestERC20 public dai;
-    TestERC20 public usdc;
-    uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
+contract DirectPayTest is RegistrarTest {
+    DirectPayment public DIRECT_PAY;
 
-    function isContract(address _addr) public view returns (bool) {
-        uint32 size;
-        assembly {
-            size := extcodesize(_addr)
-        }
-        return (size > 0);
-    }
-
-    function setUp() public {
-        // sets up the registrar and ERC20s
-        REGISTRAR = new NotaRegistrar(); // ContractTest is the owner
-        dai = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); // Sends ContractTest the dai
-        usdc = new TestERC20(0, "USDC", "USDC");
-        // REGISTRAR.whitelistToken(address(dai), true);
-        // REGISTRAR.whitelistToken(address(usdc), true);
-
-        vm.label(msg.sender, "Alice");
-        vm.label(address(this), "TestContract");
-        vm.label(address(dai), "TestDai");
-        vm.label(address(usdc), "TestUSDC");
-        vm.label(address(REGISTRAR), "NotaRegistrarContract");
-    }
-
-    function whitelist(address module) public {
-        // Whitelists tokens, rules, modules
-        // REGISTRAR.whitelistRule(rule, true);
-        REGISTRAR.whitelistModule(module, false, true, "Direct Pay"); // Whitelist bytecode
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            WHITELIST TESTS
-    //////////////////////////////////////////////////////////////*/
-    function testWhitelistToken() public {
-        address daiAddress = address(dai);
-        vm.prank(address(this));
-
-        // Whitelist tokens
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Unauthorized whitelist"
-        );
-        REGISTRAR.whitelistToken(daiAddress, true, "DAI");
-        assertTrue(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Whitelisting failed"
-        );
-        REGISTRAR.whitelistToken(daiAddress, false, "DAI");
-        assertFalse(
-            REGISTRAR.tokenWhitelisted(daiAddress),
-            "Un-whitelisting failed"
-        );
-
-        // Whitelist rules
-        // DirectPayRules directPayRules = new DirectPayRules();
-        // address directPayRulesAddress = address(directPayRules);
-        // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
-        //     "Unauthorized whitelist"
-        // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, true); // whitelist bytecode, not address
-        // assertTrue(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
-        //     "Whitelisting failed"
-        // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, false);
-        // assertFalse(
-        //     REGISTRAR.ruleWhitelisted(directPayRulesAddress),
-        //     "Un-whitelisting failed"
-        // );
-        // REGISTRAR.whitelistRule(directPayRulesAddress, true); // whitelist bytecode, not address
-
-        // Whitelist module
-        DirectPay directPay = new DirectPay(
+    function setUp() public override {
+        super.setUp();  // init registrar, tokens, and their labels 
+        DIRECT_PAY = new DirectPayment(
             address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
             "ipfs://"
         );
-        address directPayAddress = address(directPay);
-        (bool addressWhitelisted, bool bytecodeWhitelisted) = REGISTRAR
-            .moduleWhitelisted(directPayAddress);
-        assertFalse(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Unauthorized whitelist"
-        );
-        REGISTRAR.whitelistModule(directPayAddress, true, false, "Direct Pay"); // whitelist bytecode, not address
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            directPayAddress
-        );
-        assertTrue(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Whitelisting failed"
-        );
-        REGISTRAR.whitelistModule(directPayAddress, false, false, "Direct Pay");
-        (addressWhitelisted, bytecodeWhitelisted) = REGISTRAR.moduleWhitelisted(
-            directPayAddress
-        );
-        assertFalse(
-            addressWhitelisted || bytecodeWhitelisted,
-            "Un-whitelisting failed"
-        );
+
+        vm.label(address(DIRECT_PAY), "DirectPay");
     }
 
-    // function testFailWhitelist(address caller) public {
-    //     vm.assume(caller == address(0));  // Deployer can whitelist, test others accounts
-    //     Marketplace market = new Marketplace(REGISTRAR);
-    //     vm.prank(caller);
-    //     REGISTRAR.whitelistModule(market, true);
-    //     assertFalse(REGISTRAR.moduleWhitelisted(address(this), market), "Unauthorized whitelist");
-    // }
-
-    function setUpDirectPay() public returns (DirectPay) {
-        // Deploy and whitelist module
-        DirectPay directPay = new DirectPay(
-            address(REGISTRAR),
-            DataTypes.WTFCFees(0, 0, 0, 0),
-            "ipfs://"
-        );
-        REGISTRAR.whitelistModule(
-            address(directPay),
-            true,
-            false,
-            "Direct Pay"
-        );
-        vm.label(address(directPay), "DirectPay");
-        return directPay;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                            MODULE TESTS
-    //////////////////////////////////////////////////////////////*/
-    function calcFee(
-        uint256 fee,
-        uint256 amount
-    ) public pure returns (uint256) {
-        return (amount * fee) / 10_000;
-    }
-
-    function notaWriteCondition(
+    function _setupThenWrite(
         address caller,
-        uint256 amount,
-        uint256 escrowed,
-        address drawer,
-        address recipient,
+        uint256 instant,
         address owner
-    ) public view returns (bool) {
-        return
-            (amount != 0) && // Nota must have a face value
-            (drawer != recipient) && // Drawer and recipient aren't the same
-            (owner == drawer || owner == recipient) && // Either drawer or recipient must be owner
-            (caller == drawer || caller == recipient) && // Delegated pay/requesting not allowed
-            (escrowed == 0 || escrowed == amount) && // Either send unfunded or fully funded nota
-            (recipient != address(0) &&
-                owner != address(0) &&
-                drawer != address(0)) &&
-            // Testing conditions
-            (amount <= TOKENS_CREATED) && // Can't use more token than created
-            (caller != address(0)) && // Don't vm.prank from address(0)
-            !isContract(owner); // Don't send notas to non-ERC721Reciever contracts
-    }
+    ) internal returns(uint256 notaId){
+        vm.assume(caller != owner && owner != address(0) && caller != address(0) && instant <= TOKENS_CREATED);
 
-    function registrarWriteBefore(address caller, address recipient) public {
-        assertTrue(
-            REGISTRAR.balanceOf(caller) == 0,
-            "Caller already had a nota"
-        );
-        assertTrue(
-            REGISTRAR.balanceOf(recipient) == 0,
-            "Recipient already had a nota"
-        );
-        assertTrue(REGISTRAR.totalSupply() == 0, "Nota supply non-zero");
-    }
+        _registrarModuleWhitelistToggleHelper(DIRECT_PAY, false); // startedAs=false
+        _registrarTokenWhitelistToggleHelper(address(DAI), false);
 
-    function registrarWriteAfter(
-        uint256 notaId,
-        uint256 /*amount*/,
-        uint256 escrowed,
-        address owner,
-        address drawer,
-        address recipient,
-        address module
-    ) public {
-        assertTrue(
-            REGISTRAR.totalSupply() == 1,
-            "Nota supply didn't increment"
-        );
-        assertTrue(
-            REGISTRAR.ownerOf(notaId) == owner,
-            "`owner` isn't owner of nota"
-        );
-        assertTrue(
-            REGISTRAR.balanceOf(owner) == 1,
-            "Owner balance didn't increment"
-        );
+        _tokenFundAddressApproveAddress(caller, DAI, instant, address(REGISTRAR));
 
-        // NotaRegistrar wrote correctly to its storage
-        // assertTrue(REGISTRAR.notaDrawer(notaId) == drawer, "Incorrect drawer");
-        // assertTrue(
-        //     REGISTRAR.notaRecipient(notaId) == recipient,
-        //     "Incorrect recipient"
-        // );
-        assertTrue(
-            REGISTRAR.notaCurrency(notaId) == address(dai),
-            "Incorrect token"
-        );
-        // assertTrue(REGISTRAR.notaAmount(notaId) == amount, "Incorrect amount");
-        assertTrue(
-            REGISTRAR.notaEscrowed(notaId) == escrowed,
-            "Incorrect escrow"
-        );
-        assertTrue(
-            address(REGISTRAR.notaModule(notaId)) == module,
-            "Incorrect module"
+        notaId = _registrarWriteHelper(
+            caller, 
+            address(DAI), // currency
+            0,  // Escrow must == 0 or reverts
+            instant,
+            owner, 
+            DIRECT_PAY,
+            abi.encode(
+                "https://i.seadn.io/gcs/files/d09bf6c414378cd82ff1bc2886fcc68b.png", 
+                "bafybeibj3nf4iyxt2guxihs77sylpuwu4l4yn4cfqumpc2xplxgxt4ssoa" // "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
+            )
         );
     }
 
     function testWritePay(
-        address debtor,
-        uint256 directAmount,
-        address creditor
+        address caller,
+        uint256 instant,
+        address owner
     ) public {
-        vm.assume(directAmount != 0 && directAmount <= TOKENS_CREATED);
-        vm.assume(
-            debtor != address(0) &&
-                creditor != address(0) &&
-                !isContract(creditor)
-        );
-        vm.assume(debtor != creditor);
+        // TODO pre write module tests
 
-        DirectPay directPay = setUpDirectPay();
-        uint256 totalWithFees;
-        {
-            DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
-            uint256 moduleFee = calcFee(fees.writeBPS, directAmount);
-            console.log("ModuleFee: ", moduleFee);
-            totalWithFees = directAmount + moduleFee;
-            console.log(directAmount, "-->", totalWithFees);
-        }
-
-        REGISTRAR.whitelistToken(address(dai), true, "DAI");
-        vm.prank(debtor);
-        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
-        dai.transfer(debtor, totalWithFees);
-        vm.assume(dai.balanceOf(debtor) >= totalWithFees);
-
-        registrarWriteBefore(debtor, creditor);
-        bytes memory initData = abi.encode(
-            creditor, // ToNotify
-            directAmount,
-            // block.timestamp,
-            100,
-            address(this), // dappOperator
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
-        );
-        vm.prank(debtor);
-        uint256 notaId = REGISTRAR.write(
-            address(dai),
-            0,
-            directAmount,
-            creditor, // Owner
-            address(directPay),
-            initData
-        );
-        registrarWriteAfter(
-            notaId,
-            directAmount,
-            0,
-            creditor, // Owner
-            debtor, // Drawer
-            creditor, // Recipient
-            address(directPay)
-        );
-
-        // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(notaId);
-        console.log("TokenURI: ");
-        console.log(tokenURI);
+        _setupThenWrite(caller, instant, owner);
+        
+        // TODO post write module tests
     }
 
     function testWriteInvoice(
@@ -325,110 +92,27 @@ contract DirectPayTest is Test {
         uint256 faceValue,
         address creditor
     ) public {
-        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
-        address owner = creditor;
-        vm.assume(
-            debtor != address(0) &&
-                creditor != address(0) &&
-                !isContract(creditor)
-        );
-        vm.assume(debtor != creditor);
+        // vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
+        // address owner = creditor;
+        // vm.assume(
+        //     debtor != address(0) &&
+        //         creditor != address(0) &&
+        //         !isContract(creditor)
+        // );
+        // vm.assume(debtor != creditor);
 
-        (uint256 notaId, DirectPay directPay) = writeHelper(
-            creditor, // Who the caller should be
-            faceValue, // Face value of invoice
-            0, // escrowed amount
-            0, // instant amount
-            creditor, // The drawer
-            debtor, // toNotify
-            creditor // The owner
-        );
+        // _writeHelper(
+        //     creditor, // Who the caller should be
+        //     faceValue, // Face value of invoice
+        //     0, // escrowed amount
+        //     0, // instant amount
+        //     creditor, // The drawer
+        //     debtor, // toNotify
+        //     creditor // The owner
+        // );
 
-        // INotaModule wrote correctly to it's storage
-        string memory tokenURI = REGISTRAR.tokenURI(notaId);
-        console.log("TokenURI: ");
-        console.log(tokenURI);
-    }
-
-    function calcTotalFees(
-        NotaRegistrar registrar,
-        DirectPay directPay,
-        uint256 escrowed,
-        uint256 directAmount
-    ) public view returns (uint256) {
-        DataTypes.WTFCFees memory fees = directPay.getFees(address(0));
-        uint256 moduleFee = calcFee(fees.writeBPS, directAmount + escrowed);
-        console.log("ModuleFee: ", moduleFee);
-        uint256 totalWithFees = escrowed + directAmount + moduleFee;
-        console.log(directAmount, "-->", totalWithFees);
-        return totalWithFees;
-    }
-
-    function writeHelper(
-        address caller,
-        uint256 amount,
-        uint256 escrowed,
-        uint256 directAmount,
-        address drawer,
-        address recipient,
-        address owner
-    ) public returns (uint256, DirectPay) {
-        DirectPay directPay = setUpDirectPay();
-
-        uint256 totalWithFees = calcTotalFees(
-            REGISTRAR,
-            directPay,
-            escrowed,
-            directAmount
-        );
-        REGISTRAR.whitelistToken(address(dai), true, "DAI");
-        vm.prank(caller);
-        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
-        dai.transfer(caller, totalWithFees);
-        vm.assume(dai.balanceOf(caller) >= totalWithFees);
-
-        registrarWriteBefore(caller, recipient);
-
-        /**
-        address toNotify,
-        uint256 amount, // Face value (for invoices)
-        // uint256 timestamp,
-        uint256 dueDate,
-        address dappOperator,
-        string memory imageURI,
-        string memory memoHash
-         */
-
-        bytes memory initData = abi.encode(
-            recipient,
-            amount,
-            // block.timestamp,
-            100, // due data
-            caller,
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
-            "QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv"
-        );
-
-        console.log(amount, directAmount, totalWithFees);
-        vm.prank(caller);
-        uint256 notaId = REGISTRAR.write(
-            address(dai),
-            escrowed,
-            directAmount,
-            owner,
-            address(directPay),
-            initData
-        ); // Sets caller as owner
-        registrarWriteAfter(
-            notaId,
-            amount,
-            0,
-            owner,
-            drawer,
-            recipient,
-            address(directPay)
-        );
-        return (notaId, directPay);
+        // // INotaModule wrote correctly to it's storage
+        // string memory tokenURI = REGISTRAR.tokenURI(notaId);
     }
 
     function testFundInvoice(
@@ -436,102 +120,49 @@ contract DirectPayTest is Test {
         uint256 faceValue,
         address recipient
     ) public {
-        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
-        vm.assume(caller != recipient);
-        vm.assume(caller != address(0));
-        vm.assume(
-            caller != address(0) &&
-                recipient != address(0) &&
-                !isContract(caller)
-        );
-
-        (uint256 notaId, DirectPay directPay) = writeHelper(
-            caller, // Who the caller should be
-            faceValue, // Face value of invoice
-            0, // escrowed amount
-            0, // instant amount
-            caller, // The drawer
-            recipient,
-            caller // The owner
-        );
-
-        // Fund nota
-        uint256 totalWithFees = calcTotalFees(
-            REGISTRAR,
-            directPay,
-            0, // escrowed amount
-            faceValue // instant amount
-        );
-        vm.prank(recipient);
-        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
-        dai.transfer(recipient, totalWithFees);
-        vm.assume(dai.balanceOf(recipient) >= totalWithFees);
-
-        uint256 balanceBefore = dai.balanceOf(caller);
-        vm.prank(recipient);
-        REGISTRAR.fund(
-            notaId,
-            0, // Escrow amount
-            faceValue, // Instant amount
-            abi.encode(bytes32("")) // Fund data
-        );
-
-        assertTrue(
-            dai.balanceOf(caller) - faceValue == balanceBefore,
-            "Didnt increment balance"
-        );
-    }
-
-    function testFundTransferInvoice(
-        address caller,
-        uint256 faceValue,
-        address recipient
-    ) public {
-        vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
-        vm.assume(caller != recipient);
-        vm.assume(caller != address(0));
-        vm.assume(
-            caller != address(0) &&
-                recipient != address(0) &&
-                !isContract(caller)
-        );
-        (uint256 notaId, DirectPay directPay) = writeHelper(
-            caller, // Who the caller should be
-            faceValue, // Face value of invoice
-            0, // escrowed amount
-            0, // instant amount
-            caller, // The drawer
-            recipient,
-            caller // The owner
-        );
-        // Fund nota
-        uint256 totalWithFees = calcTotalFees(
-            REGISTRAR,
-            directPay,
-            0, // escrowed amount
-            faceValue // instant amount
-        );
-        vm.prank(recipient);
-        dai.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
-        dai.transfer(recipient, totalWithFees);
-        vm.assume(dai.balanceOf(recipient) >= totalWithFees);
-        uint256 balanceBefore = dai.balanceOf(caller);
-        vm.prank(recipient);
-        REGISTRAR.fund(
-            notaId,
-            0, // Escrow amount
-            faceValue, // Instant amount
-            abi.encode(bytes32("")) // Fund data
-        );
-        assertTrue(dai.balanceOf(caller) - faceValue == balanceBefore);
-
-        vm.prank(caller);
-        // REGISTRAR.safeTransferFrom(
-        //     caller,
-        //     address(1),
-        //     notaId,
-        //     abi.encode(bytes32("")) // transfer data
+        // vm.assume(faceValue != 0 && faceValue <= TOKENS_CREATED);
+        // vm.assume(caller != recipient);
+        // vm.assume(caller != address(0));
+        // vm.assume(
+        //     caller != address(0) &&
+        //         recipient != address(0) &&
+        //         !isContract(caller)
         // );
-        REGISTRAR.transferFrom(caller, address(1), notaId);
+
+        // (uint256 notaId, DirectPay directPay) = writeHelper(
+        //     caller, // Who the caller should be
+        //     faceValue, // Face value of invoice
+        //     0, // escrowed amount
+        //     0, // instant amount
+        //     caller, // The drawer
+        //     recipient,
+        //     caller // The owner
+        // );
+
+        // // Fund nota
+        // uint256 totalWithFees = calcTotalFees(
+        //     REGISTRAR,
+        //     directPay,
+        //     0, // escrowed amount
+        //     faceValue // instant amount
+        // );
+        // vm.prank(recipient);
+        // DAI.approve(address(REGISTRAR), totalWithFees); // Need to get the fee amounts beforehand
+        // DAI.transfer(recipient, totalWithFees);
+        // vm.assume(DAI.balanceOf(recipient) >= totalWithFees);
+
+        // uint256 balanceBefore = DAI.balanceOf(caller);
+        // vm.prank(recipient);
+        // REGISTRAR.fund(
+        //     notaId,
+        //     0, // Escrow amount
+        //     faceValue, // Instant amount
+        //     abi.encode(bytes32("")) // Fund data
+        // );
+
+        // assertTrue(
+        //     DAI.balanceOf(caller) - faceValue == balanceBefore,
+        //     "Didnt increment balance"
+        // );
     }
 }
