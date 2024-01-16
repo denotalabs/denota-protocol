@@ -1,0 +1,217 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "gateway_",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "gasReceiver_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotApprovedByGateway",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SendFailed",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "memoHash",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creditor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "debtor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "destinationChain",
+        "type": "string"
+      }
+    ],
+    "name": "PaymentCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "memoURI_",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "imageURI_",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "destinationChain",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "destinationAddress",
+        "type": "string"
+      }
+    ],
+    "name": "createRemoteNota",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "commandId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "sourceChain",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "sourceAddress",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      }
+    ],
+    "name": "execute",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "commandId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "sourceChain",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "sourceAddress",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "payload",
+        "type": "bytes"
+      },
+      {
+        "internalType": "string",
+        "name": "tokenSymbol",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "executeWithToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gasReceiver",
+    "outputs": [
+      {
+        "internalType": "contract IAxelarGasService",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gateway",
+    "outputs": [
+      {
+        "internalType": "contract IAxelarGateway",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
