@@ -2,7 +2,7 @@ import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
-import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client/core";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import NotaRegistrar from "./abis/CheqRegistrar.sol/CheqRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
