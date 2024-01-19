@@ -1,0 +1,17 @@
+{
+  "AxelarGateway": "",
+  "AxelarGasStation": "",
+  "DataTypes": "",
+  "Errors": "",
+  "Events": "",
+  "registrar": "0x000000003c9c54b98c17f5a8b05adca5b3b041ed",
+  "escrow": "",
+  "directPay": "",
+  "dai": "",
+  "weth": "",
+  "bridgeReceiver": "",
+  "bridgeSender": "",
+  "directPayAxelar": "",
+  "startBlock": "52095874",
+  "network": "polygon"
+}
