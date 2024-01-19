@@ -98,7 +98,7 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
       chainId,
       dai,
       weth,
-      reversibleReleaseAddress: contractMapping.escrow,
+      reversibleReleaseAddress: contractMapping.reversibleRelease,
       milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
       disperse,

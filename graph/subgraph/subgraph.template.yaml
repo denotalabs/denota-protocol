@@ -60,8 +60,8 @@ dataSources:
         - DirectPayData
         # - DirectPayData
       abis:
-        - name: DirectPay
-          file: ../frontend-abi/DirectPay.sol/DirectPay.json
+        - name: DirectSend
+          file: ../frontend-abi/DirectSend.sol/DirectSend.json
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
