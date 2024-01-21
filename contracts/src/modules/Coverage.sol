@@ -16,14 +16,14 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 contract Coverage is Ownable, ModuleBase, ERC20 {
     using SafeERC20 for IERC20;
 
-    uint256 public immutable RESERVE_LOCKUP_PERIOD; // LP locks for 6 months
-    uint256 public immutable COVERAGE_PERIOD; // Nota coverage period
-    uint256 public immutable MAX_RESERVE_BPS; // MAX_RESERVE_BPS/10_000 = x% (2_000 = 20% => 1$ reserved : 5$ covered)
-    address public immutable USDC;
+    uint256 immutable public RESERVE_LOCKUP_PERIOD;  // LP locks for 6 months
+    uint256 immutable public COVERAGE_PERIOD;  // Nota coverage period
+    uint256 immutable public MAX_RESERVE_BPS;  // MAX_RESERVE_BPS/10_000 = x% (2_000 = 20% => 1$ reserved : 5$ covered)
+    address immutable public USDC;
 
     struct CoverageInfo {
         uint256 coverageAmount;
-        uint256 maturityDate;
+        uint256 maturityDate; 
         address coverageHolder;
         bool wasRedeemed;
     }
@@ -31,22 +31,23 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     mapping(uint256 => CoverageInfo) public coverageInfo;
     mapping(address => bool) public isWhitelisted; // Whitelisting addresses getting coverage
 
-    bool public fundingStarted = false; // If LP already funded don't allow another deposit
-    uint256 public poolStart = 0; // Time that first coverage happened
-    uint256 public reservesReleaseDate = 0; // Date when LP can withdraw
+    bool public fundingStarted = false;  // If LP already funded don't allow another deposit
+    uint256 public poolStart = 0;  // Time that first coverage happened
+    uint256 public reservesReleaseDate = 0;  // Date when LP can withdraw
 
     uint256 public totalReserves = 0;
-    uint256 public availableReserves = 0; // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
-    uint256 public yieldedFunds = 0; // Kept separate from reserve pool funds
+    uint256 public availableReserves = 0;  // Funds that can be used for coverage (can multiply this by the ratio for subtracting by the actual amounts)
+    uint256 public yieldedFunds = 0;  // Kept separate from reserve pool funds
 
     constructor(
         address registrar,
         string memory __baseURI,
         address _USDC,
-        uint256 _coveragePeriod, // In seconds
-        uint256 _reservesLockupPeriod, // In seconds
+        uint256 _coveragePeriod,  // In seconds
+        uint256 _reservesLockupPeriod,  // In seconds
         uint256 _reserveRatio
-    ) ModuleBase(registrar) ERC20("DenotaCoverageToken", "DCT") {
+    ) ModuleBase(registrar) ERC20("DenotaCoverageToken", "DCT"){
+        _URI = __baseURI;
         USDC = _USDC;
         COVERAGE_PERIOD = _coveragePeriod;
         RESERVE_LOCKUP_PERIOD = _reservesLockupPeriod;
@@ -66,31 +67,23 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         require(_owner == address(this), "Risk fee not paid to pool");
         require(currency == USDC, "Incorrect currency");
         require(escrowed == 0, "Escrow unsupported");
-
-        (
-            address coverageHolder,
-            uint256 coverageAmount,
-            uint256 riskScore
-        ) = abi.decode(initData, (address, uint256, uint256));
+        
+        (address coverageHolder, uint256 coverageAmount, uint256 riskScore) = abi.decode(
+            initData,
+            (address, uint256, uint256)
+        );
         require(coverageAmount > 0, "No coverage");
-        require(
-            instant != 0 && (instant == (coverageAmount / 10_000) * riskScore),
-            "Risk fee not paid"
-        ); // TODO ensure doesn't overflow
+        require(instant != 0 && (instant == (coverageAmount / 10_000) * riskScore), "Risk fee not paid");  // TODO ensure doesn't overflow
 
-        uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) /
-            10_000;
+        uint256 scaledCoverageAmount = (coverageAmount * MAX_RESERVE_BPS) / 10_000;
         availableReserves -= scaledCoverageAmount; // underflow reverts (max_reserve_ratio has been exceeded)
-
+        
         uint256 maturityDate = block.timestamp + COVERAGE_PERIOD;
         if (poolStart == 0) {
             poolStart = block.timestamp;
             reservesReleaseDate = block.timestamp + RESERVE_LOCKUP_PERIOD;
         } else {
-            require(
-                maturityDate <= reservesReleaseDate,
-                "Coverage period elapsed"
-            );
+            require(maturityDate <= reservesReleaseDate, "Coverage period elapsed");
         }
 
         yieldedFunds += instant;
@@ -118,25 +111,20 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
     }
 
     // Note: Can be called by anyone to sweep matured Nota coverage back into active funds
-    function getYield(uint256 notaId) public {
-        // TODO inefficient
+    function getYield(uint256 notaId) public {  // TODO inefficient
         CoverageInfo storage coverage = coverageInfo[notaId];
 
         require(!coverage.wasRedeemed, "Already redeemed");
         require(coverage.maturityDate <= block.timestamp, "Not matured yet");
-
+        
         coverage.wasRedeemed = true;
-        availableReserves += coverage.coverageAmount; // Release active capital
+        availableReserves += coverage.coverageAmount;  // Release active capital
     }
 
     function deposit(uint256 fundingAmount) public {
         require(!fundingStarted, "Pool already funded");
 
-        IERC20(USDC).safeTransferFrom(
-            _msgSender(),
-            address(this),
-            fundingAmount
-        );
+        IERC20(USDC).safeTransferFrom(_msgSender(), address(this), fundingAmount);
 
         totalReserves = fundingAmount;
         availableReserves += fundingAmount;
@@ -147,7 +135,7 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
     function withdraw() public {
         // HACK: if the total supply isn't claimed the module is bricked (can't restart LP/Coverage pool)
-        require(reservesReleaseDate >= block.timestamp); // Yielding period is over, allow claims
+        require(reservesReleaseDate >= block.timestamp);  // Yielding period is over, allow claims
         uint256 liquidityClaim = balanceOf(_msgSender());
         require(liquidityClaim != 0, "No LP tokens");
         // TODO ensure safe math
@@ -156,15 +144,14 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
         _burn(_msgSender(), liquidityClaim); // Withdraw() burns all the caller's tokens
 
-        if (totalSupply() == 0) {
-            // TODO consider a waiting period where this can be reset without supply=0
+        if (totalSupply() == 0){  // TODO consider a waiting period where this can be reset without supply=0
             fundingStarted = false;
             poolStart = 0;
             reservesReleaseDate = 0;
             availableReserves = 0;
             yieldedFunds = 0;
         }
-
+        
         IERC20(USDC).safeTransfer(_msgSender(), liquidityClaim + yieldClaim);
     }
 
@@ -178,27 +165,16 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
         isWhitelisted[_address] = false;
     }
 
-    function coverageInfoCoverageAmount(
-        uint256 notaId
-    ) public view returns (uint256) {
+    function coverageInfoCoverageAmount(uint256 notaId) public view returns(uint256){
         return coverageInfo[notaId].coverageAmount;
     }
-
-    function coverageInfoMaturityDate(
-        uint256 notaId
-    ) public view returns (uint256) {
+    function coverageInfoMaturityDate(uint256 notaId) public view returns(uint256){
         return coverageInfo[notaId].maturityDate;
     }
-
-    function coverageInfoCoverageHolder(
-        uint256 notaId
-    ) public view returns (address) {
+    function coverageInfoCoverageHolder(uint256 notaId) public view returns(address){
         return coverageInfo[notaId].coverageHolder;
     }
-
-    function coverageInfoWasRedeemed(
-        uint256 notaId
-    ) public view returns (bool) {
+    function coverageInfoWasRedeemed(uint256 notaId) public view returns(bool){
         return coverageInfo[notaId].wasRedeemed;
     }
 }
