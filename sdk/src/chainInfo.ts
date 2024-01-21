@@ -36,8 +36,8 @@ export const ContractAddressMapping = {
     registrar: "0x000000003C9C54B98C17F5A8B05ADca5B3B041eD",
     directPay: "0x00000003672153a114583fa78c3d313d4e3cae40",
     reversibleRelease: "0x0000000078E1A913Ee98c64CEc34fe813872eF79",
-    dai: "",
-    weth: "",
+    dai: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
+    weth: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
     milestones: "",
     bridgeReceiver: "",
     bridgeSender: "",
