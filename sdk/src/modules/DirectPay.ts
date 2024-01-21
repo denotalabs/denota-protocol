@@ -42,7 +42,8 @@ export async function writeDirectPay({
 
   const owner = payee;
 
-  const amountWei = ethers.utils.parseEther(String(amount));
+  // TODO: handle other deciamls correctly
+  const amountWei = ethers.utils.parseUnits(String(amount), 6);
 
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["string", "string"],
