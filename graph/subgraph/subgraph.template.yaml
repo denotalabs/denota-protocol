@@ -60,67 +60,11 @@ dataSources:
         - DirectPayData
         # - DirectPayData
       abis:
-        - name: DirectPay
-          file: ../frontend-abi/DirectPay.sol/DirectPay.json
+        - name: DirectSend
+          file: ../frontend-abi/DirectSend.sol/DirectSend.json
       eventHandlers:
         - event: PaymentCreated(uint256,string,uint256,uint256,address,address,address,uint256)
           handler: handleDirectPayment
-      file: mapping.ts
-  - kind: ethereum/contract
-    name: DirectPayAxelar
-    network: {{network}}
-    source:
-      address: "{{directPayAxelar}}"
-      abi: DirectPayAxelar
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Cheq  # Cheqs
-        - Transfer  # Write/Transfers
-        - Escrow  # Fund/Cash
-        - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
-        - DirectSend  # Payment modules
-        - DirectPayModule
-        - DirectPayData
-        # - DirectPayData
-      abis:
-        - name: DirectPayAxelar
-          file: ../frontend-abi/AxelarDirectPay.sol/AxelarDirectPay.json
-      eventHandlers:
-        - event: PaymentCreated(uint256,string,uint256,address,address,uint256,uint256)
-          handler: handleDirectPaymentAxelar
-      file: mapping.ts
-  - kind: ethereum/contract
-    name: BridgeSender
-    network: {{network}}
-    source:
-      address: "{{bridgeSender}}"
-      abi: BridgeSender
-      startBlock: {{startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Cheq  # Cheqs
-        - Transfer  # Write/Transfers
-        - Escrow  # Fund/Cash
-        - ERC20  # ERC20s that have interacted with the protocol
-        - Account  # Accounts that have interacted with CheqRegistrar
-        - DirectSend  # Payment modules
-        - DirectPayModule
-        - DirectPayData
-        # - DirectPayData
-      abis:
-        - name: BridgeSender
-          file: ../frontend-abi/BridgeSender.sol/BridgeSender.json
-      eventHandlers:
-        - event: PaymentCreated(string,uint256,uint256,address,address,uint256,string)
-          handler: handleAxelarOutgoing
       file: mapping.ts
   - kind: ethereum/contract
     name: ReversibleRelease

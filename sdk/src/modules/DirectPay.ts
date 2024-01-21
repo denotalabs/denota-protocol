@@ -4,8 +4,7 @@ import { notaIdFromLog, state, tokenAddressForCurrency } from "..";
 export interface DirectPayData {
   moduleName: "direct";
   type: "invoice" | "payment";
-  creditor: string;
-  debitor: string;
+  payee: string;
   notes?: string;
   file?: File;
   dueDate?: string;
@@ -26,7 +25,7 @@ export async function writeDirectPay({
   imageUrl,
   ipfsHash,
 }: WriteDirectPayProps) {
-  const { dueDate, type, creditor, debitor } = module;
+  const { dueDate, payee } = module;
   const utcOffset = new Date().getTimezoneOffset();
 
   let dueTimestamp: number;
@@ -41,21 +40,14 @@ export async function writeDirectPay({
     dueTimestamp = Date.parse(`${today}T00:00:00Z`) / 1000 + utcOffset * 60;
   }
 
-  const owner = creditor;
-  const receiver = type === "invoice" ? debitor : creditor;
+  const owner = payee;
 
-  const amountWei = ethers.utils.parseEther(String(amount));
+  // TODO: handle other deciamls correctly
+  const amountWei = ethers.utils.parseUnits(String(amount), 6);
 
   const payload = ethers.utils.defaultAbiCoder.encode(
-    ["address", "uint256", "uint256", "address", "string", "string"],
-    [
-      receiver,
-      amountWei,
-      dueTimestamp,
-      state.blockchainState.account,
-      imageUrl ?? "",
-      ipfsHash ?? "",
-    ]
+    ["string", "string"],
+    [ipfsHash ?? "", imageUrl ?? ""]
   );
 
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
