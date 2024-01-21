@@ -13,6 +13,7 @@ export const ContractAddressMapping = {
     bridgeSender: "0x89A545bC5f783F18F3a0AC3E92c78E03a14CC69c",
     directPayAxelar: "0xed9B684c481F5b20A1f5bEeA5E458d92f7D1b2BC",
     batch: "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
+    usdc: "",
   },
   alfajores: {
     DataTypes: "0xF55e1Ba563B1FF60BAd3d5995F04c1c6a4Be98A5",
@@ -28,6 +29,7 @@ export const ContractAddressMapping = {
     bridgeSender: "0xFd77Eed331C200B3Ea360Ff172fA849BAE8cb66d",
     directPayAxelar: "0x453ccF56e94B03888bc787b249eb3A4c99d769f7",
     batch: "",
+    usdc: "",
   },
   polygon: {
     DataTypes: "",
@@ -43,6 +45,7 @@ export const ContractAddressMapping = {
     bridgeSender: "",
     directPayAxelar: "",
     batch: "",
+    usdc: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
   },
 };
 

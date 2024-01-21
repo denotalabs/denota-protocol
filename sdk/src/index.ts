@@ -35,6 +35,7 @@ interface BlockchainState {
   registrarAddress: string;
   dai: ethers.Contract | null;
   weth: ethers.Contract | null;
+  usdc: ethers.Contract | null;
   milestonesAddress: string;
   axelarBridgeSender: null | ethers.Contract;
   disperse: null | ethers.Contract;
@@ -54,6 +55,7 @@ export const state: State = {
     chainId: 0,
     dai: null,
     weth: null,
+    usdc: null,
     reversibleReleaseAddress: "",
     milestonesAddress: "",
     axelarBridgeSender: null,
@@ -83,6 +85,8 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
     );
     const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
     const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
+    const usdc = new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
+
     const disperse = new ethers.Contract(
       contractMapping.batch,
       MultiDisperse.abi,
@@ -98,6 +102,7 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
       chainId,
       dai,
       weth,
+      usdc,
       reversibleReleaseAddress: contractMapping.reversibleRelease,
       milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
@@ -119,6 +124,8 @@ function tokenForCurrency(currency: string) {
       return state.blockchainState.dai;
     case "WETH":
       return state.blockchainState.weth;
+    case "USDC":
+      return state.blockchainState.usdc;
   }
 }
 
@@ -128,6 +135,8 @@ export function tokenAddressForCurrency(currency: string) {
       return state.blockchainState.dai?.address;
     case "WETH":
       return state.blockchainState.weth?.address;
+    case "USDC":
+      return state.blockchainState.usdc?.address;
     case "NATIVE":
       return "0x0000000000000000000000000000000000000000";
   }
