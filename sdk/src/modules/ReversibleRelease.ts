@@ -26,7 +26,8 @@ export async function writeReversibleRelease({
   const { payee, payer, inspector } = module;
   const notaInspector = inspector ? inspector : payer;
 
-  const amountWei = ethers.utils.parseEther(String(amount));
+  // TODO: handle other deciamls correctly
+  const amountWei = ethers.utils.parseUnits(String(amount), 6);
 
   const owner = payee;
 
