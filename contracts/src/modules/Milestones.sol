@@ -57,7 +57,7 @@ contract Milestones is ModuleBase {
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
+        // _URI = __baseURI;
     }
 
     function processWrite(
@@ -260,16 +260,8 @@ contract Milestones is ModuleBase {
             '{"trait_type":"Revoked","value":', invoice.isRevoked ? 'true' : 'false', '}'
         ));
         
-        return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), Strings.toString(tokenId), '"')));
+        return (attributes, string(abi.encodePacked(',"external_url":"', Strings.toString(tokenId), '"')));
     }
-
-    function _baseURI() internal view returns (string memory) {
-        return _URI;
-    }
-
-    // function setBaseURI(string calldata __baseURI) external onlyOwner {
-    //     _URI = __baseURI;
-    // }
 
     function getMilestones(
         uint256 notaId
@@ -345,7 +337,6 @@ contract MilestonesPayment is ModuleBase {
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
     }
     
     function processWrite(
@@ -454,10 +445,8 @@ contract MilestonesPayment is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) public view override onlyRegistrar returns (string memory, string memory) {
-        // require(exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        string memory __baseURI = _baseURI();
-
         Payment memory payment = payments[tokenId];
+
         string memory attributes = string(abi.encodePacked(
             ',{"trait_type":"Current Milestone","value":', Strings.toString(payment.currentMilestone), '},',
             '{"trait_type":"Total Milestones","value":', Strings.toString(payment.totalMilestones), '},',
@@ -466,21 +455,8 @@ contract MilestonesPayment is ModuleBase {
             '{"trait_type":"Revoked","value":', payment.isRevoked ? 'true' : 'false', '}'
         ));
 
-        // TODO move Document Hash into external URL?
-        if (bytes(__baseURI).length == 0) {
-            return (attributes, "");
-        } else {
-            return (attributes, string(abi.encodePacked(',"external_url":"', _baseURI(), Strings.toString(tokenId), '"')));
-        }
+        return (attributes, string(abi.encodePacked(',"external_url":"', Strings.toString(tokenId), '"')));
     }
-
-    function _baseURI() internal view returns (string memory) {
-        return _URI;
-    }
-
-    // function setBaseURI(string calldata __baseURI) external onlyOwner {
-    //     _URI = __baseURI;
-    // }
 
     // function getMilestones(
     //     uint256 notaId

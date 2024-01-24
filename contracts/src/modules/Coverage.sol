@@ -41,13 +41,11 @@ contract Coverage is Ownable, ModuleBase, ERC20 {
 
     constructor(
         address registrar,
-        string memory __baseURI,
         address _USDC,
         uint256 _coveragePeriod,  // In seconds
         uint256 _reservesLockupPeriod,  // In seconds
         uint256 _reserveRatio
     ) ModuleBase(registrar) ERC20("DenotaCoverageToken", "DCT"){
-        _URI = __baseURI;
         USDC = _USDC;
         COVERAGE_PERIOD = _coveragePeriod;
         RESERVE_LOCKUP_PERIOD = _reservesLockupPeriod;

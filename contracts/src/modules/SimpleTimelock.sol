@@ -20,7 +20,7 @@ contract SimpleTimelock is ModuleBase {
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
+        // _URI = __baseURI;
     }
 
     function processWrite(
@@ -81,10 +81,7 @@ contract SimpleTimelock is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
-        return ("",
-            bytes(_URI).length > 0
-                ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
-                : "");
+        return ("", string(abi.encodePacked(',"external_url":', tokenId)));
     }
 }
 
@@ -103,7 +100,7 @@ contract SimpleTimelockFee is ModuleBase {
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
+        // _URI = __baseURI;
     }
 
     function processWrite(
@@ -160,7 +157,7 @@ contract SimpleTimelockFee is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
-        return ("", string(abi.encodePacked(_URI, tokenId)));
+        return ("", "");
     }
 }
 
