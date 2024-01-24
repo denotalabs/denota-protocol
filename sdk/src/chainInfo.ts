@@ -57,10 +57,6 @@ export const ContractAddressMapping = {
 
 export const contractMappingForChainId = (chainId: number) => {
   switch (chainId) {
-    case 80001:
-      return ContractAddressMapping.mumbai;
-    case 44787:
-      return ContractAddressMapping.alfajores;
     case 137:
       return ContractAddressMapping.polygon;
     default:
