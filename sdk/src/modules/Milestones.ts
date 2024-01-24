@@ -48,7 +48,7 @@ export async function writeMilestones({
     module.type === "invoice" ? 0 : amountWei, //escrowed
     0, //instant
     owner,
-    state.blockchainState.directPayAddress,
+    state.blockchainState.contractMapping.milestones,
     payload,
     { value: msgValue }
   );

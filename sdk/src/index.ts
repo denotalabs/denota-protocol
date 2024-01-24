@@ -25,20 +25,33 @@ import {
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
+interface ContractMapping {
+  DataTypes: string;
+  Errors: string;
+  Events: string;
+  registrar: string;
+  reversibleRelease: string;
+  directPay: string;
+  dai: string;
+  weth: string;
+  milestones: string;
+  bridgeReceiver: string;
+  bridgeSender: string;
+  directPayAxelar: string;
+  batch: string;
+  usdc: string;
+  usdce: string;
+  usdt: string;
+}
+
 interface BlockchainState {
   signer: ethers.Signer | null;
   registrar: ethers.Contract | null;
   account: string;
   chainId: number;
-  directPayAddress: string;
-  reversibleReleaseAddress: string;
-  registrarAddress: string;
-  dai: ethers.Contract | null;
-  weth: ethers.Contract | null;
-  usdc: ethers.Contract | null;
-  milestonesAddress: string;
   axelarBridgeSender: null | ethers.Contract;
   disperse: null | ethers.Contract;
+  contractMapping: ContractMapping;
 }
 
 interface State {
@@ -49,17 +62,28 @@ export const state: State = {
   blockchainState: {
     account: "",
     registrar: null,
-    registrarAddress: "",
     signer: null,
-    directPayAddress: "",
     chainId: 0,
-    dai: null,
-    weth: null,
-    usdc: null,
-    reversibleReleaseAddress: "",
-    milestonesAddress: "",
     axelarBridgeSender: null,
     disperse: null,
+    contractMapping: {
+      DataTypes: "",
+      Errors: "",
+      Events: "",
+      registrar: "",
+      directPay: "",
+      reversibleRelease: "",
+      dai: "",
+      weth: "",
+      milestones: "",
+      bridgeReceiver: "",
+      bridgeSender: "",
+      directPayAxelar: "",
+      batch: "",
+      usdc: "",
+      usdce: "",
+      usdt: "",
+    },
   },
 };
 
@@ -96,17 +120,11 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
     state.blockchainState = {
       signer,
       account,
-      registrarAddress: contractMapping.registrar,
       registrar,
-      directPayAddress: contractMapping.directPay,
       chainId,
-      dai,
-      weth,
-      usdc,
-      reversibleReleaseAddress: contractMapping.reversibleRelease,
-      milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
       disperse,
+      contractMapping,
     };
   } else {
     throw new Error("Unsupported chain");
@@ -119,24 +137,30 @@ interface ApproveTokenProps {
 }
 
 function tokenForCurrency(currency: string) {
-  switch (currency) {
-    case "DAI":
-      return state.blockchainState.dai;
-    case "WETH":
-      return state.blockchainState.weth;
-    case "USDC":
-      return state.blockchainState.usdc;
+  const contractMapping = state.blockchainState.contractMapping;
+  const signer = state.blockchainState.signer;
+
+  if (signer) {
+    switch (currency) {
+      case "DAI":
+        return new ethers.Contract(contractMapping.dai, erc20.abi, signer);
+      case "WETH":
+        return new ethers.Contract(contractMapping.weth, erc20.abi, signer);
+      case "USDC":
+        return new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
+    }
   }
 }
 
 export function tokenAddressForCurrency(currency: string) {
+  const contractMapping = state.blockchainState.contractMapping;
   switch (currency) {
     case "DAI":
-      return state.blockchainState.dai?.address;
+      return contractMapping.dai;
     case "WETH":
-      return state.blockchainState.weth?.address;
+      return contractMapping.weth;
     case "USDC":
-      return state.blockchainState.usdc?.address;
+      return contractMapping.usdc;
     case "NATIVE":
       return "0x0000000000000000000000000000000000000000";
   }

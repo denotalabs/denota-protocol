@@ -47,7 +47,7 @@ export async function writeReversibleRelease({
     amountWei, //escrowed
     0, //instant
     owner, //owner
-    state.blockchainState.reversibleReleaseAddress, //module
+    state.blockchainState.contractMapping.reversibleRelease, //module
     payload, //moduleWriteData
     { value: msgValue }
   );
