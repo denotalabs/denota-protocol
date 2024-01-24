@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 
-import {OperatorFeeModuleBase} from "../ModuleBase.sol";
+import {ModuleBase} from "../ModuleBase.sol";
 import {Nota} from "../libraries/DataTypes.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
@@ -9,10 +9,10 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 /**
  * Note: Only payments, allows sender to choose when to release and whether to reverse (assuming it's not released yet)
  */
-contract ReversableTimelock is OperatorFeeModuleBase {
+contract ReversableTimelock is ModuleBase {
     struct Payment {
         address inspector;
-        address drawer;
+        address payer;
         uint256 inspectionEnd;
         bytes32 memoHash;
     }
@@ -54,7 +54,7 @@ contract ReversableTimelock is OperatorFeeModuleBase {
 
         payments[notaId].inspector = inspector;
         payments[notaId].inspectionEnd = inspectionEnd;
-        payments[notaId].drawer = caller;
+        payments[notaId].payer = caller;
         payments[notaId].memoHash = memoHash;
 
         return _takeReturnFee(currency, escrowed + instant, dappOperator, 0);

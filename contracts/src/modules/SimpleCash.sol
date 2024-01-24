@@ -82,7 +82,7 @@ contract SimpleCash is ModuleBase {
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
                         payment.external_url,
-                        '","description":"The Simple Cash hook enables two-step payments much like a cheque that needs to be cashed by the owner. Documents and an image can be attached as well."'
+                        '","description":"Enables two-step payments much like a cheque that needs to be cashed by the owner. Documents and an image can be attached as well."'
                     )
                 )
             );
