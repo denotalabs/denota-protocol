@@ -34,6 +34,8 @@ Things to address and when to address them
 * Check that if module address has no code (DNE) transaction should fail
 
 ### V1 Audited Deployment [ABI_Breaking]
+* Move contractURI to RegistrarGovernance
+* Change "module" references to "hooks"
 * Update the events so that Written doesn't have Transfer fields and Module is indexed
 * Remove the libraries from foundry bc they show up in the verification
 * Make verification multi-part since it's so long for block explorer users to find the right part

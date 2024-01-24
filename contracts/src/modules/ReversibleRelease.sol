@@ -151,12 +151,8 @@ contract ReversibleReleaseInvoice is ModuleBase {
             Strings.toHexString(payment.amount),
             '"}'));
         
-        if (bytes(_URI).length == 0) {
-            return (attributes, "");
-        } else {
-            return (attributes,  string(abi.encodePacked(',"image":"', _URI, payment.imageURI, '"',
-                ',"external_url":"', _URI, payment.external_url, '"')));
-        }
+        return (attributes,  string(abi.encodePacked(',"image":"', payment.imageURI, '"',
+                ',"external_url":"', payment.external_url, '"')));
     }
 }
 
@@ -169,7 +165,7 @@ contract ReversibleReleasePayment is ModuleBase {
     }
     mapping(uint256 notaId => Payment payment) public payments;
 
-    event PaymentCreated(uint256 notaId, string external_url, address inspector);
+    event PaymentCreated(uint256 indexed notaId, address indexed payer, address indexed inspector, string external_url, string imageURI);
     error OnlyOwner();
     error Disallowed();
     error AddressZero();
@@ -201,7 +197,7 @@ contract ReversibleReleasePayment is ModuleBase {
 
         payments[notaId] = Payment(caller, inspector, external_url, imageURI);
 
-        emit PaymentCreated(notaId, external_url, inspector);
+        emit PaymentCreated(notaId, caller, inspector, external_url, imageURI);
         return 0;
     }
 
@@ -230,16 +226,6 @@ contract ReversibleReleasePayment is ModuleBase {
         require(to == owner || to == payments[notaId].payer, "ONLY_TO_OWNER_OR_SENDER");
         return 0;
     }
-
-    function processApproval(
-        address caller,
-        address owner,
-        address /*to*/,
-        uint256 /*notaId*/,
-        Nota calldata /*nota*/
-    ) external view override onlyRegistrar {
-    }
-
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
@@ -263,7 +249,7 @@ contract ReversibleReleasePayment is ModuleBase {
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
                         payment.external_url,
-                        '","description":"The Reversible Release module allows the payer to choose the inspector who is then allowed to release the escrowed amount to the owner OR back to the payer."'
+                        '","description":"Allows the payer to choose the inspector who is then allowed to release the escrow to the owner OR back to the payer."'
                     )
                 )
             );
