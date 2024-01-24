@@ -43,7 +43,7 @@ export const ContractAddressMapping = {
     directPay: "0x00000003672153a114583fa78c3d313d4e3cae40",
     reversibleRelease: "0x0000000078E1A913Ee98c64CEc34fe813872eF79",
     dai: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
-    weth: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
+    weth: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", // temp fix: use USDC adddress
     milestones: "",
     bridgeReceiver: "",
     bridgeSender: "",

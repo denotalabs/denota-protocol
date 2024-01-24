@@ -15,7 +15,6 @@ import {
   fundDirectPay,
   writeDirectPay,
 } from "./modules/DirectPay";
-import { MilestonesData, writeMilestones } from "./modules/Milestones";
 import {
   cashReversibleRelease,
   fundReversibleRelease,
@@ -24,6 +23,8 @@ import {
 } from "./modules/ReversibleRelease";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
+
+export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT";
 
 interface ContractMapping {
   DataTypes: string;
@@ -102,14 +103,12 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
       NotaRegistrar.abi,
       signer
     );
+
     const axelarBridgeSender = new ethers.Contract(
       contractMapping.bridgeSender,
       BridgeSender.abi,
       signer
     );
-    const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
-    const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
-    const usdc = new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
 
     const disperse = new ethers.Contract(
       contractMapping.batch,
@@ -169,8 +168,17 @@ export function tokenAddressForCurrency(currency: string) {
       return contractMapping.usdce;
     case "USDT":
       return contractMapping.usdt;
-    case "NATIVE":
-      return "0x0000000000000000000000000000000000000000";
+  }
+}
+
+export function tokenDecimalsForCurrency(currency: string) {
+  switch (currency) {
+    case "USDC":
+    case "USDCE":
+    case "USDT":
+      return 6;
+    default:
+      return 18;
   }
 }
 
@@ -207,11 +215,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData =
-  | DirectPayData
-  | ReversibleReleaseData
-  | MilestonesData
-  | AxelarBridgeData;
+type ModuleData = DirectPayData | ReversibleReleaseData | AxelarBridgeData;
 
 interface RawMetadata {
   type: "raw";
@@ -227,7 +231,7 @@ interface UploadedMetadata {
 }
 
 export interface WriteProps {
-  currency: string;
+  currency: DenotaCurrency;
   amount: number;
   metadata?: RawMetadata | UploadedMetadata;
 
@@ -260,8 +264,6 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
-    case "milestones":
-      return writeMilestones({ module, ipfsHash, ...props });
     case "crosschain":
       return writeCrossChainNota({ module, ipfsHash, imageUrl, ...props });
   }

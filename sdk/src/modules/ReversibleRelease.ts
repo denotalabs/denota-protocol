@@ -1,5 +1,11 @@
 import { BigNumber, ethers } from "ethers";
-import { notaIdFromLog, state, tokenAddressForCurrency } from "..";
+import {
+  DenotaCurrency,
+  notaIdFromLog,
+  state,
+  tokenAddressForCurrency,
+  tokenDecimalsForCurrency,
+} from "..";
 
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
@@ -9,7 +15,7 @@ export interface ReversibleReleaseData {
 }
 
 export interface WriteReversibleReleaseyProps {
-  currency: string;
+  currency: DenotaCurrency;
   amount: number;
   ipfsHash?: string;
   imageUrl?: string;
@@ -27,7 +33,10 @@ export async function writeReversibleRelease({
   const notaInspector = inspector ? inspector : payer;
 
   // TODO: handle other deciamls correctly
-  const amountWei = ethers.utils.parseUnits(String(amount), 6);
+  const amountWei = ethers.utils.parseUnits(
+    String(amount),
+    tokenDecimalsForCurrency(currency)
+  );
 
   const owner = payee;
 
