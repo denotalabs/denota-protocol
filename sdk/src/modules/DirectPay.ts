@@ -63,7 +63,7 @@ export async function writeDirectPay({
     0, //escrowed
     module.type === "invoice" ? 0 : amountWei, //instant
     owner,
-    state.blockchainState.directPayAddress,
+    state.blockchainState.contractMapping.directPay,
     payload,
     { value: msgValue }
   );
