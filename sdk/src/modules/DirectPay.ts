@@ -1,5 +1,11 @@
 import { BigNumber, ethers } from "ethers";
-import { notaIdFromLog, state, tokenAddressForCurrency } from "..";
+import {
+  DenotaCurrency,
+  notaIdFromLog,
+  state,
+  tokenAddressForCurrency,
+  tokenDecimalsForCurrency,
+} from "..";
 
 export interface DirectPayData {
   moduleName: "direct";
@@ -11,7 +17,7 @@ export interface DirectPayData {
 }
 
 export interface WriteDirectPayProps {
-  currency: string;
+  currency: DenotaCurrency;
   amount: number;
   ipfsHash?: string;
   imageUrl?: string;
@@ -43,7 +49,10 @@ export async function writeDirectPay({
   const owner = payee;
 
   // TODO: handle other deciamls correctly
-  const amountWei = ethers.utils.parseUnits(String(amount), 6);
+  const amountWei = ethers.utils.parseUnits(
+    String(amount),
+    tokenDecimalsForCurrency(currency)
+  );
 
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["string", "string"],
