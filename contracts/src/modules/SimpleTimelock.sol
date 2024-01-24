@@ -11,16 +11,21 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
  * Escrowed tokens are cashable after the releaseDate
  */
 contract SimpleTimelock is ModuleBase {
-    mapping(uint256 => uint256) public releaseDate;
+    struct Timelock {
+        uint256 releaseDate;
+        string external_url;
+        string imageURI;
+    }
 
-    event Timelock(uint256 notaId, uint256 _releaseDate);
+    mapping(uint256 => uint256) public timelocks;
+
+    event TimelockCreated(uint256 notaId, uint256 _releaseDate, string external_url, string imageURI);
     error OnlyOwnerOrApproved();
 
     constructor(
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        // _URI = __baseURI;
     }
 
     function processWrite(
@@ -30,11 +35,17 @@ contract SimpleTimelock is ModuleBase {
         address currency,
         uint256 escrowed,
         uint256 instant,
-        bytes calldata initData
+        bytes calldata writeData
     ) external override onlyRegistrar returns (uint256) {
-        require(instant == 0, "Instant not supported");
-        (uint256 _releaseDate) = abi.decode(initData, (uint256));
-        releaseDate[notaId] = _releaseDate;
+        (   uint256 _releaseDate,
+            string memory external_url,
+            string memory imageURI
+        ) = abi.decode(
+                writeData,
+                (uint256, string, string)
+            );
+
+        timelocks[notaId] = Timelock(_releaseDate, external_url, imageURI);
 
         emit Timelock(notaId, _releaseDate);
         return 0;
