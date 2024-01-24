@@ -148,6 +148,10 @@ function tokenForCurrency(currency: string) {
         return new ethers.Contract(contractMapping.weth, erc20.abi, signer);
       case "USDC":
         return new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
+      case "USDT":
+        return new ethers.Contract(contractMapping.usdt, erc20.abi, signer);
+      case "USDCE":
+        return new ethers.Contract(contractMapping.usdce, erc20.abi, signer);
     }
   }
 }
@@ -161,6 +165,10 @@ export function tokenAddressForCurrency(currency: string) {
       return contractMapping.weth;
     case "USDC":
       return contractMapping.usdc;
+    case "USDCE":
+      return contractMapping.usdce;
+    case "USDT":
+      return contractMapping.usdt;
     case "NATIVE":
       return "0x0000000000000000000000000000000000000000";
   }
