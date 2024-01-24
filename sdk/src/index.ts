@@ -15,7 +15,6 @@ import {
   fundDirectPay,
   writeDirectPay,
 } from "./modules/DirectPay";
-import { MilestonesData, writeMilestones } from "./modules/Milestones";
 import {
   cashReversibleRelease,
   fundReversibleRelease,
@@ -25,20 +24,35 @@ import {
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
+export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT";
+
+interface ContractMapping {
+  DataTypes: string;
+  Errors: string;
+  Events: string;
+  registrar: string;
+  reversibleRelease: string;
+  directPay: string;
+  dai: string;
+  weth: string;
+  milestones: string;
+  bridgeReceiver: string;
+  bridgeSender: string;
+  directPayAxelar: string;
+  batch: string;
+  usdc: string;
+  usdce: string;
+  usdt: string;
+}
+
 interface BlockchainState {
   signer: ethers.Signer | null;
   registrar: ethers.Contract | null;
   account: string;
   chainId: number;
-  directPayAddress: string;
-  reversibleReleaseAddress: string;
-  registrarAddress: string;
-  dai: ethers.Contract | null;
-  weth: ethers.Contract | null;
-  usdc: ethers.Contract | null;
-  milestonesAddress: string;
   axelarBridgeSender: null | ethers.Contract;
   disperse: null | ethers.Contract;
+  contractMapping: ContractMapping;
 }
 
 interface State {
@@ -49,17 +63,28 @@ export const state: State = {
   blockchainState: {
     account: "",
     registrar: null,
-    registrarAddress: "",
     signer: null,
-    directPayAddress: "",
     chainId: 0,
-    dai: null,
-    weth: null,
-    usdc: null,
-    reversibleReleaseAddress: "",
-    milestonesAddress: "",
     axelarBridgeSender: null,
     disperse: null,
+    contractMapping: {
+      DataTypes: "",
+      Errors: "",
+      Events: "",
+      registrar: "",
+      directPay: "",
+      reversibleRelease: "",
+      dai: "",
+      weth: "",
+      milestones: "",
+      bridgeReceiver: "",
+      bridgeSender: "",
+      directPayAxelar: "",
+      batch: "",
+      usdc: "",
+      usdce: "",
+      usdt: "",
+    },
   },
 };
 
@@ -78,14 +103,12 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
       NotaRegistrar.abi,
       signer
     );
+
     const axelarBridgeSender = new ethers.Contract(
       contractMapping.bridgeSender,
       BridgeSender.abi,
       signer
     );
-    const dai = new ethers.Contract(contractMapping.dai, erc20.abi, signer);
-    const weth = new ethers.Contract(contractMapping.weth, erc20.abi, signer);
-    const usdc = new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
 
     const disperse = new ethers.Contract(
       contractMapping.batch,
@@ -96,17 +119,11 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
     state.blockchainState = {
       signer,
       account,
-      registrarAddress: contractMapping.registrar,
       registrar,
-      directPayAddress: contractMapping.directPay,
       chainId,
-      dai,
-      weth,
-      usdc,
-      reversibleReleaseAddress: contractMapping.reversibleRelease,
-      milestonesAddress: contractMapping.milestones,
       axelarBridgeSender,
       disperse,
+      contractMapping,
     };
   } else {
     throw new Error("Unsupported chain");
@@ -119,26 +136,49 @@ interface ApproveTokenProps {
 }
 
 function tokenForCurrency(currency: string) {
-  switch (currency) {
-    case "DAI":
-      return state.blockchainState.dai;
-    case "WETH":
-      return state.blockchainState.weth;
-    case "USDC":
-      return state.blockchainState.usdc;
+  const contractMapping = state.blockchainState.contractMapping;
+  const signer = state.blockchainState.signer;
+
+  if (signer) {
+    switch (currency) {
+      case "DAI":
+        return new ethers.Contract(contractMapping.dai, erc20.abi, signer);
+      case "WETH":
+        return new ethers.Contract(contractMapping.weth, erc20.abi, signer);
+      case "USDC":
+        return new ethers.Contract(contractMapping.usdc, erc20.abi, signer);
+      case "USDT":
+        return new ethers.Contract(contractMapping.usdt, erc20.abi, signer);
+      case "USDCE":
+        return new ethers.Contract(contractMapping.usdce, erc20.abi, signer);
+    }
   }
 }
 
 export function tokenAddressForCurrency(currency: string) {
+  const contractMapping = state.blockchainState.contractMapping;
   switch (currency) {
     case "DAI":
-      return state.blockchainState.dai?.address;
+      return contractMapping.dai;
     case "WETH":
-      return state.blockchainState.weth?.address;
+      return contractMapping.weth;
     case "USDC":
-      return state.blockchainState.usdc?.address;
-    case "NATIVE":
-      return "0x0000000000000000000000000000000000000000";
+      return contractMapping.usdc;
+    case "USDCE":
+      return contractMapping.usdce;
+    case "USDT":
+      return contractMapping.usdt;
+  }
+}
+
+export function tokenDecimalsForCurrency(currency: string) {
+  switch (currency) {
+    case "USDC":
+    case "USDCE":
+    case "USDT":
+      return 6;
+    default:
+      return 18;
   }
 }
 
@@ -175,11 +215,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData =
-  | DirectPayData
-  | ReversibleReleaseData
-  | MilestonesData
-  | AxelarBridgeData;
+type ModuleData = DirectPayData | ReversibleReleaseData | AxelarBridgeData;
 
 interface RawMetadata {
   type: "raw";
@@ -195,7 +231,7 @@ interface UploadedMetadata {
 }
 
 export interface WriteProps {
-  currency: string;
+  currency: DenotaCurrency;
   amount: number;
   metadata?: RawMetadata | UploadedMetadata;
 
@@ -228,8 +264,6 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
-    case "milestones":
-      return writeMilestones({ module, ipfsHash, ...props });
     case "crosschain":
       return writeCrossChainNota({ module, ipfsHash, imageUrl, ...props });
   }

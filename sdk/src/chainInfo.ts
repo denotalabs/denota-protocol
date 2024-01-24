@@ -14,6 +14,8 @@ export const ContractAddressMapping = {
     directPayAxelar: "0xed9B684c481F5b20A1f5bEeA5E458d92f7D1b2BC",
     batch: "0xa58AA04c66aF0e8A5B22e17a48EEA34405c526b5",
     usdc: "",
+    usdce: "",
+    usdt: "",
   },
   alfajores: {
     DataTypes: "0xF55e1Ba563B1FF60BAd3d5995F04c1c6a4Be98A5",
@@ -30,6 +32,8 @@ export const ContractAddressMapping = {
     directPayAxelar: "0x453ccF56e94B03888bc787b249eb3A4c99d769f7",
     batch: "",
     usdc: "",
+    usdce: "",
+    usdt: "",
   },
   polygon: {
     DataTypes: "",
@@ -38,14 +42,16 @@ export const ContractAddressMapping = {
     registrar: "0x000000003C9C54B98C17F5A8B05ADca5B3B041eD",
     directPay: "0x00000003672153a114583fa78c3d313d4e3cae40",
     reversibleRelease: "0x0000000078E1A913Ee98c64CEc34fe813872eF79",
-    dai: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
-    weth: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", // temp fix: use USDC adddress
+    dai: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    weth: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
     milestones: "",
     bridgeReceiver: "",
     bridgeSender: "",
     directPayAxelar: "",
     batch: "",
-    usdc: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    usdc: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    usdce: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
   },
 };
 
