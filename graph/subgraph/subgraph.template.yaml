@@ -70,7 +70,7 @@ dataSources:
     name: ReversibleRelease
     network: {{network}}
     source:
-      address: "{{escrow}}"
+      address: "{{reversibleRelease}}"
       abi: ReversibleRelease
       startBlock: {{startBlock}}
     mapping:
