@@ -22,7 +22,6 @@ dataSources:
         - DirectSend  # Payment modules
         - DirectPayModule
         - DirectPayData
-        # - DirectPayData
       abis:
         - name: Registrar
           file: ../frontend-abi/Events.sol/Events.json

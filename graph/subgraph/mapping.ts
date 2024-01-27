@@ -13,9 +13,7 @@ import {
   ReversiblePaymentData,
   Transaction,
 } from "../subgraph/generated/schema";
-
 import { PaymentCreated as DirectPaymentCreatedEvent } from "../subgraph/generated/DirectPay/DirectPay";
-
 import { PaymentCreated as ReversiblePaymentCreatedEvent } from "../subgraph/generated/ReversibleRelease/ReversibleRelease";
 
 import { PaymentCreated as DirectPaymentBridgeEvent } from "../subgraph/generated/BridgeSender/BridgeSender";
