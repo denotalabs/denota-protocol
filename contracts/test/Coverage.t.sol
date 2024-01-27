@@ -22,7 +22,6 @@ contract CoverageTest is RegistrarTest {
 
         COVERAGE = new Coverage(
             address(REGISTRAR),
-            "ipfs://", 
             address(DAI),
             120 days,
             180 days,

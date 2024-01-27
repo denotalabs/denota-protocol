@@ -106,6 +106,6 @@ contract NoopTest is RegistrarTest {
         vm.assume(cashAmount <= escrowed);
         uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
 
-        _registrarCashHelper(caller, notaId, cashAmount, abi.encode("")); // , owner
+        _registrarCashHelper(caller, notaId, cashAmount, owner, abi.encode(""));
     }
 }

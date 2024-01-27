@@ -95,7 +95,7 @@ contract SimpleCashTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
 
-        _registrarCashHelper(owner, notaId, cashAmount, abi.encode("")); // owner, 
+        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
     function testFailCashId(
         address caller,
@@ -120,7 +120,7 @@ contract SimpleCashTest is RegistrarTest {
         vm.assume(cashAmount > escrowed);
         uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner);
 
-        _registrarCashHelper(owner, notaId, cashAmount, abi.encode("")); //owner, 
+        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
 
     function testFailCashTo(
@@ -133,6 +133,6 @@ contract SimpleCashTest is RegistrarTest {
         vm.assume(fakeCasher != owner);
         uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner);
 
-        _registrarCashHelper(fakeCasher, notaId, cashAmount, abi.encode("")); // , fakeCasher
+        _registrarCashHelper(fakeCasher, notaId, cashAmount, fakeCasher, abi.encode("")); // 
     }
 }

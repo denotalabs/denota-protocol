@@ -17,14 +17,13 @@ contract SimpleTimelock is ModuleBase {
         string imageURI;
     }
 
-    mapping(uint256 => uint256) public timelocks;
+    mapping(uint256 => Timelock) public timelocks;
 
     event TimelockCreated(uint256 notaId, uint256 _releaseDate, string external_url, string imageURI);
     error OnlyOwnerOrApproved();
 
     constructor(
-        address registrar,
-        string memory __baseURI
+        address registrar
     ) ModuleBase(registrar) {
     }
 
@@ -47,7 +46,7 @@ contract SimpleTimelock is ModuleBase {
 
         timelocks[notaId] = Timelock(_releaseDate, external_url, imageURI);
 
-        emit Timelock(notaId, _releaseDate);
+        emit TimelockCreated(notaId, _releaseDate, external_url, imageURI);
         return 0;
     }
 
@@ -75,7 +74,7 @@ contract SimpleTimelock is ModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         require(to == owner, "Only cashable to owner");
         require(amount == nota.escrowed, "Must fully cash");
-        require(releaseDate[notaId] < block.timestamp, "TIMELOCK");
+        require(timelocks[notaId].releaseDate < block.timestamp, "TIMELOCK");
         return 0;
     }
 
