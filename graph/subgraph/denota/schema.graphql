@@ -1,0 +1,143 @@
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type BatchMetadataUpdate @entity(immutable: true) {
+  id: Bytes!
+  _fromTokenId: BigInt! # uint256
+  _toTokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Cashed @entity(immutable: true) {
+  id: Bytes!
+  casher: Bytes! # address
+  notaId: BigInt! # uint256
+  to: Bytes! # address
+  amount: BigInt! # uint256
+  cashData: Bytes! # bytes
+  moduleFee: BigInt! # uint256
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ContractURIUpdated @entity(immutable: true) {
+  id: Bytes!
+
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Funded @entity(immutable: true) {
+  id: Bytes!
+  funder: Bytes! # address
+  notaId: BigInt! # uint256
+  amount: BigInt! # uint256
+  instant: BigInt! # uint256
+  fundData: Bytes! # bytes
+  moduleFee: BigInt! # uint256
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MetadataUpdate @entity(immutable: true) {
+  id: Bytes!
+  _tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ModuleWhitelisted @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  module: Bytes! # address
+  isAccepted: Boolean! # bool
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenWhitelisted @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address
+  token: Bytes! # address
+  accepted: Boolean! # bool
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transferred @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  from: Bytes! # address
+  to: Bytes! # address
+  moduleFee: BigInt! # uint256
+  fundData: Bytes! # bytes
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Written @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address
+  notaId: BigInt! # uint256
+  owner: Bytes! # address
+  instant: BigInt! # uint256
+  currency: Bytes! # address
+  escrowed: BigInt! # uint256
+  timestamp: BigInt! # uint256
+  moduleFee: BigInt! # uint256
+  module: Bytes! # address
+  moduleData: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
