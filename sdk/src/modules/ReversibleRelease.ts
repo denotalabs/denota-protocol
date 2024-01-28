@@ -11,7 +11,7 @@ export interface ReversibleReleaseData {
 export interface WriteReversibleReleaseyProps {
   currency: string;
   amount: number;
-  ipfsHash?: string;
+  externalUrl?: string;
   imageUrl?: string;
   module: ReversibleReleaseData;
 }
@@ -21,7 +21,7 @@ export async function writeReversibleRelease({
   amount,
   currency,
   imageUrl,
-  ipfsHash,
+  externalUrl,
 }: WriteReversibleReleaseyProps) {
   const { payee, payer, inspector } = module;
   const notaInspector = inspector ? inspector : payer;
@@ -33,7 +33,7 @@ export async function writeReversibleRelease({
 
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["address", "string", "string"],
-    [notaInspector, ipfsHash ?? "", imageUrl ?? ""]
+    [notaInspector, externalUrl ?? "", imageUrl ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
