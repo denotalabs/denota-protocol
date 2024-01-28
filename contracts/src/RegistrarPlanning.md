@@ -40,22 +40,23 @@ Things to address and when to address them
 * Update the events so that Written doesn't have Transfer fields and Module is indexed
 * Remove the libraries from foundry bc they show up in the verification
 * Make verification multi-part since it's so long for block explorer users to find the right part
-* Do events need timestamps?
+* Remove events' timestamps parameter
 * Remove Nota struct in processX since only currency and escrowed matter
-* Add functions for gettting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
-* Address bit flags for hooks
-* Consider standard WTFC vs module override logic, ie: `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
-    * and only `emit MetadataUpdate(notaId)` only if hook is used
+* rename processX() to beforeX()
+* Address bit flags (understand how incorrect bit flags affect safety)     [000000 -> 111111] => [00 -> FF]
+    * Could have standard WTFC subfunctions and module overrides, ie: `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
+    * `emit MetadataUpdate(notaId)` only if hook is used
 * Add `burn()` safer transfers, reduces module transfer logic (gas cheaper)
-* Use struct in write (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
+* Consider functions for gettting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
+* Use write struct if cheaper (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
 * Add noDelegateCall in WTFCAB (if permissionless)
 * Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
 * instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
 * Remove datatypes library if possible
+* Add moduleFee on approvals
 * ModuleDecode(INotaModule module) external returns(string): ModuleDecode[module]=>“Writebytes(address,uint256,etc)”
     * _abiDecode(bytes calldata moduleBytes){}
-* Add moduleFee on approvals (changes ABI, does this affect the app?)
 * Ensure consistency in function parameters for WTFCA and hooks
     [write(currency, escrowed, instant, owner, module, moduleBytes) -> 
      hook(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes)]
