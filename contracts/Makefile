@@ -89,6 +89,23 @@ send-SimpleCash:
 	moduleBytes=$$(cast abi-encode "f(string,string)" $${externalURL} $${imageURL}) ; \
 	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
+send-ReversibleRelease:
+	# Make sure approvals are set #
+
+	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
+	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
+	currency=${USDCe} ; \
+	escrow=4206900; \
+	instant=0 ; \
+	owner=0x4318695A0661d3BfCFCcB341C3a55af6C5cEE8BF; \
+	module=0x0000000078E1A913Ee98c64CEc34fe813872eF79; \
+	inspector=0x167813E0D6958BCF30a1cEbEE53aE0C57677c963; \
+	externalURL="https://www.youtube.com/watch?v=ks03JN2wExk"; \
+	imageURL="ipfs://QmPKuPB9ib187hnEn97b2TCwMHWJh3EtrjUoSHo74oQRTV"; \
+	moduleBytes=$$(cast abi-encode "f(address,string,string)" $${inspector} $${externalURL} $${imageURL}) ; \
+	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+
+
 all: clean remove install update solc build
 
 fresh-install:
