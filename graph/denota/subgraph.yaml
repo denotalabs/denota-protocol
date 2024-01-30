@@ -29,14 +29,23 @@ dataSources:
         - Transfer
         - Transferred
         - Written
+
+        - Transaction
+        - ERC20
+        - Account
+        - Event
+        - Escrow
+        - Nota
+        - NotaRegistrar
+        - Module
       abis:
         - name: NotaRegistrar
           file: ./abis/NotaRegistrar.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
+        # - event: Approval(indexed address,indexed address,indexed uint256)
+        #   handler: handleApproval
+        # - event: ApprovalForAll(indexed address,indexed address,bool)
+        #   handler: handleApprovalForAll
         - event: BatchMetadataUpdate(uint256,uint256)
           handler: handleBatchMetadataUpdate
         - event: Cashed(indexed address,indexed uint256,address,uint256,indexed bytes,uint256,uint256)
@@ -55,8 +64,8 @@ dataSources:
           handler: handleTokenWhitelisted
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: Transferred(indexed uint256,indexed address,indexed address,uint256,bytes,uint256)
-          handler: handleTransferred
+        # - event: Transferred(indexed uint256,indexed address,indexed address,uint256,bytes,uint256)
+        #   handler: handleTransferred
         - event: Written(indexed address,uint256,indexed address,uint256,indexed address,uint256,uint256,uint256,address,bytes)
           handler: handleWritten
       file: ./src/nota-registrar.ts
