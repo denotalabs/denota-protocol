@@ -1,3 +1,122 @@
+############################################# Nota ###############################################
+type Transaction @entity {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  events: [Event!]! @derivedFrom(field: "transaction")
+}
+type ERC20 @entity(immutable: true) {
+  id: ID!
+  isWhitelisted: Boolean!
+  # name: String
+	# symbol: String
+	# decimals: Int!
+  # totalSupply: 
+}
+
+type Account @entity {
+  id: ID!
+  notasSent: [Nota!]! @derivedFrom(field: "sender")
+  notasReceived: [Nota!]! @derivedFrom(field: "receiver")
+  notasOwned: [Nota!]! @derivedFrom(field: "owner")
+
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
+
+  approvalsOwner: [Approval!]! @derivedFrom(field: "owner")
+  approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
+  approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
+  approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
+	events: [Event!]! @derivedFrom(field: "emitter")
+  
+  # TODO: make module specific properties addable by hook? 
+  # notasInspected: [Nota!]! @derivedFrom(field: "inspector")
+}
+
+interface Event {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+}
+
+type Transfer implements Event @entity(immutable: true) {
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  nota: Nota!
+  from: Account!
+  to: Account!
+}
+type Escrow implements Event @entity(immutable: true) {  # Instances of escrowing and direct sending, not current balance/state
+  id: ID!
+  emitter: Account!
+  transaction: Transaction!
+  timestamp: BigInt!
+  nota: Nota!
+  from: Account!
+  amount: BigInt!
+  instantAmount: BigInt!
+}
+
+type Approval implements Event @entity {
+  id: ID!
+  transaction: Transaction!
+  timestamp: BigInt!
+  nota: Nota!
+  owner: Account!
+  approved: Account!
+  emitter: Account!
+}
+
+type Nota @entity {
+  id: ID!
+  timestamp: BigInt!
+  createdAt: BigInt!
+  createdTransaction: Transaction
+  erc20: ERC20
+
+  module: Module
+  
+  uri: String
+  escrowed: BigInt
+
+  owner: Account
+  transfers: [Transfer!]! @derivedFrom(field: "nota")
+  escrows: [Escrow!]! @derivedFrom(field: "nota")
+  approvals: [Approval!]! @derivedFrom(field: "nota")
+  sender: Account
+  receiver: Account
+  moduleData: ModuleData!
+  transaction: Transaction
+  inspector: Account
+}
+
+# TODO: figure out why unions aren't working
+# union NotaData =  BYOAData | SelfSignedNotaData
+type NotaRegistrar @entity {
+  id: ID!  # Should this be the registrar's address?
+  name: String!
+  writeFee: Int!
+  transferFee: Int!
+  fundFee: Int!
+  cashFee: Int!
+  tokenWhitelist: [ERC20!]!
+  moduleWhitelist: [Module!]! @derivedFrom(field: "registrar")
+}
+
+interface Hook {  # Allows new modules to inherit from Module interface
+  id: ID!
+  registrar: NotaRegistrar!
+  isWhitelisted: Boolean!
+  notasManaged: [Nota!]! @derivedFrom(field: "hook")
+  numNotasManaged: BigInt!
+}
+
+
+##################################### Nota Based Entities ###############################################
 type Approval @entity(immutable: true) {
   id: Bytes!
   owner: Bytes! # address
@@ -18,15 +137,6 @@ type ApprovalForAll @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type BatchMetadataUpdate @entity(immutable: true) {
-  id: Bytes!
-  _fromTokenId: BigInt! # uint256
-  _toTokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type Cashed @entity(immutable: true) {
   id: Bytes!
   casher: Bytes! # address
@@ -41,14 +151,6 @@ type Cashed @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type ContractURIUpdated @entity(immutable: true) {
-  id: Bytes!
-
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type Funded @entity(immutable: true) {
   id: Bytes!
   funder: Bytes! # address
@@ -57,45 +159,6 @@ type Funded @entity(immutable: true) {
   instant: BigInt! # uint256
   fundData: Bytes! # bytes
   moduleFee: BigInt! # uint256
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type MetadataUpdate @entity(immutable: true) {
-  id: Bytes!
-  _tokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type ModuleWhitelisted @entity(immutable: true) {
-  id: Bytes!
-  user: Bytes! # address
-  module: Bytes! # address
-  isAccepted: Boolean! # bool
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TokenWhitelisted @entity(immutable: true) {
-  id: Bytes!
-  caller: Bytes! # address
-  token: Bytes! # address
-  accepted: Boolean! # bool
   timestamp: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -137,6 +200,63 @@ type Written @entity(immutable: true) {
   moduleFee: BigInt! # uint256
   module: Bytes! # address
   moduleData: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type BatchMetadataUpdate @entity(immutable: true) {
+  id: Bytes!
+  _fromTokenId: BigInt! # uint256
+  _toTokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MetadataUpdate @entity(immutable: true) {
+  id: Bytes!
+  _tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+###################################### Registrar Entities #############################################
+type ContractURIUpdated @entity(immutable: true) {
+  id: Bytes!
+
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ModuleWhitelisted @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  module: Bytes! # address
+  isAccepted: Boolean! # bool
+  timestamp: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenWhitelisted @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address
+  token: Bytes! # address
+  accepted: Boolean! # bool
+  timestamp: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
