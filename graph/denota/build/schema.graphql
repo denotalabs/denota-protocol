@@ -78,12 +78,9 @@ type Nota @entity {
   sender: Account
   receiver: Account
   owner: Account
-  # timestamp: BigInt!
   uri: String
-  # imageURI: String, externalURI: String
-  # createdAt: BigInt!
+  # TODO add imageURI: String AND externalURI: String
   createdTransaction: Transaction
-  # transaction: Transaction # Why?
 
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   escrows: [Escrow!]! @derivedFrom(field: "nota")
