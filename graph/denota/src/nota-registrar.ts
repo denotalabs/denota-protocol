@@ -67,6 +67,7 @@ function saveTransaction(
 export function handleWritten(event: WrittenEvent): void {
   const currency = event.params.currency.toHexString();
   const owner = event.params.owner.toHexString();
+  const sender = event.params.caller.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
 
   const transaction = saveTransaction(
@@ -77,24 +78,25 @@ export function handleWritten(event: WrittenEvent): void {
 
   let owningAccount = Account.load(owner);
   owningAccount = owningAccount == null ? saveNewAccount(owner) : owningAccount;
+  let senderAccount = Account.load(sender);
+  senderAccount = senderAccount == null ? saveNewAccount(sender) : senderAccount;
   let ERC20Token = ERC20.load(currency);
   ERC20Token = ERC20Token == null ? saveNewERC20(currency) : ERC20Token;
 
   const notaId = event.params.notaId.toString();
-  const nota = new Nota(notaId);  // nota.save();
+  const nota = new Nota(notaId);
 
   nota.erc20 = ERC20Token.id;
   nota.module = event.params.module.toHexString();
   nota.escrowed = event.params.escrowed;
-  nota.sender = "";
-  nota.receiver = "";
+  nota.sender = senderAccount.id;
+  nota.receiver = owningAccount.id;
   nota.owner = owningAccount.id;
   // nota.uri = "";
   nota.createdTransaction = transaction.id;
-  // nota.moduleData = "";
-
   // Attaching hook specific parameters
   // TODO
+  // nota.moduleData = "";
   nota.save();
 
   const escrow = new Escrow(transactionHexHash + "/" + notaId);
