@@ -1,4 +1,13 @@
 ############################################# Nota ###############################################
+type ERC20 @entity(immutable: true) {
+  id: ID!
+  isWhitelisted: Boolean!
+  # name: String
+	# symbol: String
+	# decimals: Int!
+  # totalSupply: BigInt!
+}
+
 type Transaction @entity {
   id: ID!
   timestamp: BigInt!
@@ -6,15 +15,6 @@ type Transaction @entity {
   transactionHash: String!
   events: [Event!]! @derivedFrom(field: "transaction")
 }
-type ERC20 @entity(immutable: true) {
-  id: ID!
-  isWhitelisted: Boolean!
-  # name: String
-	# symbol: String
-	# decimals: Int!
-  # totalSupply: 
-}
-
 type Account @entity {
   id: ID!
   notasSent: [Nota!]! @derivedFrom(field: "sender")
@@ -28,109 +28,113 @@ type Account @entity {
   approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
   approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
   approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
-	events: [Event!]! @derivedFrom(field: "emitter")
-  
-  # TODO: make module specific properties addable by hook? 
+	events: [Event!]! @derivedFrom(field: "caller")
+  # TODO: make module specific properties addable by module? 
   # notasInspected: [Nota!]! @derivedFrom(field: "inspector")
 }
 
 interface Event {
   id: ID!
-  emitter: Account!
+  caller: Account!
   transaction: Transaction!
-  timestamp: BigInt!
 }
 
 type Transfer implements Event @entity(immutable: true) {
   id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  nota: Nota!
+  caller: Account! # Can be approved/operator..?
   from: Account!
   to: Account!
+  nota: Nota!
+  transaction: Transaction!
 }
+
+# TODO should this be refactored into the Fund and Cash entities instead?
 type Escrow implements Event @entity(immutable: true) {  # Instances of escrowing and direct sending, not current balance/state
   id: ID!
-  emitter: Account!
-  transaction: Transaction!
-  timestamp: BigInt!
-  nota: Nota!
-  from: Account!
+  caller: Account!
+  to: Account!  # Only cash specific
   amount: BigInt!
-  instantAmount: BigInt!
+  instant: BigInt!  # Only fund specific
+  nota: Nota!
+  transaction: Transaction!
+  moduleFee: BigInt!
+  # fundData: Bytes  // This needs a cash field too
 }
 
 type Approval implements Event @entity {
   id: ID!
-  transaction: Transaction!
-  timestamp: BigInt!
-  nota: Nota!
+  caller: Account!
   owner: Account!
   approved: Account!
-  emitter: Account!
+  nota: Nota!
+  transaction: Transaction!
 }
 
 type Nota @entity {
   id: ID!
-  timestamp: BigInt!
-  createdAt: BigInt!
-  createdTransaction: Transaction
-  erc20: ERC20
-
-  module: Module
-  
-  uri: String
+  erc20: ERC20!
   escrowed: BigInt
-
+  module: Module!
+  sender: Account
+  receiver: Account
   owner: Account
+  # timestamp: BigInt!
+  uri: String
+  # imageURI: String, externalURI: String
+  # createdAt: BigInt!
+  createdTransaction: Transaction
+  # transaction: Transaction # Why?
+
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   escrows: [Escrow!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
-  sender: Account
-  receiver: Account
-  moduleData: ModuleData!
-  transaction: Transaction
-  inspector: Account
+  # moduleData: ModuleData!
+  # TODO put in moduleData inspector: Account
 }
-
 # TODO: figure out why unions aren't working
 # union NotaData =  BYOAData | SelfSignedNotaData
+
 type NotaRegistrar @entity {
   id: ID!  # Should this be the registrar's address?
   name: String!
-  writeFee: Int!
-  transferFee: Int!
-  fundFee: Int!
-  cashFee: Int!
+  # writeFee: Int!
+  # transferFee: Int!
+  # fundFee: Int!
+  # cashFee: Int!
   tokenWhitelist: [ERC20!]!
   moduleWhitelist: [Module!]! @derivedFrom(field: "registrar")
 }
 
-interface Hook {  # Allows new modules to inherit from Module interface
+type Module @entity {  # Allows new modules to inherit from Module interface
   id: ID!
   registrar: NotaRegistrar!
   isWhitelisted: Boolean!
-  notasManaged: [Nota!]! @derivedFrom(field: "hook")
-  numNotasManaged: BigInt!
+  notasManaged: [Nota!]! @derivedFrom(field: "module")
+  # transactions: [Transaction!]! @derivedFrom(field: "")
+  # numNotasManaged: BigInt!
 }
 
+# interface ModuleData {
+#     id: ID!
+#     # Add documentURI
+#     # Add imageURI
+# } 
 
 ##################################### Nota Based Entities ###############################################
-type Approval @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
-  approved: Bytes! # address
-  tokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
+# type Approval @entity(immutable: true) {
+#   id: Bytes!
+#   owner: Bytes! # address
+#   approved: Bytes! # address
+#   tokenId: BigInt! # uint256
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
 
 type ApprovalForAll @entity(immutable: true) {
   id: Bytes!
-  owner: Bytes! # address
-  operator: Bytes! # address
+  owner: Account! # address
+  operator: Account! # address
   approved: Boolean! # bool
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -165,15 +169,15 @@ type Funded @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type Transfer @entity(immutable: true) {
-  id: Bytes!
-  from: Bytes! # address
-  to: Bytes! # address
-  tokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
+# type Transfer @entity(immutable: true) {
+#   id: Bytes!
+#   from: Bytes! # address
+#   to: Bytes! # address
+#   tokenId: BigInt! # uint256
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
 
 type Transferred @entity(immutable: true) {
   id: Bytes!

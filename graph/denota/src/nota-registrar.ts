@@ -27,9 +27,9 @@ import {
   TokenWhitelisted,
   Transfer,
   Transferred,
-  Written, Transaction, ERC20, Account, Escrow, Nota
+  Written, Transaction, ERC20, Account, Escrow, Nota, Module
 } from "../generated/schema"
-// , NotaRegistrar, Module. Update these entities too
+// , NotaRegistrar, . Update these entities too
 // Don't currently have the number of Notas owned being tracted by account
 
 function saveNewAccount(account: string): Account {
@@ -83,21 +83,19 @@ export function handleWritten(event: WrittenEvent): void {
   const notaId = event.params.notaId.toString();
   const nota = new Nota(notaId);  // nota.save();
 
-  if (nota) {
-    nota.erc20 = ERC20Token.id;
-    nota.module = event.params.module.toHexString();
-    nota.escrowed = event.params.escrowed;
-    nota.sender = "";
-    nota.receiver = "";
-    nota.owner = owningAccount.id;
-    // nota.uri = "";
-    nota.createdTransaction = transaction.id;
-    // nota.moduleData = "";
+  nota.erc20 = ERC20Token.id;
+  nota.module = event.params.module.toHexString();
+  nota.escrowed = event.params.escrowed;
+  nota.sender = "";
+  nota.receiver = "";
+  nota.owner = owningAccount.id;
+  // nota.uri = "";
+  nota.createdTransaction = transaction.id;
+  // nota.moduleData = "";
 
-    // Attaching hook specific parameters
-    // TODO
-    nota.save();
-  }
+  // Attaching hook specific parameters
+  // TODO
+  nota.save();
 
   const escrow = new Escrow(transactionHexHash + "/" + notaId);
   escrow.nota = event.params.notaId.toString();
@@ -225,7 +223,7 @@ export function handleTransfer(event: TransferEvent): void {
   }
 
   const transfer = new Transfer(transactionHexHash + "/" + notaId);
-  transfer.emitter = fromAccount.id;
+  transfer.caller = fromAccount.id;
   transfer.nota = notaId;
   transfer.from = fromAccount.id;
   transfer.to = toAccount.id;
@@ -312,35 +310,18 @@ export function handleMetadataUpdate(event: MetadataUpdateEvent): void {
 }
 
 export function handleModuleWhitelisted(event: ModuleWhitelistedEvent): void {
-  let entity = new ModuleWhitelisted(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.user = event.params.user
-  entity.module = event.params.module
-  entity.isAccepted = event.params.isAccepted
-  entity.timestamp = event.params.timestamp
+  let module = new Module(event.params.module.toHexString());
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  module.registrar = event.address.toHexString();
+  module.isWhitelisted = event.params.isAccepted;
+  module.save()
 }
 
 export function handleTokenWhitelisted(event: TokenWhitelistedEvent): void {
-  let entity = new TokenWhitelisted(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.caller = event.params.caller
-  entity.token = event.params.token
-  entity.accepted = event.params.accepted
-  entity.timestamp = event.params.timestamp
+  let erc20 = new ERC20(event.params.token.toHexString());
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  erc20.isWhitelisted = event.params.accepted;
+  erc20.save()
 }
 
 export function handleContractURIUpdated(event: ContractURIUpdatedEvent): void {
