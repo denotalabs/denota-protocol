@@ -28,23 +28,23 @@ type Account @entity {
   approvalsApproved: [Approval!]! @derivedFrom(field: "approved")
   approvalsForAllOwner: [ApprovalForAll!]! @derivedFrom(field: "owner")
   approvalsForAllOperator: [ApprovalForAll!]! @derivedFrom(field: "operator")
-	events: [Event!]! @derivedFrom(field: "emitter")
+	events: [Event!]! @derivedFrom(field: "caller")
   # TODO: make module specific properties addable by module? 
   # notasInspected: [Nota!]! @derivedFrom(field: "inspector")
 }
 
 interface Event {
   id: ID!
-  emitter: Account!
+  caller: Account!
   transaction: Transaction!
 }
 
 type Transfer implements Event @entity(immutable: true) {
   id: ID!
+  caller: Account! # Can be approved/operator..?
   from: Account!
   to: Account!
   nota: Nota!
-  emitter: Account! # Can be approved/operator..?
   transaction: Transaction!
 }
 
@@ -63,18 +63,18 @@ type Escrow implements Event @entity(immutable: true) {  # Instances of escrowin
 
 type Approval implements Event @entity {
   id: ID!
+  caller: Account!
   owner: Account!
   approved: Account!
   nota: Nota!
-  emitter: Account!
   transaction: Transaction!
 }
 
 type Nota @entity {
   id: ID!
-  erc20: ERC20
+  erc20: ERC20!
   escrowed: BigInt
-  module: Module
+  module: Module!
   sender: Account
   receiver: Account
   owner: Account
@@ -88,7 +88,7 @@ type Nota @entity {
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   escrows: [Escrow!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
-  moduleData: ModuleData!
+  # moduleData: ModuleData!
   # TODO put in moduleData inspector: Account
 }
 # TODO: figure out why unions aren't working
@@ -105,19 +105,20 @@ type NotaRegistrar @entity {
   moduleWhitelist: [Module!]! @derivedFrom(field: "registrar")
 }
 
-interface Module {  # Allows new modules to inherit from Module interface
+type Module @entity {  # Allows new modules to inherit from Module interface
   id: ID!
-  registrar: NotaRegistrar!  # TODO is this necessary?
+  registrar: NotaRegistrar!
   isWhitelisted: Boolean!
   notasManaged: [Nota!]! @derivedFrom(field: "module")
-  numNotasManaged: BigInt!
+  # transactions: [Transaction!]! @derivedFrom(field: "")
+  # numNotasManaged: BigInt!
 }
 
-interface ModuleData {
-    id: ID!
-    # Add documentURI
-    # Add imageURI
-} 
+# interface ModuleData {
+#     id: ID!
+#     # Add documentURI
+#     # Add imageURI
+# } 
 
 ##################################### Nota Based Entities ###############################################
 # type Approval @entity(immutable: true) {

@@ -288,6 +288,19 @@ export class Transfer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get caller(): string {
+    let value = this.get("caller");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set caller(value: string) {
+    this.set("caller", Value.fromString(value));
+  }
+
   get from(): string {
     let value = this.get("from");
     if (!value || value.kind == ValueKind.NULL) {
@@ -325,19 +338,6 @@ export class Transfer extends Entity {
 
   set nota(value: string) {
     this.set("nota", Value.fromString(value));
-  }
-
-  get emitter(): string {
-    let value = this.get("emitter");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set emitter(value: string) {
-    this.set("emitter", Value.fromString(value));
   }
 
   get transaction(): string {
@@ -524,6 +524,19 @@ export class Approval extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get caller(): string {
+    let value = this.get("caller");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set caller(value: string) {
+    this.set("caller", Value.fromString(value));
+  }
+
   get owner(): string {
     let value = this.get("owner");
     if (!value || value.kind == ValueKind.NULL) {
@@ -561,19 +574,6 @@ export class Approval extends Entity {
 
   set nota(value: string) {
     this.set("nota", Value.fromString(value));
-  }
-
-  get emitter(): string {
-    let value = this.get("emitter");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set emitter(value: string) {
-    this.set("emitter", Value.fromString(value));
   }
 
   get transaction(): string {
@@ -629,21 +629,17 @@ export class Nota extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get erc20(): string | null {
+  get erc20(): string {
     let value = this.get("erc20");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set erc20(value: string | null) {
-    if (!value) {
-      this.unset("erc20");
-    } else {
-      this.set("erc20", Value.fromString(<string>value));
-    }
+  set erc20(value: string) {
+    this.set("erc20", Value.fromString(value));
   }
 
   get escrowed(): BigInt | null {
@@ -663,21 +659,17 @@ export class Nota extends Entity {
     }
   }
 
-  get module(): string | null {
+  get module(): string {
     let value = this.get("module");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set module(value: string | null) {
-    if (!value) {
-      this.unset("module");
-    } else {
-      this.set("module", Value.fromString(<string>value));
-    }
+  set module(value: string) {
+    this.set("module", Value.fromString(value));
   }
 
   get sender(): string | null {
@@ -776,19 +768,6 @@ export class Nota extends Entity {
   get approvals(): ApprovalLoader {
     return new ApprovalLoader("Nota", this.get("id")!.toString(), "approvals");
   }
-
-  get moduleData(): string {
-    let value = this.get("moduleData");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set moduleData(value: string) {
-    this.set("moduleData", Value.fromString(value));
-  }
 }
 
 export class NotaRegistrar extends Entity {
@@ -856,6 +835,84 @@ export class NotaRegistrar extends Entity {
 
   set tokenWhitelist(value: Array<string>) {
     this.set("tokenWhitelist", Value.fromStringArray(value));
+  }
+
+  get moduleWhitelist(): ModuleLoader {
+    return new ModuleLoader(
+      "NotaRegistrar",
+      this.get("id")!.toString(),
+      "moduleWhitelist",
+    );
+  }
+}
+
+export class Module extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Module entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Module must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("Module", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): Module | null {
+    return changetype<Module | null>(store.get_in_block("Module", id));
+  }
+
+  static load(id: string): Module | null {
+    return changetype<Module | null>(store.get("Module", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get registrar(): string {
+    let value = this.get("registrar");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set registrar(value: string) {
+    this.set("registrar", Value.fromString(value));
+  }
+
+  get isWhitelisted(): boolean {
+    let value = this.get("isWhitelisted");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set isWhitelisted(value: boolean) {
+    this.set("isWhitelisted", Value.fromBoolean(value));
+  }
+
+  get notasManaged(): NotaLoader {
+    return new NotaLoader("Module", this.get("id")!.toString(), "notasManaged");
   }
 }
 
@@ -2451,5 +2508,23 @@ export class EscrowLoader extends Entity {
   load(): Escrow[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<Escrow[]>(value);
+  }
+}
+
+export class ModuleLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Module[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Module[]>(value);
   }
 }
