@@ -34,7 +34,7 @@ interface INotaRegistrar {
         address indexed from,
         address indexed to,
         uint256 moduleFee,
-        bytes fundData,
+        bytes transferData,
         uint256 timestamp
     ); // TODO needs moduleBytes
     event Funded(

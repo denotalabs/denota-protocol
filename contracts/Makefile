@@ -7,6 +7,7 @@ testDai=0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b
 testEth=0xe37F99b03C7B4f4d71eE20e8eF3AC4E138D47F80
 realUSDC=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
 USDCe=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359
+WETH=0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619
 denotaContractURI='{"name":"Denota Protocol (beta)","description":"Welcome to the future of programmable crypto payments! Imagine a world where your payments arent just transactions, but smart, programmable assets. From trustless betting to reversibility and multi-step payments, Denotas Nota NFTs revolutionize how you send funds.With Denota, each payment is an NFT, capable of carrying custom rules and data for your unique needs. Theyre not just payments; theyre fully onchain, extensible, composable, and transferable payment agreements. Explore our simple yet powerful payment hooks to deploy your own and start generating revenue!","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ","external_link":"denota.xyz","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}'#
 DEPLOY_RPC_URL=${POLYGON_RPC_URL} #
 VERIFIER_URL=https://api.polygonscan.com/api/
