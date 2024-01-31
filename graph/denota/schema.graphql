@@ -58,7 +58,7 @@ type Escrow implements Event @entity(immutable: true) {  # Instances of escrowin
   nota: Nota!
   transaction: Transaction!
   moduleFee: BigInt!
-  # fundData: Bytes  // This needs a cash field too
+  # fundData: Bytes  // This needs a cash field too if collated
 }
 
 type Approval implements Event @entity {
@@ -72,9 +72,9 @@ type Approval implements Event @entity {
 
 type Nota @entity {
   id: ID!
-  erc20: ERC20!
+  erc20: ERC20
   escrowed: BigInt
-  module: Module!
+  module: Module
   sender: Account
   receiver: Account
   owner: Account
