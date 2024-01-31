@@ -100,6 +100,7 @@ export function handleWritten(event: WrittenEvent): void {
   const escrow = new Escrow(transactionHexHash + "/" + notaId);
   escrow.nota = event.params.notaId.toString();
   escrow.caller = event.transaction.from.toHexString();
+  escrow.to = event.address.toHexString();
   escrow.amount = event.params.escrowed;
   escrow.instant = event.params.instant;
   escrow.moduleFee = event.params.moduleFee
@@ -138,6 +139,7 @@ export function handleFunded(event: FundedEvent): void {
     const escrow = new Escrow(transactionHexHash + "/" + notaId);
     escrow.nota = notaId;
     escrow.caller = fromAccount.id;
+    escrow.to = event.address.toHexString();
     escrow.amount = amount;
     escrow.instant = event.params.instant;
     escrow.moduleFee = event.params.moduleFee
