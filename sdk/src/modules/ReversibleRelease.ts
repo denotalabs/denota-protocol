@@ -100,32 +100,21 @@ export async function fundReversibleRelease({
 }
 
 export interface CashReversibleReleaseyProps {
-  creditor: string;
-  debtor: string;
+  to: string;
   notaId: string;
   amount: BigNumber;
-  type: "reversal" | "release";
 }
 
 export async function cashReversibleRelease({
-  creditor,
-  debtor,
   notaId,
-  type,
   amount,
+  to,
 }: CashReversibleReleaseyProps) {
-  const to = type === "release" ? creditor : debtor;
-
-  const payload = ethers.utils.defaultAbiCoder.encode(
-    ["address"],
-    [state.blockchainState.account]
-  );
-
   const tx = await state.blockchainState.registrar?.cash(
     notaId,
     amount,
     to,
-    payload
+    ""
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;

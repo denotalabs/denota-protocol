@@ -9,7 +9,6 @@ import Events from "./abis/Events.sol/Events.json";
 import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
 import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
 import { uploadMetadata } from "./Metadata";
-import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
   DirectPayData,
   fundDirectPay,
@@ -215,7 +214,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | AxelarBridgeData;
+type ModuleData = DirectPayData | ReversibleReleaseData;
 
 interface RawMetadata {
   type: "raw";
@@ -264,8 +263,6 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
-    case "crosschain":
-      return writeCrossChainNota({ module, ipfsHash, imageUrl, ...props });
   }
 }
 
@@ -328,64 +325,16 @@ export async function fund({ notaId }: FundProps) {
 interface CashPaymentProps {
   notaId: string;
   type: "reversal" | "release";
+  amount: BigNumber;
+  to: string;
 }
 
-export async function cash({ notaId, type }: CashPaymentProps) {
-  const notaQuery = `
-    query cheqs($cheq: String ){
-      cheqs(where: { id: $cheq }, first: 1)  {
-        moduleData {
-          ... on DirectPayData {
-            __typename
-            amount
-            creditor {
-              id
-            }
-            debtor {
-              id
-            }
-            dueDate
-          }
-          ... on ReversiblePaymentData {
-            __typename
-            amount
-            creditor {
-              id
-            }
-            debtor {
-              id
-            }
-          }
-        }
-    }
-    }
-  `;
-
-  const client = new ApolloClient({
-    uri: getNotasQueryURL(),
-    cache: new InMemoryCache(),
+export async function cash({ notaId, type, amount, to }: CashPaymentProps) {
+  return await cashReversibleRelease({
+    notaId,
+    to,
+    amount,
   });
-
-  const data = await client.query({
-    query: gql(notaQuery),
-    variables: {
-      cheq: notaId,
-    },
-  });
-
-  const nota = data["data"]["cheqs"][0];
-  const amount = BigNumber.from(nota.moduleData.amount);
-
-  switch (nota.moduleData.__typename) {
-    case "ReversiblePaymentData":
-      return await cashReversibleRelease({
-        notaId,
-        creditor: nota.moduleData.creditor.id,
-        debtor: nota.moduleData.debtor.id,
-        amount,
-        type,
-      });
-  }
 }
 
 interface BatchPaymentItem {
