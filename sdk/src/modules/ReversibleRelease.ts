@@ -110,16 +110,11 @@ export async function cashReversibleRelease({
   amount,
   to,
 }: CashReversibleReleaseyProps) {
-  const payload = ethers.utils.defaultAbiCoder.encode(
-    ["address"],
-    [state.blockchainState.account]
-  );
-
   const tx = await state.blockchainState.registrar?.cash(
     notaId,
     amount,
     to,
-    payload
+    ""
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
