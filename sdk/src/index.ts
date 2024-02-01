@@ -9,7 +9,6 @@ import Events from "./abis/Events.sol/Events.json";
 import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
 import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
 import { uploadMetadata } from "./Metadata";
-import { AxelarBridgeData, writeCrossChainNota } from "./modules/AxelarBridge";
 import {
   DirectPayData,
   fundDirectPay,
@@ -215,7 +214,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | AxelarBridgeData;
+type ModuleData = DirectPayData | ReversibleReleaseData;
 
 interface RawMetadata {
   type: "raw";
@@ -264,8 +263,6 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
-    case "crosschain":
-      return writeCrossChainNota({ module, ipfsHash, imageUrl, ...props });
   }
 }
 
