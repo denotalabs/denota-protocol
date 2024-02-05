@@ -1,7 +1,8 @@
+# TODO look into ID vs Bytes type for id field
 ############################################# Nota ###############################################
-type ERC20 @entity(immutable: true) {
+type ERC20 @entity {
   id: ID!
-  isWhitelisted: Boolean!
+  isWhitelisted: Boolean
   # name: String
 	# symbol: String
 	# decimals: Int!
@@ -48,19 +49,6 @@ type Transfer implements Event @entity(immutable: true) {
   transaction: Transaction!
 }
 
-# TODO should this be refactored into the Fund and Cash entities instead?
-type Escrow implements Event @entity(immutable: true) {  # Instances of escrowing and direct sending, not current balance/state
-  id: ID!
-  caller: Account!
-  to: Account!  # Only cash specific
-  amount: BigInt!
-  instant: BigInt!  # Only fund specific
-  nota: Nota!
-  transaction: Transaction!
-  moduleFee: BigInt!
-  # fundData: Bytes  // This needs a cash field too if collated
-}
-
 type Approval implements Event @entity {
   id: ID!
   caller: Account!
@@ -83,7 +71,9 @@ type Nota @entity {
   createdTransaction: Transaction
 
   transfers: [Transfer!]! @derivedFrom(field: "nota")
-  escrows: [Escrow!]! @derivedFrom(field: "nota")
+  # escrows: [Escrow!]! @derivedFrom(field: "nota")
+  funds: [Funded!]! @derivedFrom(field: "nota")
+  cashes: [Cashed!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
   # moduleData: ModuleData!
   # TODO put in moduleData inspector: Account
@@ -94,10 +84,6 @@ type Nota @entity {
 type NotaRegistrar @entity {
   id: ID!  # Should this be the registrar's address?
   name: String!
-  # writeFee: Int!
-  # transferFee: Int!
-  # fundFee: Int!
-  # cashFee: Int!
   tokenWhitelist: [ERC20!]!
   moduleWhitelist: [Module!]! @derivedFrom(field: "registrar")
 }
@@ -105,7 +91,7 @@ type NotaRegistrar @entity {
 type Module @entity {  # Allows new modules to inherit from Module interface
   id: ID!
   registrar: NotaRegistrar!
-  isWhitelisted: Boolean!
+  isWhitelisted: Boolean
   notasManaged: [Nota!]! @derivedFrom(field: "module")
   # transactions: [Transaction!]! @derivedFrom(field: "")
   # numNotasManaged: BigInt!
@@ -133,37 +119,30 @@ type ApprovalForAll @entity(immutable: true) {
   owner: Account! # address
   operator: Account! # address
   approved: Boolean! # bool
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }
 
+# TODO use these entities instead of the escrow one
 type Cashed @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   casher: Bytes! # address
-  notaId: BigInt! # uint256
+  nota: Nota!
   to: Bytes! # address
   amount: BigInt! # uint256
   cashData: Bytes! # bytes
   moduleFee: BigInt! # uint256
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }
 
 type Funded @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   funder: Bytes! # address
-  notaId: BigInt! # uint256
+  nota: Nota!
   amount: BigInt! # uint256
   instant: BigInt! # uint256
   fundData: Bytes! # bytes
   moduleFee: BigInt! # uint256
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }
 
 # type Transfer @entity(immutable: true) {
@@ -177,35 +156,31 @@ type Funded @entity(immutable: true) {
 # }
 
 type Transferred @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   tokenId: BigInt! # uint256
   from: Bytes! # address
   to: Bytes! # address
   moduleFee: BigInt! # uint256
   fundData: Bytes! # bytes
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }
 
 type Written @entity(immutable: true) {
-  id: Bytes!
-  caller: Bytes! # address
-  notaId: BigInt! # uint256
-  owner: Bytes! # address
+  id: ID!
+  caller: Account!
+  nota: Nota!
+  owner: Account!
   instant: BigInt! # uint256
-  currency: Bytes! # address
+  currency: ERC20!
   escrowed: BigInt! # uint256
-  timestamp: BigInt! # uint256
   moduleFee: BigInt! # uint256
   module: Bytes! # address
   moduleData: Bytes! # bytes
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }
 
+# TODO refactor this into the Nota entity
+# Question: can you query tokenURI and update the results on the Nota?
 type BatchMetadataUpdate @entity(immutable: true) {
   id: Bytes!
   _fromTokenId: BigInt! # uint256
@@ -224,6 +199,7 @@ type MetadataUpdate @entity(immutable: true) {
 }
 
 ###################################### Registrar Entities #############################################
+# TODO need to refactor this into the registrar entity
 type ContractURIUpdated @entity(immutable: true) {
   id: Bytes!
 
@@ -255,10 +231,7 @@ type OwnershipTransferred @entity(immutable: true) {
 type TokenWhitelisted @entity(immutable: true) {
   id: Bytes!
   caller: Bytes! # address
-  token: Bytes! # address
+  token: ERC20!
   accepted: Boolean! # bool
-  timestamp: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transaction: Transaction!
 }

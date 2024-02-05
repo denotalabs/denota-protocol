@@ -27,7 +27,7 @@ import {
   TokenWhitelisted,
   Transfer,
   Transferred,
-  Written, Transaction, ERC20, Account, Escrow, Nota, Module
+  Written, Transaction, ERC20, Account, Nota, Module
 } from "../generated/schema"
 // , NotaRegistrar, . Update these entities too
 // Don't currently have the number of Notas owned being tracted by account
@@ -42,7 +42,6 @@ function saveNewERC20(erc20: string): ERC20 {
   newERC20.save();
   return newERC20;
 }
-
 
 function saveTransaction(
   transactionHexHash: string,
@@ -99,57 +98,57 @@ export function handleWritten(event: WrittenEvent): void {
   // nota.moduleData = "";
   nota.save();
 
-  const escrow = new Escrow(transactionHexHash + "/" + notaId);
-  escrow.nota = event.params.notaId.toString();
-  escrow.caller = event.transaction.from.toHexString();
-  escrow.to = event.address.toHexString();
-  escrow.amount = event.params.escrowed;
-  escrow.instant = event.params.instant;
-  escrow.moduleFee = event.params.moduleFee
-  escrow.transaction = transaction.id;
-  escrow.save();
+  const entity = new Written(transactionHexHash + "/" + notaId);
+  entity.caller = senderAccount.id;
+  entity.nota = notaId;
+  entity.owner = owningAccount.id;
+  entity.instant = event.params.instant;
+  entity.currency = ERC20Token.id;
+  entity.escrowed = event.params.escrowed;
+  entity.moduleFee = event.params.moduleFee;
+  entity.module = event.params.module;
+  entity.moduleData = event.params.moduleData;
+  entity.transaction = transaction.id;
 }
 
 export function handleFunded(event: FundedEvent): void {
-    // Load event params
-    let fromAccount = Account.load(event.params.funder.toHexString());
-    fromAccount =
-      fromAccount == null
-        ? saveNewAccount(event.params.funder.toHexString())
-        : fromAccount;
-    const amount = event.params.amount;
-    const transactionHexHash = event.transaction.hash.toHex();
-    const notaId = event.params.notaId.toString();
-    const transaction = saveTransaction(
-      transactionHexHash,
-      event.block.timestamp,
-      event.block.number
-    );
-  
-    // Load nota
-    let nota = Nota.load(notaId);
-    if (nota == null) {
-      // SHOULDN NEVER BE THE CASE
-      nota = new Nota(notaId);
-      nota.save();
-    }
-    
+  const transactionHexHash = event.transaction.hash.toHex();
+  let fromAccount = Account.load(event.params.funder.toHexString());
+  fromAccount =
+    fromAccount == null
+      ? saveNewAccount(event.params.funder.toHexString())
+      : fromAccount;
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
 
-    // Attaching hook specific parameters
-    // TODO
+  // Load nota
+  const notaId = event.params.notaId.toString();
+  let nota = Nota.load(notaId);
+  if (nota == null) {
+    // SHOULDN NEVER BE THE CASE
+    nota = new Nota(notaId);
+    nota.save();
+  }
 
-    const escrow = new Escrow(transactionHexHash + "/" + notaId);
-    escrow.nota = notaId;
-    escrow.caller = fromAccount.id;
-    escrow.to = event.address.toHexString();
-    escrow.amount = amount;
-    escrow.instant = event.params.instant;
-    escrow.moduleFee = event.params.moduleFee
-    escrow.transaction = transaction.id;
-    escrow.save();
+  // Attaching hook specific parameters to the Nota
+  // TODO
 
-    // nota.escrowed += amount;  // TODO does this need to be done or front end handles?
-    // nota.save()
+  let entity = new Funded(transactionHexHash + "/" + notaId);
+  entity.funder = event.params.funder;
+  entity.nota = nota.id;
+  entity.amount = event.params.amount;
+  entity.instant = event.params.instant;
+  entity.fundData = event.params.fundData;
+  entity.moduleFee = event.params.moduleFee;
+  entity.transaction = transaction.id;
+
+  entity.save()
+
+  // nota.escrowed = nota.escrowed + amount;  // TODO
+  // nota.save()
 }
 
 export function handleCashed(event: CashedEvent): void {
@@ -187,17 +186,17 @@ export function handleCashed(event: CashedEvent): void {
     //   }
     // }
   
-    const escrow = new Escrow(transactionHexHash + "/" + notaId);
-    escrow.caller = event.params.casher.toHexString();
-    escrow.to = toAccount.id;
-    escrow.amount = amount.neg();
-    // escrow.instant = instant;
-    escrow.nota = notaId;
-    // escrow.cashData = event.params.cashData
-    escrow.moduleFee = event.params.moduleFee
-    escrow.transaction = transaction.id;
-    escrow.save();  
-    // nota.escrowed -= amount;  // TODO does this need to be done or front end handles?
+    // // nota.escrowed -= amount;  // TODO does this need to be done or front end handles?
+    let entity = new Cashed(transactionHexHash + "/" + notaId)
+    entity.casher = event.params.casher
+    entity.nota = nota.id
+    entity.to = event.params.to
+    entity.amount = event.params.amount
+    entity.cashData = event.params.cashData
+    entity.moduleFee = event.params.moduleFee
+    entity.transaction = transaction.id
+  
+    entity.save()
 }
 
 // TODO: Transfer event being fired before write event is causing problems
@@ -235,23 +234,23 @@ export function handleTransfer(event: TransferEvent): void {
   transfer.save();
 }
 
-export function handleTransferred(event: TransferredEvent): void {
-  let entity = new Transferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.from = event.params.from
-  entity.to = event.params.to
-  entity.moduleFee = event.params.moduleFee
-  entity.fundData = event.params.fundData  // ABI has this currently but transferred isn't used
-  entity.timestamp = event.params.timestamp
+// export function handleTransferred(event: TransferredEvent): void {
+//   let entity = new Transferred(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   )
+//   entity.tokenId = event.params.tokenId
+//   entity.from = event.params.from
+//   entity.to = event.params.to
+//   entity.moduleFee = event.params.moduleFee
+//   entity.fundData = event.params.fundData  // ABI has this currently but transferred isn't used
+//   entity.timestamp = event.params.timestamp
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+//   entity.blockNumber = event.block.number
+//   entity.blockTimestamp = event.block.timestamp
+//   entity.transactionHash = event.transaction.hash
 
-  entity.save()
-}
+//   entity.save()
+// }
 
 // // TODO need to add these to the Nota entity instead
 // export function handleApproval(event: ApprovalEvent): void {
@@ -322,10 +321,12 @@ export function handleModuleWhitelisted(event: ModuleWhitelistedEvent): void {
 }
 
 export function handleTokenWhitelisted(event: TokenWhitelistedEvent): void {
-  let erc20 = new ERC20(event.params.token.toHexString());
+  let currency = event.params.token.toHexString();
+  let ERC20Token = ERC20.load(currency);
+  ERC20Token = ERC20Token == null ? saveNewERC20(currency) : ERC20Token;
 
-  erc20.isWhitelisted = event.params.accepted;
-  erc20.save()
+  ERC20Token.isWhitelisted = event.params.accepted;
+  ERC20Token.save()
 }
 
 export function handleContractURIUpdated(event: ContractURIUpdatedEvent): void {
