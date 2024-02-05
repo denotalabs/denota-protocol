@@ -29,7 +29,7 @@ import {
   Transferred,
   Written, Transaction, ERC20, Account, Nota, Module
 } from "../generated/schema"
-// , NotaRegistrar, . Update these entities too
+// TODO update NotaRegistrar entity
 // Don't currently have the number of Notas owned being tracted by account
 
 function saveNewAccount(account: string): Account {
@@ -42,7 +42,11 @@ function saveNewERC20(erc20: string): ERC20 {
   newERC20.save();
   return newERC20;
 }
-
+function saveNewModule(module: string): Module {
+  const newModule = new Module(module);
+  newModule.save();
+  return newModule;
+}
 function saveTransaction(
   transactionHexHash: string,
   // TODO figure out BigInt vs bigint literal eslint issue
@@ -67,6 +71,7 @@ export function handleWritten(event: WrittenEvent): void {
   const currency = event.params.currency.toHexString();
   const owner = event.params.owner.toHexString();
   const sender = event.params.caller.toHexString();
+  const module = event.params.module.toHexString();
   const transactionHexHash = event.transaction.hash.toHex();
 
   const transaction = saveTransaction(
@@ -81,32 +86,32 @@ export function handleWritten(event: WrittenEvent): void {
   senderAccount = senderAccount == null ? saveNewAccount(sender) : senderAccount;
   let ERC20Token = ERC20.load(currency);
   ERC20Token = ERC20Token == null ? saveNewERC20(currency) : ERC20Token;
+  let moduleEntity = Module.load(module);
+  moduleEntity = moduleEntity == null ? saveNewModule(module) : moduleEntity;
 
-  const notaId = event.params.notaId.toString();
-  const nota = new Nota(notaId);
+  const nota = new Nota(event.params.notaId.toString());
 
   nota.erc20 = ERC20Token.id;
-  nota.module = event.params.module.toHexString();
   nota.escrowed = event.params.escrowed;
+  nota.module = moduleEntity.id;
   nota.sender = senderAccount.id;
   nota.receiver = owningAccount.id;
   nota.owner = owningAccount.id;
-  // nota.uri = "";
+  // nota.imageUri = "";
+  // nota.externalUri = "";
   nota.createdTransaction = transaction.id;
-  // Attaching hook specific parameters
-  // TODO
-  // nota.moduleData = "";
+  // nota.moduleData = ""; // TODO attach hook specific parameters
   nota.save();
 
-  const entity = new Written(transactionHexHash + "/" + notaId);
+  const entity = new Written(transactionHexHash + "/" + nota.id);
   entity.caller = senderAccount.id;
-  entity.nota = notaId;
+  entity.nota = nota.id;
   entity.owner = owningAccount.id;
   entity.instant = event.params.instant;
   entity.currency = ERC20Token.id;
   entity.escrowed = event.params.escrowed;
   entity.moduleFee = event.params.moduleFee;
-  entity.module = event.params.module;
+  entity.module = moduleEntity.id;
   entity.moduleData = event.params.moduleData;
   entity.transaction = transaction.id;
 }
