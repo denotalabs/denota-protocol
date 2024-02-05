@@ -103,6 +103,10 @@ abstract contract CashCondition is ModuleBase {
     // Allow this contract to call to another contract's view function to allow owner to cash
 }
 
+abstract contract LimitedTimeCash is ModuleBase {
+    // Allow this contract to call to another contract's view function to allow owner to cash
+}
+
 // contract AttestationStation {
 //     mapping(address => mapping(address => mapping(bytes32 => bytes)))
 //         public attestations;

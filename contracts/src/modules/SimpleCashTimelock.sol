@@ -16,7 +16,7 @@ contract SimpleCashTimelock is ModuleBase {
     mapping(uint256 notaId => Payment payment) public payments;
 
     error Disallowed();
-    event PaymentCreated(uint256 notaId, uint256 returnDate, string external_url, string imageURI);
+    event PaymentCreated(uint256 indexed notaId, address indexed sender, uint256 returnDate, string external_url, string imageURI);
     constructor(address registrar) ModuleBase(registrar) {
     }
 
@@ -40,7 +40,7 @@ contract SimpleCashTimelock is ModuleBase {
         
         payments[notaId] = Payment(returnDate, caller, external_url, imageURI);
 
-        emit PaymentCreated(notaId, returnDate, external_url, imageURI);
+        emit PaymentCreated(notaId, caller, returnDate, external_url, imageURI);
 
         return 0;
     }
@@ -95,11 +95,11 @@ contract SimpleCashTimelock is ModuleBase {
                     abi.encodePacked(
                         ',"image":"', 
                         payment.imageURI, 
-                        '","name":"Simple Cash Nota #',
+                        '","name":"Limited Time Nota #',
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
                         payment.external_url,
-                        '","description":"Enables two-step payments much like a cheque that needs to be cashed by the owner. Documents and an image can be attached as well."'
+                        '","description":"Allows the owner to claim the collateral within a date range. Otherwise the sender can claim it back."'
                     )
                 )
             );
