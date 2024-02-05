@@ -20,11 +20,6 @@ import {
   ReversibleReleaseData,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
-import {
-  cashSimpleCash,
-  SimpleCashData,
-  writeSimpleCash,
-} from "./modules/SimpleCash";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
@@ -37,7 +32,6 @@ interface ContractMapping {
   registrar: string;
   reversibleRelease: string;
   directPay: string;
-  simpleCash: string;
   dai: string;
   weth: string;
   milestones: string;
@@ -79,7 +73,6 @@ export const state: State = {
       registrar: "",
       directPay: "",
       reversibleRelease: "",
-      simpleCash: "",
       dai: "",
       weth: "",
       milestones: "",
@@ -221,8 +214,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash";
+type ModuleData = DirectPayData | ReversibleReleaseData;
 
 interface RawMetadata {
   type: "raw";
@@ -271,8 +263,6 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
-    case "simpleCash":
-      return await writeSimpleCash({ module, ...props });
   }
 }
 
@@ -337,26 +327,14 @@ interface CashPaymentProps {
   type: "reversal" | "release";
   amount: BigNumber;
   to: string;
-  module: NotaModule;
 }
 
-export async function cash({
-  notaId,
-  type,
-  amount,
-  to,
-  module,
-}: CashPaymentProps) {
-  switch (module) {
-    case "reversibleRelease":
-      return await cashReversibleRelease({
-        notaId,
-        to,
-        amount,
-      });
-    case "simpleCash":
-      return await cashSimpleCash({ notaId, to, amount });
-  }
+export async function cash({ notaId, type, amount, to }: CashPaymentProps) {
+  return await cashReversibleRelease({
+    notaId,
+    to,
+    amount,
+  });
 }
 
 interface BatchPaymentItem {

@@ -32,6 +32,7 @@ export async function writeReversibleRelease({
   const { payee, payer, inspector } = module;
   const notaInspector = inspector ? inspector : payer;
 
+  // TODO: handle other deciamls correctly
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
@@ -45,7 +46,10 @@ export async function writeReversibleRelease({
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
-  const msgValue = BigNumber.from(0);
+  const msgValue =
+    tokenAddress === "0x0000000000000000000000000000000000000000"
+      ? amountWei
+      : BigNumber.from(0);
 
   const tx = await state.blockchainState.registrar?.write(
     tokenAddress, //currency
