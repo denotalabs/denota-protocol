@@ -90,10 +90,10 @@ type NotaRegistrar @entity {
 
 type Module @entity {  # Allows new modules to inherit from Module interface
   id: ID!
-  registrar: NotaRegistrar!
+  registrar: NotaRegistrar # NOTE: since bytecode whitelisting there will be modules where write will work but don't have the registrar address available in the write event but are valid
   isWhitelisted: Boolean
   notasManaged: [Nota!]! @derivedFrom(field: "module")
-  # transactions: [Transaction!]! @derivedFrom(field: "")
+  notas: [Nota!]! @derivedFrom(field: "module")
   # numNotasManaged: BigInt!
 }
 

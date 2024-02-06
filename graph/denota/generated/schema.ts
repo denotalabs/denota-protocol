@@ -498,55 +498,43 @@ export class Nota extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get erc20(): string | null {
-    let value = this.get("erc20");
+  get currency(): string {
+    let value = this.get("currency");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set erc20(value: string | null) {
-    if (!value) {
-      this.unset("erc20");
-    } else {
-      this.set("erc20", Value.fromString(<string>value));
-    }
+  set currency(value: string) {
+    this.set("currency", Value.fromString(value));
   }
 
-  get escrowed(): BigInt | null {
+  get escrowed(): BigInt {
     let value = this.get("escrowed");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBigInt();
     }
   }
 
-  set escrowed(value: BigInt | null) {
-    if (!value) {
-      this.unset("escrowed");
-    } else {
-      this.set("escrowed", Value.fromBigInt(<BigInt>value));
-    }
+  set escrowed(value: BigInt) {
+    this.set("escrowed", Value.fromBigInt(value));
   }
 
-  get module(): string | null {
+  get module(): string {
     let value = this.get("module");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toString();
     }
   }
 
-  set module(value: string | null) {
-    if (!value) {
-      this.unset("module");
-    } else {
-      this.set("module", Value.fromString(<string>value));
-    }
+  set module(value: string) {
+    this.set("module", Value.fromString(value));
   }
 
   get sender(): string | null {
@@ -1405,17 +1393,17 @@ export class Written extends Entity {
     this.set("moduleFee", Value.fromBigInt(value));
   }
 
-  get module(): Bytes {
+  get module(): string {
     let value = this.get("module");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBytes();
+      return value.toString();
     }
   }
 
-  set module(value: Bytes) {
-    this.set("module", Value.fromBytes(value));
+  set module(value: string) {
+    this.set("module", Value.fromString(value));
   }
 
   get moduleData(): Bytes {
