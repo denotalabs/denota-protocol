@@ -90,8 +90,7 @@ export function handleWritten(event: WrittenEvent): void {
   moduleEntity = moduleEntity == null ? saveNewModule(module) : moduleEntity;
 
   const nota = new Nota(event.params.notaId.toString());
-
-  nota.erc20 = ERC20Token.id;
+  nota.currency = ERC20Token.id;
   nota.escrowed = event.params.escrowed;
   nota.module = moduleEntity.id;
   nota.sender = senderAccount.id;
@@ -152,8 +151,8 @@ export function handleFunded(event: FundedEvent): void {
 
   entity.save()
 
-  // nota.escrowed = nota.escrowed + amount;  // TODO
-  // nota.save()
+  nota.escrowed = nota.escrowed.plus(event.params.amount);
+  nota.save()
 }
 
 export function handleCashed(event: CashedEvent): void {
@@ -191,7 +190,8 @@ export function handleCashed(event: CashedEvent): void {
     //   }
     // }
   
-    // // nota.escrowed -= amount;  // TODO does this need to be done or front end handles?
+    nota.escrowed = nota.escrowed.minus(amount);
+    nota.save();
     let entity = new Cashed(transactionHexHash + "/" + notaId)
     entity.casher = event.params.casher
     entity.nota = nota.id
@@ -204,40 +204,6 @@ export function handleCashed(event: CashedEvent): void {
     entity.save()
 }
 
-// TODO: Transfer event being fired before write event is causing problems
-export function handleTransfer(event: TransferEvent): void {
-  // Load event params
-  const from = event.params.from.toHexString();
-  const to = event.params.to.toHexString();
-  const notaId = event.params.tokenId.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
-  const transaction = saveTransaction(
-    transactionHexHash,
-    event.block.timestamp,
-    event.block.number
-  );
-
-  // Load from and to Accounts
-  let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
-  let toAccount = Account.load(to);
-  fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
-  toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-  // Load Nota
-  let nota = Nota.load(notaId); // Write event fires before Transfer event: nota should exist
-  if (nota == null) {
-    // SHOULDN'T BE THE CASE
-    nota = new Nota(notaId);
-    nota.save();
-  }
-
-  const transfer = new Transfer(transactionHexHash + "/" + notaId);
-  transfer.caller = fromAccount.id;
-  transfer.nota = notaId;
-  transfer.from = fromAccount.id;
-  transfer.to = toAccount.id;
-  transfer.transaction = transactionHexHash;
-  transfer.save();
-}
 
 // export function handleTransferred(event: TransferredEvent): void {
 //   let entity = new Transferred(
@@ -287,6 +253,41 @@ export function handleTransfer(event: TransferEvent): void {
 
 //   entity.save()
 // }
+
+// TODO: Transfer event being fired before write event is causing problems
+export function handleTransfer(event: TransferEvent): void {
+  // Load event params
+  const from = event.params.from.toHexString();
+  const to = event.params.to.toHexString();
+  const notaId = event.params.tokenId.toHexString();
+  const transactionHexHash = event.transaction.hash.toHex();
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
+
+  // Load from and to Accounts
+  let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
+  let toAccount = Account.load(to);
+  fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
+  toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
+  // Load Nota
+  let nota = Nota.load(notaId); // Write event fires before Transfer event: nota should exist
+  if (nota == null) {
+    // SHOULDN'T BE THE CASE
+    nota = new Nota(notaId);
+    nota.save();
+  }
+
+  const transfer = new Transfer(transactionHexHash + "/" + notaId);
+  transfer.caller = fromAccount.id;
+  transfer.nota = notaId;
+  transfer.from = fromAccount.id;
+  transfer.to = toAccount.id;
+  transfer.transaction = transactionHexHash;
+  transfer.save();
+}
 
 export function handleBatchMetadataUpdate(
   event: BatchMetadataUpdateEvent

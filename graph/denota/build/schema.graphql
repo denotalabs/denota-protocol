@@ -16,6 +16,7 @@ type Transaction @entity {
   transactionHash: String!
   events: [Event!]! @derivedFrom(field: "transaction")
 }
+
 type Account @entity {
   id: ID!
   notasSent: [Nota!]! @derivedFrom(field: "sender")
@@ -60,18 +61,17 @@ type Approval implements Event @entity {
 
 type Nota @entity {
   id: ID!
-  erc20: ERC20
+  currency: ERC20
   escrowed: BigInt
   module: Module
   sender: Account
   receiver: Account
   owner: Account
   uri: String
-  # TODO add imageURI: String AND externalURI: String
+  # imageURI: String AND externalURI: String
   createdTransaction: Transaction
 
   transfers: [Transfer!]! @derivedFrom(field: "nota")
-  # escrows: [Escrow!]! @derivedFrom(field: "nota")
   funds: [Funded!]! @derivedFrom(field: "nota")
   cashes: [Cashed!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
@@ -90,10 +90,10 @@ type NotaRegistrar @entity {
 
 type Module @entity {  # Allows new modules to inherit from Module interface
   id: ID!
-  registrar: NotaRegistrar!
+  registrar: NotaRegistrar # NOTE: since bytecode whitelisting there will be modules where write will work but don't have the registrar address available in the write event but are valid
   isWhitelisted: Boolean
   notasManaged: [Nota!]! @derivedFrom(field: "module")
-  # transactions: [Transaction!]! @derivedFrom(field: "")
+  notas: [Nota!]! @derivedFrom(field: "module")
   # numNotasManaged: BigInt!
 }
 
@@ -174,7 +174,7 @@ type Written @entity(immutable: true) {
   currency: ERC20!
   escrowed: BigInt! # uint256
   moduleFee: BigInt! # uint256
-  module: Bytes! # address
+  module: Module!
   moduleData: Bytes! # bytes
   transaction: Transaction!
 }
