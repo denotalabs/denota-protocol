@@ -71,6 +71,7 @@ type Nota @entity {
   # imageURI: String AND externalURI: String
   createdTransaction: Transaction
 
+  written: Written! @derivedFrom(field: "nota")
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   funds: [Funded!]! @derivedFrom(field: "nota")
   cashes: [Cashed!]! @derivedFrom(field: "nota")
