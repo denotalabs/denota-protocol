@@ -3,3 +3,4 @@
 */node_modules
 sdk/dist
 graph/graph-node/data/
+graph/denota/node_modules

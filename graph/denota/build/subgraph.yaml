@@ -1,0 +1,67 @@
+specVersion: 0.0.8
+indexerHints:
+  prune: auto
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NotaRegistrar
+    network: matic
+    source:
+      address: "0x000000003C9C54B98C17F5A8B05ADca5B3B041eD"
+      abi: NotaRegistrar
+      startBlock: 52095685
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - BatchMetadataUpdate
+        - Cashed
+        - ContractURIUpdated
+        - Funded
+        - MetadataUpdate
+        - ModuleWhitelisted
+        - OwnershipTransferred
+        - TokenWhitelisted
+        - Transfer
+        - Transferred
+        - Written
+        - Transaction
+        - ERC20
+        - Account
+        - Event
+        - Escrow
+        - Nota
+        - NotaRegistrar
+        - Module
+      abis:
+        - name: NotaRegistrar
+          file: NotaRegistrar/abis/NotaRegistrar.json
+      eventHandlers:
+        - event: BatchMetadataUpdate(uint256,uint256)
+          handler: handleBatchMetadataUpdate
+        - event: Cashed(indexed address,indexed uint256,address,uint256,indexed
+            bytes,uint256,uint256)
+          handler: handleCashed
+        - event: ContractURIUpdated()
+          handler: handleContractURIUpdated
+        - event: Funded(indexed address,indexed uint256,uint256,uint256,indexed
+            bytes,uint256,uint256)
+          handler: handleFunded
+        - event: MetadataUpdate(uint256)
+          handler: handleMetadataUpdate
+        - event: ModuleWhitelisted(indexed address,indexed address,bool,uint256)
+          handler: handleModuleWhitelisted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokenWhitelisted(address,indexed address,indexed bool,uint256)
+          handler: handleTokenWhitelisted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Written(indexed address,uint256,indexed address,uint256,indexed
+            address,uint256,uint256,uint256,address,bytes)
+          handler: handleWritten
+      file: NotaRegistrar/NotaRegistrar.wasm
