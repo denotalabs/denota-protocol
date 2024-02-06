@@ -630,6 +630,10 @@ export class Nota extends Entity {
     }
   }
 
+  get written(): WrittenLoader {
+    return new WrittenLoader("Nota", this.get("id")!.toString(), "written");
+  }
+
   get transfers(): TransferLoader {
     return new TransferLoader("Nota", this.get("id")!.toString(), "transfers");
   }
@@ -2155,6 +2159,24 @@ export class ApprovalForAllLoader extends Entity {
   load(): ApprovalForAll[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<ApprovalForAll[]>(value);
+  }
+}
+
+export class WrittenLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Written[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Written[]>(value);
   }
 }
 

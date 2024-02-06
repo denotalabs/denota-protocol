@@ -52,7 +52,7 @@ type Transfer implements Event @entity(immutable: true) {
 
 type Approval implements Event @entity(immutable: true) {
   id: ID!
-  caller: Account! # Redundant
+  caller: Account! # Redundant but kept for compatibility
   owner: Account!
   approved: Account!
   nota: Nota!
@@ -71,6 +71,7 @@ type Nota @entity {
   # imageURI: String AND externalURI: String
   createdTransaction: Transaction
 
+  written: Written! @derivedFrom(field: "nota")
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   funds: [Funded!]! @derivedFrom(field: "nota")
   cashes: [Cashed!]! @derivedFrom(field: "nota")
@@ -106,7 +107,7 @@ type Module @entity {  # Allows new modules to inherit from Module interface
 ##################################### Nota Based Entities ###############################################
 type ApprovalForAll implements Event @entity(immutable: true) {
   id: ID!
-  caller: Account! # address
+  caller: Account! # Redundant but kept for compatibility
   owner: Account! # address
   operator: Account! # address
   approved: Boolean! # bool
