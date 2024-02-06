@@ -50,9 +50,9 @@ type Transfer implements Event @entity(immutable: true) {
   transaction: Transaction!
 }
 
-type Approval implements Event @entity {
+type Approval implements Event @entity(immutable: true) {
   id: ID!
-  caller: Account!
+  caller: Account! # Redundant but kept for compatibility
   owner: Account!
   approved: Account!
   nota: Nota!
@@ -62,7 +62,7 @@ type Approval implements Event @entity {
 type Nota @entity {
   id: ID!
   currency: ERC20
-  escrowed: BigInt
+  escrowed: BigInt!
   module: Module
   sender: Account
   receiver: Account
@@ -104,18 +104,9 @@ type Module @entity {  # Allows new modules to inherit from Module interface
 # } 
 
 ##################################### Nota Based Entities ###############################################
-# type Approval @entity(immutable: true) {
-#   id: Bytes!
-#   owner: Bytes! # address
-#   approved: Bytes! # address
-#   tokenId: BigInt! # uint256
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
-
-type ApprovalForAll @entity(immutable: true) {
-  id: Bytes!
+type ApprovalForAll implements Event @entity(immutable: true) {
+  id: ID!
+  caller: Account! # Redundant but kept for compatibility
   owner: Account! # address
   operator: Account! # address
   approved: Boolean! # bool
@@ -123,9 +114,9 @@ type ApprovalForAll @entity(immutable: true) {
 }
 
 # TODO use these entities instead of the escrow one
-type Cashed @entity(immutable: true) {
+type Cashed implements Event @entity(immutable: true) {
   id: ID!
-  casher: Bytes! # address
+  caller: Account! # address
   nota: Nota!
   to: Bytes! # address
   amount: BigInt! # uint256
@@ -134,9 +125,9 @@ type Cashed @entity(immutable: true) {
   transaction: Transaction!
 }
 
-type Funded @entity(immutable: true) {
+type Funded implements Event @entity(immutable: true) {
   id: ID!
-  funder: Bytes! # address
+  caller: Account! # address
   nota: Nota!
   amount: BigInt! # uint256
   instant: BigInt! # uint256
@@ -145,18 +136,9 @@ type Funded @entity(immutable: true) {
   transaction: Transaction!
 }
 
-# type Transfer @entity(immutable: true) {
-#   id: Bytes!
-#   from: Bytes! # address
-#   to: Bytes! # address
-#   tokenId: BigInt! # uint256
-#   blockNumber: BigInt!
-#   blockTimestamp: BigInt!
-#   transactionHash: Bytes!
-# }
-
 type Transferred @entity(immutable: true) {
   id: ID!
+  # caller: Account!
   tokenId: BigInt! # uint256
   from: Bytes! # address
   to: Bytes! # address
@@ -165,7 +147,7 @@ type Transferred @entity(immutable: true) {
   transaction: Transaction!
 }
 
-type Written @entity(immutable: true) {
+type Written implements Event @entity(immutable: true) {
   id: ID!
   caller: Account!
   nota: Nota!
@@ -182,7 +164,7 @@ type Written @entity(immutable: true) {
 # TODO refactor this into the Nota entity
 # Question: can you query tokenURI and update the results on the Nota?
 type BatchMetadataUpdate @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   _fromTokenId: BigInt! # uint256
   _toTokenId: BigInt! # uint256
   blockNumber: BigInt!
@@ -191,7 +173,7 @@ type BatchMetadataUpdate @entity(immutable: true) {
 }
 
 type MetadataUpdate @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   _tokenId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -201,7 +183,7 @@ type MetadataUpdate @entity(immutable: true) {
 ###################################### Registrar Entities #############################################
 # TODO need to refactor this into the registrar entity
 type ContractURIUpdated @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -209,7 +191,7 @@ type ContractURIUpdated @entity(immutable: true) {
 }
 
 type ModuleWhitelisted @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   user: Bytes! # address
   module: Bytes! # address
   isAccepted: Boolean! # bool
@@ -220,7 +202,7 @@ type ModuleWhitelisted @entity(immutable: true) {
 }
 
 type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   previousOwner: Bytes! # address
   newOwner: Bytes! # address
   blockNumber: BigInt!
@@ -229,7 +211,7 @@ type OwnershipTransferred @entity(immutable: true) {
 }
 
 type TokenWhitelisted @entity(immutable: true) {
-  id: Bytes!
+  id: ID!
   caller: Bytes! # address
   token: ERC20!
   accepted: Boolean! # bool

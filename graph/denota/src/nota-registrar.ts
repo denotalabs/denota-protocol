@@ -72,8 +72,7 @@ export function handleWritten(event: WrittenEvent): void {
   const owner = event.params.owner.toHexString();
   const sender = event.params.caller.toHexString();
   const module = event.params.module.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
-
+  const transactionHexHash = event.transaction.hash.toHexString();
   const transaction = saveTransaction(
     transactionHexHash,
     event.block.timestamp,
@@ -102,7 +101,7 @@ export function handleWritten(event: WrittenEvent): void {
   // nota.moduleData = ""; // TODO attach hook specific parameters
   nota.save();
 
-  const entity = new Written(transactionHexHash + "/" + nota.id);
+  const entity = new Written(transactionHexHash + "/" + nota.id); // + "/" + event.logIndex.toI32() should be added in case of single tx using same nota
   entity.caller = senderAccount.id;
   entity.nota = nota.id;
   entity.owner = owningAccount.id;
@@ -113,10 +112,11 @@ export function handleWritten(event: WrittenEvent): void {
   entity.module = moduleEntity.id;
   entity.moduleData = event.params.moduleData;
   entity.transaction = transaction.id;
+  entity.save();
 }
 
 export function handleFunded(event: FundedEvent): void {
-  const transactionHexHash = event.transaction.hash.toHex();
+  const transactionHexHash = event.transaction.hash.toHexString();
   let fromAccount = Account.load(event.params.funder.toHexString());
   fromAccount =
     fromAccount == null
@@ -139,20 +139,24 @@ export function handleFunded(event: FundedEvent): void {
 
   // Attaching hook specific parameters to the Nota
   // TODO
+  let callerAccount = Account.load(event.params.funder.toHexString());
+    callerAccount =
+      callerAccount == null
+        ? saveNewAccount(event.params.funder.toHexString())
+        : callerAccount;
 
   let entity = new Funded(transactionHexHash + "/" + notaId);
-  entity.funder = event.params.funder;
+  entity.caller = callerAccount.id;
   entity.nota = nota.id;
   entity.amount = event.params.amount;
   entity.instant = event.params.instant;
   entity.fundData = event.params.fundData;
   entity.moduleFee = event.params.moduleFee;
   entity.transaction = transaction.id;
-
-  entity.save()
+  entity.save();
 
   nota.escrowed = nota.escrowed.plus(event.params.amount);
-  nota.save()
+  nota.save();
 }
 
 export function handleCashed(event: CashedEvent): void {
@@ -161,8 +165,8 @@ export function handleCashed(event: CashedEvent): void {
       toAccount == null
         ? saveNewAccount(event.params.to.toHexString())
         : toAccount;
-    const amount = event.params.amount;
-    const transactionHexHash = event.transaction.hash.toHex();
+    
+    const transactionHexHash = event.transaction.hash.toHexString();
     const transaction = saveTransaction(
       transactionHexHash,
       event.block.timestamp,
@@ -173,37 +177,30 @@ export function handleCashed(event: CashedEvent): void {
     // Load nota
     let nota = Nota.load(notaId);
     if (nota == null) {
-      // SHOULDN'T BE THE CASE
       nota = new Nota(notaId);
       nota.save();
     }
   
-    // if (nota.moduleData.endsWith("/escrow")) {
-    //   const reversiblePayData = ReversiblePaymentData.load(nota.moduleData);
-    //   if (reversiblePayData) {
-    //     if (nota.owner == toAccount.id) {
-    //       reversiblePayData.status = "RELEASED";
-    //     } else {
-    //       reversiblePayData.status = "VOIDED";
-    //     }
-    //     reversiblePayData.save();
-    //   }
-    // }
-  
-    nota.escrowed = nota.escrowed.minus(amount);
+    nota.escrowed = nota.escrowed.minus(event.params.amount);
     nota.save();
-    let entity = new Cashed(transactionHexHash + "/" + notaId)
-    entity.casher = event.params.casher
-    entity.nota = nota.id
-    entity.to = event.params.to
-    entity.amount = event.params.amount
-    entity.cashData = event.params.cashData
-    entity.moduleFee = event.params.moduleFee
-    entity.transaction = transaction.id
-  
-    entity.save()
-}
 
+    let callerAccount = Account.load(event.params.casher.toHexString());
+    callerAccount =
+      callerAccount == null
+        ? saveNewAccount(event.params.casher.toHexString())
+        : callerAccount;
+
+    let entity = new Cashed(transactionHexHash + "/" + notaId)
+    entity.caller = callerAccount.id;
+    entity.nota = nota.id;
+    entity.to = event.params.to;
+    entity.amount = event.params.amount;
+    entity.cashData = event.params.cashData;
+    entity.moduleFee = event.params.moduleFee;
+    entity.transaction = transaction.id;
+  
+    entity.save();
+}
 
 // export function handleTransferred(event: TransferredEvent): void {
 //   let entity = new Transferred(
@@ -223,36 +220,48 @@ export function handleCashed(event: CashedEvent): void {
 //   entity.save()
 // }
 
-// // TODO need to add these to the Nota entity instead
-// export function handleApproval(event: ApprovalEvent): void {
-//   let entity = new Approval(
-//     event.transaction.hash.concatI32(event.logIndex.toI32())
-//   )
-//   entity.owner = event.params.owner
-//   entity.approved = event.params.approved
-//   entity.tokenId = event.params.tokenId
+export function handleApproval(event: ApprovalEvent): void {
+  const transactionHexHash = event.transaction.hash.toHexString();
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
 
-//   entity.blockNumber = event.block.number
-//   entity.blockTimestamp = event.block.timestamp
-//   entity.transactionHash = event.transaction.hash
+  // Load nota
+  const notaId = event.params.tokenId.toString();
+  let nota = Nota.load(notaId);
+  if (nota == null) {
+    nota = new Nota(notaId);
+    nota.save();
+  }
+  
+  let entity = new Approval(transactionHexHash + "/" + notaId);
+  entity.caller = event.params.owner.toHexString();
+  entity.owner = event.params.owner.toHexString();
+  entity.approved = event.params.approved.toHexString();
+  entity.nota = nota.id;
+  entity.transaction = transaction.id;
+  entity.save();
+}
 
-//   entity.save()
-// }
+export function handleApprovalForAll(event: ApprovalForAllEvent): void {
+  const transactionHexHash = event.transaction.hash.toHexString();
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
 
-// export function handleApprovalForAll(event: ApprovalForAllEvent): void {
-//   let entity = new ApprovalForAll(
-//     event.transaction.hash.concatI32(event.logIndex.toI32())
-//   )
-//   entity.owner = event.params.owner
-//   entity.operator = event.params.operator
-//   entity.approved = event.params.approved
-
-//   entity.blockNumber = event.block.number
-//   entity.blockTimestamp = event.block.timestamp
-//   entity.transactionHash = event.transaction.hash
-
-//   entity.save()
-// }
+  let entity = new ApprovalForAll(transactionHexHash + "/" + event.params.owner.toHexString() + "/" + event.params.operator.toHexString()
+  );
+  entity.caller = event.params.owner.toHexString();
+  entity.owner = event.params.owner.toHexString();
+  entity.operator = event.params.operator.toHexString();
+  entity.approved = event.params.approved;
+  entity.transaction = transaction.id;
+  entity.save()
+}
 
 // TODO: Transfer event being fired before write event is causing problems
 export function handleTransfer(event: TransferEvent): void {
@@ -260,7 +269,7 @@ export function handleTransfer(event: TransferEvent): void {
   const from = event.params.from.toHexString();
   const to = event.params.to.toHexString();
   const notaId = event.params.tokenId.toHexString();
-  const transactionHexHash = event.transaction.hash.toHex();
+  const transactionHexHash = event.transaction.hash.toHexString();
   const transaction = saveTransaction(
     transactionHexHash,
     event.block.timestamp,
@@ -272,11 +281,11 @@ export function handleTransfer(event: TransferEvent): void {
   let toAccount = Account.load(to);
   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
-  // Load Nota
-  let nota = Nota.load(notaId); // Write event fires before Transfer event: nota should exist
+  
+  let nota = Nota.load(notaId); // Transfer event fires before Written event
   if (nota == null) {
-    // SHOULDN'T BE THE CASE
     nota = new Nota(notaId);
+    nota.escrowed = new BigInt(0);
     nota.save();
   }
 
@@ -285,7 +294,7 @@ export function handleTransfer(event: TransferEvent): void {
   transfer.nota = notaId;
   transfer.from = fromAccount.id;
   transfer.to = toAccount.id;
-  transfer.transaction = transactionHexHash;
+  transfer.transaction = transaction.id;
   transfer.save();
 }
 
@@ -293,7 +302,7 @@ export function handleBatchMetadataUpdate(
   event: BatchMetadataUpdateEvent
 ): void {
   let entity = new BatchMetadataUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
   entity._fromTokenId = event.params._fromTokenId
   entity._toTokenId = event.params._toTokenId
@@ -307,7 +316,7 @@ export function handleBatchMetadataUpdate(
 
 export function handleMetadataUpdate(event: MetadataUpdateEvent): void {
   let entity = new MetadataUpdate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
   entity._tokenId = event.params._tokenId
 
@@ -337,7 +346,7 @@ export function handleTokenWhitelisted(event: TokenWhitelistedEvent): void {
 
 export function handleContractURIUpdated(event: ContractURIUpdatedEvent): void {
   let entity = new ContractURIUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
 
   entity.blockNumber = event.block.number
@@ -351,7 +360,7 @@ export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent
 ): void {
   let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
   entity.previousOwner = event.params.previousOwner
   entity.newOwner = event.params.newOwner
