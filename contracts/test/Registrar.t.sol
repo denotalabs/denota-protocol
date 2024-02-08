@@ -256,10 +256,10 @@ contract RegistrarTest is Test {
 
     function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory moduleBytes) internal {
         Nota memory preNota = REGISTRAR.notaInfo(notaId);
-        address notaOwner = REGISTRAR.ownerOf(notaId);
+        // address notaOwner = REGISTRAR.ownerOf(notaId);
 
         IERC20 currency = IERC20(preNota.currency);
-        uint256 initialOwnerTokenBalance = currency.balanceOf(notaOwner);
+        uint256 initialToTokenBalance = currency.balanceOf(to);
         uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(preNota.module, address(currency));
         
         uint256 totalAmount = _calcTotalFees(preNota.module, amount, 0);
@@ -269,7 +269,7 @@ contract RegistrarTest is Test {
         REGISTRAR.cash(notaId, amount, to, moduleBytes);
 
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
-         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + amount, "Owner currency balance didn't increase");
+         assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
          assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
     }
 }
