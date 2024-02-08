@@ -145,21 +145,30 @@ contract RegistrarTest is Test {
         vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
         vm.assume((escrow/2 + instant/2) < TOKENS_CREATED / 2);
 
-        vm.label(caller, "Caller");
+        vm.label(caller, "Writer");
         vm.label(owner, "Nota Owner");
     }
 
-    function _registrarTransferAssumptions(
+    function _registrarTransferAddressAssumptions(
         address caller,
-        address owner
+        address owner,
+        address to
     ) internal {
-        vm.assume(caller != address(0) && caller != owner && owner != address(0));
-        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
+        vm.assume(caller != address(0) && to != address(0) && owner != address(0));  // No address(0)
+        vm.assume(owner != to);  // No self-transfers
+        vm.assume(to != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this)  && owner != address(REGISTRAR));  // No special contracts
 
-        vm.label(caller, "Caller");
-        vm.label(owner, "Nota Owner");
+        vm.label(caller, "Transferer");
+        vm.label(to, "New Nota Owner");
     }
 
+    function _registrarTransferApprovedAssumptions(
+        address caller,
+        address owner,
+        uint256 notaId
+    ) internal view {
+        vm.assume(caller == owner || REGISTRAR.isApprovedForAll(owner, caller) || REGISTRAR.getApproved(notaId) == caller); // No unauthorized transfers
+    }
 
     function _registrarWriteHelper(        
         address caller,
