@@ -73,7 +73,6 @@ contract SimpleTimelock is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(to == owner, "Only cashable to owner");
-        require(amount == nota.escrowed, "Must fully cash");
         require(timelocks[notaId].releaseDate < block.timestamp, "TIMELOCK");
         return 0;
     }

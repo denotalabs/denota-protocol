@@ -68,7 +68,7 @@ contract SimpleCashTest is RegistrarTest {
             owner, 
             newOwner, 
             notaId
-            );
+        );
     }
 
     function testFailTransfer(
@@ -77,15 +77,15 @@ contract SimpleCashTest is RegistrarTest {
         uint256 escrowed,
         uint256 instant,
         address owner, 
-        address to
+        address newOwner
     ) public {
         vm.assume(writer != owner);
         vm.assume(writer != fakeTransferer && fakeTransferer != owner);
         uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner);
         
-        _registrarTransferAddressAssumptions(writer, owner, to);  // Put this before write?
+        _registrarTransferAddressAssumptions(writer, owner, newOwner);  // Put this before write?
         _registrarTransferApprovedAssumptions(owner, owner, notaId);
-        _registrarTransferHelper(fakeTransferer, owner, to, notaId);
+        _registrarTransferHelper(fakeTransferer, owner, newOwner, notaId);
     }
 
     function testCash(
