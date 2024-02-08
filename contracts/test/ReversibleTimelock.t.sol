@@ -9,7 +9,6 @@ import {Nota} from "../src/libraries/DataTypes.sol";
 import {ReversibleTimelock} from "../src/modules/ReversibleTimelock.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
-// TODO add fail tests
 contract ReversibleTimelockTest is RegistrarTest {
     ReversibleTimelock public REVERSIBLE_TIMELOCK;
 
@@ -26,7 +25,7 @@ contract ReversibleTimelockTest is RegistrarTest {
         address owner,
         address inspector
     ) internal returns (uint256) {
-        // TODO module specific state testing
+        vm.assume(inspector != address(0));
         _registrarWriteAssumptions(caller, escrowed, instant, owner); // no address(0) and not registrar or testing contract
 
         _registrarModuleWhitelistToggleHelper(REVERSIBLE_TIMELOCK, false); // startedAs=false
@@ -36,13 +35,11 @@ contract ReversibleTimelockTest is RegistrarTest {
 
         bytes memory initData = abi.encode(
             inspector,
-            1 days,
+            1 days,  // 1 day inspection period
             "ipfs://QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
             "cerealclub.mypinata.cloud/ipfs/QmQ9sr73woB8cVjq5ppUxzNoRwWDVmK7Vu65zc3R7Dbv1Z/2806.png"
         );
         uint256 notaId = _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, REVERSIBLE_TIMELOCK, initData);
-        
-        // TODO module specific state testing
 
         return notaId;
     }
@@ -60,22 +57,29 @@ contract ReversibleTimelockTest is RegistrarTest {
     }
 
     function testTransfer(
-        address caller,
+        address writer,
         uint256 escrowed,
         uint256 instant,
         address owner, 
-        address to,
+        address newOwner,
         address inspector
     ) public {
-        vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, inspector);
+        vm.assume(writer != owner);
+        vm.assume(inspector != address(0));
+        uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner, inspector);
         
-        // TODO: test with an approved address
-        _registrarTransferHelper(owner, owner, to, notaId); // NOTE: `caller` parameter must be owner or approved
+        _registrarTransferAddressAssumptions(writer, owner, newOwner);  // Put this before write?
+        _registrarTransferApprovedAssumptions(owner, owner, notaId);
+        _registrarTransferHelper(
+            owner,  // transfer caller
+            owner,  // from
+            newOwner, 
+            notaId
+        );        
     }
 
     function testFailTransfer(
-        address caller,
+        address writer,
         address fakeTransferer,
         uint256 escrowed,
         uint256 instant,
@@ -83,15 +87,16 @@ contract ReversibleTimelockTest is RegistrarTest {
         address to,
         address inspector
     ) public {
-        vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
-        vm.assume(caller != fakeTransferer && fakeTransferer != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, inspector);
+        vm.assume(writer != owner);
+        vm.assume(writer != fakeTransferer && fakeTransferer != owner && fakeTransferer != address(0));
+        uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner, inspector);
         
-        // TODO: test with an approved address
-        _registrarTransferHelper(fakeTransferer, owner, to, notaId); // NOTE: `caller` parameter must be owner or approved
+        _registrarTransferAddressAssumptions(writer, owner, to);  // Put this before write?
+        _registrarTransferApprovedAssumptions(owner, owner, notaId);
+        _registrarTransferHelper(fakeTransferer, owner, to, notaId);
     }
 
-    function testCash(
+    function testCashOwner(
         address caller,
         uint256 escrowed,
         address owner,
@@ -103,7 +108,22 @@ contract ReversibleTimelockTest is RegistrarTest {
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
 
         vm.warp(1 days);
-        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
+        _registrarCashHelper(inspector, notaId, cashAmount, owner, abi.encode(""));
+    }
+
+    function testCashSender(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount,
+        address inspector
+    ) public {
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
+
+        vm.warp(1 days - 1);
+        _registrarCashHelper(inspector, notaId, cashAmount, caller, abi.encode(""));
     }
 
     function testFailCashId(
@@ -118,7 +138,7 @@ contract ReversibleTimelockTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
 
-        vm.warp(1 days);
+        vm.warp(random);
         _registrarCashHelper(owner, notaId + random + 1, cashAmount, owner, abi.encode(""));
     }
 
@@ -127,12 +147,13 @@ contract ReversibleTimelockTest is RegistrarTest {
         uint256 escrowed,
         address owner,
         uint256 cashAmount,
-        address inspector
+        address inspector,
+        uint256 random
     ) public {
         vm.assume(cashAmount > escrowed);
         uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner, inspector);
 
-        vm.warp(1 days);
+        vm.warp(random);
         _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
 
@@ -142,28 +163,59 @@ contract ReversibleTimelockTest is RegistrarTest {
         address owner,
         address fakeCasher,
         uint256 cashAmount,
-        address inspector
+        address inspector,
+        uint256 random
     ) public {
         vm.assume(fakeCasher != owner);
         uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner, inspector);
 
-        vm.warp(1 days);
+        vm.warp(random);
         _registrarCashHelper(fakeCasher, notaId, cashAmount, fakeCasher, abi.encode(""));
     }
 
-    function testFailCashTime(
-        address payer,
+    function testFailCashOwner(
+        address caller,
         uint256 escrowed,
         address owner,
-        uint256 randomTime,
         uint256 cashAmount,
         address inspector
     ) public {
-        vm.assume(randomTime < 1 days);
-        uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner, inspector);
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
 
-        vm.warp(randomTime);
-        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
+        vm.warp(1 days - 1);
+        _registrarCashHelper(inspector, notaId, cashAmount, owner, abi.encode(""));
     }
 
+    function testFailCashSender(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount,
+        address inspector
+    ) public {
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
+
+        vm.warp(1 days);
+        _registrarCashHelper(inspector, notaId, cashAmount, caller, abi.encode(""));
+    }
+
+    function testFailCashNotInspectorToSender(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount,
+        address inspector,
+        address randomAddress
+    ) public {
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
+
+        vm.warp(1 days - 1);
+        _registrarCashHelper(randomAddress, notaId, cashAmount, caller, abi.encode(""));
+    }
 }

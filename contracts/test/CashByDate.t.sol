@@ -83,7 +83,7 @@ contract CashByDateTest is RegistrarTest {
         address to
     ) public {
         vm.assume(writer != owner);
-        vm.assume(writer != fakeTransferer && fakeTransferer != owner);
+        vm.assume(writer != fakeTransferer && fakeTransferer != owner && fakeTransferer != address(0));
         uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner);
         
         _registrarTransferAddressAssumptions(writer, owner, to);  // Put this before write?
@@ -130,7 +130,7 @@ contract CashByDateTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
 
-        vm.warp(1 days);
+        vm.warp(random);
         _registrarCashHelper(owner, notaId + random + 1, cashAmount, owner, abi.encode(""));
     }
 
@@ -138,12 +138,13 @@ contract CashByDateTest is RegistrarTest {
         address payer,
         uint256 escrowed,
         address owner,
-        uint256 cashAmount
+        uint256 cashAmount,
+        uint256 random
     ) public {
         vm.assume(cashAmount > escrowed);
         uint256 notaId = _setupThenWrite(payer, escrowed, 0, owner);
 
-        vm.warp(1 days);
+        vm.warp(random);
         _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
 

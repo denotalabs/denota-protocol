@@ -7,7 +7,7 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
-
+// ReversibleByBeforeDate
 contract ReversibleTimelock is ModuleBase {
     struct Payment {
         address sender;
@@ -22,6 +22,7 @@ contract ReversibleTimelock is ModuleBase {
 
     error AddressZero();
     error Disallowed();
+    error InspectionEndPassed();
 
     constructor(
         address registrar
@@ -30,11 +31,11 @@ contract ReversibleTimelock is ModuleBase {
 
     function processWrite(
         address caller,
-        address owner,
+        address /*owner*/,
         uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        uint256 instant,
+        address /*currency*/,
+        uint256 /*escrowed*/,
+        uint256 /*instant*/,
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         (
@@ -45,6 +46,7 @@ contract ReversibleTimelock is ModuleBase {
         ) = abi.decode(initData, (address, uint256, string, string));
         
         if (inspector == address(0)) revert AddressZero();
+        if (inspectionEnd < block.timestamp) revert InspectionEndPassed();
 
         payments[notaId] = Payment(caller, inspector, inspectionEnd, external_url, imageURI);
 
@@ -73,13 +75,12 @@ contract ReversibleTimelock is ModuleBase {
         uint256, // notaId,
         Nota calldata, // nota,
         bytes calldata // initData
-    ) external view override onlyRegistrar returns (uint256) {
+    ) external override onlyRegistrar returns (uint256) {
         revert Disallowed();
-        return 0;
     }
 
     function processCash(
-        address /*caller*/,
+        address caller,
         address owner,
         address to,
         uint256 /*amount*/,
@@ -89,7 +90,8 @@ contract ReversibleTimelock is ModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         Payment memory payment = payments[notaId];
 
-        if (payment.inspectionEnd > block.timestamp) {
+        if (payment.inspectionEnd > block.timestamp) {  // Current time is before inspection end
+            require(caller == payment.inspector, "OnlyByInspector");
             require(to == payment.sender, "OnlyToSender");
         } else {
             require(to == owner, "OnlyToOwner");
@@ -118,7 +120,7 @@ contract ReversibleTimelock is ModuleBase {
                         '"},{"trait_type":"Payer","value":"',
                         Strings.toHexString(payment.sender),
                         '"},{"trait_type":"Inspection End","value":"',
-                        Strings.toHexString(payment.inspectionEnd),
+                        Strings.toString(payment.inspectionEnd),
                         '"}'
                     )
                 ), 
