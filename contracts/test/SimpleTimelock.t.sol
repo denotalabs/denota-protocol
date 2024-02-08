@@ -95,7 +95,7 @@ contract SimpleTimelockTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
 
-        vm.warp(7 days);
+        vm.warp(7 days + 1);
         _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
 

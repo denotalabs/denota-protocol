@@ -248,10 +248,10 @@ contract RegistrarTest is Test {
         vm.prank(caller);
         REGISTRAR.fund(notaId, amount, instant, moduleBytes);
 
-         assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount);
-         assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
-         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
-         assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
+        assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount, "Escrowed amount didn't increment properly");
+        assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
+        assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
+        assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
     }
 
     function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory moduleBytes) internal {
