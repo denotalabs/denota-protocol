@@ -25,9 +25,7 @@ contract SimpleCashTest is RegistrarTest {
         uint256 instant,
         address owner
     ) internal returns (uint256) {
-        // TODO module specific state testing
-        
-        _registrarWriteAssumptions(caller, escrowed, instant, owner); // no address(0) and !registrar and !testingcontract
+        _registrarWriteAssumptions(caller, escrowed, instant, owner); // !address(0) && !registrar/testingcontract && escrow<totalSupply
 
         _registrarModuleWhitelistToggleHelper(SIMPLE_CASH, false); // startedAs=false
         _registrarTokenWhitelistToggleHelper(address(DAI), false);
@@ -35,12 +33,11 @@ contract SimpleCashTest is RegistrarTest {
         _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
 
         bytes memory initData = abi.encode(
-            "ipfs://QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv", // docHash
+            "ipfs://QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv", // externalURI
             "cerealclub.mypinata.cloud/ipfs/QmQ9sr73woB8cVjq5ppUxzNoRwWDVmK7Vu65zc3R7Dbv1Z/2806.png" // imageURI
         );
+
         uint256 notaId = _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, SIMPLE_CASH, initData);
-        
-        // TODO module specific state testing
 
         return notaId;
     }
@@ -55,35 +52,41 @@ contract SimpleCashTest is RegistrarTest {
     }
 
     function testTransfer(
-        address caller,
+        address writer,
         uint256 escrowed,
         uint256 instant,
         address owner, 
-        address to
+        address newOwner
     ) public {
-        vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
+        vm.assume(writer != owner);
+        uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner);
         
-        // TODO: test with an approved address
-        _registrarTransferHelper(owner, owner, to, notaId); // NOTE: `caller` parameter must be owner or approved
+        _registrarTransferAddressAssumptions(writer, owner, newOwner);  // Put this before write?
+        _registrarTransferApprovedAssumptions(owner, owner, notaId);
+        _registrarTransferHelper(
+            owner,  // transfer caller
+            owner, 
+            newOwner, 
+            notaId
+            );
     }
 
     function testFailTransfer(
-        address caller,
+        address writer,
         address fakeTransferer,
         uint256 escrowed,
         uint256 instant,
         address owner, 
         address to
     ) public {
-        vm.assume(caller != owner && owner != address(0) && to != address(0) && owner != to);  // Doesn't allow transfer to the zero address
-        vm.assume(caller != fakeTransferer && fakeTransferer != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
+        vm.assume(writer != owner);
+        vm.assume(writer != fakeTransferer && fakeTransferer != owner);
+        uint256 notaId = _setupThenWrite(writer, escrowed, instant, owner);
         
-        // TODO: test with an approved address
-        _registrarTransferHelper(fakeTransferer, owner, to, notaId); // NOTE: `caller` parameter must be owner or approved
+        _registrarTransferAddressAssumptions(writer, owner, to);  // Put this before write?
+        _registrarTransferApprovedAssumptions(owner, owner, notaId);
+        _registrarTransferHelper(fakeTransferer, owner, to, notaId);
     }
-
 
     function testCash(
         address caller,
@@ -97,6 +100,7 @@ contract SimpleCashTest is RegistrarTest {
 
         _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
+
     function testFailCashId(
         address caller,
         uint256 escrowed,
@@ -108,7 +112,7 @@ contract SimpleCashTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
 
-        _registrarCashHelper(owner, notaId + random, cashAmount, owner, abi.encode(""));
+        _registrarCashHelper(owner, notaId + random + 1, cashAmount, owner, abi.encode(""));
     }
 
     function testFailCashAmount(

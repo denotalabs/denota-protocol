@@ -14,7 +14,7 @@ contract SimpleCash is ModuleBase {
     mapping(uint256 notaId => Payment payment) public payments;
 
     error Disallowed();
-    event PaymentCreated(uint256 notaId, string external_url, string imageURI);
+    event PaymentCreated(uint256 indexed notaId, string external_url, string imageURI);
     constructor(address registrar) ModuleBase(registrar) {
     }
 
