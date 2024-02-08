@@ -17,12 +17,16 @@ export interface WriteSimpleCashProps {
   currency: DenotaCurrency;
   amount: number;
   module: SimpleCashData;
+  externalUrl?: string;
+  imageUrl?: string;
 }
 
 export async function writeSimpleCash({
   module,
   amount,
   currency,
+  imageUrl,
+  externalUrl,
 }: WriteSimpleCashProps) {
   const { payee, payer } = module;
 
@@ -34,8 +38,8 @@ export async function writeSimpleCash({
   const owner = payee;
 
   const payload = ethers.utils.defaultAbiCoder.encode(
-    ["address"],
-    [state.blockchainState.account]
+    ["string", "string"],
+    [externalUrl ?? "", imageUrl ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 

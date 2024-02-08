@@ -4,9 +4,9 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client/core";
 import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
-import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
 import Events from "./abis/Events.sol/Events.json";
 import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
+import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
 import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
 import { uploadMetadata } from "./Metadata";
 import {
@@ -267,7 +267,7 @@ export async function write({ module, metadata, ...props }: WriteProps) {
     case "reversibleRelease":
       return await writeReversibleRelease({
         module,
-        ipfsHash,
+        externalUrl: ipfsHash,
         imageUrl,
         ...props,
       });
