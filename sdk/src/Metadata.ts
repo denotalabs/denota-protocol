@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const METADATA_SERVICE = "https://denota.klymr.me/nft-lighthouse";
+const METADATA_SERVICE = "https://denota.klymr.me/nft-lighthouse";  // TODO update to new URL
 
 interface NotaMetadata {
   desc?: string;

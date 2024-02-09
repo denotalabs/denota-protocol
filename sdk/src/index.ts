@@ -25,6 +25,7 @@ import {
   SimpleCashData,
   writeSimpleCash,
 } from "./modules/SimpleCash";
+import { cashCashBeforeDate, CashBeforeDateData, writeCashBeforeDate } from "./modules/CashBeforeDate";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
@@ -38,6 +39,7 @@ interface ContractMapping {
   reversibleRelease: string;
   directPay: string;
   simpleCash: string;
+  cashBeforeDate: string;
   dai: string;
   weth: string;
   milestones: string;
@@ -80,6 +82,7 @@ export const state: State = {
       directPay: "",
       reversibleRelease: "",
       simpleCash: "",
+      cashBeforeDate: "",
       dai: "",
       weth: "",
       milestones: "",
@@ -221,8 +224,8 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash";
+type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData;
+type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate";
 
 interface RawMetadata {
   type: "raw";
@@ -271,6 +274,13 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
+    case "cashBeforeDate":
+      return await writeCashBeforeDate({
+        module,
+        externalUrl: ipfsHash,
+        imageUrl,
+        ...props,
+      });
     case "simpleCash":
       return await writeSimpleCash({ module, ...props });
   }
@@ -282,8 +292,8 @@ interface FundProps {
 
 export async function fund({ notaId }: FundProps) {
   const notaQuery = `
-  query cheqs($cheq: String ){
-    cheqs(where: { id: $cheq }, first: 1)  {
+  query notas($nota: String ){
+    notas(where: { id: $nota }, first: 1)  {
       erc20 {
         id
       }
@@ -309,11 +319,11 @@ export async function fund({ notaId }: FundProps) {
   const data = await client.query({
     query: gql(notaQuery),
     variables: {
-      cheq: notaId,
+      nota: notaId,
     },
   });
 
-  const nota = data["data"]["cheqs"][0];
+  const nota = data["data"]["notas"][0];
   const amount = BigNumber.from(nota.moduleData.amount);
 
   switch (nota.moduleData.__typename) {
@@ -354,6 +364,8 @@ export async function cash({
         to,
         amount,
       });
+      case "cashBeforeDate":
+        return await cashCashBeforeDate({ notaId, to, amount });
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
   }
@@ -383,6 +395,8 @@ export function getNotasQueryURL() {
       return "https://denota.klymr.me/graph/mumbai";
     case 44787:
       return "https://denota.klymr.me/graph/alfajores";
+    case 137:
+      return ""; // TODO
     default:
       return undefined;
   }
