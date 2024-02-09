@@ -17,6 +17,7 @@ export const ContractAddressMapping = {
     usdc: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
     usdce: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     usdt: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    get: "0xdb725f82818De83e99F1dAc22A9b5B51d3d04DD4",
   },
 };
 

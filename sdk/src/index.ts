@@ -2,21 +2,12 @@ import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
-import { ApolloClient, gql, InMemoryCache } from "@apollo/client/core";
-import BridgeSender from "./abis/BridgeSender.sol/BridgeSender.json";
 import Events from "./abis/Events.sol/Events.json";
-import MultiDisperse from "./abis/MultiDisperse.sol/MultiDisperse.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
-import { BatchDisperse, BatchProps } from "./batch/BatchDisperse";
 import { uploadMetadata } from "./Metadata";
-import {
-  DirectPayData,
-  fundDirectPay,
-  writeDirectPay,
-} from "./modules/DirectPay";
+import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
 import {
   cashReversibleRelease,
-  fundReversibleRelease,
   ReversibleReleaseData,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
@@ -28,7 +19,7 @@ import {
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
-export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT";
+export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT" | "GET";
 
 interface ContractMapping {
   DataTypes: string;
@@ -41,13 +32,11 @@ interface ContractMapping {
   dai: string;
   weth: string;
   milestones: string;
-  bridgeReceiver: string;
-  bridgeSender: string;
-  directPayAxelar: string;
   batch: string;
   usdc: string;
   usdce: string;
   usdt: string;
+  get: string;
 }
 
 interface BlockchainState {
@@ -55,8 +44,6 @@ interface BlockchainState {
   registrar: ethers.Contract | null;
   account: string;
   chainId: number;
-  axelarBridgeSender: null | ethers.Contract;
-  disperse: null | ethers.Contract;
   contractMapping: ContractMapping;
 }
 
@@ -70,8 +57,6 @@ export const state: State = {
     registrar: null,
     signer: null,
     chainId: 0,
-    axelarBridgeSender: null,
-    disperse: null,
     contractMapping: {
       DataTypes: "",
       Errors: "",
@@ -83,13 +68,11 @@ export const state: State = {
       dai: "",
       weth: "",
       milestones: "",
-      bridgeReceiver: "",
-      bridgeSender: "",
-      directPayAxelar: "",
       batch: "",
       usdc: "",
       usdce: "",
       usdt: "",
+      get: "",
     },
   },
 };
@@ -110,25 +93,11 @@ export async function setProvider({ signer, chainId }: ProviderProps) {
       signer
     );
 
-    const axelarBridgeSender = new ethers.Contract(
-      contractMapping.bridgeSender,
-      BridgeSender.abi,
-      signer
-    );
-
-    const disperse = new ethers.Contract(
-      contractMapping.batch,
-      MultiDisperse.abi,
-      signer
-    );
-
     state.blockchainState = {
       signer,
       account,
       registrar,
       chainId,
-      axelarBridgeSender,
-      disperse,
       contractMapping,
     };
   } else {
@@ -157,6 +126,8 @@ function tokenForCurrency(currency: string) {
         return new ethers.Contract(contractMapping.usdt, erc20.abi, signer);
       case "USDCE":
         return new ethers.Contract(contractMapping.usdce, erc20.abi, signer);
+      case "GET":
+        return new ethers.Contract(contractMapping.get, erc20.abi, signer);
     }
   }
 }
@@ -174,6 +145,8 @@ export function tokenAddressForCurrency(currency: string) {
       return contractMapping.usdce;
     case "USDT":
       return contractMapping.usdt;
+    case "GET":
+      return contractMapping.get;
   }
 }
 
@@ -278,58 +251,12 @@ export async function write({ module, metadata, ...props }: WriteProps) {
 
 interface FundProps {
   notaId: string;
+  amount: BigNumber;
+  module: NotaModule;
 }
 
-export async function fund({ notaId }: FundProps) {
-  const notaQuery = `
-  query cheqs($cheq: String ){
-    cheqs(where: { id: $cheq }, first: 1)  {
-      erc20 {
-        id
-      }
-      moduleData {
-        ... on DirectPayData {
-          __typename
-          amount
-        }
-        ... on ReversiblePaymentData {
-          __typename
-          amount
-        }
-      }
-    }
-  }
-`;
-
-  const client = new ApolloClient({
-    uri: getNotasQueryURL(),
-    cache: new InMemoryCache(),
-  });
-
-  const data = await client.query({
-    query: gql(notaQuery),
-    variables: {
-      cheq: notaId,
-    },
-  });
-
-  const nota = data["data"]["cheqs"][0];
-  const amount = BigNumber.from(nota.moduleData.amount);
-
-  switch (nota.moduleData.__typename) {
-    case "DirectPayData":
-      return await fundDirectPay({
-        notaId,
-        amount,
-        tokenAddress: nota.erc20.id,
-      });
-    case "ReversiblePaymentData":
-      return await fundReversibleRelease({
-        notaId,
-        amount,
-        tokenAddress: nota.erc20.id,
-      });
-  }
+export async function fund({ notaId, amount, module }: FundProps) {
+  // Implement in future modules
 }
 
 interface CashPaymentProps {
@@ -359,35 +286,6 @@ export async function cash({
   }
 }
 
-interface BatchPaymentItem {
-  amount: number;
-  token: string;
-  recipient: string;
-  note?: string;
-}
-
-interface BatchPayment {
-  file?: File;
-  items: BatchPaymentItem[];
-}
-
-export async function sendBatchPayment(props: BatchProps) {
-  return await BatchDisperse(props);
-}
-
-export function sendBatchPaymentFromCSV(csv: File) {}
-
-export function getNotasQueryURL() {
-  switch (state.blockchainState.chainId) {
-    case 80001:
-      return "https://denota.klymr.me/graph/mumbai";
-    case 44787:
-      return "https://denota.klymr.me/graph/alfajores";
-    default:
-      return undefined;
-  }
-}
-
 export const contractMappingForChainId = contractMappingForChainId_;
 
 export default {
@@ -395,8 +293,5 @@ export default {
   write,
   fund,
   cash,
-  sendBatchPayment,
-  sendBatchPaymentFromCSV,
-  getNotasQueryURL,
   contractMappingForChainId,
 };
