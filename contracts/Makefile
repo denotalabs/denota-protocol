@@ -3,9 +3,12 @@
 optimizer_runs=1000000
 FACTORY_ADDRESS=0x0000000000FFe8B47B3e2130213B802212439497
 
-testDai=0xc5B6c09dc6595Eb949739f7Cd6A8d542C2aabF4b
-testEth=0xe37F99b03C7B4f4d71eE20e8eF3AC4E138D47F80
 realUSDC=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
+USDCe=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359
+WETH=0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619
+ENS=0xbD7A5Cf51d22930B8B3Df6d834F9BCEf90EE7c4f
+DAI=0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
+GET=0xdb725f82818De83e99F1dAc22A9b5B51d3d04DD4
 denotaContractURI='{"name":"Denota Protocol (beta)","description":"Welcome to the future of programmable crypto payments! Imagine a world where your payments arent just transactions, but smart, programmable assets. From trustless betting to reversibility and multi-step payments, Denotas Nota NFTs revolutionize how you send funds.With Denota, each payment is an NFT, capable of carrying custom rules and data for your unique needs. Theyre not just payments; theyre fully onchain, extensible, composable, and transferable payment agreements. Explore our simple yet powerful payment hooks to deploy your own and start generating revenue!","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ","external_link":"denota.xyz","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}'#
 DEPLOY_RPC_URL=${POLYGON_RPC_URL} #
 VERIFIER_URL=https://api.polygonscan.com/api/
@@ -73,7 +76,40 @@ deploy-module:
 	echo "Hook whitelisted.\nWriting:\n\n" ; \
 	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${realUSDC} 0 1000 0xd20e342db297646a500a980088723c9e8af9810d $${moduleAddress} "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000001668747470733a2f2f6170702e64656e6f74612e78797a00000000000000000000000000000000000000000000000000000000000000000000000000000000004168747470733a2f2f692e736561646e2e696f2f6763732f66696c65732f64303962663663343134333738636438326666316263323838366663633638622e706e6700000000000000000000000000000000000000000000000000000000000000" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
-all: clean remove install update solc build 
+send-SimpleCash:
+	# Make sure approvals are set #
+
+	module=0x000000000AE1D0831c0C7485eAcc847D2F57EBb9; \
+	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
+	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
+	currency=${WETH} ; \
+	escrow=0 ; \
+	instant=0 ; \
+	owner=0x; \
+	externalURL="https://app.denota.xyz/"; \
+	imageURL="ipfs://"; \
+	moduleBytes=$$(cast abi-encode "f(string,string)" $${externalURL} $${imageURL}) ; \
+	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY}  --rpc-url ${DEPLOY_RPC_URL} --gas-price 202778295180 --priority-gas-price 20277829518
+
+# DEN, Frutero, diosplan.eth
+send-ReversibleRelease:
+	# Make sure approvals are set #
+
+	module=0x0000000078E1A913Ee98c64CEc34fe813872eF79; \
+	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
+	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
+	currency=${GET} ; \
+	escrow=0; \
+	instant=0; \
+	owner=0x; \
+	inspector=0x167813E0D6958BCF30a1cEbEE53aE0C57677c963; \
+	externalURL="https://app.denota.xyz/"; \
+	imageURL="ipfs://"; \
+	moduleBytes=$$(cast abi-encode "f(address,string,string)" $${inspector} $${externalURL} $${imageURL}) ; \
+	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+
+
+all: clean remove install update solc build
 
 fresh-install:
 	curl -L https://foundry.paradigm.xyz | bash  # Need to reload PATH before foundryup

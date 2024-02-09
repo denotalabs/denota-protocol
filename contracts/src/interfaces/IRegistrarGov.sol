@@ -13,7 +13,7 @@ interface IRegistrarGov {
     event TokenWhitelisted(
         address caller,
         address indexed token,
-        bool indexed accepted,
+        bool indexed isAccepted,
         uint256 timestamp
     );
     

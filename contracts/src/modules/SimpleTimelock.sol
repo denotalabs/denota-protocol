@@ -11,16 +11,20 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
  * Escrowed tokens are cashable after the releaseDate
  */
 contract SimpleTimelock is ModuleBase {
-    mapping(uint256 => uint256) public releaseDate;
+    struct Timelock {
+        uint256 releaseDate;
+        string external_url;
+        string imageURI;
+    }
 
-    event Timelock(uint256 notaId, uint256 _releaseDate);
+    mapping(uint256 => Timelock) public timelocks;
+
+    event TimelockCreated(uint256 notaId, uint256 _releaseDate, string external_url, string imageURI);
     error OnlyOwnerOrApproved();
 
     constructor(
-        address registrar,
-        string memory __baseURI
+        address registrar
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
     }
 
     function processWrite(
@@ -30,13 +34,19 @@ contract SimpleTimelock is ModuleBase {
         address currency,
         uint256 escrowed,
         uint256 instant,
-        bytes calldata initData
+        bytes calldata writeData
     ) external override onlyRegistrar returns (uint256) {
-        require(instant == 0, "Instant not supported");
-        (uint256 _releaseDate) = abi.decode(initData, (uint256));
-        releaseDate[notaId] = _releaseDate;
+        (   uint256 _releaseDate,
+            string memory external_url,
+            string memory imageURI
+        ) = abi.decode(
+                writeData,
+                (uint256, string, string)
+            );
 
-        emit Timelock(notaId, _releaseDate);
+        timelocks[notaId] = Timelock(_releaseDate, external_url, imageURI);
+
+        emit TimelockCreated(notaId, _releaseDate, external_url, imageURI);
         return 0;
     }
 
@@ -63,8 +73,7 @@ contract SimpleTimelock is ModuleBase {
         bytes calldata initData
     ) external override onlyRegistrar returns (uint256) {
         require(to == owner, "Only cashable to owner");
-        require(amount == nota.escrowed, "Must fully cash");
-        require(releaseDate[notaId] < block.timestamp, "TIMELOCK");
+        require(timelocks[notaId].releaseDate < block.timestamp, "TIMELOCK");
         return 0;
     }
 
@@ -81,10 +90,7 @@ contract SimpleTimelock is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
-        return ("",
-            bytes(_URI).length > 0
-                ? string(abi.encodePacked(',"external_url":', _URI, tokenId))
-                : "");
+        return ("", string(abi.encodePacked(',"external_url":', tokenId)));
     }
 }
 
@@ -103,7 +109,7 @@ contract SimpleTimelockFee is ModuleBase {
         address registrar,
         string memory __baseURI
     ) ModuleBase(registrar) {
-        _URI = __baseURI;
+        // _URI = __baseURI;
     }
 
     function processWrite(
@@ -160,7 +166,7 @@ contract SimpleTimelockFee is ModuleBase {
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
-        return ("", string(abi.encodePacked(_URI, tokenId)));
+        return ("", "");
     }
 }
 

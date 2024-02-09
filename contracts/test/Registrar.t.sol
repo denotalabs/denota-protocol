@@ -145,21 +145,30 @@ contract RegistrarTest is Test {
         vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
         vm.assume((escrow/2 + instant/2) < TOKENS_CREATED / 2);
 
-        vm.label(caller, "Caller");
+        vm.label(caller, "Writer");
         vm.label(owner, "Nota Owner");
     }
 
-    function _registrarTransferAssumptions(
+    function _registrarTransferAddressAssumptions(
         address caller,
-        address owner
+        address owner,
+        address to
     ) internal {
-        vm.assume(caller != address(0) && caller != owner && owner != address(0));
-        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
+        vm.assume(caller != address(0) && to != address(0) && owner != address(0));  // No address(0)
+        vm.assume(owner != to);  // No self-transfers
+        vm.assume(to != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this)  && owner != address(REGISTRAR));  // No special contracts
 
-        vm.label(caller, "Caller");
-        vm.label(owner, "Nota Owner");
+        vm.label(caller, "Transferer");
+        vm.label(to, "New Nota Owner");
     }
 
+    function _registrarTransferApprovedAssumptions(
+        address caller,
+        address owner,
+        uint256 notaId
+    ) internal view {
+        vm.assume(caller == owner || REGISTRAR.isApprovedForAll(owner, caller) || REGISTRAR.getApproved(notaId) == caller); // No unauthorized transfers
+    }
 
     function _registrarWriteHelper(        
         address caller,
@@ -239,18 +248,18 @@ contract RegistrarTest is Test {
         vm.prank(caller);
         REGISTRAR.fund(notaId, amount, instant, moduleBytes);
 
-         assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount);
-         assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
-         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
-         assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
+        assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount, "Escrowed amount didn't increment properly");
+        assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
+        assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
+        assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
     }
 
     function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory moduleBytes) internal {
         Nota memory preNota = REGISTRAR.notaInfo(notaId);
-        address notaOwner = REGISTRAR.ownerOf(notaId);
+        // address notaOwner = REGISTRAR.ownerOf(notaId);
 
         IERC20 currency = IERC20(preNota.currency);
-        uint256 initialOwnerTokenBalance = currency.balanceOf(notaOwner);
+        uint256 initialToTokenBalance = currency.balanceOf(to);
         uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(preNota.module, address(currency));
         
         uint256 totalAmount = _calcTotalFees(preNota.module, amount, 0);
@@ -260,7 +269,7 @@ contract RegistrarTest is Test {
         REGISTRAR.cash(notaId, amount, to, moduleBytes);
 
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
-         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + amount, "Owner currency balance didn't increase");
+         assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
          assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
     }
 }
