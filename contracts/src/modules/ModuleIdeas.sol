@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity >=0.8.14;
 
-// import "openzeppelin/access/Ownable.sol";
+import "openzeppelin/access/Ownable.sol";
+import "openzeppelin/security/Pausable.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 import {Nota} from "../libraries/DataTypes.sol";
 
@@ -88,7 +89,6 @@ abstract contract SimpleCrowdRaise is ModuleBase {}
 
 /// @notice allows the module owner to pause functionalities
 abstract contract SimpleAdmin is /*Pausable,*/ ModuleBase {
-
 }
 
 /// @notice allows the nota creator to set an admin that can pause WTFC for that particular nota
@@ -99,13 +99,6 @@ abstract contract SetAdmin is ModuleBase {
 // Require both sender and receiver to approve each other
 abstract contract HandshakeTimeLock is ModuleBase {}
 
-abstract contract CashCondition is ModuleBase {
-    // Allow this contract to call to another contract's view function to allow owner to cash
-}
-
-abstract contract LimitedTimeCash is ModuleBase {
-    // Allow this contract to call to another contract's view function to allow owner to cash
-}
 
 // contract AttestationStation {
 //     mapping(address => mapping(address => mapping(bytes32 => bytes)))
