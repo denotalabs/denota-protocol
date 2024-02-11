@@ -47,32 +47,32 @@ Things to address and when to address them
     * Could have standard WTFC subfunctions and module overrides, ie: `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
     * `emit MetadataUpdate(notaId)` only if hook is used
 * Add `burn()` safer transfers, reduces module transfer logic (gas cheaper)
-* Consider functions for gettting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
+* Add moduleFee on approvals
 * Use write struct if cheaper (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
+
 * Add noDelegateCall in WTFCAB (if permissionless)
 * Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
-* instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
 * Remove datatypes library if possible
-* Add moduleFee on approvals
-* ModuleDecode(INotaModule module) external returns(string): ModuleDecode[module]=>“Writebytes(address,uint256,etc)”
-    * _abiDecode(bytes calldata moduleBytes){}
 * Ensure consistency in function parameters for WTFCA and hooks
     [write(currency, escrowed, instant, owner, module, moduleBytes) -> 
      hook(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes)]
 * Is it okay to pass storage variables like `totalSupply` to modules?
 * remove ERC721's _msgSender()/Context dependency and hook functions? Could use Solmate
 * add `approved` to fund and cash?
-* Should require statements be part of the module interface? canWrite(), canCash(), etc would allow people to query beforehand
-* add module.getWTFCFee(params) -> uint256 within Registrar?
 * Consider safeWrite()
-* optimize gas
+* instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
+* Should require statements be part of the module interface? canWrite(), canCash(), etc would allow people to query beforehand
+* ModuleDecode(INotaModule module) external returns(string): ModuleDecode[module]=>“Writebytes(address,uint256,etc)”
+    * _abiDecode(bytes calldata moduleBytes){}
+* Consider functions for getting WTFCA fees either as processXFees() to ModuleBase or as a separate interface
+    * add module.getWTFCFee(params) -> uint256 within Registrar?
 
 ### V2 Audited Deployment
 * Allow token `deposit()` / `withdrawal()` to avoid ERC20.transferFrom()'s
 * Combine Nota struct with `owner` and `approved` variables
 * before AND after hooks 
-* ERC1155 instead of 721 for NOTAs
+* ERC1155 (or 6909) instead of 721 for NOTAs [https://eips.ethereum.org/EIPS/eip-6909]. Also enables hooks to be 1155 too
 * Universal escrowing (ERC20/721/1155) tokens. (could take fee from deposit or require another token transfer)
 * Multiple escrowing per Nota ie: mapping(address currency => uint256 escrow) in Nota struct
 * Should we return selector vs fee for hooks  // Test if fallback not returning a uint256(BPSfee) fails
@@ -92,3 +92,6 @@ Things to address and when to address them
 * Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
 * should make constructor call out to the NotaRegistrar to set fees? Would need to store that on both if there are subowners/dappOperators within the module so it can credit/withdraw those on the module's side
 * Separate fee and non-fee ModuleBases (perhaps URI distinction ones as well?)
+
+### Hooks
+* Look into using this for dates: [https://github.com/Vectorized/solady/blob/main/src/utils/DateTimeLib.sol]

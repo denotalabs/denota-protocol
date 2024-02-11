@@ -118,7 +118,7 @@ send-CashBeforeDate:
 	escrow=0; \
 	instant=0; \
 	owner=0x; \
-	cashByDate=1708127999; \
+	cashByDate=1708300799; \
 	externalURL="https://app.denota.xyz/"; \
 	imageURL="ipfs://"; \
 	moduleBytes=$$(cast abi-encode "f(uint256,string,string)" $${cashByDate} $${externalURL} $${imageURL}) ; \
