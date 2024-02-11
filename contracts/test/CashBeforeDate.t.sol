@@ -6,16 +6,16 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {Nota} from "../src/libraries/DataTypes.sol";
-import {CashByDate} from "../src/modules/CashByDate.sol";
+import {CashBeforeDate} from "../src/modules/CashBeforeDate.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
-contract CashByDateTest is RegistrarTest {
-    CashByDate public CASH_BY_DATE;
+contract CashBeforeDateTest is RegistrarTest {
+    CashBeforeDate public CASH_BY_DATE;
 
     function setUp() public override {
         super.setUp();  // init registrar, tokens, and their labels   
-        CASH_BY_DATE = new CashByDate(address(REGISTRAR));
-        vm.label(address(CASH_BY_DATE), "CashByDate");
+        CASH_BY_DATE = new CashBeforeDate(address(REGISTRAR));
+        vm.label(address(CASH_BY_DATE), "CashBeforeDate");
     }
 
     function _setupThenWrite(

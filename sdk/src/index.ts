@@ -16,6 +16,7 @@ import {
   SimpleCashData,
   writeSimpleCash,
 } from "./modules/SimpleCash";
+import { cashCashBeforeDate, CashBeforeDateData, writeCashBeforeDate } from "./modules/CashBeforeDate";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
 
@@ -29,6 +30,7 @@ interface ContractMapping {
   reversibleRelease: string;
   directPay: string;
   simpleCash: string;
+  cashBeforeDate: string;
   dai: string;
   weth: string;
   milestones: string;
@@ -65,6 +67,7 @@ export const state: State = {
       directPay: "",
       reversibleRelease: "",
       simpleCash: "",
+      cashBeforeDate: "",
       dai: "",
       weth: "",
       milestones: "",
@@ -194,8 +197,8 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash";
+type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData;
+type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate";
 
 interface RawMetadata {
   type: "raw";
@@ -244,6 +247,13 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
+    case "cashBeforeDate":
+      return await writeCashBeforeDate({
+        module,
+        externalUrl: ipfsHash,
+        imageUrl,
+        ...props,
+      });
     case "simpleCash":
       return await writeSimpleCash({ module, ...props });
   }
@@ -254,6 +264,7 @@ interface FundProps {
   amount: BigNumber;
   module: NotaModule;
 }
+
 
 export async function fund({ notaId, amount, module }: FundProps) {
   // Implement in future modules
@@ -281,6 +292,8 @@ export async function cash({
         to,
         amount,
       });
+      case "cashBeforeDate":
+        return await cashCashBeforeDate({ notaId, to, amount });
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
   }

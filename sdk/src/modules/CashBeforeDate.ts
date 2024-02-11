@@ -7,28 +7,29 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
-export interface SimpleCashData {
-  moduleName: "simpleCash";
+export interface CashBeforeDateData {
+  moduleName: "cashBeforeDate";
   payee: string;
   payer: string;
+  cashBeforeDate?: number;
 }
 
-export interface WriteSimpleCashProps {
+export interface WriteCashBeforeDateProps {
   currency: DenotaCurrency;
   amount: number;
   externalUrl?: string;
   imageUrl?: string;
-  module: SimpleCashData;
+  module: CashBeforeDateData;
 }
 
-export async function writeSimpleCash({
+export async function writeCashBeforeDate({
   module,
   amount,
   currency,
   imageUrl,
   externalUrl,
-}: WriteSimpleCashProps) {
-  const { payee, payer } = module;
+}: WriteCashBeforeDateProps) {
+  const { payee, payer, cashBeforeDate } = module;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
@@ -38,8 +39,8 @@ export async function writeSimpleCash({
   const owner = payee;
 
   const payload = ethers.utils.defaultAbiCoder.encode(
-    ["string", "string"],
-    [externalUrl ?? "", imageUrl ?? ""]
+    ["uint256", "string", "string"],
+    [cashBeforeDate, externalUrl ?? "", imageUrl ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -50,7 +51,7 @@ export async function writeSimpleCash({
     amountWei, //escrowed
     0, //instant
     owner, //owner
-    state.blockchainState.contractMapping.simpleCash, //module
+    state.blockchainState.contractMapping.cashBeforeDate, //module
     payload, //moduleWriteData
     { value: msgValue }
   );
@@ -61,17 +62,17 @@ export async function writeSimpleCash({
   };
 }
 
-export interface CashSimpleCashProps {
+export interface CashCashBeforeDateProps {
   to: string;
   notaId: string;
   amount: BigNumber;
 }
 
-export async function cashSimpleCash({
+export async function cashCashBeforeDate({
   notaId,
   amount,
   to,
-}: CashSimpleCashProps) {
+}: CashCashBeforeDateProps) {
   const payload = ethers.utils.defaultAbiCoder.encode([], []);
   const tx = await state.blockchainState.registrar?.cash(
     notaId,

@@ -3,8 +3,8 @@
 optimizer_runs=1000000
 FACTORY_ADDRESS=0x0000000000FFe8B47B3e2130213B802212439497
 
-realUSDC=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
-USDCe=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359
+CircleUSDC=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359
+USDCe=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
 WETH=0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619
 ENS=0xbD7A5Cf51d22930B8B3Df6d834F9BCEf90EE7c4f
 DAI=0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
@@ -47,7 +47,7 @@ whitelist-tokens:
 	cast send ${testEth} "approve(address,uint256)" $${registrarAddress} 1000000000000000000000000 --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
-moduleFileName=DirectSend
+moduleFileName=CashBeforeDate
 deploy-module:
 	forge flatten src/modules/$(moduleFileName).sol > src/flat/$(moduleFileName).sol
 	forge compile --optimizer-runs ${optimizer_runs}
@@ -59,7 +59,7 @@ deploy-module:
 	echo $${constructorArgs} ; \
 	bytecode=$$(jq -r '.bytecode.object' out/flat/$(moduleFileName).sol/$(moduleFileName).json)$${constructorArgs} ; \
 	echo $${bytecode} ; \
-	cast create2 --deployer ${FACTORY_ADDRESS} --init-code $${bytecode} --starts-with 0000000 --caller ${ADDRESS} 2>&1 | tee salts/$(moduleFileName).txt ; \
+	cast create2 --deployer ${FACTORY_ADDRESS} --init-code $${bytecode} --starts-with 00000000 --caller ${ADDRESS} 2>&1 | tee salts/$(moduleFileName).txt ; \
 	echo "\n\n" ; \
 	salt=$$(cat salts/$(moduleFileName).txt | grep "Salt: " | awk '{print $$2}') ; \
 	moduleAddress=$$(cat salts/$(moduleFileName).txt | grep "Address: " | awk '{print $$2}') ; \
@@ -74,7 +74,7 @@ deploy-module:
 	echo "Contract verified.\nWhitelisting:\n\n" ; \
 	cast send $${registrarAddress} "whitelistModule(address,bool)" $${moduleAddress} true --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
 	echo "Hook whitelisted.\nWriting:\n\n" ; \
-	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${realUSDC} 0 1000 0xd20e342db297646a500a980088723c9e8af9810d $${moduleAddress} "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000001668747470733a2f2f6170702e64656e6f74612e78797a00000000000000000000000000000000000000000000000000000000000000000000000000000000004168747470733a2f2f692e736561646e2e696f2f6763732f66696c65732f64303962663663343134333738636438326666316263323838366663633638622e706e6700000000000000000000000000000000000000000000000000000000000000" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0xDC46618CAcb3271A6999Aebe313Cd2De06466062 $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 send-SimpleCash:
 	# Make sure approvals are set #
@@ -91,7 +91,7 @@ send-SimpleCash:
 	moduleBytes=$$(cast abi-encode "f(string,string)" $${externalURL} $${imageURL}) ; \
 	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY}  --rpc-url ${DEPLOY_RPC_URL} --gas-price 202778295180 --priority-gas-price 20277829518
 
-# DEN, Frutero, diosplan.eth
+# DEN, Frutero
 send-ReversibleRelease:
 	# Make sure approvals are set #
 
@@ -108,6 +108,21 @@ send-ReversibleRelease:
 	moduleBytes=$$(cast abi-encode "f(address,string,string)" $${inspector} $${externalURL} $${imageURL}) ; \
 	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
+send-CashBeforeDate:
+	# Make sure approvals are set #
+
+	module=0x00000000123157038206FeFeB809823016331fF2; \
+	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
+	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
+	currency=${CircleUSDC} ; \
+	escrow=0; \
+	instant=0; \
+	owner=0x; \
+	cashByDate=1708300799; \
+	externalURL="https://app.denota.xyz/"; \
+	imageURL="ipfs://"; \
+	moduleBytes=$$(cast abi-encode "f(uint256,string,string)" $${cashByDate} $${externalURL} $${imageURL}) ; \
+	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 all: clean remove install update solc build
 

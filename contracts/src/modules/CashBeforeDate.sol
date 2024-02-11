@@ -6,7 +6,7 @@ import {Nota} from "../libraries/DataTypes.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 
 
-contract CashByDate is ModuleBase {
+contract CashBeforeDate is ModuleBase {
     struct Payment {
         uint256 cashBy;
         address sender;
@@ -95,11 +95,11 @@ contract CashByDate is ModuleBase {
                     abi.encodePacked(
                         ',"image":"', 
                         payment.imageURI, 
-                        '","name":"Cash by Date Nota #',
+                        '","name":"Cash Before Date Nota #',
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
                         payment.external_url,
-                        '","description":"Allows the owner to claim the collateral before a date, otherwise the sender can claim it back."'
+                        '","description":"Allows the owner to claim the tokens before the expiry date, otherwise the sender can take them back."'
                     )
                 )
             );
