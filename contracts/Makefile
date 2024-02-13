@@ -74,55 +74,7 @@ deploy-module:
 	echo "Contract verified.\nWhitelisting:\n\n" ; \
 	cast send $${registrarAddress} "whitelistModule(address,bool)" $${moduleAddress} true --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
 	echo "Hook whitelisted.\nWriting:\n\n" ; \
-	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0xDC46618CAcb3271A6999Aebe313Cd2De06466062 $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
-
-send-SimpleCash:
-	# Make sure approvals are set #
-
-	module=0x000000000AE1D0831c0C7485eAcc847D2F57EBb9; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${WETH} ; \
-	escrow=0 ; \
-	instant=0 ; \
-	owner=0x; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(string,string)" $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY}  --rpc-url ${DEPLOY_RPC_URL} --gas-price 202778295180 --priority-gas-price 20277829518
-
-# DEN, Frutero
-send-ReversibleRelease:
-	# Make sure approvals are set #
-
-	module=0x0000000078E1A913Ee98c64CEc34fe813872eF79; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${GET} ; \
-	escrow=0; \
-	instant=0; \
-	owner=0x; \
-	inspector=0x167813E0D6958BCF30a1cEbEE53aE0C57677c963; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(address,string,string)" $${inspector} $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
-
-send-CashBeforeDate:
-	# Make sure approvals are set #
-
-	module=0x00000000123157038206FeFeB809823016331fF2; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${CircleUSDC} ; \
-	escrow=0; \
-	instant=0; \
-	owner=0x; \
-	cashByDate=1708300799; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(uint256,string,string)" $${cashByDate} $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0x $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 all: clean remove install update solc build
 
