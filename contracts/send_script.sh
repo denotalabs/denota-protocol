@@ -151,4 +151,4 @@ else
 fi
 
 # Execute the transaction
-cast send ${registrarAddress} ${writeABI} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+cast send ${registrarAddress} ${writeABI} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000 # 90 gwei
