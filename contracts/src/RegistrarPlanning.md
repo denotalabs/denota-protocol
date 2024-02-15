@@ -34,18 +34,19 @@ Things to address and when to address them
 * Check that if module address has no code (DNE) transaction should fail
 
 ### V1 Audited Deployment [ABI_Breaking]
-* Move contractURI to RegistrarGovernance
 * Change "module" references to "hooks"
 * rename processX() to beforeX()?
 * Update the events so that Written doesn't have Transfer fields and Module is indexed
-* Remove the libraries from foundry bc they show up in the verification
-* Make verification multi-part since it's so long for block explorer users to find the right part
 * Remove events' timestamps parameter
 * Remove Nota struct in processX since only currency and escrowed matter
-* rename processX() to beforeX()
+* Remove the libraries from foundry (they show up in the verification)
+* Add batch metadata updating from hooks (if a global setting is changed then all it's Notas should be updated)... But ALL Notas?
+* Make verification multi-part since (it's so long for block explorer users to find the right part)
+* Remove DataTypes library if possible
 * Address bit flags (understand how incorrect bit flags affect safety)     [000000 -> 111111] => [00 -> FF]
     * Could have standard WTFC subfunctions and module overrides, ie: `if (module.shouldCallTransferHook){ module allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
     * `emit MetadataUpdate(notaId)` only if hook is used
+    * Consider different options for hooks: call, skip call, AND disallow without call
 * Add `burn()` safer transfers, reduces module transfer logic (gas cheaper)
 * Add moduleFee on approvals
 * Use write struct if cheaper (write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)
@@ -53,7 +54,6 @@ Things to address and when to address them
 * Add noDelegateCall in WTFCAB (if permissionless)
 * Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
-* Remove datatypes library if possible
 * Ensure consistency in function parameters for WTFCA and hooks
     [write(currency, escrowed, instant, owner, module, moduleBytes) -> 
      hook(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes)]
