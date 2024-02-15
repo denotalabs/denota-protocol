@@ -12,6 +12,7 @@ import "./mock/erc20.sol";
 // TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
 // TODO test event emission
 // TODO have WTFCA vm.assumptions in helpers (owner != address(0), from == owner, etc)
+// Add invariant tests for registrar here (token transfers, etc)
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public DAI;

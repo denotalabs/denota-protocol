@@ -7,6 +7,12 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
+/**
+ * Solves whether the client HAS the money (Solvency)
+ * Solves not being able to expose rug-pulls (Transparency)
+ * Solves the client forgetting to pay (Timeliness)
+ * Solves not being able to get an advance on future work (Liquidity)
+ */
 contract ReversibleByBeforeDate is ModuleBase {
     struct Payment {
         address sender;
@@ -75,6 +81,7 @@ contract ReversibleByBeforeDate is ModuleBase {
         Nota calldata, // nota,
         bytes calldata // initData
     ) external override onlyRegistrar returns (uint256) {
+        // Should this be allowed?
         revert Disallowed();
     }
 
@@ -118,7 +125,7 @@ contract ReversibleByBeforeDate is ModuleBase {
                         Strings.toHexString(payment.inspector),
                         '"},{"trait_type":"Payer","value":"',
                         Strings.toHexString(payment.sender),
-                        '"},{"trait_type":"Inspection End","value":"',
+                        '"},{"trait_type":"Inspection End","display_type":"date","value":"',
                         Strings.toString(payment.inspectionEnd),
                         '"}'
                     )

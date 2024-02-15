@@ -7,7 +7,9 @@ import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
 /**
- * @notice A simple payment module that includes an IPFS hash for memos (included in the URI)
+ * Building reputation so new clients trust you (proof of payment)
+ * Allows for attached metadata (context)
+ * Brandability, collectibility/memorability (images/tradability)
  */
 contract DirectSend is ModuleBase {
     struct Payment {
