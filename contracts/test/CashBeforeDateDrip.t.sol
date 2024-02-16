@@ -11,6 +11,9 @@ import {RegistrarTest} from "./Registrar.t.sol";
 
 contract CashBeforeDateDripTest is RegistrarTest {
     CashBeforeDateDrip public CASH_BY_DATE_DRIP;
+    uint256 public constant EXPIRATION_DATE = 10 days;  // Need to test these with special values (0, 1, uint.max, etc)
+    uint256 public constant DRIP_AMOUNT = 1e18;
+    uint256 public constant DRIP_PERIOD = 1 days;
 
     function setUp() public override {
         super.setUp();  // init registrar, tokens, and their labels   
@@ -34,16 +37,16 @@ contract CashBeforeDateDripTest is RegistrarTest {
         _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
 
         bytes memory initData = abi.encode(
-            10 days, // Expiration date
-            100, // dripAmount
-            1 days, // dripPeriod
+            EXPIRATION_DATE, // Expiration date
+            DRIP_AMOUNT, // dripAmount
+            DRIP_PERIOD, // dripPeriod
             "ipfs://QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv", // externalURI
             "cerealclub.mypinata.cloud/ipfs/QmQ9sr73woB8cVjq5ppUxzNoRwWDVmK7Vu65zc3R7Dbv1Z/2806.png" // imageURI
         );
         uint256 notaId = _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, CASH_BY_DATE_DRIP, initData);
         
         // TODO module specific state testing
-
+        // payment.lastCashed = block.timestamp; // Post write
         return notaId;
     }
 
@@ -93,32 +96,6 @@ contract CashBeforeDateDripTest is RegistrarTest {
         _registrarTransferHelper(fakeTransferer, owner, to, notaId);    
     }
 
-/**
-    if (to == payment.sender){
-        require(block.timestamp > payment.expirationDate, "NotExpired");
-        return 0;
-    }
-    if (to != owner) revert OnlyToOwner();
-    if (block.timestamp > payment.expirationDate) revert Expired();
-    if (block.timestamp < payment.lastCashed + payment.dripPeriod) revert TooEarly();
-    if (amount > payment.dripAmount) revert ExceedsDripAmount();
-
-    payment.lastCashed = block.timestamp;
-        
- */
-    function testCashOwner(
-        address caller,
-        uint256 escrowed,
-        address owner,
-        uint256 cashAmount
-    ) public {
-        vm.assume(cashAmount <= escrowed);
-        vm.assume(caller != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
-
-        vm.warp(1 days);
-        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
-    }
 
     function testCashSender(
         address caller,
@@ -130,8 +107,105 @@ contract CashBeforeDateDripTest is RegistrarTest {
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
 
-        vm.warp(1 days + 1);
+        vm.warp(EXPIRATION_DATE + 1);
         _registrarCashHelper(owner, notaId, cashAmount, caller, abi.encode(""));
+    }
+    
+    function testFailCashSenderEarly(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount
+    ) public {
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        vm.warp(EXPIRATION_DATE);
+        _registrarCashHelper(owner, notaId, cashAmount, caller, abi.encode(""));
+    }
+
+    function testCashOwner(
+        address caller,
+        uint256 escrowed,
+        address owner
+    ) public {
+        vm.assume(escrowed >= DRIP_AMOUNT);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        vm.warp(DRIP_PERIOD + 1);
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, owner, abi.encode(""));
+    }
+
+    function testFailCashOwnerTo(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        address notOwner
+    ) public {
+        vm.assume(escrowed >= DRIP_AMOUNT);
+        vm.assume(caller != owner && notOwner != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, notOwner, abi.encode(""));
+    }
+
+    function testFailCashOwnerExpired(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount,
+        address notOwner
+    ) public {
+        vm.assume(cashAmount <= escrowed);
+        vm.assume(caller != owner && notOwner != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        vm.warp(EXPIRATION_DATE + 1);
+        _registrarCashHelper(owner, notaId, cashAmount, notOwner, abi.encode(""));
+    }
+
+    function testCashOwnerAgain(
+        address caller,
+        uint256 escrowed,
+        address owner
+    ) public {
+        vm.assume(escrowed >= DRIP_AMOUNT*2);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        vm.warp(DRIP_PERIOD + 1);
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, owner, abi.encode(""));
+
+        vm.warp(DRIP_PERIOD*2 + 1);
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, owner, abi.encode(""));
+    }
+
+    function testFailCashOwnerAgain(
+        address caller,
+        uint256 escrowed,
+        address owner
+    ) public {
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        vm.warp(DRIP_PERIOD + 1);
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, owner, abi.encode(""));
+        _registrarCashHelper(owner, notaId, DRIP_AMOUNT, owner, abi.encode(""));
+    }
+
+    function testFailCashOwnerAmount(
+        address caller,
+        uint256 escrowed,
+        address owner,
+        uint256 cashAmount
+    ) public {
+        vm.assume(cashAmount > DRIP_AMOUNT);
+        vm.assume(caller != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
+
+        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
     }
 
     function testFailCashId(
@@ -176,33 +250,5 @@ contract CashBeforeDateDripTest is RegistrarTest {
 
         vm.warp(random);
         _registrarCashHelper(fakeCasher, notaId, cashAmount, fakeCasher, abi.encode(""));
-    }
-
-    function testFailCashOwner(
-        address caller,
-        uint256 escrowed,
-        address owner,
-        uint256 cashAmount
-    ) public {
-        vm.assume(cashAmount <= escrowed);
-        vm.assume(caller != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
-
-        vm.warp(1 days + 1);
-        _registrarCashHelper(owner, notaId, cashAmount, owner, abi.encode(""));
-    }
-
-    function testFailCashSender(
-        address caller,
-        uint256 escrowed,
-        address owner,
-        uint256 cashAmount
-    ) public {
-        vm.assume(cashAmount <= escrowed);
-        vm.assume(caller != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner);
-
-        vm.warp(1 days);
-        _registrarCashHelper(owner, notaId, cashAmount, caller, abi.encode(""));
     }
 }
