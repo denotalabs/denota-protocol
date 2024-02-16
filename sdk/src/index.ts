@@ -2,22 +2,30 @@ import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
 
+import { uploadMetadata } from "./Metadata";
 import Events from "./abis/Events.sol/Events.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
-import { uploadMetadata } from "./Metadata";
+import {
+  CashBeforeDateData,
+  cashCashBeforeDate,
+  writeCashBeforeDate,
+} from "./modules/CashBeforeDate";
 import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
 import {
-  cashReversibleRelease,
+  ReversibleByBeforeDateData,
+  cashReversibleByBeforeDate,
+  writeReversibleByBeforeDate,
+} from "./modules/ReverseByBeforeDate";
+import {
   ReversibleReleaseData,
+  cashReversibleRelease,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
 import {
-  cashSimpleCash,
   SimpleCashData,
+  cashSimpleCash,
   writeSimpleCash,
 } from "./modules/SimpleCash";
-import { cashCashBeforeDate, CashBeforeDateData, writeCashBeforeDate } from "./modules/CashBeforeDate";
-import { cashReversibleByBeforeDate, ReversibleByBeforeDateData, writeReversibleByBeforeDate } from "./modules/ReversibleByBeforeDate";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [137, 80001, 44787];
 
@@ -200,8 +208,19 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData | ReversibleByBeforeDateData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate" | "reversibleByBeforeDate";
+type ModuleData =
+  | DirectPayData
+  | ReversibleReleaseData
+  | SimpleCashData
+  | CashBeforeDateData
+  | ReversibleByBeforeDateData;
+
+type NotaModule =
+  | "directPay"
+  | "reversibleRelease"
+  | "simpleCash"
+  | "cashBeforeDate"
+  | "reversibleByBeforeDate";
 
 interface RawMetadata {
   type: "raw";
@@ -212,7 +231,7 @@ interface RawMetadata {
 
 interface UploadedMetadata {
   type: "uploaded";
-  ipfsHash: string;
+  externalUrl: string;
   imageUrl?: string;
 }
 
@@ -225,11 +244,11 @@ export interface WriteProps {
 }
 
 export async function write({ module, metadata, ...props }: WriteProps) {
-  let ipfsHash = "",
+  let externalUrl = "",
     imageUrl = "";
 
   if (metadata?.type === "uploaded") {
-    ipfsHash = metadata.ipfsHash;
+    externalUrl = metadata.externalUrl;
     imageUrl = metadata.imageUrl ?? "";
   }
 
@@ -237,30 +256,30 @@ export async function write({ module, metadata, ...props }: WriteProps) {
     const { imageUrl: uploadedImageUrl, ipfsHash: uploadedHash } =
       await uploadMetadata(metadata.file, metadata.notes, metadata.tags);
     imageUrl = uploadedImageUrl ?? "";
-    ipfsHash = uploadedHash ?? "";
+    externalUrl = uploadedHash ?? "";
   }
 
   switch (module.moduleName) {
     case "direct":
-      return await writeDirectPay({ module, ipfsHash, imageUrl, ...props });
+      return await writeDirectPay({ module, externalUrl, imageUrl, ...props });
     case "reversibleRelease":
       return await writeReversibleRelease({
         module,
-        externalUrl: ipfsHash,
+        externalUrl,
         imageUrl,
         ...props,
       });
     case "reversibleByBeforeDate":
       return await writeReversibleByBeforeDate({
         module,
-        externalUrl: ipfsHash,
+        externalUrl,
         imageUrl,
         ...props,
       });
     case "cashBeforeDate":
       return await writeCashBeforeDate({
         module,
-        externalUrl: ipfsHash,
+        externalUrl,
         imageUrl,
         ...props,
       });
@@ -274,7 +293,6 @@ interface FundProps {
   amount: BigNumber;
   module: NotaModule;
 }
-
 
 export async function fund({ notaId, amount, module }: FundProps) {
   // Implement in future modules
@@ -308,8 +326,10 @@ export async function cash({
         to,
         amount,
       });
-      case "cashBeforeDate":
-        return await cashCashBeforeDate({ notaId, to, amount });
+    case "cashBeforeDate":
+      return await cashCashBeforeDate({ notaId, to, amount });
+    case "cashBeforeDate":
+      return await cashCashBeforeDate({ notaId, to, amount });
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
   }
