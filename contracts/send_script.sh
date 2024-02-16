@@ -84,9 +84,10 @@ convertToEpoch() {
 # Ask for transaction type
 echo "Select the type of transaction:"
 echo "1. CashBeforeDate"
-echo "2. ReversibleRelease"
-echo "3. SimpleCash"
-read -p "Enter your choice (1/2/3): " transactionType
+echo "2. ReversibleByBeforeDate"
+echo "3. ReversibleRelease"
+echo "4. SimpleCash"
+read -p "Enter your choice (1/2/3/4): " transactionType
 
 # Get registrar address
 registrarAddress=$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $2}')
@@ -127,10 +128,24 @@ case $transactionType in
             echo "cashByDate (epoch time): $cashByDate"
         fi ;;
     2)
+        module="0x00000000115e79ea19439db1095327acbd810bf7"
+        # Example usage within the script where you need to convert "7 days" into epoch
+        read -p "Enter cashByDate (e.g., '7 days', '1 minute', '2 months'): " userInput
+        cashByDate=$(convertToEpoch "$userInput")
+
+        if [ -z "$cashByDate" ]; then
+            echo "Invalid date format."
+            exit 1
+        else
+            echo "cashByDate (epoch time): $cashByDate"
+        fi 
+        read -p "Enter inspector address: " inspector 
+        ;;
+    3)
         module="0x0000000078E1A913Ee98c64CEc34fe813872eF79"
         read -p "Enter inspector address: " inspector
         ;;
-    3) module="0x000000000AE1D0831c0C7485eAcc847D2F57EBb9" ;;
+    4) module="0x000000000AE1D0831c0C7485eAcc847D2F57EBb9" ;;
 
     *)
         echo "Invalid option selected."
@@ -142,8 +157,10 @@ esac
 if [[ "$transactionType" == "1" ]]; then
     moduleBytes=$(cast abi-encode "f(uint256,string,string)" "${cashByDate}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "2" ]]; then
-    moduleBytes=$(cast abi-encode "f(address,string,string)" "${inspector}" "${externalURL}" "${imageURL}")
+    moduleBytes=$(cast abi-encode "f(address,uint256,string,string)" "${inspector}" "${cashByDate}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "3" ]]; then
+    moduleBytes=$(cast abi-encode "f(address,string,string)" "${inspector}" "${externalURL}" "${imageURL}")
+elif [[ "$transactionType" == "4" ]]; then
     moduleBytes=$(cast abi-encode "f(string,string)" "${externalURL}" "${imageURL}")
 else
     echo "Invalid option selected."
