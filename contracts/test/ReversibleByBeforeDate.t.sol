@@ -6,16 +6,16 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {Nota} from "../src/libraries/DataTypes.sol";
-import {ReversibleTimelock} from "../src/modules/ReversibleTimelock.sol";
+import {ReversibleByBeforeDate} from "../src/modules/ReversibleByBeforeDate.sol";
 import {RegistrarTest} from "./Registrar.t.sol";
 
-contract ReversibleTimelockTest is RegistrarTest {
-    ReversibleTimelock public REVERSIBLE_TIMELOCK;
+contract ReversibleByBeforeDateTest is RegistrarTest {
+    ReversibleByBeforeDate public REVERSIBLE_BY_BEFORE_DATE;
 
     function setUp() public override {
         super.setUp();  // init registrar, tokens, and their labels   
-        REVERSIBLE_TIMELOCK = new ReversibleTimelock(address(REGISTRAR));
-        vm.label(address(REVERSIBLE_TIMELOCK), "ReversibleTimelock");
+        REVERSIBLE_BY_BEFORE_DATE = new ReversibleByBeforeDate(address(REGISTRAR));
+        vm.label(address(REVERSIBLE_BY_BEFORE_DATE), "ReversibleByBeforeDate");
     }
 
     function _setupThenWrite(
@@ -28,7 +28,7 @@ contract ReversibleTimelockTest is RegistrarTest {
         vm.assume(inspector != address(0));
         _registrarWriteAssumptions(caller, escrowed, instant, owner); // no address(0) and not registrar or testing contract
 
-        _registrarModuleWhitelistToggleHelper(REVERSIBLE_TIMELOCK, false); // startedAs=false
+        _registrarModuleWhitelistToggleHelper(REVERSIBLE_BY_BEFORE_DATE, false); // startedAs=false
         _registrarTokenWhitelistToggleHelper(address(DAI), false);
 
         _tokenFundAddressApproveAddress(caller, DAI, escrowed + instant, address(REGISTRAR));
@@ -39,7 +39,7 @@ contract ReversibleTimelockTest is RegistrarTest {
             "ipfs://QmbZzDcAbfnNqRCq4Ym4ygp1AEdNKN4vqgScUSzR2DZQcv",
             "cerealclub.mypinata.cloud/ipfs/QmQ9sr73woB8cVjq5ppUxzNoRwWDVmK7Vu65zc3R7Dbv1Z/2806.png"
         );
-        uint256 notaId = _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, REVERSIBLE_TIMELOCK, initData);
+        uint256 notaId = _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, REVERSIBLE_BY_BEFORE_DATE, initData);
 
         return notaId;
     }
@@ -180,6 +180,7 @@ contract ReversibleTimelockTest is RegistrarTest {
         uint256 cashAmount,
         address inspector
     ) public {
+        // Owner trying to cash before the inspection end date
         vm.assume(cashAmount <= escrowed);
         vm.assume(caller != owner);
         uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
@@ -189,18 +190,18 @@ contract ReversibleTimelockTest is RegistrarTest {
     }
 
     function testFailCashSender(
-        address caller,
+        address writer,
         uint256 escrowed,
         address owner,
         uint256 cashAmount,
         address inspector
     ) public {
         vm.assume(cashAmount <= escrowed);
-        vm.assume(caller != owner);
-        uint256 notaId = _setupThenWrite(caller, escrowed, 0, owner, inspector);
+        vm.assume(writer != owner);
+        uint256 notaId = _setupThenWrite(writer, escrowed, 0, owner, inspector);
 
         vm.warp(1 days);
-        _registrarCashHelper(inspector, notaId, cashAmount, caller, abi.encode(""));
+        _registrarCashHelper(inspector, notaId, cashAmount, writer, abi.encode(""));
     }
 
     function testFailCashNotInspectorToSender(

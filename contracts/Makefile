@@ -47,7 +47,7 @@ whitelist-tokens:
 	cast send ${testEth} "approve(address,uint256)" $${registrarAddress} 1000000000000000000000000 --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
-moduleFileName=CashBeforeDate
+moduleFileName=ReversibleByBeforeDate
 deploy-module:
 	forge flatten src/modules/$(moduleFileName).sol > src/flat/$(moduleFileName).sol
 	forge compile --optimizer-runs ${optimizer_runs}
@@ -63,7 +63,7 @@ deploy-module:
 	echo "\n\n" ; \
 	salt=$$(cat salts/$(moduleFileName).txt | grep "Salt: " | awk '{print $$2}') ; \
 	moduleAddress=$$(cat salts/$(moduleFileName).txt | grep "Address: " | awk '{print $$2}') ; \
-	cast send ${FACTORY_ADDRESS} "safeCreate2(bytes32,bytes calldata)" $${salt} $${bytecode} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}; \
+	cast send ${FACTORY_ADDRESS} "safeCreate2(bytes32,bytes calldata)" $${salt} $${bytecode} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000; \
 	echo "Address deployed on blockchain.\nVerifying...\n\n" ; \
 	sleep 10 ; \
 	forge verify-contract --compiler-version v0.8.20+commit.a1b79de6 --num-of-optimizations ${optimizer_runs} --watch \
@@ -72,57 +72,9 @@ deploy-module:
 	$${moduleAddress} \
 	src/flat/$(moduleFileName).sol:$(moduleFileName) ; \
 	echo "Contract verified.\nWhitelisting:\n\n" ; \
-	cast send $${registrarAddress} "whitelistModule(address,bool)" $${moduleAddress} true --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
+	cast send $${registrarAddress} "whitelistModule(address,bool)" $${moduleAddress} true --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000; \
 	echo "Hook whitelisted.\nWriting:\n\n" ; \
-	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0xDC46618CAcb3271A6999Aebe313Cd2De06466062 $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
-
-send-SimpleCash:
-	# Make sure approvals are set #
-
-	module=0x000000000AE1D0831c0C7485eAcc847D2F57EBb9; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${WETH} ; \
-	escrow=0 ; \
-	instant=0 ; \
-	owner=0x; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(string,string)" $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY}  --rpc-url ${DEPLOY_RPC_URL} --gas-price 202778295180 --priority-gas-price 20277829518
-
-# DEN, Frutero
-send-ReversibleRelease:
-	# Make sure approvals are set #
-
-	module=0x0000000078E1A913Ee98c64CEc34fe813872eF79; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${GET} ; \
-	escrow=0; \
-	instant=0; \
-	owner=0x; \
-	inspector=0x167813E0D6958BCF30a1cEbEE53aE0C57677c963; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(address,string,string)" $${inspector} $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
-
-send-CashBeforeDate:
-	# Make sure approvals are set #
-
-	module=0x00000000123157038206FeFeB809823016331fF2; \
-	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
-	writeABI="write(address,uint256,uint256,address,address,bytes)" ; \
-	currency=${CircleUSDC} ; \
-	escrow=0; \
-	instant=0; \
-	owner=0x; \
-	cashByDate=1708300799; \
-	externalURL="https://app.denota.xyz/"; \
-	imageURL="ipfs://"; \
-	moduleBytes=$$(cast abi-encode "f(uint256,string,string)" $${cashByDate} $${externalURL} $${imageURL}) ; \
-	cast send $${registrarAddress} $${writeABI} $${currency} $${escrow} $${instant} $${owner} $${module} $${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0x $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000
 
 all: clean remove install update solc build
 

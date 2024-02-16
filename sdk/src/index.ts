@@ -17,8 +17,9 @@ import {
   writeSimpleCash,
 } from "./modules/SimpleCash";
 import { cashCashBeforeDate, CashBeforeDateData, writeCashBeforeDate } from "./modules/CashBeforeDate";
+import { cashReversibleByBeforeDate, ReversibleByBeforeDateData, writeReversibleByBeforeDate } from "./modules/ReversibleByBeforeDate";
 
-export const DENOTA_SUPPORTED_CHAIN_IDS = [80001, 44787];
+export const DENOTA_SUPPORTED_CHAIN_IDS = [137, 80001, 44787];
 
 export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT" | "GET";
 
@@ -28,6 +29,7 @@ interface ContractMapping {
   Events: string;
   registrar: string;
   reversibleRelease: string;
+  reversibleByBeforeDate: string;
   directPay: string;
   simpleCash: string;
   cashBeforeDate: string;
@@ -66,6 +68,7 @@ export const state: State = {
       registrar: "",
       directPay: "",
       reversibleRelease: "",
+      reversibleByBeforeDate: "",
       simpleCash: "",
       cashBeforeDate: "",
       dai: "",
@@ -197,8 +200,8 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate";
+type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData | ReversibleByBeforeDateData;
+type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate" | "reversibleByBeforeDate";
 
 interface RawMetadata {
   type: "raw";
@@ -247,6 +250,13 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
+    case "reversibleByBeforeDate":
+      return await writeReversibleByBeforeDate({
+        module,
+        externalUrl: ipfsHash,
+        imageUrl,
+        ...props,
+      });
     case "cashBeforeDate":
       return await writeCashBeforeDate({
         module,
@@ -288,6 +298,12 @@ export async function cash({
   switch (module) {
     case "reversibleRelease":
       return await cashReversibleRelease({
+        notaId,
+        to,
+        amount,
+      });
+    case "reversibleByBeforeDate":
+      return await cashReversibleByBeforeDate({
         notaId,
         to,
         amount,

@@ -7,8 +7,13 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 import {INotaRegistrar} from "../interfaces/INotaRegistrar.sol";
 import "openzeppelin/utils/Strings.sol";
 
-// ReversibleByBeforeDate
-contract ReversibleTimelock is ModuleBase {
+/**
+ * Solves whether the client HAS the money (Solvency)
+ * Solves not being able to expose rug-pulls (Transparency)
+ * Solves the client forgetting to pay (Timeliness)
+ * Solves not being able to get an advance on future work (Liquidity)
+ */
+contract ReversibleByBeforeDate is ModuleBase {
     struct Payment {
         address sender;
         address inspector;
@@ -46,7 +51,7 @@ contract ReversibleTimelock is ModuleBase {
         ) = abi.decode(initData, (address, uint256, string, string));
         
         if (inspector == address(0)) revert AddressZero();
-        if (inspectionEnd < block.timestamp) revert InspectionEndPassed();
+        if (inspectionEnd <= block.timestamp) revert InspectionEndPassed();
 
         payments[notaId] = Payment(caller, inspector, inspectionEnd, external_url, imageURI);
 
@@ -61,8 +66,8 @@ contract ReversibleTimelock is ModuleBase {
         address /*from*/,
         address /*to*/,
         uint256 /*notaId*/,
-        Nota calldata nota,
-        bytes memory data
+        Nota calldata /*nota*/,
+        bytes memory /*data*/
     ) external override onlyRegistrar returns (uint256) {
         return 0;
     }
@@ -76,6 +81,7 @@ contract ReversibleTimelock is ModuleBase {
         Nota calldata, // nota,
         bytes calldata // initData
     ) external override onlyRegistrar returns (uint256) {
+        // Should this be allowed?
         revert Disallowed();
     }
 
@@ -90,7 +96,7 @@ contract ReversibleTimelock is ModuleBase {
     ) external override onlyRegistrar returns (uint256) {
         Payment memory payment = payments[notaId];
 
-        if (payment.inspectionEnd > block.timestamp) {  // Current time is before inspection end
+        if (payment.inspectionEnd > block.timestamp) {  // Current time is during inspection period
             require(caller == payment.inspector, "OnlyByInspector");
             require(to == payment.sender, "OnlyToSender");
         } else {
@@ -119,7 +125,7 @@ contract ReversibleTimelock is ModuleBase {
                         Strings.toHexString(payment.inspector),
                         '"},{"trait_type":"Payer","value":"',
                         Strings.toHexString(payment.sender),
-                        '"},{"trait_type":"Inspection End","value":"',
+                        '"},{"trait_type":"Inspection End","display_type":"date","value":"',
                         Strings.toString(payment.inspectionEnd),
                         '"}'
                     )
@@ -128,11 +134,11 @@ contract ReversibleTimelock is ModuleBase {
                     abi.encodePacked(
                         ',"image":"', 
                         payment.imageURI, 
-                        '","name":"Reversible Timelock Nota #',
+                        '","name":"Reversible By Before Date Nota #',
                         Strings.toHexString(tokenId),
                         '","external_url":"', 
                         payment.external_url,
-                        '","description":"Allows the payer to choose the inspector who is then allowed to release the escrow to the owner. After the inspection end date, the owner can release the escrow to themselves."'
+                        '","description":"Allows the payer to choose an inspector. The inspector can reverse the payment only during the inspection period. After the inspection period only the owner can receive the funds."'
                     )
                 )
             );
