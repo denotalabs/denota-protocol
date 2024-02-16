@@ -12,6 +12,11 @@ import {
 } from "./modules/CashBeforeDate";
 import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
 import {
+  ReversibleByBeforeDateData,
+  cashReversibleByBeforeDate,
+  writeReversibleByBeforeDate,
+} from "./modules/ReverseByBeforeDate";
+import {
   ReversibleReleaseData,
   cashReversibleRelease,
   writeReversibleRelease,
@@ -21,11 +26,6 @@ import {
   cashSimpleCash,
   writeSimpleCash,
 } from "./modules/SimpleCash";
-<<<<<<< HEAD
-import { cashCashBeforeDate, CashBeforeDateData, writeCashBeforeDate } from "./modules/CashBeforeDate";
-import { cashReversibleByBeforeDate, ReversibleByBeforeDateData, writeReversibleByBeforeDate } from "./modules/ReversibleByBeforeDate";
-=======
->>>>>>> 0cff1613 (rename ipfs to external url)
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [137, 80001, 44787];
 
@@ -208,21 +208,19 @@ export async function approveToken({
   await tx.wait();
 }
 
-<<<<<<< HEAD
-type ModuleData = DirectPayData | ReversibleReleaseData | SimpleCashData | CashBeforeDateData | ReversibleByBeforeDateData;
-type NotaModule = "directPay" | "reversibleRelease" | "simpleCash" | "cashBeforeDate" | "reversibleByBeforeDate";
-=======
 type ModuleData =
   | DirectPayData
   | ReversibleReleaseData
   | SimpleCashData
-  | CashBeforeDateData;
+  | CashBeforeDateData
+  | ReversibleByBeforeDateData;
+
 type NotaModule =
   | "directPay"
   | "reversibleRelease"
   | "simpleCash"
-  | "cashBeforeDate";
->>>>>>> 0cff1613 (rename ipfs to external url)
+  | "cashBeforeDate"
+  | "reversibleByBeforeDate";
 
 interface RawMetadata {
   type: "raw";
@@ -274,7 +272,7 @@ export async function write({ module, metadata, ...props }: WriteProps) {
     case "reversibleByBeforeDate":
       return await writeReversibleByBeforeDate({
         module,
-        externalUrl: ipfsHash,
+        externalUrl,
         imageUrl,
         ...props,
       });
@@ -322,19 +320,16 @@ export async function cash({
         to,
         amount,
       });
-<<<<<<< HEAD
     case "reversibleByBeforeDate":
       return await cashReversibleByBeforeDate({
         notaId,
         to,
         amount,
       });
-      case "cashBeforeDate":
-        return await cashCashBeforeDate({ notaId, to, amount });
-=======
     case "cashBeforeDate":
       return await cashCashBeforeDate({ notaId, to, amount });
->>>>>>> 0cff1613 (rename ipfs to external url)
+    case "cashBeforeDate":
+      return await cashCashBeforeDate({ notaId, to, amount });
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
   }
