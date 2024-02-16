@@ -47,7 +47,7 @@ whitelist-tokens:
 	cast send ${testEth} "approve(address,uint256)" $${registrarAddress} 1000000000000000000000000 --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
-moduleFileName=ReversibleByBeforeDate
+moduleFileName=CashBeforeDate
 deploy-module:
 	forge flatten src/modules/$(moduleFileName).sol > src/flat/$(moduleFileName).sol
 	forge compile --optimizer-runs ${optimizer_runs}
@@ -73,8 +73,7 @@ deploy-module:
 	src/flat/$(moduleFileName).sol:$(moduleFileName) ; \
 	echo "Contract verified.\nWhitelisting:\n\n" ; \
 	cast send $${registrarAddress} "whitelistModule(address,bool)" $${moduleAddress} true --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000; \
-	echo "Hook whitelisted.\nWriting:\n\n" ; \
-	cast send $${registrarAddress} "write(address,uint256,uint256,address,address,bytes)" ${CircleUSDC} 5000000 0 0x $${moduleAddress} "" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000
+	echo "Hook whitelisted.\nWriting:\n\n" ;
 
 all: clean remove install update solc build
 

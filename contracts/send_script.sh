@@ -116,7 +116,7 @@ imageURL=${imageURL:-"ipfs://"}
 writeABI="write(address,uint256,uint256,address,address,bytes)"
 case $transactionType in
     1)
-        module="0x00000000123157038206FeFeB809823016331fF2"
+        module="0x000000005891889951D265d6d7ad3444B68f8887"
         # Example usage within the script where you need to convert "7 days" into epoch
         read -p "Enter cashByDate (e.g., '7 days', '1 minute', '2 months'): " userInput
         cashByDate=$(convertToEpoch "$userInput")
@@ -130,14 +130,14 @@ case $transactionType in
     2)
         module="0x00000000115e79ea19439db1095327acbd810bf7"
         # Example usage within the script where you need to convert "7 days" into epoch
-        read -p "Enter cashByDate (e.g., '7 days', '1 minute', '2 months'): " userInput
+        read -p "Enter reversibleByBeforeDate (e.g., '7 days', '1 minute', '2 months'): " userInput
         cashByDate=$(convertToEpoch "$userInput")
 
         if [ -z "$cashByDate" ]; then
             echo "Invalid date format."
             exit 1
         else
-            echo "cashByDate (epoch time): $cashByDate"
+            echo "reversibleByBeforeDate (epoch time): $cashByDate"
         fi 
         read -p "Enter inspector address: " inspector 
         ;;
