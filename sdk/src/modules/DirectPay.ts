@@ -19,7 +19,7 @@ export interface DirectPayData {
 export interface WriteDirectPayProps {
   currency: DenotaCurrency;
   amount: number;
-  ipfsHash?: string;
+  externalUrl?: string;
   imageUrl?: string;
   module: DirectPayData;
 }
@@ -29,7 +29,7 @@ export async function writeDirectPay({
   amount,
   currency,
   imageUrl,
-  ipfsHash,
+  externalUrl,
 }: WriteDirectPayProps) {
   const { dueDate, payee } = module;
   const utcOffset = new Date().getTimezoneOffset();
@@ -56,7 +56,7 @@ export async function writeDirectPay({
 
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["string", "string"],
-    [ipfsHash ?? "", imageUrl ?? ""]
+    [externalUrl ?? "", imageUrl ?? ""]
   );
 
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
