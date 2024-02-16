@@ -86,11 +86,11 @@ contract CashBeforeDate is ModuleBase {
                     abi.encodePacked(
                         ',{"trait_type":"Sender","value":"',
                         Strings.toHexString(payment.sender),
-                        '"},{"trait_type":"Cash By Date","value":"',
+                        '"},{"trait_type":"Cash By Date","display_type":"date","value":"',
                         Strings.toString(payment.cashBy),
                         '"}'
                     )
-                ), 
+                ),
                 string(
                     abi.encodePacked(
                         ',"image":"', 
