@@ -83,6 +83,7 @@ convertToEpoch() {
 
 # Ask for transaction type
 echo "Select the type of transaction:"
+echo "0. CashBeforeDateDrip"
 echo "1. CashBeforeDate"
 echo "2. ReversibleByBeforeDate"
 echo "3. ReversibleRelease"
@@ -115,6 +116,29 @@ imageURL=${imageURL:-"ipfs://"}
 # Module and ABI setup
 writeABI="write(address,uint256,uint256,address,address,bytes)"
 case $transactionType in
+    0)
+        module="0x00000000CcE992072E23cda23A1986f2207f5e80"
+
+        read -p "Enter expirationDate (e.g., '7 days', '1 minute', '2 months'): " userInput
+        expirationDate=$(convertToEpoch "$userInput")
+        if [ -z "$expirationDate" ]; then
+            echo "Invalid date format."
+            exit 1
+        else
+            echo "expirationDate (epoch time): $expirationDate"
+        fi
+
+        read -p "Enter dripAmount: " dripAmount
+
+        read -p "Enter dripPeriod (e.g., '7 days', '1 minute', '2 months'): " userInput
+        dripPeriod=$(convertToEpoch "$userInput")
+        if [ -z "$dripPeriod" ]; then
+            echo "Invalid date format."
+            exit 1
+        else
+            echo "dripPeriod (epoch time): $dripPeriod"
+        fi
+        ;;
     1)
         module="0x000000005891889951D265d6d7ad3444B68f8887"
         # Example usage within the script where you need to convert "7 days" into epoch
@@ -154,7 +178,9 @@ case $transactionType in
 esac
 
 # Generate moduleBytes based on transaction type
-if [[ "$transactionType" == "1" ]]; then
+if [[ "$transactionType" == "0" ]]; then
+    moduleBytes=$(cast abi-encode "f(uint256,uint256,uint256,string,string)" "${expirationDate}" "${dripAmount}" "${dripPeriod}" "${externalURL}" "${imageURL}")
+elif [[ "$transactionType" == "1" ]]; then
     moduleBytes=$(cast abi-encode "f(uint256,string,string)" "${cashByDate}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "2" ]]; then
     moduleBytes=$(cast abi-encode "f(address,uint256,string,string)" "${inspector}" "${cashByDate}" "${externalURL}" "${imageURL}")
