@@ -47,7 +47,7 @@ whitelist-tokens:
 	cast send ${testEth} "approve(address,uint256)" $${registrarAddress} 1000000000000000000000000 --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
-moduleFileName=CashBeforeDate
+moduleFileName=CashBeforeDateDrip
 deploy-module:
 	forge flatten src/modules/$(moduleFileName).sol > src/flat/$(moduleFileName).sol
 	forge compile --optimizer-runs ${optimizer_runs}
