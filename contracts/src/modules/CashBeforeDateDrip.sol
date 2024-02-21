@@ -7,7 +7,7 @@ import {ModuleBase} from "../ModuleBase.sol";
 
 /* 
 commit: https://github.com/denotalabs/denota-protocol/commit/678ce39e0280fe4305b12d4efe0e0d97a3486216: 0x00000000CcE992072E23cda23A1986f2207f5e80
-
+commit: https://github.com/denotalabs/denota-protocol/commit/c428c34102ffa91c0d8819db47088ddb6ac68108: 0x00000000e8c13602e4d483a90af69e7582a43373
 */
 contract CashBeforeDateDrip is ModuleBase {
     struct Payment {

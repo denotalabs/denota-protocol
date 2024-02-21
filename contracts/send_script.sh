@@ -82,6 +82,33 @@ convertToEpoch() {
     echo $epoch
 }
 
+# Function to convert duration to seconds
+convert_to_seconds() {
+    local input="$1"
+    local number=$(echo $input | awk '{print $1}')
+    local unit=$(echo $input | awk '{print $2}')
+
+    case $unit in
+        day|days)
+            echo $(($number * 86400))
+            ;;
+        month|months)
+            # Assuming an average month length of 30 days
+            echo $(($number * 30 * 86400))
+            ;;
+        hour|hours)
+            echo $(($number * 3600))
+            ;;
+        minute|minutes)
+            echo $(($number * 60))
+            ;;
+        *)
+            echo "Unsupported unit: $unit"
+            exit 1
+            ;;
+    esac
+}
+
 # Ask for transaction type
 echo "Select the type of transaction:"
 echo "0. CashBeforeDateDrip"
@@ -118,7 +145,7 @@ imageURL=${imageURL:-"ipfs://"}
 writeABI="write(address,uint256,uint256,address,address,bytes)"
 case $transactionType in
     0)
-        module="0x00000000CcE992072E23cda23A1986f2207f5e80"
+        module="0x00000000e8c13602e4d483a90af69e7582a43373"
 
         read -p "Enter expirationDate (e.g., '7 days', '1 minute', '2 months'): " userInput
         expirationDate=$(convertToEpoch "$userInput")
@@ -132,12 +159,13 @@ case $transactionType in
         read -p "Enter dripAmount: " dripAmount
 
         read -p "Enter dripPeriod (e.g., '7 days', '1 minute', '2 months'): " userInput
-        dripPeriod=$(convertToEpoch "$userInput")
+
+        dripPeriod=$(convert_to_seconds "$userInput")
         if [ -z "$dripPeriod" ]; then
             echo "Invalid date format."
             exit 1
         else
-            echo "dripPeriod (epoch time): $dripPeriod"
+            echo "dripPeriod (in seconds): $dripPeriod"
         fi
         ;;
     1)
@@ -178,6 +206,8 @@ case $transactionType in
         ;;
 esac
 
+read -p "These values correct?" userInput
+
 # Generate moduleBytes based on transaction type
 if [[ "$transactionType" == "0" ]]; then
     moduleBytes=$(cast abi-encode "f(uint256,uint256,uint256,string,string)" "${expirationDate}" "${dripAmount}" "${dripPeriod}" "${externalURL}" "${imageURL}")
@@ -195,4 +225,4 @@ else
 fi
 
 # Execute the transaction
-cast send ${registrarAddress} ${writeABI} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000 # 90 gwei
+cast send ${registrarAddress} ${writeABI} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 3500000000000 # 350 gwei
