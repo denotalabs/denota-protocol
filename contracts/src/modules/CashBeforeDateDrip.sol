@@ -5,7 +5,10 @@ import "openzeppelin/utils/Strings.sol";
 import {Nota} from "../libraries/DataTypes.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 
+/* 
+commit: https://github.com/denotalabs/denota-protocol/commit/678ce39e0280fe4305b12d4efe0e0d97a3486216: 0x00000000CcE992072E23cda23A1986f2207f5e80
 
+*/
 contract CashBeforeDateDrip is ModuleBase {
     struct Payment {
         uint256 expirationDate; // Final date to cash
@@ -21,6 +24,7 @@ contract CashBeforeDateDrip is ModuleBase {
 
     error TooEarly();
     error Expired();
+    error ExpirationDatePassed();
     error Disallowed();
     error OnlyToOwner();
     error ExceedsDripAmount();
@@ -46,7 +50,9 @@ contract CashBeforeDateDrip is ModuleBase {
             string memory imageURI
         ) = abi.decode(writeData, (uint256, uint256, uint256, string, string));
         
-        payments[notaId] = Payment(expirationDate, block.timestamp, dripAmount, dripPeriod, caller, external_url, imageURI);
+        if (expirationDate <= block.timestamp) revert ExpirationDatePassed();
+        
+        payments[notaId] = Payment(expirationDate, 0, dripAmount, dripPeriod, caller, external_url, imageURI);
 
         emit PaymentCreated(notaId, caller, expirationDate, dripAmount, dripPeriod, external_url, imageURI);
         return 0;
@@ -88,10 +94,44 @@ contract CashBeforeDateDrip is ModuleBase {
         return 0;
     }
 
+    function _appendTimeUnit(string memory current, uint256 time, uint256 unit, string memory unitName) private pure returns (string memory) {
+        uint256 unitCount = time / unit;
+        if (unitCount > 0) {
+            return string(abi.encodePacked(current, bytes(current).length > 0 ? " " : "", Strings.toString(unitCount), unitName));
+        }
+        return current;
+    }
+
     function processTokenURI(
         uint256 tokenId
     ) external view override returns (string memory, string memory) {
         Payment memory payment = payments[tokenId];
+
+        string memory dripPeriod = "";
+        uint256 remainingTime = payment.dripPeriod;
+        if (remainingTime >= 365 days) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 365 days, " year(s)");
+            remainingTime %= 365 days;
+        }
+        if (remainingTime >= 30 days) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 30 days, " month(s)");
+            remainingTime %= 30 days;
+        }
+        if (remainingTime >= 1 days) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 1 days, " day(s)");
+            remainingTime %= 1 days;
+        }
+        if (remainingTime >= 1 hours) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 1 hours, " hour(s)");
+            remainingTime %= 1 hours;
+        }
+        if (remainingTime >= 1 minutes) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 1 minutes, " minute(s)");
+            remainingTime %= 1 minutes;
+        }
+        if (remainingTime >= 1 seconds) {
+            dripPeriod = _appendTimeUnit(dripPeriod, remainingTime, 1 seconds, " second(s)");
+        }
 
         return (
                 string(
@@ -105,7 +145,7 @@ contract CashBeforeDateDrip is ModuleBase {
                         '"},{"trait_type":"Drip Amount","value":"',
                         Strings.toString(payment.dripAmount),
                         '"},{"trait_type":"Drip Period","value":"',
-                        Strings.toString(payment.dripPeriod),  // Question: Should this be a datetime?
+                        dripPeriod,
                         '"}'
                     )
                 ),

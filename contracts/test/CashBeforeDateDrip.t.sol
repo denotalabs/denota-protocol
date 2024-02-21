@@ -13,7 +13,7 @@ contract CashBeforeDateDripTest is RegistrarTest {
     CashBeforeDateDrip public CASH_BY_DATE_DRIP;
     uint256 public constant EXPIRATION_DATE = 10 days;  // Need to test these with special values (0, 1, uint.max, etc)
     uint256 public constant DRIP_AMOUNT = 1e18;
-    uint256 public constant DRIP_PERIOD = 1 days;
+    uint256 public constant DRIP_PERIOD = 1 days;  // Must be smaller than EXPIRATION_DATE
 
     function setUp() public override {
         super.setUp();  // init registrar, tokens, and their labels   
