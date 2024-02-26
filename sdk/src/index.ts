@@ -210,16 +210,17 @@ export async function approveToken({
 
 type ModuleData =
   | DirectPayData
-  | ReversibleReleaseData
   | SimpleCashData
   | CashBeforeDateData
+  | ReversibleReleaseData
   | ReversibleByBeforeDateData;
 
+// So the front end needs to save these string to specify which module it is wanting to use. Then the SDK can insert the addresses and format bytes properly
 type NotaModule =
   | "directPay"
-  | "reversibleRelease"
   | "simpleCash"
   | "cashBeforeDate"
+  | "reversibleRelease"
   | "reversibleByBeforeDate";
 
 interface RawMetadata {
@@ -298,12 +299,13 @@ export async function fund({ notaId, amount, module }: FundProps) {
   // Implement in future modules
 }
 
+// Should each module inherit from a shared interface?
 interface CashPaymentProps {
   notaId: string;
-  type: "reversal" | "release";
   amount: BigNumber;
   to: string;
-  module: NotaModule;
+  module: NotaModule;  // Cashing doesn't need the module on the SC side
+  type: "reversal" | "release";  // TODO what state does this refer to?
 }
 
 export async function cash({
@@ -314,6 +316,11 @@ export async function cash({
   module,
 }: CashPaymentProps) {
   switch (module) {
+    // Need to add cashBeforeDateDrip
+    case "simpleCash":
+      return await cashSimpleCash({ notaId, to, amount });
+    case "cashBeforeDate":
+      return await cashCashBeforeDate({ notaId, to, amount });  
     case "reversibleRelease":
       return await cashReversibleRelease({
         notaId,
@@ -326,12 +333,6 @@ export async function cash({
         to,
         amount,
       });
-    case "cashBeforeDate":
-      return await cashCashBeforeDate({ notaId, to, amount });
-    case "cashBeforeDate":
-      return await cashCashBeforeDate({ notaId, to, amount });
-    case "simpleCash":
-      return await cashSimpleCash({ notaId, to, amount });
   }
 }
 

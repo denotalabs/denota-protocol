@@ -2,7 +2,7 @@
 
 ## Introduction:
 
-@denota-labs/denota-sdk is a JavaScript library that allows you to write "notas," NFTs that represent invoices or escrows. The library is built using EVM blockchain technology and requires a web3 connection to function. It provides an interface to create, approve, and write invoices and escrows. In this documentation, we will explain how to use the @denota-labs/denota-sdk to write notas. Denota is currently available on Polygon Mumbai Testnet and Celo Alfajores Testnet.
+@denota-labs/denota-sdk is a JavaScript library that allows you to send "notas," NFTs that represent escrowed tokens. The library is built using EVM blockchain technology and requires a web3 connection to function. It provides an interface to write (send), transfer, fund, cash, and approve notas. Denota is currently available on Polygon Mainnet as a beta.
 
 ## Installation:
 
