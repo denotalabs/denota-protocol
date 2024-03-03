@@ -74,8 +74,7 @@ type Nota @entity {
   funds: [Funded!]! @derivedFrom(field: "nota")
   cashes: [Cashed!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
-  # moduleData: ModuleData!
-  # TODO put in moduleData inspector: Account
+  moduleData: ModuleData @derivedFrom(field: "nota")
 }
 
 type NotaRegistrar @entity {
