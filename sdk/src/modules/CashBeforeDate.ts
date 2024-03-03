@@ -11,7 +11,7 @@ export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
   payee: string;
   payer: string;
-  cashBeforeDate?: number;
+  cashBeforeDate: number;
 }
 
 export interface WriteCashBeforeDateProps {

@@ -67,8 +67,6 @@ type Nota @entity {
   sender: Account
   receiver: Account
   owner: Account
-  uri: String
-  # imageURI: String AND externalURI: String
   createdTransaction: Transaction
 
   written: Written! @derivedFrom(field: "nota")
@@ -79,8 +77,6 @@ type Nota @entity {
   # moduleData: ModuleData!
   # TODO put in moduleData inspector: Account
 }
-# TODO: figure out why unions aren't working
-# union NotaData =  BYOAData | SelfSignedNotaData
 
 type NotaRegistrar @entity {
   id: ID!  # Should this be the registrar's address?
@@ -98,11 +94,64 @@ type Module @entity {  # Allows new modules to inherit from Module interface
   # numNotasManaged: BigInt!
 }
 
-# interface ModuleData {
-#     id: ID!
-#     # Add documentURI
-#     # Add imageURI
-# } 
+interface ModuleData {
+    id: ID!  # Could be the same as the Nota Id
+    nota: Nota!
+    raw: Bytes!
+    externalURI: String  # might not even be universal here
+    imageURI: String # might not even be universal here
+}
+
+type DirectSendData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    externalURI: String
+    imageURI: String
+}
+type SimpleCashData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    externalURI: String
+    imageURI: String
+}
+type ReversibleReleaseData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    inspector: Account
+    externalURI: String
+    imageURI: String
+}
+type ReversibleByBeforeDateData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    inspector: Account
+    inspectionEnd: BigInt
+    externalURI: String
+    imageURI: String
+}
+type CashBeforeDateData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    expirationDate: BigInt
+    externalURI: String
+    imageURI: String
+}
+type CashBeforeDateDripData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    raw: Bytes!
+    # lastDrip: BigInt
+    dripAmount: BigInt
+    dripPeriod: BigInt
+    expirationDate: BigInt
+    externalURI: String
+    imageURI: String
+}
 
 ##################################### Nota Based Entities ###############################################
 type ApprovalForAll implements Event @entity(immutable: true) {
