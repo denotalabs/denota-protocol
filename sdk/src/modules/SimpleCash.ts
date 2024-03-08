@@ -7,8 +7,11 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
+
 export interface SimpleCashData {
   moduleName: "simpleCash";
+  status: SimpleCashStatus;
   payee: string;
   payer: string;
 }
@@ -81,4 +84,36 @@ export async function cashSimpleCash({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeSimpleCashData(data: string) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(
+    ["string", "string"],
+    data
+  );
+  return {
+    externalUrl: decoded[0],
+    imageUrl: decoded[1],
+  };
+}
+
+export function simpleCashStatus(account: any, nota: any, hookBytes: string){
+  let coder = new ethers.utils.AbiCoder();
+  let status;
+  const decoded = coder.decode(["string", "string"], hookBytes);
+  
+  nota = Object.assign({}, nota, {
+    uri: decoded[0],
+    imageURI: decoded[1],
+  });
+
+  if (nota.cashes.length > 0) {
+    status = "claimed";
+  } else if (nota.owner.id === account.toLowerCase()) {
+    status = "claimable";
+  } else {
+    status = "awaiting_claim";
+  }
+
+  return status;
 }

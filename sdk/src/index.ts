@@ -5,45 +5,53 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 import { uploadMetadata } from "./Metadata";
 import Events from "./abis/Events.sol/Events.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
+import { DirectSendData, writeDirectSend, directSendStatus } from "./modules/DirectSend";
+import {
+  SimpleCashData,
+  simpleCashStatus,
+  cashSimpleCash,
+  writeSimpleCash,
+} from "./modules/SimpleCash";
+
 import {
   CashBeforeDateData,
+  cashBeforeDateStatus,
   cashCashBeforeDate,
   writeCashBeforeDate,
 } from "./modules/CashBeforeDate";
-import { DirectPayData, writeDirectPay } from "./modules/DirectPay";
+import {
+  CashBeforeDateDripData,
+  cashBeforeDateDripStatus,
+  cashCashBeforeDateDrip,
+  writeCashBeforeDateDrip,
+} from "./modules/CashBeforeDateDrip";
 import {
   ReversibleByBeforeDateData,
+  reversibleByBeforeDateStatus,
   cashReversibleByBeforeDate,
   writeReversibleByBeforeDate,
 } from "./modules/ReverseByBeforeDate";
 import {
   ReversibleReleaseData,
+  reversibleReleaseStatus,
   cashReversibleRelease,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
-import {
-  SimpleCashData,
-  cashSimpleCash,
-  writeSimpleCash,
-} from "./modules/SimpleCash";
 
 export const DENOTA_SUPPORTED_CHAIN_IDS = [137, 80001, 44787];
 
 export type DenotaCurrency = "DAI" | "WETH" | "USDC" | "USDCE" | "USDT" | "GET";
 
 interface ContractMapping {
-  DataTypes: string;
-  Errors: string;
-  Events: string;
   registrar: string;
-  reversibleRelease: string;
-  reversibleByBeforeDate: string;
-  directPay: string;
+  directSend: string;
   simpleCash: string;
   cashBeforeDate: string;
+  cashBeforeDateDrip: string;
+  reversibleRelease: string;
+  reversibleByBeforeDate: string;
   dai: string;
   weth: string;
-  milestones: string;
   batch: string;
   usdc: string;
   usdce: string;
@@ -70,18 +78,15 @@ export const state: State = {
     signer: null,
     chainId: 0,
     contractMapping: {
-      DataTypes: "",
-      Errors: "",
-      Events: "",
       registrar: "",
-      directPay: "",
-      reversibleRelease: "",
-      reversibleByBeforeDate: "",
+      directSend: "",
       simpleCash: "",
       cashBeforeDate: "",
+      cashBeforeDateDrip: "",
+      reversibleRelease: "",
+      reversibleByBeforeDate: "",
       dai: "",
       weth: "",
-      milestones: "",
       batch: "",
       usdc: "",
       usdce: "",
@@ -208,21 +213,6 @@ export async function approveToken({
   await tx.wait();
 }
 
-type ModuleData =
-  | DirectPayData
-  | SimpleCashData
-  | CashBeforeDateData
-  | ReversibleReleaseData
-  | ReversibleByBeforeDateData;
-
-// So the front end needs to save these string to specify which module it is wanting to use. Then the SDK can insert the addresses and format bytes properly
-type NotaModule =
-  | "directPay"
-  | "simpleCash"
-  | "cashBeforeDate"
-  | "reversibleRelease"
-  | "reversibleByBeforeDate";
-
 interface RawMetadata {
   type: "raw";
   notes?: string;
@@ -235,6 +225,33 @@ interface UploadedMetadata {
   externalUrl: string;
   imageUrl?: string;
 }
+
+export type UnknownModuleStatus = "?";
+
+export interface UnknownModuleData {
+  status: UnknownModuleStatus;
+  moduleName: "unknown";
+}
+
+type ModuleData =
+  | DirectSendData
+  | SimpleCashData
+  | CashBeforeDateData
+  | CashBeforeDateDripData
+  | ReversibleReleaseData
+  | ReversibleByBeforeDateData
+  | UnknownModuleData;
+
+type NotaModule =
+  | "directSend"
+  | "simpleCash"
+  | "cashBeforeDate"
+  | "cashBeforeDateDrip"
+  | "reversibleRelease"
+  | "reversibleByBeforeDate";
+
+export type NotaStatus = "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
+
 
 export interface WriteProps {
   currency: DenotaCurrency;
@@ -261,8 +278,8 @@ export async function write({ module, metadata, ...props }: WriteProps) {
   }
 
   switch (module.moduleName) {
-    case "direct":
-      return await writeDirectPay({ module, externalUrl, imageUrl, ...props });
+    case "directSend":
+      return await writeDirectSend({ module, externalUrl, imageUrl, ...props });
     case "reversibleRelease":
       return await writeReversibleRelease({
         module,
@@ -284,8 +301,17 @@ export async function write({ module, metadata, ...props }: WriteProps) {
         imageUrl,
         ...props,
       });
+      case "cashBeforeDateDrip":
+        return await writeCashBeforeDateDrip({
+          module,
+          externalUrl,
+          imageUrl,
+          ...props,
+        });
     case "simpleCash":
       return await writeSimpleCash({ module, ...props });
+    default:
+      throw new Error("Unknown module");
   }
 }
 
@@ -310,7 +336,7 @@ interface CashPaymentProps {
 
 export async function cash({
   notaId,
-  type,
+  type,  // TODO remove
   amount,
   to,
   module,
@@ -333,10 +359,53 @@ export async function cash({
         to,
         amount,
       });
+      case "cashBeforeDateDrip":
+        return await cashCashBeforeDateDrip({
+          notaId,
+          to,
+          amount,
+        });
+      default:
+        throw new Error("Unknown module");
   }
 }
 
 export const contractMappingForChainId = contractMappingForChainId_;
+
+// TODO need to query Notas and define their interface
+// function query(notaId: string) {
+// }
+
+export function status(chainIdNumber: number, account: string, nota: any, hookAddress: string) {
+  let status: string;
+  const mapping = contractMappingForChainId(chainIdNumber);
+  if (mapping) {
+      switch (hookAddress) {
+        case mapping.simpleCash.toLowerCase():
+          status = simpleCashStatus(hookAddress, nota, account);
+        case mapping.cashBeforeDate.toLowerCase():
+          status = cashBeforeDateStatus(hookAddress, nota, account);
+        case "0x000000005891889951d265d6d7ad3444b68f8887".toLowerCase():  // TODO remove
+          status = cashBeforeDateStatus(hookAddress, nota, account);
+        case "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase():  // CashBeforeDateDrip
+          status = cashBeforeDateDripStatus(hookAddress, nota, account);
+        case mapping.reversibleRelease.toLowerCase():
+          status = reversibleReleaseStatus(hookAddress, nota, account);
+        case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():
+          status = reversibleReleaseStatus(hookAddress, nota, account);
+        case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
+          status = "paid";
+        case mapping.reversibleByBeforeDate.toLowerCase():
+          status = reversibleByBeforeDateStatus(hookAddress, nota, account);
+        case mapping.directSend.toLowerCase():
+          status = directSendStatus(hookAddress, nota, account);
+        default:
+          status = "?";
+    }
+  } else {
+    status = "?";
+  }
+}
 
 export default {
   approveToken,
@@ -344,4 +413,5 @@ export default {
   fund,
   cash,
   contractMappingForChainId,
+  status,
 };

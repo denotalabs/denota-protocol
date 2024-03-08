@@ -7,8 +7,11 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
-export interface DirectPayData {
-  moduleName: "direct";
+export type DirectPayStatus = "paid";
+
+export interface DirectSendData {
+  moduleName: "directSend";
+  status: DirectPayStatus;
   type: "invoice" | "payment";
   payee: string;
   notes?: string;
@@ -16,21 +19,21 @@ export interface DirectPayData {
   dueDate?: string;
 }
 
-export interface WriteDirectPayProps {
+export interface WriteDirectSendProps {
   currency: DenotaCurrency;
   amount: number;
   externalUrl?: string;
   imageUrl?: string;
-  module: DirectPayData;
+  module: DirectSendData;
 }
 
-export async function writeDirectPay({
+export async function writeDirectSend({
   module,
   amount,
   currency,
   imageUrl,
   externalUrl,
-}: WriteDirectPayProps) {
+}: WriteDirectSendProps) {
   const { dueDate, payee } = module;
   const utcOffset = new Date().getTimezoneOffset();
 
@@ -72,7 +75,7 @@ export async function writeDirectPay({
     0, //escrowed
     module.type === "invoice" ? 0 : amountWei, //instant
     owner,
-    state.blockchainState.contractMapping.directPay,
+    state.blockchainState.contractMapping.DirectSend,
     payload,
     { value: msgValue }
   );
@@ -83,17 +86,17 @@ export async function writeDirectPay({
   };
 }
 
-export interface FundDirectPayProps {
+export interface FundDirectSendProps {
   notaId: string;
   amount: BigNumber;
   tokenAddress: string;
 }
 
-export async function fundDirectPay({
+export async function fundDirectSend({
   notaId,
   amount,
   tokenAddress,
-}: FundDirectPayProps) {
+}: FundDirectSendProps) {
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["address"],
     [state.blockchainState.account]
@@ -113,4 +116,22 @@ export async function fundDirectPay({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeDirectSendData(data: string) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(
+    ["string", "string"],
+    data
+  );
+  return {
+    externalUrl: decoded[0],
+    imageUrl: decoded[1],
+  };
+}
+
+export function directSendStatus(account: any, nota: any, hookBytes: string){
+  // let coder = new ethers.utils.AbiCoder();
+  // const decoded = coder.decode(["string", "string"], hookBytes);
+
+  return "paid";
 }

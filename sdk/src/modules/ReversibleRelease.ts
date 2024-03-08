@@ -7,8 +7,11 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "returned" | "released";
+
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
+  status: ReversibleReleaseStatus;
   payee: string;
   payer: string;
   inspector?: string;
@@ -115,4 +118,40 @@ export async function cashReversibleRelease({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeReversibleReleaseData(data: string) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(
+    ["address", "string", "string"],
+    data
+  );
+  return {
+    inspector: decoded[0],
+    externalUrl: decoded[1],
+    imageUrl: decoded[2],
+  };
+}
+
+export function reversibleReleaseStatus(account: any, nota: any, hookBytes: string){
+  let coder = new ethers.utils.AbiCoder();
+  let status;
+  let decoded = coder.decode(["address", "string", "string"], hookBytes);
+  let inspector = decoded[0];
+
+  if (nota.cashes.length > 0) {
+    // TODO Need to know if the `to` went to the `owner` at the time it was released
+    //// Need to check transfers and if >0 check if the cash timestamp was before it
+    if (nota.cashes[0].to === nota.owner.id) {
+      status = "released";
+    } else {
+      status = "returned";
+    }
+  } else {
+    if (inspector === account.toLowerCase()) {
+      status = "releasable";
+    } else {
+      status = "awaiting_release";
+    }
+  }
+  return status;
 }

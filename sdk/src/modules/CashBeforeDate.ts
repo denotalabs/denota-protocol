@@ -7,8 +7,11 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned";
+
 export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
+  status: CashBeforeDateStatus;
   payee: string;
   payer: string;
   cashBeforeDate: number;
@@ -82,4 +85,44 @@ export async function cashCashBeforeDate({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeCashBeforeDateData(data: string) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(
+    ["uint256", "string", "string"],
+    data
+  );
+  return {
+    cashBeforeDate: decoded[0],
+    externalUrl: decoded[0],
+    imageUrl: decoded[1],
+  };
+}
+
+export function cashBeforeDateStatus(account: any, nota: any, hookBytes: string){
+  let coder = new ethers.utils.AbiCoder();
+  let status;
+  let decoded = coder.decode(["uint256", "string", "string"], hookBytes);
+  let expirationDate = decoded[0];
+
+  if (nota.cashes.length > 0) {
+    if (nota.cashes[0].to == account.toLowerCase()) {
+      status = "claimed";
+    } else {
+      status = "returned";
+    }
+  } else if (expirationDate >= Date.now()) {
+    if (nota.owner.id === account.toLowerCase()) {
+      status = "claimable";
+    } else {
+      status = "awaiting_claim";
+    }
+  } else {
+    if (nota.owner.id === account.toLowerCase()) {
+      status = "expired";
+    } else {
+      status = "returnable";
+    }
+  }
+  return status;
 }

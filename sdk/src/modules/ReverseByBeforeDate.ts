@@ -7,8 +7,11 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "released" | "returned" | "claimable" | "awaiting_claim" | "claimed";
+
 export interface ReversibleByBeforeDateData {
   moduleName: "reversibleByBeforeDate";
+  status: ReversibleByBeforeDateStatus;
   payee: string;
   payer: string;
   reversibleByBeforeDate?: number;
@@ -85,4 +88,48 @@ export async function cashReversibleByBeforeDate({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+
+export function decodeReversibleByBeforeDateData(data: string) {
+  const decoded = ethers.utils.defaultAbiCoder.decode(
+    ["address", "uint256", "string", "string"],
+    data
+  );
+  return {
+    inspector: decoded[0],
+    reversibleByBeforeDate: decoded[1],
+    externalUrl: decoded[2],
+    imageUrl: decoded[3],
+  };
+}
+
+export function reversibleByBeforeDateStatus(account: any, nota: any, hookBytes: string){
+  let coder = new ethers.utils.AbiCoder();
+  let status;
+  let decoded = coder.decode(["address", "uint256", "string", "string"], hookBytes);
+  let inspector = decoded[0];
+  let expirationDate = decoded[1];
+
+  if (nota.cashes.length > 0) {
+    if (nota.cashes[0].to == account.toLowerCase()) {
+      status = "claimed";
+    } else {
+      status = "returned";
+    }
+  } else if (expirationDate < Date.now()) {
+    if (nota.owner.id === account.toLowerCase()) {
+      status = "claimable";
+    } else {
+      status = "awaiting_claim";
+    }
+  } else {
+    if (inspector === account.toLowerCase()) {
+      status = "releasable";
+    } else {
+      status = "awaiting_release";
+    }
+  }
+
+  return status;
 }
