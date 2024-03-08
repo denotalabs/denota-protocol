@@ -12,9 +12,9 @@ export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | 
 export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
   status: CashBeforeDateStatus;
-  payee: string;
-  payer: string;
   cashBeforeDate: number;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteCashBeforeDateProps {
@@ -88,23 +88,24 @@ export async function cashCashBeforeDate({
 }
 
 export function decodeCashBeforeDateData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["uint256", "string", "string"],
     data
   );
   return {
     cashBeforeDate: decoded[0],
-    externalUrl: decoded[0],
-    imageUrl: decoded[1],
+    externalURI: decoded[0],
+    imageURI: decoded[1],
   };
 }
 
-export function cashBeforeDateStatus(account: any, nota: any, hookBytes: string){
-  let coder = new ethers.utils.AbiCoder();
-  let status;
-  let decoded = coder.decode(["uint256", "string", "string"], hookBytes);
-  let expirationDate = decoded[0];
+export function getCashBeforeDateData(account: any, nota: any, hookBytes: string): CashBeforeDateData{
+  let decoded = decodeCashBeforeDateData(hookBytes);
 
+  let expirationDate = decoded.cashBeforeDate * 1000;
+
+  let status;
   if (nota.cashes.length > 0) {
     if (nota.cashes[0].to == account.toLowerCase()) {
       status = "claimed";
@@ -124,5 +125,11 @@ export function cashBeforeDateStatus(account: any, nota: any, hookBytes: string)
       status = "returnable";
     }
   }
-  return status;
+  return {
+    moduleName: "cashBeforeDate",
+    status: status as CashBeforeDateStatus,
+    cashBeforeDate: expirationDate,
+    externalURI: decoded.externalURI,
+    imageURI: decoded.imageURI,
+  }
 }

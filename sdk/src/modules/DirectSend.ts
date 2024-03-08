@@ -12,11 +12,8 @@ export type DirectPayStatus = "paid";
 export interface DirectSendData {
   moduleName: "directSend";
   status: DirectPayStatus;
-  type: "invoice" | "payment";
-  payee: string;
-  notes?: string;
-  file?: File;
-  dueDate?: string;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteDirectSendProps {
@@ -75,7 +72,7 @@ export async function writeDirectSend({
     0, //escrowed
     module.type === "invoice" ? 0 : amountWei, //instant
     owner,
-    state.blockchainState.contractMapping.DirectSend,
+    state.blockchainState.contractMapping.directSend,
     payload,
     { value: msgValue }
   );
@@ -119,7 +116,8 @@ export async function fundDirectSend({
 }
 
 export function decodeDirectSendData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["string", "string"],
     data
   );
@@ -129,9 +127,13 @@ export function decodeDirectSendData(data: string) {
   };
 }
 
-export function directSendStatus(account: any, nota: any, hookBytes: string){
-  // let coder = new ethers.utils.AbiCoder();
-  // const decoded = coder.decode(["string", "string"], hookBytes);
+export function getDirectSendData(account: any, nota: any, hookBytes: string): DirectSendData{
+  const decoded = decodeDirectSendData(hookBytes);
 
-  return "paid";
+  return {
+    moduleName: "directSend",
+    status: "paid",
+    externalURI: decoded.externalUrl,
+    imageURI: decoded.imageUrl,
+  }
 }

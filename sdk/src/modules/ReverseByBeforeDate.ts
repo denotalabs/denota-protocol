@@ -12,10 +12,11 @@ export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "
 export interface ReversibleByBeforeDateData {
   moduleName: "reversibleByBeforeDate";
   status: ReversibleByBeforeDateStatus;
-  payee: string;
-  payer: string;
-  reversibleByBeforeDate?: number;
-  inspector?: string;
+
+  inspector: string;
+  reversibleByBeforeDate: number;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteReversibleByBeforeDateProps {
@@ -92,7 +93,8 @@ export async function cashReversibleByBeforeDate({
 
 
 export function decodeReversibleByBeforeDateData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["address", "uint256", "string", "string"],
     data
   );
@@ -104,12 +106,11 @@ export function decodeReversibleByBeforeDateData(data: string) {
   };
 }
 
-export function reversibleByBeforeDateStatus(account: any, nota: any, hookBytes: string){
-  let coder = new ethers.utils.AbiCoder();
+export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes: string): ReversibleByBeforeDateData{
   let status;
-  let decoded = coder.decode(["address", "uint256", "string", "string"], hookBytes);
-  let inspector = decoded[0];
-  let expirationDate = decoded[1];
+  let decoded = decodeReversibleByBeforeDateData(hookBytes);
+  let inspector = decoded.inspector;
+  let expirationDate = decoded.reversibleByBeforeDate * 1000;
 
   if (nota.cashes.length > 0) {
     if (nota.cashes[0].to == account.toLowerCase()) {
@@ -131,5 +132,12 @@ export function reversibleByBeforeDateStatus(account: any, nota: any, hookBytes:
     }
   }
 
-  return status;
+  return {
+    moduleName: "reversibleByBeforeDate",
+    status: status as getReversibleByBeforeDateData,
+    inspector: inspector,
+    reversibleByBeforeDate: expirationDate,
+    externalURI: decoded.externalUrl,
+    imageURI: decoded.imageUrl,
+  }
 }

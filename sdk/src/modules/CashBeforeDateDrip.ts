@@ -12,11 +12,12 @@ export type CashBeforeDateDripStatus = "claimable" | "awaiting_claim" | "claimed
 export interface CashBeforeDateDripData {
   moduleName: "cashBeforeDateDrip";
   status: CashBeforeDateDripStatus;
-  payee: string;
-  payer: string;
+
   expirationDate: number;
   dripAmount: number;
   dripPeriod: number;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteCashBeforeDateDripProps {
@@ -90,29 +91,29 @@ export async function cashCashBeforeDateDrip({
 }
 
 export function decodeCashBeforeDateDripData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["uint256", "uint256", "uint256", "string", "string"],
     data
   );
   return {
-    expirationDate: decoded[0], 
+    cashBeforeDate: decoded[0], 
     dripAmount: decoded[1], 
     dripPeriod: decoded[2], 
-    externalUrl: decoded[3],
-    imageUrl: decoded[4],
+    externalURI: decoded[3],
+    imageURI: decoded[4],
   };
 }
 
 
-export function cashBeforeDateDripStatus(account: any, nota: any, hookBytes: string){
-  let coder = new ethers.utils.AbiCoder();
-  let decoded2 = coder.decode(["uint256", "uint256", "uint256", "string", "string"], hookBytes);
+export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: string): CashBeforeDateDripData {
+  let decoded = decodeCashBeforeDateDripData(hookBytes);
   let status;
 
   let lastDrip = 0;
-  let dripAmount = decoded2[0];
-  let dripPeriod = decoded2[1];
-  let cashBeforeDate = decoded2[2];
+  let dripAmount = decoded.dripAmount;
+  let dripPeriod = decoded.dripPeriod;
+  let cashBeforeDate = decoded.cashBeforeDate * 1000;
 
   if (cashBeforeDate < Date.now()) { // Expired for owner
     if (nota.sender.id == account.toLowerCase()) {
@@ -142,5 +143,13 @@ export function cashBeforeDateDripStatus(account: any, nota: any, hookBytes: str
     status = "locked";
   }
 
-  return status;
+  return {
+    moduleName: "cashBeforeDateDrip",
+    status: status as getCashBeforeDateDripData,
+    expirationDate: cashBeforeDate,
+    dripAmount: dripAmount,
+    dripPeriod: dripPeriod,
+    externalURI: decoded.externalURI,
+    imageURI: decoded.imageURI,
+  }
 }

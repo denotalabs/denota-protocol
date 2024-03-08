@@ -12,9 +12,10 @@ export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "retur
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
   status: ReversibleReleaseStatus;
-  payee: string;
-  payer: string;
+
   inspector?: string;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteReversibleReleaseyProps {
@@ -121,7 +122,8 @@ export async function cashReversibleRelease({
 }
 
 export function decodeReversibleReleaseData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["address", "string", "string"],
     data
   );
@@ -132,12 +134,11 @@ export function decodeReversibleReleaseData(data: string) {
   };
 }
 
-export function reversibleReleaseStatus(account: any, nota: any, hookBytes: string){
-  let coder = new ethers.utils.AbiCoder();
+export function getReversibleReleaseData(account: any, nota: any, hookBytes: string): ReversibleReleaseData {
+  let decoded = decodeReversibleReleaseData(hookBytes);
+  let inspector = decoded.inspector;
+  
   let status;
-  let decoded = coder.decode(["address", "string", "string"], hookBytes);
-  let inspector = decoded[0];
-
   if (nota.cashes.length > 0) {
     // TODO Need to know if the `to` went to the `owner` at the time it was released
     //// Need to check transfers and if >0 check if the cash timestamp was before it
@@ -153,5 +154,11 @@ export function reversibleReleaseStatus(account: any, nota: any, hookBytes: stri
       status = "awaiting_release";
     }
   }
-  return status;
+  return {
+    moduleName: "reversibleRelease",
+    status: status as getReversibleReleaseData,
+    inspector: inspector,
+    externalURI: decoded.externalUrl,
+    imageURI: decoded.imageUrl,
+  }
 }

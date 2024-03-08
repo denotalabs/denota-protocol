@@ -12,8 +12,8 @@ export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
 export interface SimpleCashData {
   moduleName: "simpleCash";
   status: SimpleCashStatus;
-  payee: string;
-  payer: string;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteSimpleCashProps {
@@ -87,26 +87,21 @@ export async function cashSimpleCash({
 }
 
 export function decodeSimpleCashData(data: string) {
-  const decoded = ethers.utils.defaultAbiCoder.decode(
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
     ["string", "string"],
     data
   );
   return {
-    externalUrl: decoded[0],
-    imageUrl: decoded[1],
+    externalURI: decoded[0],
+    imageURI: decoded[1],
   };
 }
 
-export function simpleCashStatus(account: any, nota: any, hookBytes: string){
-  let coder = new ethers.utils.AbiCoder();
-  let status;
-  const decoded = coder.decode(["string", "string"], hookBytes);
+export function getSimpleCashData(account: any, nota: any, hookBytes: string): SimpleCashData{
+  const decoded = decodeSimpleCashData(hookBytes);
   
-  nota = Object.assign({}, nota, {
-    uri: decoded[0],
-    imageURI: decoded[1],
-  });
-
+  let status;
   if (nota.cashes.length > 0) {
     status = "claimed";
   } else if (nota.owner.id === account.toLowerCase()) {
@@ -115,5 +110,10 @@ export function simpleCashStatus(account: any, nota: any, hookBytes: string){
     status = "awaiting_claim";
   }
 
-  return status;
+  return {
+    moduleName: "simpleCash",
+    status: status as SimpleCashStatus,
+    externalURI: decoded.externalURI,
+    imageURI: decoded.imageURI,
+  }
 }

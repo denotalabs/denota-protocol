@@ -5,35 +5,35 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 import { uploadMetadata } from "./Metadata";
 import Events from "./abis/Events.sol/Events.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
-import { DirectSendData, writeDirectSend, directSendStatus } from "./modules/DirectSend";
+import { DirectSendData, writeDirectSend, getDirectSendData } from "./modules/DirectSend";
 import {
   SimpleCashData,
-  simpleCashStatus,
+  getSimpleCashData,
   cashSimpleCash,
   writeSimpleCash,
 } from "./modules/SimpleCash";
 
 import {
   CashBeforeDateData,
-  cashBeforeDateStatus,
+  getCashBeforeDateData,
   cashCashBeforeDate,
   writeCashBeforeDate,
 } from "./modules/CashBeforeDate";
 import {
   CashBeforeDateDripData,
-  cashBeforeDateDripStatus,
+  getCashBeforeDateDripData,
   cashCashBeforeDateDrip,
   writeCashBeforeDateDrip,
 } from "./modules/CashBeforeDateDrip";
 import {
   ReversibleByBeforeDateData,
-  reversibleByBeforeDateStatus,
+  getReversibleByBeforeDateData,
   cashReversibleByBeforeDate,
   writeReversibleByBeforeDate,
 } from "./modules/ReverseByBeforeDate";
 import {
   ReversibleReleaseData,
-  reversibleReleaseStatus,
+  getReversibleReleaseData,
   cashReversibleRelease,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
@@ -231,6 +231,8 @@ export type UnknownModuleStatus = "?";
 export interface UnknownModuleData {
   status: UnknownModuleStatus;
   moduleName: "unknown";
+  externalURI?: string;
+  imageURI?: string;
 }
 
 type ModuleData =
@@ -242,7 +244,7 @@ type ModuleData =
   | ReversibleByBeforeDateData
   | UnknownModuleData;
 
-type NotaModule =
+type NotaModuleNames =
   | "directSend"
   | "simpleCash"
   | "cashBeforeDate"
@@ -250,7 +252,7 @@ type NotaModule =
   | "reversibleRelease"
   | "reversibleByBeforeDate";
 
-export type NotaStatus = "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
+export type NotaStatuses = "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
 
 
 export interface WriteProps {
@@ -318,7 +320,7 @@ export async function write({ module, metadata, ...props }: WriteProps) {
 interface FundProps {
   notaId: string;
   amount: BigNumber;
-  module: NotaModule;
+  module: NotaModuleNames;
 }
 
 export async function fund({ notaId, amount, module }: FundProps) {
@@ -330,7 +332,7 @@ interface CashPaymentProps {
   notaId: string;
   amount: BigNumber;
   to: string;
-  module: NotaModule;  // Cashing doesn't need the module on the SC side
+  module: NotaModuleNames;  // Cashing doesn't need the module on the SC side
   type: "reversal" | "release";  // TODO what state does this refer to?
 }
 
@@ -372,39 +374,65 @@ export async function cash({
 
 export const contractMappingForChainId = contractMappingForChainId_;
 
-// TODO need to query Notas and define their interface
+
+// export interface Nota {
+//   id: string;
+//   token: NotaCurrency;
+//   amount: number;
+//   amountRaw: BigNumber;
+//   moduleData: ModuleData;
+
+//   owner: string;
+//   approved: string;
+//   sender: string;
+//   receiver: string;
+//   createdTransaction: NotaTransaction;
+//   fundedTransaction: NotaTransaction | null;  // TODO have list of WTFCA transactions
+//   cashedTransaction: NotaTransaction | null;
+//   chainId: number;
+// }
+// TODO ModuleData.decode functionality
+// TODO Nota query functionality
 // function query(notaId: string) {
+  //// nota.moduleBytes.decode();
 // }
 
-export function status(chainIdNumber: number, account: string, nota: any, hookAddress: string) {
-  let status: string;
+export function getModuleData(chainIdNumber: number, account: string, nota: any, hookAddress: string): ModuleData {
   const mapping = contractMappingForChainId(chainIdNumber);
+
+  let moduleData: ModuleData = { moduleName: "unknown", status: "?", externalURI: "", imageURI: ""};
   if (mapping) {
-      switch (hookAddress) {
-        case mapping.simpleCash.toLowerCase():
-          status = simpleCashStatus(hookAddress, nota, account);
-        case mapping.cashBeforeDate.toLowerCase():
-          status = cashBeforeDateStatus(hookAddress, nota, account);
-        case "0x000000005891889951d265d6d7ad3444b68f8887".toLowerCase():  // TODO remove
-          status = cashBeforeDateStatus(hookAddress, nota, account);
-        case "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase():  // CashBeforeDateDrip
-          status = cashBeforeDateDripStatus(hookAddress, nota, account);
-        case mapping.reversibleRelease.toLowerCase():
-          status = reversibleReleaseStatus(hookAddress, nota, account);
-        case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():
-          status = reversibleReleaseStatus(hookAddress, nota, account);
-        case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
-          status = "paid";
-        case mapping.reversibleByBeforeDate.toLowerCase():
-          status = reversibleByBeforeDateStatus(hookAddress, nota, account);
-        case mapping.directSend.toLowerCase():
-          status = directSendStatus(hookAddress, nota, account);
-        default:
-          status = "?";
+    switch (hookAddress) {
+      case mapping.simpleCash.toLowerCase():
+        moduleData = getSimpleCashData(hookAddress, nota, account);
+        break;
+      case mapping.cashBeforeDate.toLowerCase():
+        moduleData = getCashBeforeDateData(hookAddress, nota, account);
+        break;
+      case mapping.directSend.toLowerCase():
+        moduleData = getDirectSendData(hookAddress, nota, account);
+        break;
+      case mapping.reversibleByBeforeDate.toLowerCase():
+        moduleData = getReversibleByBeforeDateData(hookAddress, nota, account);
+        break;
+      case mapping.reversibleRelease.toLowerCase():
+        moduleData = getReversibleReleaseData(hookAddress, nota, account);
+        break;
+      case "0x000000005891889951d265d6d7ad3444b68f8887".toLowerCase(): // CashBeforeDateData
+        moduleData = getCashBeforeDateData(hookAddress, nota, account);
+        break;
+      case "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase(): // CashBeforeDateDrip
+        moduleData = getCashBeforeDateDripData(hookAddress, nota, account);
+        break;
+      case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():
+        moduleData = getReversibleReleaseData(hookAddress, nota, account);
+        break;
+      case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
+        moduleData = getDirectSendData(hookAddress, nota, account);
+        break;
     }
-  } else {
-    status = "?";
   }
+  return moduleData;
 }
 
 export default {
@@ -413,5 +441,5 @@ export default {
   fund,
   cash,
   contractMappingForChainId,
-  status,
+  getModuleData,
 };
