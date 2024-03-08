@@ -398,6 +398,8 @@ export const contractMappingForChainId = contractMappingForChainId_;
 // }
 
 export function getModuleData(chainIdNumber: number, account: string, nota: any, hookAddress: string): ModuleData {
+  // returns all addresses as lower case for front end consistency
+  account = account.toLowerCase();
   const mapping = contractMappingForChainId(chainIdNumber);
 
   let moduleData: ModuleData = { moduleName: "unknown", status: "?", externalURI: "", imageURI: ""};

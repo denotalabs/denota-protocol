@@ -156,8 +156,8 @@ export function getReversibleReleaseData(account: any, nota: any, hookBytes: str
   }
   return {
     moduleName: "reversibleRelease",
-    status: status as getReversibleReleaseData,
-    inspector: inspector,
+    status: status as ReversibleReleaseStatus,
+    inspector: inspector.toLowerCase(),
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,
   }

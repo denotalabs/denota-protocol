@@ -134,8 +134,8 @@ export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes
 
   return {
     moduleName: "reversibleByBeforeDate",
-    status: status as getReversibleByBeforeDateData,
-    inspector: inspector,
+    status: status as ReversibleByBeforeDateStatus,
+    inspector: inspector.toLowerCase(),
     reversibleByBeforeDate: expirationDate,
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,

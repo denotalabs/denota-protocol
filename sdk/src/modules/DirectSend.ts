@@ -132,7 +132,7 @@ export function getDirectSendData(account: any, nota: any, hookBytes: string): D
 
   return {
     moduleName: "directSend",
-    status: "paid",
+    status: "paid" as DirectPayStatus,
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,
   }

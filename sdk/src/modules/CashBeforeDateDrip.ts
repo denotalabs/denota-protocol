@@ -145,7 +145,7 @@ export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: st
 
   return {
     moduleName: "cashBeforeDateDrip",
-    status: status as getCashBeforeDateDripData,
+    status: status as CashBeforeDateDripStatus,
     expirationDate: cashBeforeDate,
     dripAmount: dripAmount,
     dripPeriod: dripPeriod,
