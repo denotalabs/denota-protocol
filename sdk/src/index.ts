@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import erc20 from "./abis/ERC20.sol/TestERC20.json";
 import { contractMappingForChainId as contractMappingForChainId_ } from "./chainInfo";
-
+// TODO add the rest of the ABIs
 import { uploadMetadata } from "./Metadata";
 import Events from "./abis/Events.sol/Events.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
@@ -258,9 +258,12 @@ export type NotaStatuses = "paid" | "claimable" | "awaiting_claim" | "awaiting_r
 export interface WriteProps {
   currency: DenotaCurrency;
   amount: number;
-  metadata?: RawMetadata | UploadedMetadata;
-
+  // owner: string;
+  // instant: number;
+  // module: string;
+  // moduleData: string;
   module: ModuleData;
+  metadata?: RawMetadata | UploadedMetadata;  // This should be part of the moduleData
 }
 
 export async function write({ module, metadata, ...props }: WriteProps) {
