@@ -20,30 +20,28 @@ export interface CashBeforeDateData {
 export interface WriteCashBeforeDateProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: CashBeforeDateData;
+  instant: number;
+  owner: string;
+  moduleData: CashBeforeDateData;
 }
 
 export async function writeCashBeforeDate({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData
 }: WriteCashBeforeDateProps) {
-  const { payee, payer, cashBeforeDate } = module;
+  const { cashBeforeDate, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "string", "string"],
-    [cashBeforeDate, externalUrl ?? "", imageUrl ?? ""]
+    [cashBeforeDate, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 

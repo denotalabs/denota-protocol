@@ -13,7 +13,7 @@ export async function uploadMetadata(
   tags?: string
 ) {
   if (!file && !note && !tags) {
-    return { ipfsHash: undefined, imageUrl: undefined };
+    return { ipfsHash: undefined, imageURI: undefined };
   }
 
   const config = {
@@ -51,10 +51,10 @@ export async function uploadMetadata(
     console.log(resp.data);
     return {
       ipfsHash: resp.data.key as string,
-      imageUrl: resp.data.imageUrl as string,
+      imageURI: resp.data.imageURI as string,
     };
   } catch (error) {
     console.log(error);
-    return { ipfsHash: undefined, imageUrl: undefined };
+    return { ipfsHash: undefined, imageURI: undefined };
   }
 }

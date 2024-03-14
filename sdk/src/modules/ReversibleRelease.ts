@@ -13,7 +13,7 @@ export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
   status: ReversibleReleaseStatus;
 
-  inspector?: string;
+  inspector: string;
   externalURI?: string;
   imageURI?: string;
 }
@@ -21,31 +21,28 @@ export interface ReversibleReleaseData {
 export interface WriteReversibleReleaseyProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: ReversibleReleaseData;
+  instant: number;
+  owner: string;
+  moduleData: ReversibleReleaseData;
 }
 
 export async function writeReversibleRelease({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData
 }: WriteReversibleReleaseyProps) {
-  const { payee, payer, inspector } = module;
-  const notaInspector = inspector ? inspector : payer;
+  const { inspector, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["address", "string", "string"],
-    [notaInspector, externalUrl ?? "", imageUrl ?? ""]
+    [inspector, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -54,8 +51,8 @@ export async function writeReversibleRelease({
   const tx = await state.blockchainState.registrar?.write(
     tokenAddress, //currency
     amountWei, //escrowed
-    0, //instant
-    owner, //owner
+    instant,
+    owner,
     state.blockchainState.contractMapping.reversibleRelease, //module
     payload, //moduleWriteData
     { value: msgValue }

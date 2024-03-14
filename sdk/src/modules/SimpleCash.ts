@@ -19,31 +19,27 @@ export interface SimpleCashData {
 export interface WriteSimpleCashProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: SimpleCashData;
+  instant: number;
+  owner: string;
+  moduleData: SimpleCashData;
 }
 
+// TODO should instant even be a parameter here?
 export async function writeSimpleCash({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData,
 }: WriteSimpleCashProps) {
-  const { payee, payer } = module;
+  const { externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
-  const payload = ethers.utils.defaultAbiCoder.encode(
-    ["string", "string"],
-    [externalUrl ?? "", imageUrl ?? ""]
-  );
+  const payload = ethers.utils.defaultAbiCoder.encode(["string", "string"], [externalURI ?? "", imageURI ?? ""]);
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
   const msgValue = BigNumber.from(0);

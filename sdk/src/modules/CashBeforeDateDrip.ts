@@ -23,30 +23,28 @@ export interface CashBeforeDateDripData {
 export interface WriteCashBeforeDateDripProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: CashBeforeDateDripData;
+  instant: number;
+  owner: string;
+  moduleData: CashBeforeDateDripData;
 }
 
 export async function writeCashBeforeDateDrip({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData,
 }: WriteCashBeforeDateDripProps) {
-  const { payee, payer, expirationDate, dripAmount, dripPeriod } = module;
+  const { expirationDate, dripAmount, dripPeriod, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "uint256", "uint256", "string", "string"],
-    [expirationDate, dripAmount, dripPeriod, externalUrl ?? "", imageUrl ?? ""]
+    [expirationDate, dripAmount, dripPeriod, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -55,7 +53,7 @@ export async function writeCashBeforeDateDrip({
   const tx = await state.blockchainState.registrar?.write(
     tokenAddress, //currency
     amountWei, //escrowed
-    0, //instant
+    instant, //instant
     owner, //owner
     state.blockchainState.contractMapping.cashBeforeDate, //module
     payload, //moduleWriteData

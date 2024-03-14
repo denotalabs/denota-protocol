@@ -22,32 +22,28 @@ export interface ReversibleByBeforeDateData {
 export interface WriteReversibleByBeforeDateProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: ReversibleByBeforeDateData;
+  instant: number;
+  owner: string;
+  moduleData: ReversibleByBeforeDateData;
 }
 
 export async function writeReversibleByBeforeDate({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData,
 }: WriteReversibleByBeforeDateProps) {
-  const { payee, payer, reversibleByBeforeDate, inspector } = module;
-
-  const notaInspector = inspector ? inspector : payer;
+  const { inspector, reversibleByBeforeDate, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["address", "uint256", "string", "string"],
-    [notaInspector, reversibleByBeforeDate, externalUrl ?? "", imageUrl ?? ""]
+    [inspector, reversibleByBeforeDate, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -56,7 +52,7 @@ export async function writeReversibleByBeforeDate({
   const tx = await state.blockchainState.registrar?.write(
     tokenAddress, //currency
     amountWei, //escrowed
-    0, //instant
+    instant, //instant
     owner, //owner
     state.blockchainState.contractMapping.reversibleByBeforeDate, //module
     payload, //moduleWriteData
