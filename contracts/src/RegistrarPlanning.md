@@ -40,18 +40,20 @@ Things to address and when to address them
 * Remove events' timestamps parameter
 * Remove Nota struct in processX since only currency and escrowed matter
 * Remove the libraries from foundry (they show up in the verification)
-* Add batch metadata updating from hooks (if a global setting is changed then all it's Notas should be updated)... But ALL Notas?
-* Make verification multi-part since (it's so long for block explorer users to find the right part)
-* Remove DataTypes library if possible
 * Add `burn()` and `processBurn()`
-* Add hookFee on approvals
+* Add hookFee on `approval()`
+
+* Use write struct if cheaper `write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)`
+* Remove DataTypes library if possible
 * Address bit flags ie: [000000 -> 111111] => [00 -> FF]
     * Understand how incorrect bit flags affect safety
     * Could have standard WTFC functionality with hook overrides, ie: `if (hook.shouldCallTransferHook){ // hook allows non-standard transfers } else { require(_isApprovedOrOwner(notaId)) }`
     * `emit MetadataUpdate(notaId)` only if hook is used
     * Consider different options for hooks: CALL, SKIP, DISALLOW without calling the hook
-* Use write struct if cheaper `write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)`
+* Make verification multi-part since (it's so long for block explorer users to find the right part)
 
+* Add `approved` to fund and cash?
+* Consider adding back batch functions
 * Add noDelegateCall in WTFCAB (if permissionless) or lock pattern at least
 * Ensure non-standard ERC20s function as expected (safeERC20 should handle this)
 * Test/encourage re-entrancy by modules (use locker pattern from UniV4?)
@@ -60,10 +62,8 @@ Things to address and when to address them
      hook(msg.sender, owner, totalSupply, currency, escrowed, instant, moduleBytes)]
 * Is it okay to pass storage variables like `totalSupply` to modules?
 * Remove ERC721's _msgSender()/Context dependency and hook functions? Could use Solmate
-* Add `approved` to fund and cash?
 * Consider safeWrite()
 * instantRecipient? Fund/Write assumes `owner` will get instant but cash doesn't assume who gets escrow
-* Consider adding back batch functions
 * Should require statements be part of the module interface? canWrite(), canCash(), etc would allow people to query beforehand
 * ModuleDecode(INotaModule module) external returns(string): ModuleDecode[module]=>“Writebytes(address,uint256,etc)”
     * _abiDecode(bytes calldata moduleBytes){}
