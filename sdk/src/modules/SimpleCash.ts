@@ -7,40 +7,39 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
+
 export interface SimpleCashData {
   moduleName: "simpleCash";
-  payee: string;
-  payer: string;
+  status: SimpleCashStatus;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteSimpleCashProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: SimpleCashData;
+  instant: number;
+  owner: string;
+  moduleData: SimpleCashData;
 }
 
+// TODO should instant even be a parameter here?
 export async function writeSimpleCash({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData,
 }: WriteSimpleCashProps) {
-  const { payee, payer } = module;
+  const { externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
-  const payload = ethers.utils.defaultAbiCoder.encode(
-    ["string", "string"],
-    [externalUrl ?? "", imageUrl ?? ""]
-  );
+  const payload = ethers.utils.defaultAbiCoder.encode(["string", "string"], [externalURI ?? "", imageURI ?? ""]);
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
   const msgValue = BigNumber.from(0);
@@ -81,4 +80,36 @@ export async function cashSimpleCash({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeSimpleCashData(data: string) {
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
+    ["string", "string"],
+    data
+  );
+  return {
+    externalURI: decoded[0],
+    imageURI: decoded[1],
+  };
+}
+
+export function getSimpleCashData(account: any, nota: any, hookBytes: string): SimpleCashData{
+  const decoded = decodeSimpleCashData(hookBytes);
+  
+  let status;
+  if (nota.cashes.length > 0) {
+    status = "claimed";
+  } else if (nota.owner.id === account.toLowerCase()) {
+    status = "claimable";
+  } else {
+    status = "awaiting_claim";
+  }
+
+  return {
+    moduleName: "simpleCash",
+    status: status as SimpleCashStatus,
+    externalURI: decoded.externalURI,
+    imageURI: decoded.imageURI,
+  }
 }

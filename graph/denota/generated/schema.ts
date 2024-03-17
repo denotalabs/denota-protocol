@@ -596,23 +596,6 @@ export class Nota extends Entity {
     }
   }
 
-  get uri(): string | null {
-    let value = this.get("uri");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set uri(value: string | null) {
-    if (!value) {
-      this.unset("uri");
-    } else {
-      this.set("uri", Value.fromString(<string>value));
-    }
-  }
-
   get createdTransaction(): string | null {
     let value = this.get("createdTransaction");
     if (!value || value.kind == ValueKind.NULL) {
@@ -802,6 +785,754 @@ export class Module extends Entity {
 
   get notas(): NotaLoader {
     return new NotaLoader("Module", this.get("id")!.toString(), "notas");
+  }
+}
+
+export class DirectSendData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save DirectSendData entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type DirectSendData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("DirectSendData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): DirectSendData | null {
+    return changetype<DirectSendData | null>(
+      store.get_in_block("DirectSendData", id),
+    );
+  }
+
+  static load(id: string): DirectSendData | null {
+    return changetype<DirectSendData | null>(store.get("DirectSendData", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class SimpleCashData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save SimpleCashData entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type SimpleCashData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("SimpleCashData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): SimpleCashData | null {
+    return changetype<SimpleCashData | null>(
+      store.get_in_block("SimpleCashData", id),
+    );
+  }
+
+  static load(id: string): SimpleCashData | null {
+    return changetype<SimpleCashData | null>(store.get("SimpleCashData", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class ReversibleReleaseData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ReversibleReleaseData entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ReversibleReleaseData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("ReversibleReleaseData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ReversibleReleaseData | null {
+    return changetype<ReversibleReleaseData | null>(
+      store.get_in_block("ReversibleReleaseData", id),
+    );
+  }
+
+  static load(id: string): ReversibleReleaseData | null {
+    return changetype<ReversibleReleaseData | null>(
+      store.get("ReversibleReleaseData", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get inspector(): string | null {
+    let value = this.get("inspector");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set inspector(value: string | null) {
+    if (!value) {
+      this.unset("inspector");
+    } else {
+      this.set("inspector", Value.fromString(<string>value));
+    }
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class ReversibleByBeforeDateData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save ReversibleByBeforeDateData entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ReversibleByBeforeDateData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("ReversibleByBeforeDateData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): ReversibleByBeforeDateData | null {
+    return changetype<ReversibleByBeforeDateData | null>(
+      store.get_in_block("ReversibleByBeforeDateData", id),
+    );
+  }
+
+  static load(id: string): ReversibleByBeforeDateData | null {
+    return changetype<ReversibleByBeforeDateData | null>(
+      store.get("ReversibleByBeforeDateData", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get inspector(): string | null {
+    let value = this.get("inspector");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set inspector(value: string | null) {
+    if (!value) {
+      this.unset("inspector");
+    } else {
+      this.set("inspector", Value.fromString(<string>value));
+    }
+  }
+
+  get inspectionEnd(): BigInt | null {
+    let value = this.get("inspectionEnd");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set inspectionEnd(value: BigInt | null) {
+    if (!value) {
+      this.unset("inspectionEnd");
+    } else {
+      this.set("inspectionEnd", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class CashBeforeDateData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save CashBeforeDateData entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type CashBeforeDateData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("CashBeforeDateData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): CashBeforeDateData | null {
+    return changetype<CashBeforeDateData | null>(
+      store.get_in_block("CashBeforeDateData", id),
+    );
+  }
+
+  static load(id: string): CashBeforeDateData | null {
+    return changetype<CashBeforeDateData | null>(
+      store.get("CashBeforeDateData", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get expirationDate(): BigInt | null {
+    let value = this.get("expirationDate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set expirationDate(value: BigInt | null) {
+    if (!value) {
+      this.unset("expirationDate");
+    } else {
+      this.set("expirationDate", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class CashBeforeDateDripData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id != null,
+      "Cannot save CashBeforeDateDripData entity without an ID",
+    );
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type CashBeforeDateDripData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("CashBeforeDateDripData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): CashBeforeDateDripData | null {
+    return changetype<CashBeforeDateDripData | null>(
+      store.get_in_block("CashBeforeDateDripData", id),
+    );
+  }
+
+  static load(id: string): CashBeforeDateDripData | null {
+    return changetype<CashBeforeDateDripData | null>(
+      store.get("CashBeforeDateDripData", id),
+    );
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get raw(): Bytes {
+    let value = this.get("raw");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set raw(value: Bytes) {
+    this.set("raw", Value.fromBytes(value));
+  }
+
+  get dripAmount(): BigInt | null {
+    let value = this.get("dripAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set dripAmount(value: BigInt | null) {
+    if (!value) {
+      this.unset("dripAmount");
+    } else {
+      this.set("dripAmount", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get dripPeriod(): BigInt | null {
+    let value = this.get("dripPeriod");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set dripPeriod(value: BigInt | null) {
+    if (!value) {
+      this.unset("dripPeriod");
+    } else {
+      this.set("dripPeriod", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get expirationDate(): BigInt | null {
+    let value = this.get("expirationDate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set expirationDate(value: BigInt | null) {
+    if (!value) {
+      this.unset("expirationDate");
+    } else {
+      this.set("expirationDate", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
   }
 }
 

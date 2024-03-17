@@ -7,41 +7,42 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "returned" | "released";
+
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
-  payee: string;
-  payer: string;
-  inspector?: string;
+  status: ReversibleReleaseStatus;
+
+  inspector: string;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteReversibleReleaseyProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: ReversibleReleaseData;
+  instant: number;
+  owner: string;
+  moduleData: ReversibleReleaseData;
 }
 
 export async function writeReversibleRelease({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData
 }: WriteReversibleReleaseyProps) {
-  const { payee, payer, inspector } = module;
-  const notaInspector = inspector ? inspector : payer;
+  const { inspector, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["address", "string", "string"],
-    [notaInspector, externalUrl ?? "", imageUrl ?? ""]
+    [inspector, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -50,8 +51,8 @@ export async function writeReversibleRelease({
   const tx = await state.blockchainState.registrar?.write(
     tokenAddress, //currency
     amountWei, //escrowed
-    0, //instant
-    owner, //owner
+    instant,
+    owner,
     state.blockchainState.contractMapping.reversibleRelease, //module
     payload, //moduleWriteData
     { value: msgValue }
@@ -115,4 +116,46 @@ export async function cashReversibleRelease({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeReversibleReleaseData(data: string) {
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
+    ["address", "string", "string"],
+    data
+  );
+  return {
+    inspector: decoded[0],
+    externalUrl: decoded[1],
+    imageUrl: decoded[2],
+  };
+}
+
+export function getReversibleReleaseData(account: any, nota: any, hookBytes: string): ReversibleReleaseData {
+  let decoded = decodeReversibleReleaseData(hookBytes);
+  let inspector = decoded.inspector;
+  
+  let status;
+  if (nota.cashes.length > 0) {
+    // TODO Need to know if the `to` went to the `owner` at the time it was released
+    //// Need to check transfers and if >0 check if the cash timestamp was before it
+    if (nota.cashes[0].to === nota.owner.id) {
+      status = "released";
+    } else {
+      status = "returned";
+    }
+  } else {
+    if (inspector === account.toLowerCase()) {
+      status = "releasable";
+    } else {
+      status = "awaiting_release";
+    }
+  }
+  return {
+    moduleName: "reversibleRelease",
+    status: status as ReversibleReleaseStatus,
+    inspector: inspector.toLowerCase(),
+    externalURI: decoded.externalUrl,
+    imageURI: decoded.imageUrl,
+  }
 }

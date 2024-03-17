@@ -1,4 +1,4 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -29,8 +29,7 @@ import {
   Transferred,
   Written, Transaction, ERC20, Account, Nota, Module
 } from "../generated/schema"
-// TODO update NotaRegistrar entity
-// Don't currently have the number of Notas owned being tracted by account
+import { handleHookData } from "./hooks";
 
 function saveNewAccount(account: string): Account {
   const newAccount = new Account(account);
@@ -95,10 +94,7 @@ export function handleWritten(event: WrittenEvent): void {
   nota.sender = senderAccount.id;
   nota.receiver = owningAccount.id;
   nota.owner = owningAccount.id;
-  // nota.imageUri = "";
-  // nota.externalUri = "";
   nota.createdTransaction = transaction.id;
-  // nota.moduleData = ""; // TODO attach hook specific parameters
   nota.save();
 
   const entity = new Written(transactionHexHash + "/" + nota.id); // + "/" + event.logIndex.toI32() should be added in case of single tx using same nota
@@ -113,6 +109,8 @@ export function handleWritten(event: WrittenEvent): void {
   entity.moduleData = event.params.moduleData;
   entity.transaction = transaction.id;
   entity.save();
+
+  handleHookData(nota.id, moduleEntity.id, event.params.moduleData);  // Parses the bytes and saves the args to the appropriate hookData entity
 }
 
 export function handleFunded(event: FundedEvent): void {

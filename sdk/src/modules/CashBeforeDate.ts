@@ -7,40 +7,41 @@ import {
   tokenDecimalsForCurrency,
 } from "..";
 
+export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | "expired" | "returnable" | "returned";
+
 export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
-  payee: string;
-  payer: string;
-  cashBeforeDate?: number;
+  status: CashBeforeDateStatus;
+  cashBeforeDate: number;
+  externalURI?: string;
+  imageURI?: string;
 }
 
 export interface WriteCashBeforeDateProps {
   currency: DenotaCurrency;
   amount: number;
-  externalUrl?: string;
-  imageUrl?: string;
-  module: CashBeforeDateData;
+  instant: number;
+  owner: string;
+  moduleData: CashBeforeDateData;
 }
 
 export async function writeCashBeforeDate({
-  module,
-  amount,
   currency,
-  imageUrl,
-  externalUrl,
+  amount,
+  instant,
+  owner,
+  moduleData
 }: WriteCashBeforeDateProps) {
-  const { payee, payer, cashBeforeDate } = module;
+  const { cashBeforeDate, externalURI, imageURI } = moduleData;
 
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
   );
 
-  const owner = payee;
-
   const payload = ethers.utils.defaultAbiCoder.encode(
     ["uint256", "string", "string"],
-    [cashBeforeDate, externalUrl ?? "", imageUrl ?? ""]
+    [cashBeforeDate, externalURI ?? "", imageURI ?? ""]
   );
   const tokenAddress = tokenAddressForCurrency(currency) ?? "";
 
@@ -82,4 +83,51 @@ export async function cashCashBeforeDate({
   );
   const receipt = await tx.wait();
   return receipt.transactionHash as string;
+}
+
+export function decodeCashBeforeDateData(data: string) {
+  let coder = new ethers.utils.AbiCoder();
+  const decoded = coder.decode(
+    ["uint256", "string", "string"],
+    data
+  );
+  return {
+    cashBeforeDate: decoded[0],
+    externalURI: decoded[0],
+    imageURI: decoded[1],
+  };
+}
+
+export function getCashBeforeDateData(account: any, nota: any, hookBytes: string): CashBeforeDateData{
+  let decoded = decodeCashBeforeDateData(hookBytes);
+
+  let expirationDate = decoded.cashBeforeDate * 1000;
+
+  let status;
+  if (nota.cashes.length > 0) {
+    if (nota.cashes[0].to == account.toLowerCase()) {
+      status = "claimed";
+    } else {
+      status = "returned";
+    }
+  } else if (expirationDate >= Date.now()) {
+    if (nota.owner.id === account.toLowerCase()) {
+      status = "claimable";
+    } else {
+      status = "awaiting_claim";
+    }
+  } else {
+    if (nota.owner.id === account.toLowerCase()) {
+      status = "expired";
+    } else {
+      status = "returnable";
+    }
+  }
+  return {
+    moduleName: "cashBeforeDate",
+    status: status as CashBeforeDateStatus,
+    cashBeforeDate: expirationDate,
+    externalURI: decoded.externalURI,
+    imageURI: decoded.imageURI,
+  }
 }

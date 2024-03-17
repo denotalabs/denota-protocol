@@ -116,7 +116,8 @@ echo "1. CashBeforeDate"
 echo "2. ReversibleByBeforeDate"
 echo "3. ReversibleRelease"
 echo "4. SimpleCash"
-read -p "Enter your choice (1/2/3/4): " transactionType
+echo "5. DirectSend"
+read -p "Enter your choice (0/1/2/3/4/5): " transactionType
 
 # Get registrar address
 registrarAddress=$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $2}')
@@ -199,6 +200,7 @@ case $transactionType in
         read -p "Enter inspector address: " inspector
         ;;
     4) module="0x000000000AE1D0831c0C7485eAcc847D2F57EBb9" ;;
+    5) module="0x00000003672153a114583fa78c3d313d4e3cae40" ;;
 
     *)
         echo "Invalid option selected."
