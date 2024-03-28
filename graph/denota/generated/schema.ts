@@ -498,8 +498,8 @@ export class Nota extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get currency(): string | null {
-    let value = this.get("currency");
+  get token(): string | null {
+    let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -507,11 +507,11 @@ export class Nota extends Entity {
     }
   }
 
-  set currency(value: string | null) {
+  set token(value: string | null) {
     if (!value) {
-      this.unset("currency");
+      this.unset("token");
     } else {
-      this.set("currency", Value.fromString(<string>value));
+      this.set("token", Value.fromString(<string>value));
     }
   }
 
@@ -542,6 +542,40 @@ export class Nota extends Entity {
       this.unset("module");
     } else {
       this.set("module", Value.fromString(<string>value));
+    }
+  }
+
+  get owner(): string | null {
+    let value = this.get("owner");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set owner(value: string | null) {
+    if (!value) {
+      this.unset("owner");
+    } else {
+      this.set("owner", Value.fromString(<string>value));
+    }
+  }
+
+  get approved(): string | null {
+    let value = this.get("approved");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set approved(value: string | null) {
+    if (!value) {
+      this.unset("approved");
+    } else {
+      this.set("approved", Value.fromString(<string>value));
     }
   }
 
@@ -579,40 +613,6 @@ export class Nota extends Entity {
     }
   }
 
-  get owner(): string | null {
-    let value = this.get("owner");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set owner(value: string | null) {
-    if (!value) {
-      this.unset("owner");
-    } else {
-      this.set("owner", Value.fromString(<string>value));
-    }
-  }
-
-  get createdTransaction(): string | null {
-    let value = this.get("createdTransaction");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set createdTransaction(value: string | null) {
-    if (!value) {
-      this.unset("createdTransaction");
-    } else {
-      this.set("createdTransaction", Value.fromString(<string>value));
-    }
-  }
-
   get written(): WrittenLoader {
     return new WrittenLoader("Nota", this.get("id")!.toString(), "written");
   }
@@ -631,6 +631,14 @@ export class Nota extends Entity {
 
   get approvals(): ApprovalLoader {
     return new ApprovalLoader("Nota", this.get("id")!.toString(), "approvals");
+  }
+
+  get metadataUpdates(): MetadataUpdateLoader {
+    return new MetadataUpdateLoader(
+      "Nota",
+      this.get("id")!.toString(),
+      "metadataUpdates",
+    );
   }
 }
 
@@ -842,8 +850,8 @@ export class DirectSendData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -851,8 +859,8 @@ export class DirectSendData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
   }
 
   get externalURI(): string | null {
@@ -944,8 +952,8 @@ export class SimpleCashData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -953,8 +961,8 @@ export class SimpleCashData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
   }
 
   get externalURI(): string | null {
@@ -1051,8 +1059,8 @@ export class ReversibleReleaseData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1060,8 +1068,8 @@ export class ReversibleReleaseData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
   }
 
   get inspector(): string | null {
@@ -1175,8 +1183,8 @@ export class ReversibleByBeforeDateData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1184,8 +1192,8 @@ export class ReversibleByBeforeDateData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
   }
 
   get inspector(): string | null {
@@ -1313,8 +1321,8 @@ export class CashBeforeDateData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1322,8 +1330,8 @@ export class CashBeforeDateData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
   }
 
   get expirationDate(): BigInt | null {
@@ -1437,8 +1445,8 @@ export class CashBeforeDateDripData extends Entity {
     this.set("nota", Value.fromString(value));
   }
 
-  get raw(): Bytes {
-    let value = this.get("raw");
+  get rawBytes(): Bytes {
+    let value = this.get("rawBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1446,8 +1454,25 @@ export class CashBeforeDateDripData extends Entity {
     }
   }
 
-  set raw(value: Bytes) {
-    this.set("raw", Value.fromBytes(value));
+  set rawBytes(value: Bytes) {
+    this.set("rawBytes", Value.fromBytes(value));
+  }
+
+  get lastDrip(): BigInt | null {
+    let value = this.get("lastDrip");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastDrip(value: BigInt | null) {
+    if (!value) {
+      this.unset("lastDrip");
+    } else {
+      this.set("lastDrip", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get dripAmount(): BigInt | null {
@@ -1734,8 +1759,8 @@ export class Cashed extends Entity {
     this.set("amount", Value.fromBigInt(value));
   }
 
-  get cashData(): Bytes {
-    let value = this.get("cashData");
+  get cashBytes(): Bytes {
+    let value = this.get("cashBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1743,8 +1768,8 @@ export class Cashed extends Entity {
     }
   }
 
-  set cashData(value: Bytes) {
-    this.set("cashData", Value.fromBytes(value));
+  set cashBytes(value: Bytes) {
+    this.set("cashBytes", Value.fromBytes(value));
   }
 
   get moduleFee(): BigInt {
@@ -1865,8 +1890,8 @@ export class Funded extends Entity {
     this.set("instant", Value.fromBigInt(value));
   }
 
-  get fundData(): Bytes {
-    let value = this.get("fundData");
+  get fundBytes(): Bytes {
+    let value = this.get("fundBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -1874,8 +1899,8 @@ export class Funded extends Entity {
     }
   }
 
-  set fundData(value: Bytes) {
-    this.set("fundData", Value.fromBytes(value));
+  set fundBytes(value: Bytes) {
+    this.set("fundBytes", Value.fromBytes(value));
   }
 
   get moduleFee(): BigInt {
@@ -1998,8 +2023,8 @@ export class Transferred extends Entity {
     this.set("moduleFee", Value.fromBigInt(value));
   }
 
-  get fundData(): Bytes {
-    let value = this.get("fundData");
+  get transferBytes(): Bytes {
+    let value = this.get("transferBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -2007,8 +2032,8 @@ export class Transferred extends Entity {
     }
   }
 
-  set fundData(value: Bytes) {
-    this.set("fundData", Value.fromBytes(value));
+  set transferBytes(value: Bytes) {
+    this.set("transferBytes", Value.fromBytes(value));
   }
 
   get transaction(): string {
@@ -2116,8 +2141,8 @@ export class Written extends Entity {
     this.set("instant", Value.fromBigInt(value));
   }
 
-  get currency(): string {
-    let value = this.get("currency");
+  get token(): string {
+    let value = this.get("token");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -2125,8 +2150,8 @@ export class Written extends Entity {
     }
   }
 
-  set currency(value: string) {
-    this.set("currency", Value.fromString(value));
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
   }
 
   get escrowed(): BigInt {
@@ -2168,8 +2193,8 @@ export class Written extends Entity {
     this.set("module", Value.fromString(value));
   }
 
-  get moduleData(): Bytes {
-    let value = this.get("moduleData");
+  get writeBytes(): Bytes {
+    let value = this.get("writeBytes");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -2177,8 +2202,8 @@ export class Written extends Entity {
     }
   }
 
-  set moduleData(value: Bytes) {
-    this.set("moduleData", Value.fromBytes(value));
+  set writeBytes(value: Bytes) {
+    this.set("writeBytes", Value.fromBytes(value));
   }
 
   get transaction(): string {
@@ -2345,56 +2370,43 @@ export class MetadataUpdate extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get _tokenId(): BigInt {
-    let value = this.get("_tokenId");
+  get caller(): string {
+    let value = this.get("caller");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set _tokenId(value: BigInt) {
-    this.set("_tokenId", Value.fromBigInt(value));
+  set caller(value: string) {
+    this.set("caller", Value.fromString(value));
   }
 
-  get blockNumber(): BigInt {
-    let value = this.get("blockNumber");
+  get nota(): string {
+    let value = this.get("nota");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set blockNumber(value: BigInt) {
-    this.set("blockNumber", Value.fromBigInt(value));
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
   }
 
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
+  get transaction(): string {
+    let value = this.get("transaction");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
-      return value.toBigInt();
+      return value.toString();
     }
   }
 
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-
-  get transactionHash(): Bytes {
-    let value = this.get("transactionHash");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set transactionHash(value: Bytes) {
-    this.set("transactionHash", Value.fromBytes(value));
+  set transaction(value: string) {
+    this.set("transaction", Value.fromString(value));
   }
 }
 
@@ -2944,6 +2956,24 @@ export class CashedLoader extends Entity {
   load(): Cashed[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<Cashed[]>(value);
+  }
+}
+
+export class MetadataUpdateLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): MetadataUpdate[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<MetadataUpdate[]>(value);
   }
 }
 

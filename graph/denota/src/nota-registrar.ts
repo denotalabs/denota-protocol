@@ -66,12 +66,13 @@ function saveTransaction(
   return transaction;
 }
 
+ // TODO TODO what about WTFC on behalf of? Use logged calldata or the tx.from?
 export function handleWritten(event: WrittenEvent): void {
   const currency = event.params.currency.toHexString();
   const owner = event.params.owner.toHexString();
-  const sender = event.params.caller.toHexString();
+  const sender = event.transaction.from.toHexString();
   const module = event.params.module.toHexString();
-  const transactionHexHash = event.transaction.hash.toHexString();
+  const transactionHexHash = event.transaction.hash.toHexString();  // TODO is necessary to convert to hex string?
   const transaction = saveTransaction(
     transactionHexHash,
     event.block.timestamp,
@@ -88,25 +89,24 @@ export function handleWritten(event: WrittenEvent): void {
   moduleEntity = moduleEntity == null ? saveNewModule(module) : moduleEntity;
 
   const nota = new Nota(event.params.notaId.toString());
-  nota.currency = ERC20Token.id;
+  nota.token = ERC20Token.id;
   nota.escrowed = event.params.escrowed;
   nota.module = moduleEntity.id;
   nota.sender = senderAccount.id;
   nota.receiver = owningAccount.id;
   nota.owner = owningAccount.id;
-  nota.createdTransaction = transaction.id;
   nota.save();
 
-  const entity = new Written(transactionHexHash + "/" + nota.id); // + "/" + event.logIndex.toI32() should be added in case of single tx using same nota
+  const entity = new Written(transactionHexHash + "/" + nota.id); // TODO + "/" + event.logIndex.toI32() should be added in case of single tx using same nota
   entity.caller = senderAccount.id;
   entity.nota = nota.id;
   entity.owner = owningAccount.id;
   entity.instant = event.params.instant;
-  entity.currency = ERC20Token.id;
+  entity.token = ERC20Token.id;
   entity.escrowed = event.params.escrowed;
   entity.moduleFee = event.params.moduleFee;
   entity.module = moduleEntity.id;
-  entity.moduleData = event.params.moduleData;
+  entity.writeBytes = event.params.moduleData;
   entity.transaction = transaction.id;
   entity.save();
 
@@ -115,10 +115,10 @@ export function handleWritten(event: WrittenEvent): void {
 
 export function handleFunded(event: FundedEvent): void {
   const transactionHexHash = event.transaction.hash.toHexString();
-  let fromAccount = Account.load(event.params.funder.toHexString());
+  let fromAccount = Account.load(event.transaction.from.toHexString());
   fromAccount =
     fromAccount == null
-      ? saveNewAccount(event.params.funder.toHexString())
+      ? saveNewAccount(event.transaction.from.toHexString())
       : fromAccount;
   const transaction = saveTransaction(
     transactionHexHash,
@@ -148,7 +148,7 @@ export function handleFunded(event: FundedEvent): void {
   entity.nota = nota.id;
   entity.amount = event.params.amount;
   entity.instant = event.params.instant;
-  entity.fundData = event.params.fundData;
+  entity.fundBytes = event.params.fundData;
   entity.moduleFee = event.params.moduleFee;
   entity.transaction = transaction.id;
   entity.save();
@@ -182,10 +182,10 @@ export function handleCashed(event: CashedEvent): void {
     nota.escrowed = nota.escrowed.minus(event.params.amount);
     nota.save();
 
-    let callerAccount = Account.load(event.params.casher.toHexString());
+    let callerAccount = Account.load(event.transaction.from.toHexString());
     callerAccount =
       callerAccount == null
-        ? saveNewAccount(event.params.casher.toHexString())
+        ? saveNewAccount(event.transaction.from.toHexString())
         : callerAccount;
 
     let entity = new Cashed(transactionHexHash + "/" + notaId)
@@ -193,7 +193,7 @@ export function handleCashed(event: CashedEvent): void {
     entity.nota = nota.id;
     entity.to = event.params.to;
     entity.amount = event.params.amount;
-    entity.cashData = event.params.cashData;
+    entity.cashBytes = event.params.cashData;
     entity.moduleFee = event.params.moduleFee;
     entity.transaction = transaction.id;
   
@@ -235,7 +235,7 @@ export function handleApproval(event: ApprovalEvent): void {
   }
   
   let entity = new Approval(transactionHexHash + "/" + notaId);
-  entity.caller = event.params.owner.toHexString();
+  entity.caller = event.transaction.from.toHexString();
   entity.owner = event.params.owner.toHexString();
   entity.approved = event.params.approved.toHexString();
   entity.nota = nota.id;
@@ -253,7 +253,7 @@ export function handleApprovalForAll(event: ApprovalForAllEvent): void {
 
   let entity = new ApprovalForAll(transactionHexHash + "/" + event.params.owner.toHexString() + "/" + event.params.operator.toHexString()
   );
-  entity.caller = event.params.owner.toHexString();
+  entity.caller = event.transaction.from.toHexString();
   entity.owner = event.params.owner.toHexString();
   entity.operator = event.params.operator.toHexString();
   entity.approved = event.params.approved;
@@ -264,6 +264,7 @@ export function handleApprovalForAll(event: ApprovalForAllEvent): void {
 // TODO: Transfer event being fired before write event is causing problems
 export function handleTransfer(event: TransferEvent): void {
   // Load event params
+  const caller = event.transaction.from.toHexString();
   const from = event.params.from.toHexString();
   const to = event.params.to.toHexString();
   const notaId = event.params.tokenId.toHexString();
@@ -277,8 +278,10 @@ export function handleTransfer(event: TransferEvent): void {
   // Load from and to Accounts
   let fromAccount = Account.load(from); // Check if from is address(0) since this represents mint()
   let toAccount = Account.load(to);
+  let callerAccount = Account.load(caller);
   fromAccount = fromAccount == null ? saveNewAccount(from) : fromAccount;
   toAccount = toAccount == null ? saveNewAccount(to) : toAccount;
+  callerAccount = callerAccount == null ? saveNewAccount(caller) : callerAccount;
   
   let nota = Nota.load(notaId); // Transfer event fires before Written event
   if (nota == null) {
@@ -313,15 +316,34 @@ export function handleBatchMetadataUpdate(
 }
 
 export function handleMetadataUpdate(event: MetadataUpdateEvent): void {
+  const transactionHexHash = event.transaction.hash.toHexString(); 
+  let caller = Account.load(event.transaction.from.toHexString());
+  caller =
+    caller == null
+      ? saveNewAccount(event.transaction.from.toHexString())
+      : caller;
+    
+  const transaction = saveTransaction(
+    transactionHexHash,
+    event.block.timestamp,
+    event.block.number
+  );
+
+  const notaId = event.params._tokenId.toString();
+  let nota = Nota.load(notaId);
+  if (nota == null) {
+    // SHOULDN NEVER BE THE CASE
+    nota = new Nota(notaId);
+    nota.save();
+  }
+
   let entity = new MetadataUpdate(
     event.transaction.hash.concatI32(event.logIndex.toI32()).toHexString()
   )
-  entity._tokenId = event.params._tokenId
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
+  
+  entity.caller = caller.id;
+  entity.nota = nota.id;
+  entity.transaction = transaction.id;
   entity.save()
 }
 
