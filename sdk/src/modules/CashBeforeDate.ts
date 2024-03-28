@@ -13,6 +13,7 @@ export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
   status: CashBeforeDateStatus;
   cashBeforeDate: number;
+  cashBeforeDateFormatted: Date;
   externalURI?: string;
   imageURI?: string;
 }
@@ -93,8 +94,8 @@ export function decodeCashBeforeDateData(data: string) {
   );
   return {
     cashBeforeDate: decoded[0],
-    externalURI: decoded[0],
-    imageURI: decoded[1],
+    externalURI: decoded[1],
+    imageURI: decoded[2],
   };
 }
 
@@ -127,6 +128,7 @@ export function getCashBeforeDateData(account: any, nota: any, hookBytes: string
     moduleName: "cashBeforeDate",
     status: status as CashBeforeDateStatus,
     cashBeforeDate: expirationDate,
+    cashBeforeDateFormatted: new Date(expirationDate),
     externalURI: decoded.externalURI,
     imageURI: decoded.imageURI,
   }

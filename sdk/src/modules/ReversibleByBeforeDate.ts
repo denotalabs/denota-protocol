@@ -15,6 +15,7 @@ export interface ReversibleByBeforeDateData {
 
   inspector: string;
   reversibleByBeforeDate: number;
+  reversibleByBeforeDateFormatted: Date;
   externalURI?: string;
   imageURI?: string;
 }
@@ -133,6 +134,7 @@ export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes
     status: status as ReversibleByBeforeDateStatus,
     inspector: inspector.toLowerCase(),
     reversibleByBeforeDate: expirationDate,
+    reversibleByBeforeDateFormatted: new Date(expirationDate),
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,
   }
