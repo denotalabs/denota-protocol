@@ -5,36 +5,36 @@ import { contractMappingForChainId as contractMappingForChainId_ } from "./chain
 import { uploadMetadata } from "./Metadata";
 import Events from "./abis/Events.sol/Events.json";
 import NotaRegistrar from "./abis/NotaRegistrar.sol/NotaRegistrar.json";
-import { DirectSendData, writeDirectSend, getDirectSendData } from "./modules/DirectSend";
+import { DirectSendData, getDirectSendData, writeDirectSend } from "./modules/DirectSend";
 import {
   SimpleCashData,
-  getSimpleCashData,
   cashSimpleCash,
+  getSimpleCashData,
   writeSimpleCash,
 } from "./modules/SimpleCash";
 
 import {
   CashBeforeDateData,
-  getCashBeforeDateData,
   cashCashBeforeDate,
+  getCashBeforeDateData,
   writeCashBeforeDate,
 } from "./modules/CashBeforeDate";
 import {
   CashBeforeDateDripData,
-  getCashBeforeDateDripData,
   cashCashBeforeDateDrip,
+  getCashBeforeDateDripData,
   writeCashBeforeDateDrip,
 } from "./modules/CashBeforeDateDrip";
 import {
   ReversibleByBeforeDateData,
-  getReversibleByBeforeDateData,
   cashReversibleByBeforeDate,
+  getReversibleByBeforeDateData,
   writeReversibleByBeforeDate,
 } from "./modules/ReversibleByBeforeDate";
 import {
   ReversibleReleaseData,
-  getReversibleReleaseData,
   cashReversibleRelease,
+  getReversibleReleaseData,
   writeReversibleRelease,
 } from "./modules/ReversibleRelease";
 
@@ -281,7 +281,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
     imageURI = uploadedimageURI ?? "";
     externalURI = uploadedHash ?? "";
   }
-  
+
   let moduleData: ModuleData;
   switch (moduleName) {
     case "directSend":
@@ -310,14 +310,17 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
       });
     case "reversibleByBeforeDate":
       inspector = ("inspector" in props) ? props.inspector as string : owner;
-      if (!("reversibleByBeforeDate" in props)){
+      if (!("reversibleByBeforeDate" in props)) {
         throw new Error("reversibleByBeforeDate is required for reversibleByBeforeDate");
       }
+      let reversibleByBeforeDate = props.reversibleByBeforeDate as number;
+
       moduleData = {
         moduleName: "reversibleByBeforeDate",
         status: "awaiting_claim",
         inspector: inspector,
-        reversibleByBeforeDate: instant,
+        reversibleByBeforeDate: reversibleByBeforeDate,
+        reversibleByBeforeDateFormatted: new Date(reversibleByBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -329,13 +332,16 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         moduleData,
       });
     case "cashBeforeDate":
-      if (!("cashBeforeDate" in props)){
+      if (!("cashBeforeDate" in props)) {
         throw new Error("cashBeforeDate is required for cashBeforeDate");
       }
+
+      let cashBeforeDate = props.cashBeforeDate as number;
       moduleData = {
         moduleName: "cashBeforeDate",
         status: "awaiting_claim",
-        cashBeforeDate: props.cashBeforeDate as number,
+        cashBeforeDate: cashBeforeDate,
+        cashBeforeDateFormatted: new Date(cashBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -347,31 +353,35 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         moduleData,
       });
     case "cashBeforeDateDrip":
-        if (!("expirationDate" in props)){
-          throw new Error("expirationDate is required for cashBeforeDateDrip");
-        }
-        if (!("dripAmount" in props)){
-          throw new Error("dripAmount is required for cashBeforeDateDrip");
-        }
-        if (!("dripPeriod" in props)){
-          throw new Error("dripPeriod is required for cashBeforeDateDrip");
-        }
-        moduleData = {
-          moduleName: "cashBeforeDateDrip",
-          status: "locked",
-          expirationDate: props.expirationDate as number,
-          dripAmount: props.dripAmount as number,
-          dripPeriod: props.dripPeriod as number,
-          externalURI: externalURI,
-          imageURI: imageURI,
-        };
-        return await writeCashBeforeDateDrip({
-          currency,
-          amount,
-          instant,
-          owner,
-          moduleData,
-        });
+      if (!("expirationDate" in props)) {
+        throw new Error("expirationDate is required for cashBeforeDateDrip");
+      }
+      if (!("dripAmount" in props)) {
+        throw new Error("dripAmount is required for cashBeforeDateDrip");
+      }
+      if (!("dripPeriod" in props)) {
+        throw new Error("dripPeriod is required for cashBeforeDateDrip");
+      }
+
+      let expirationDate = props.expirationDate as number;
+      moduleData = {
+        moduleName: "cashBeforeDateDrip",
+        status: "claimable",
+        expirationDate: expirationDate,
+        expirationDateFormatted: new Date(expirationDate),
+        dripAmount: props.dripAmount as number,
+        dripPeriod: props.dripPeriod as number,
+        externalURI: externalURI,
+        imageURI: imageURI,
+      };
+
+      return await writeCashBeforeDateDrip({
+        currency,
+        amount,
+        instant,
+        owner,
+        moduleData,
+      });
     case "simpleCash":
       moduleData = {
         moduleName: "simpleCash",
@@ -385,7 +395,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         instant,
         owner,
         moduleData
-       });
+      });
     default:
       throw new Error("Unknown module");
   }
@@ -421,7 +431,7 @@ export async function cash({
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
     case "cashBeforeDate":
-      return await cashCashBeforeDate({ notaId, to, amount });  
+      return await cashCashBeforeDate({ notaId, to, amount });
     case "reversibleRelease":
       return await cashReversibleRelease({
         notaId,
@@ -434,14 +444,14 @@ export async function cash({
         to,
         amount,
       });
-      case "cashBeforeDateDrip":
-        return await cashCashBeforeDateDrip({
-          notaId,
-          to,
-          amount,
-        });
-      default:
-        throw new Error("Unknown module");
+    case "cashBeforeDateDrip":
+      return await cashCashBeforeDateDrip({
+        notaId,
+        to,
+        amount,
+      });
+    default:
+      throw new Error("Unknown module");
   }
 }
 
@@ -472,50 +482,60 @@ export interface Nota {
 // TODO ModuleData.decode functionality
 // TODO Nota query functionality
 // function query(notaId: string) {
-  //// nota.moduleBytes.decode();
+//// nota.moduleBytes.decode();
 // }
 
 export function getModuleData(account: string, chainIdNumber: number, nota: any, hookAddress: string): ModuleData {
   // TODO should `nota` be a Nota object or just the bytes data?
-  // returns all address variables as lower case for front-end consistency
+  // TODO should hookBytes be parsed here, beforehand, or in the hook specific one?
+  // Note: returns all address variables as lower case for front-end consistency
   account = account.toLowerCase();
   const mapping = contractMappingForChainId(chainIdNumber);
+  
+  let moduleData: ModuleData = { moduleName: "unknown", status: "?", externalURI: "", imageURI: "" };
 
-  let moduleData: ModuleData = { moduleName: "unknown", status: "?", externalURI: "", imageURI: ""};
+  let hookBytes;
+  try {
+    hookBytes = nota.moduleData.raw;
+  } catch {
+    console.log("No hookBytes found in Nota");
+    return moduleData;
+  }
+
   if (mapping) {
     switch (hookAddress) {
       case mapping.simpleCash.toLowerCase():
-        moduleData = getSimpleCashData(account, nota, hookAddress);
+        moduleData = getSimpleCashData(account, nota, hookBytes);
         break;
       case mapping.cashBeforeDate.toLowerCase():
-        moduleData = getCashBeforeDateData(account, nota, hookAddress);
+        moduleData = getCashBeforeDateData(account, nota, hookBytes);
         break;
       case mapping.directSend.toLowerCase():
-        moduleData = getDirectSendData(account, nota, hookAddress);
+        moduleData = getDirectSendData(account, nota, hookBytes);
         break;
       case mapping.reversibleByBeforeDate.toLowerCase():
-        moduleData = getReversibleByBeforeDateData(account, nota, hookAddress);
+        moduleData = getReversibleByBeforeDateData(account, nota, hookBytes);
         break;
       case mapping.reversibleRelease.toLowerCase():
-        moduleData = getReversibleReleaseData(account, nota, hookAddress);
+        moduleData = getReversibleReleaseData(account, nota, hookBytes);
         break;
       case "0x000000005891889951d265d6d7ad3444b68f8887".toLowerCase(): // CashBeforeDateData
-        moduleData = getCashBeforeDateData(account, nota, hookAddress);
+        moduleData = getCashBeforeDateData(account, nota, hookBytes);
         break;
       case "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase(): // CashBeforeDateDrip
-        moduleData = getCashBeforeDateDripData(account, nota, hookAddress);
+        moduleData = getCashBeforeDateDripData(account, nota, hookBytes);
         break;
       case "0x00000000cce992072e23cda23a1986f2207f5e80".toLowerCase(): // CashBeforeDateDrip
-        moduleData = getCashBeforeDateDripData(account, nota, hookAddress);
+        moduleData = getCashBeforeDateDripData(account, nota, hookBytes);
         break;
       case "0x00000000123157038206fefeb809823016331ff2".toLowerCase(): // CashBeforeDate
-        moduleData = getCashBeforeDateData(account, nota, hookAddress);
+        moduleData = getCashBeforeDateData(account, nota, hookBytes);
         break;
       case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():  // ReversibleByBeforeDate
-        moduleData = getReversibleReleaseData(account, nota, hookAddress);
+        moduleData = getReversibleReleaseData(account, nota, hookBytes);
         break;
       case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
-        moduleData = getDirectSendData(account, nota, hookAddress);
+        moduleData = getDirectSendData(account, nota, hookBytes);
         break;
     }
   }

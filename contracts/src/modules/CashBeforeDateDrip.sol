@@ -140,7 +140,7 @@ contract CashBeforeDateDrip is ModuleBase {
                         Strings.toHexString(payment.sender),
                         '"},{"trait_type":"Expiration Date","display_type":"date","value":"',
                         Strings.toString(payment.expirationDate),
-                        '"},{"trait_type":"Last Cashed","display_type":"date","value":"',
+                        '"},{"trait_type":"Last Cashed","display_type":"date","value":"',  // Change to "Last Claimed"
                         Strings.toString(payment.lastCashed),
                         '"},{"trait_type":"Drip Amount","value":"',
                         Strings.toString(payment.dripAmount),

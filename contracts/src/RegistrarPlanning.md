@@ -34,6 +34,7 @@ Things to address and when to address them
 * Check that if module address has no code (DNE) transaction should fail
 
 ### V1 Audited Deployment [ABI_Breaking]
+* Consider inheriting from libraries for escrow functions
 * Change "module" references to "hooks"
 * rename processX() to beforeX()?
 * Update the events so that Written doesn't have Transfer fields and change `Module` to indexed
@@ -42,6 +43,7 @@ Things to address and when to address them
 * Remove the libraries from foundry (they show up in the verification)
 * Add `burn()` and `processBurn()`
 * Add hookFee on `approval()`
+* Add totalSupply = 1 on construction to skip over 0th Nota (allows not-null checks)
 
 * Use write struct if cheaper `write(Nota calldata nota({escrowed, currency, module}), owner, instant, writeData)`
 * Remove DataTypes library if possible

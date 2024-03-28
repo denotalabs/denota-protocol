@@ -14,6 +14,7 @@ export interface CashBeforeDateDripData {
   status: CashBeforeDateDripStatus;
 
   expirationDate: number;
+  expirationDateFormatted: Date;
   dripAmount: number;
   dripPeriod: number;
   externalURI?: string;
@@ -145,6 +146,7 @@ export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: st
     moduleName: "cashBeforeDateDrip",
     status: status as CashBeforeDateDripStatus,
     expirationDate: cashBeforeDate,
+    expirationDateFormatted: new Date(cashBeforeDate),
     dripAmount: dripAmount,
     dripPeriod: dripPeriod,
     externalURI: decoded.externalURI,

@@ -54,7 +54,7 @@ export async function writeReversibleRelease({
     instant,
     owner,
     state.blockchainState.contractMapping.reversibleRelease, //module
-    payload, //moduleWriteData
+    payload, // moduleWriteData
     { value: msgValue }
   );
   const receipt = await tx.wait();
@@ -124,38 +124,51 @@ export function decodeReversibleReleaseData(data: string) {
     ["address", "string", "string"],
     data
   );
+
   return {
     inspector: decoded[0],
-    externalUrl: decoded[1],
-    imageUrl: decoded[2],
+    externalURI: decoded[1],
+    imageURI: decoded[2],
   };
 }
 
 export function getReversibleReleaseData(account: any, nota: any, hookBytes: string): ReversibleReleaseData {
-  let decoded = decodeReversibleReleaseData(hookBytes);
-  let inspector = decoded.inspector;
-  
-  let status;
-  if (nota.cashes.length > 0) {
-    // TODO Need to know if the `to` went to the `owner` at the time it was released
-    //// Need to check transfers and if >0 check if the cash timestamp was before it
-    if (nota.cashes[0].to === nota.owner.id) {
-      status = "released";
+  let inspector = "0x";
+  let status = "returnable";
+  let externalURI = "";
+  let imageURI = "";
+
+  try {
+    let decoded = decodeReversibleReleaseData(hookBytes);
+
+    inspector = decoded.inspector;
+    externalURI = decoded.externalURI;
+    imageURI = decoded.imageURI
+    
+    status;
+    if (nota.cashes.length > 0) {
+      // TODO Need to know if the `to` went to the `owner` at the time it was released
+      //// Need to check transfers and if >0 check if the cash timestamp was before it
+      if (nota.cashes[0].to === nota.owner.id) {
+        status = "released";
+      } else {
+        status = "returned";
+      }
     } else {
-      status = "returned";
+      if (inspector === account.toLowerCase()) {
+        status = "releasable";
+      } else {
+        status = "awaiting_release";
+      }
     }
-  } else {
-    if (inspector === account.toLowerCase()) {
-      status = "releasable";
-    } else {
-      status = "awaiting_release";
-    }
+  } catch {
+    console.log(nota);
   }
   return {
     moduleName: "reversibleRelease",
     status: status as ReversibleReleaseStatus,
     inspector: inspector.toLowerCase(),
-    externalURI: decoded.externalUrl,
-    imageURI: decoded.imageUrl,
+    externalURI: externalURI,
+    imageURI: imageURI,
   }
 }
