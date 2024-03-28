@@ -53,28 +53,31 @@ type Transfer implements Event @entity(immutable: true) {
 type Approval implements Event @entity(immutable: true) {
   id: ID!
   caller: Account! # Redundant but kept for compatibility
-  owner: Account!
-  approved: Account!
-  nota: Nota!
+  owner: Account! # Person who owns the Nota
+  approved: Account! # Person who is approved for that Nota
+  nota: Nota! # Nota that is approved
   transaction: Transaction!
 }
 
+# TODO need to change each of these to 
 type Nota @entity {
   id: ID!
-  currency: ERC20
+  token: ERC20
   escrowed: BigInt!
   module: Module
-  sender: Account
-  receiver: Account
-  owner: Account
-  createdTransaction: Transaction
+  moduleData: ModuleData @derivedFrom(field: "nota")
 
-  written: Written! @derivedFrom(field: "nota")
+  owner: Account # Current owner of the Nota
+  approved: Account # Account currently approved to transfer the Nota
+  sender: Account # Account that sent the Nota
+  receiver: Account # Account that originally received the Nota
+
+  written: Written! @derivedFrom(field: "nota")  # This functions as the createdAt transaction
   transfers: [Transfer!]! @derivedFrom(field: "nota")
   funds: [Funded!]! @derivedFrom(field: "nota")
   cashes: [Cashed!]! @derivedFrom(field: "nota")
   approvals: [Approval!]! @derivedFrom(field: "nota")
-  moduleData: ModuleData @derivedFrom(field: "nota")
+  metadataUpdates: [MetadataUpdate!]! @derivedFrom(field: "nota")
 }
 
 type NotaRegistrar @entity {
@@ -96,7 +99,7 @@ type Module @entity {  # Allows new modules to inherit from Module interface
 interface ModuleData {
     id: ID!  # Could be the same as the Nota Id
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     externalURI: String  # might not even be universal here
     imageURI: String # might not even be universal here
 }
@@ -104,21 +107,21 @@ interface ModuleData {
 type DirectSendData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     externalURI: String
     imageURI: String
 }
 type SimpleCashData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     externalURI: String
     imageURI: String
 }
 type ReversibleReleaseData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     inspector: Account
     externalURI: String
     imageURI: String
@@ -126,7 +129,7 @@ type ReversibleReleaseData implements ModuleData @entity {
 type ReversibleByBeforeDateData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     inspector: Account
     inspectionEnd: BigInt
     externalURI: String
@@ -135,7 +138,7 @@ type ReversibleByBeforeDateData implements ModuleData @entity {
 type CashBeforeDateData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     expirationDate: BigInt
     externalURI: String
     imageURI: String
@@ -143,7 +146,7 @@ type CashBeforeDateData implements ModuleData @entity {
 type CashBeforeDateDripData implements ModuleData @entity {
     id: ID!
     nota: Nota!
-    raw: Bytes!
+    rawBytes: Bytes!
     lastDrip: BigInt
     dripAmount: BigInt
     dripPeriod: BigInt
@@ -162,14 +165,13 @@ type ApprovalForAll implements Event @entity(immutable: true) {
   transaction: Transaction!
 }
 
-# TODO use these entities instead of the escrow one
 type Cashed implements Event @entity(immutable: true) {
   id: ID!
   caller: Account! # address
   nota: Nota!
   to: Bytes! # address
   amount: BigInt! # uint256
-  cashData: Bytes! # bytes
+  cashBytes: Bytes! # bytes
   moduleFee: BigInt! # uint256
   transaction: Transaction!
 }
@@ -180,19 +182,20 @@ type Funded implements Event @entity(immutable: true) {
   nota: Nota!
   amount: BigInt! # uint256
   instant: BigInt! # uint256
-  fundData: Bytes! # bytes
+  fundBytes: Bytes! # bytes
   moduleFee: BigInt! # uint256
   transaction: Transaction!
 }
 
+# Note: not being used right now
 type Transferred @entity(immutable: true) {
   id: ID!
-  # caller: Account!
+  # caller: Account!  // TODO why can't this incorporate the caller?
   tokenId: BigInt! # uint256
   from: Bytes! # address
   to: Bytes! # address
   moduleFee: BigInt! # uint256
-  fundData: Bytes! # bytes
+  transferBytes: Bytes! # bytes
   transaction: Transaction!
 }
 
@@ -202,15 +205,15 @@ type Written implements Event @entity(immutable: true) {
   nota: Nota!
   owner: Account!
   instant: BigInt! # uint256
-  currency: ERC20!
+  token: ERC20!
   escrowed: BigInt! # uint256
   moduleFee: BigInt! # uint256
   module: Module!
-  moduleData: Bytes! # bytes
+  writeBytes: Bytes! # bytes
   transaction: Transaction!
 }
 
-# TODO refactor this into the Nota entity
+# TODO how to factor this into the Nota entity?
 # Question: can you query tokenURI and update the results on the Nota?
 type BatchMetadataUpdate @entity(immutable: true) {
   id: ID!
@@ -221,12 +224,11 @@ type BatchMetadataUpdate @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type MetadataUpdate @entity(immutable: true) {
+type MetadataUpdate implements Event @entity(immutable: true) {
   id: ID!
-  _tokenId: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  caller: Account!
+  nota: Nota!
+  transaction: Transaction!
 }
 
 ###################################### Registrar Entities #############################################
