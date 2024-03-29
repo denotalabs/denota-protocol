@@ -12,7 +12,7 @@ export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "retur
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
   status: ReversibleReleaseStatus;
-
+  writeBytes: string; // Unformatted writeBytes
   inspector: string;
   externalURI?: string;
   imageURI?: string;
@@ -132,14 +132,14 @@ export function decodeReversibleReleaseData(data: string) {
   };
 }
 
-export function getReversibleReleaseData(account: any, nota: any, hookBytes: string): ReversibleReleaseData {
+export function getReversibleReleaseData(account: any, nota: any, writeBytes: string): ReversibleReleaseData {
   let inspector = "0x";
   let status = "returnable";
   let externalURI = "";
   let imageURI = "";
 
   try {
-    let decoded = decodeReversibleReleaseData(hookBytes);
+    let decoded = decodeReversibleReleaseData(writeBytes);
 
     inspector = decoded.inspector;
     externalURI = decoded.externalURI;
@@ -167,6 +167,7 @@ export function getReversibleReleaseData(account: any, nota: any, hookBytes: str
   return {
     moduleName: "reversibleRelease",
     status: status as ReversibleReleaseStatus,
+    writeBytes: writeBytes,
     inspector: inspector.toLowerCase(),
     externalURI: externalURI,
     imageURI: imageURI,

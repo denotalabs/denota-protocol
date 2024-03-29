@@ -12,6 +12,7 @@ export type CashBeforeDateStatus = "claimable" | "awaiting_claim" | "claimed" | 
 export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
   status: CashBeforeDateStatus;
+  writeBytes: string; // Unformatted writeBytes
   cashBeforeDate: number;
   cashBeforeDateFormatted: Date;
   externalURI?: string;
@@ -99,8 +100,8 @@ export function decodeCashBeforeDateData(data: string) {
   };
 }
 
-export function getCashBeforeDateData(account: any, nota: any, hookBytes: string): CashBeforeDateData{
-  let decoded = decodeCashBeforeDateData(hookBytes);
+export function getCashBeforeDateData(account: any, nota: any, writeBytes: string): CashBeforeDateData{
+  let decoded = decodeCashBeforeDateData(writeBytes);
 
   let expirationDate = decoded.cashBeforeDate * 1000;
 
@@ -127,6 +128,7 @@ export function getCashBeforeDateData(account: any, nota: any, hookBytes: string
   return {
     moduleName: "cashBeforeDate",
     status: status as CashBeforeDateStatus,
+    writeBytes: writeBytes,
     cashBeforeDate: expirationDate,
     cashBeforeDateFormatted: new Date(expirationDate),
     externalURI: decoded.externalURI,

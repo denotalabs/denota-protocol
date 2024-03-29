@@ -12,7 +12,7 @@ export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "
 export interface ReversibleByBeforeDateData {
   moduleName: "reversibleByBeforeDate";
   status: ReversibleByBeforeDateStatus;
-
+  writeBytes: string; // Unformatted writeBytes
   inspector: string;
   reversibleByBeforeDate: number;
   reversibleByBeforeDateFormatted: Date;
@@ -103,12 +103,12 @@ export function decodeReversibleByBeforeDateData(data: string) {
   };
 }
 
-export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes: string): ReversibleByBeforeDateData{
-  let status;
-  let decoded = decodeReversibleByBeforeDateData(hookBytes);
+export function getReversibleByBeforeDateData(account: any, nota: any, writeBytes: string): ReversibleByBeforeDateData{
+  let decoded = decodeReversibleByBeforeDateData(writeBytes);
   let inspector = decoded.inspector;
   let expirationDate = decoded.reversibleByBeforeDate * 1000;
-
+  
+  let status;
   if (nota.cashes.length > 0) {
     if (nota.cashes[0].to == account.toLowerCase()) {
       status = "claimed";
@@ -132,6 +132,7 @@ export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes
   return {
     moduleName: "reversibleByBeforeDate",
     status: status as ReversibleByBeforeDateStatus,
+    writeBytes: writeBytes,
     inspector: inspector.toLowerCase(),
     reversibleByBeforeDate: expirationDate,
     reversibleByBeforeDateFormatted: new Date(expirationDate),

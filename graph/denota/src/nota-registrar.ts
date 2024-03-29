@@ -60,7 +60,7 @@ function saveTransaction(
     transaction = new Transaction(transactionHexHash);
     transaction.timestamp = timestamp;
     transaction.blockNumber = blockNumber;
-    transaction.transactionHash = transactionHexHash;
+    transaction.hash = transactionHexHash;
     transaction.save();
   }
   return transaction;

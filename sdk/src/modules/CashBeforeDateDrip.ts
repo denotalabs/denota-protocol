@@ -12,7 +12,7 @@ export type CashBeforeDateDripStatus = "claimable" | "awaiting_claim" | "claimed
 export interface CashBeforeDateDripData {
   moduleName: "cashBeforeDateDrip";
   status: CashBeforeDateDripStatus;
-
+  writeBytes: string; // Unformatted writeBytes
   expirationDate: number;
   expirationDateFormatted: Date;
   dripAmount: number;
@@ -73,6 +73,7 @@ export interface CashCashBeforeDateDripProps {
   amount: BigNumber;
 }
 
+// TODO default set automatic=false and if true then use state.blockchainState.account to assume what amount is being cashed. But what about the Nota's state too?
 export async function cashCashBeforeDateDrip({
   notaId,
   amount,
@@ -105,18 +106,18 @@ export function decodeCashBeforeDateDripData(data: string) {
 }
 
 
-export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: string): CashBeforeDateDripData {
-  let decoded = decodeCashBeforeDateDripData(hookBytes);
-  let status;
-
+export function getCashBeforeDateDripData(account: any, nota: any, writeBytes: string): CashBeforeDateDripData {
+  let decoded = decodeCashBeforeDateDripData(writeBytes);
+  
   let lastDrip = 0;
   let dripAmount = decoded.dripAmount;
   let dripPeriod = decoded.dripPeriod;
   let cashBeforeDate = decoded.cashBeforeDate * 1000;
-
+  
+  let status;
   if (cashBeforeDate < Date.now()) { // Expired for owner
     if (nota.sender.id == account.toLowerCase()) {
-      if (nota.escrow != 0) {
+      if (nota.escrowed != 0) {
         status = "returnable";
       } else {
         status = "returned";
@@ -126,13 +127,13 @@ export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: st
     }
   } else if (lastDrip + dripPeriod <= Date.now()) {
     if (nota.owner.id == account.toLowerCase()) {
-      if (nota.escrow > dripAmount) {
+      if (nota.escrowed > dripAmount) {
         status = "claimable";
       } else {
         status = "locked";
       }
     } else {
-      if (nota.escrow > dripAmount) {
+      if (nota.escrowed > dripAmount) {
         status = "awaiting_claim";
       } else {
         status = "locked";
@@ -145,6 +146,7 @@ export function getCashBeforeDateDripData(account: any, nota: any, hookBytes: st
   return {
     moduleName: "cashBeforeDateDrip",
     status: status as CashBeforeDateDripStatus,
+    writeBytes: writeBytes,
     expirationDate: cashBeforeDate,
     expirationDateFormatted: new Date(cashBeforeDate),
     dripAmount: dripAmount,

@@ -12,6 +12,7 @@ export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
 export interface SimpleCashData {
   moduleName: "simpleCash";
   status: SimpleCashStatus;
+  writeBytes: string; // Unformatted writeBytes
   externalURI?: string;
   imageURI?: string;
 }
@@ -94,8 +95,8 @@ export function decodeSimpleCashData(data: string) {
   };
 }
 
-export function getSimpleCashData(account: any, nota: any, hookBytes: string): SimpleCashData{
-  const decoded = decodeSimpleCashData(hookBytes);
+export function getSimpleCashData(account: any, nota: any, writeBytes: string): SimpleCashData{
+  const decoded = decodeSimpleCashData(writeBytes);
   
   let status;
   if (nota.cashes.length > 0) {
@@ -109,6 +110,7 @@ export function getSimpleCashData(account: any, nota: any, hookBytes: string): S
   return {
     moduleName: "simpleCash",
     status: status as SimpleCashStatus,
+    writeBytes: writeBytes,
     externalURI: decoded.externalURI,
     imageURI: decoded.imageURI,
   }
