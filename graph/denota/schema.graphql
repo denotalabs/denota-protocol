@@ -75,6 +75,13 @@ interface ModuleData {
     # fundBytes: Funded! @derivedFrom(field: "nota")
     # cashBytes: Cashed! @derivedFrom(field: "nota")
 }
+type UnknownData implements ModuleData @entity {
+    id: ID!
+    nota: Nota!
+    writeBytes: Bytes!
+    externalURI: String
+    imageURI: String
+}
 
 type DirectSendData implements ModuleData @entity {
     id: ID!

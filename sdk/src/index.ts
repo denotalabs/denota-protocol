@@ -237,26 +237,25 @@ export type NotaStatuses = "paid" | "claimable" | "awaiting_claim" | "awaiting_r
 
 export interface Transaction {
   timestamp: string; // timestamp
-  timestampFormatted: BigNumber; // timestamp
+  timestampFormatted: Date; // TODO not showing up when passed downstream
   blockNumber: string;
-  transactionHash: string; // transactionHash
-  date: Date; // timestamp
+  hash: string; // transactionHash
 }  
 
 export interface Written {
-  caller: string;
-  nota: string;
-  owner: string;
-  token: string;
+  caller: string; // TODO already in nota.sender
+  nota: string; // TODO already attached so assumed
+  owner: string; // TODO already in nota.receiver
+  token: string;  // TODO already in nota.token
   instant: string;
   instantFormatted: BigNumber;
   escrowed: string;
   escrowedFormatted: BigNumber;
   moduleFee: string;
   moduleFeeFormatted: BigNumber;
-  module: string;
+  module: string; // TODO already in nota.module
   writeBytes: string;
-  transaction: Transaction;
+  transaction: Transaction; // TODO maybe should put in the Nota level
 }
 
 export interface Transfer {
@@ -313,8 +312,9 @@ export interface Nota {
   // chainId: number;
   id: string;
   token: string;
-  escrowed: number;
+  escrowed: string; // TODO should this be a string to not lose precision?
   escrowedFormatted: BigNumber;
+  escrowedDisplay: string;  // Formatted with decimals added
   module: string;
   moduleData: ModuleData;
 
@@ -322,8 +322,13 @@ export interface Nota {
   approved: string;
   sender: string;
   receiver: string;
+  totalAmountSent: string;  // Total amount that was sent (instant + escrow)  // TODO should this be a string to not lose precision?
+  totalAmountSentFormatted: BigNumber;  // Total amount that was sent (instant + escrow)
+  totalAmountSentDisplay: string;  // Total amount that was sent (instant + escrow)
+  // TODO what is considered formatted? To BigNumber? What about with decimal conversion and still string?
 
-  written: Written;
+  // createdAt: string;  // timestamp
+  written: Written;  // TODO should the transaction details (created, txHash, etc) be brought up to the Nota level?
   transfers: Transfer[] | null;
   funds: Funded[] | null;
   cashes: Cashed[] | null;

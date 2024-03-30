@@ -505,6 +505,108 @@ export class Module extends Entity {
   }
 }
 
+export class UnknownData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save UnknownData entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type UnknownData must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("UnknownData", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): UnknownData | null {
+    return changetype<UnknownData | null>(
+      store.get_in_block("UnknownData", id),
+    );
+  }
+
+  static load(id: string): UnknownData | null {
+    return changetype<UnknownData | null>(store.get("UnknownData", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get nota(): string {
+    let value = this.get("nota");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set nota(value: string) {
+    this.set("nota", Value.fromString(value));
+  }
+
+  get writeBytes(): Bytes {
+    let value = this.get("writeBytes");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set writeBytes(value: Bytes) {
+    this.set("writeBytes", Value.fromBytes(value));
+  }
+
+  get externalURI(): string | null {
+    let value = this.get("externalURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set externalURI(value: string | null) {
+    if (!value) {
+      this.unset("externalURI");
+    } else {
+      this.set("externalURI", Value.fromString(<string>value));
+    }
+  }
+
+  get imageURI(): string | null {
+    let value = this.get("imageURI");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set imageURI(value: string | null) {
+    if (!value) {
+      this.unset("imageURI");
+    } else {
+      this.set("imageURI", Value.fromString(<string>value));
+    }
+  }
+}
+
 export class DirectSendData extends Entity {
   constructor(id: string) {
     super();
