@@ -236,61 +236,43 @@ export type NotaStatuses = "paid" | "claimable" | "awaiting_claim" | "awaiting_r
 
 
 export interface Transaction {
-  timestamp: string; // timestamp
-  timestampFormatted: Date; // TODO not showing up when passed downstream
+  timestamp: Date;
   blockNumber: string;
-  hash: string; // transactionHash
-}  
+  hash: string;
+}
 
 export interface Written {
-  caller: string; // TODO already in nota.sender
-  nota: string; // TODO already attached so assumed
-  owner: string; // TODO already in nota.receiver
-  token: string;  // TODO already in nota.token
-  instant: string;
-  instantFormatted: BigNumber;
-  escrowed: string;
-  escrowedFormatted: BigNumber;
-  moduleFee: string;
-  moduleFeeFormatted: BigNumber;
-  module: string; // TODO already in nota.module
+  instant: BigNumber;
+  escrowed: BigNumber;
+  moduleFee: BigNumber;
   writeBytes: string;
-  transaction: Transaction; // TODO maybe should put in the Nota level
+  transaction: Transaction;
 }
 
 export interface Transfer {
   caller: string;
-  tokenId: BigNumber;
   from: string;
   to: string;
-  moduleFee: string;
-  moduleFeeFormatted: BigNumber;
+  moduleFee: BigNumber;
   transferBytes: string;
   transaction: Transaction;
 }
 
 export interface Funded {
   caller: string;
-  nota: string;
-  amount: string;
-  amountFormatted: BigNumber;
-  instant: string;
-  instantFormatted: BigNumber;
+  amount: BigNumber;
+  instant: BigNumber;
   fundBytes: string;
-  moduleFee: string;
-  moduleFeeFormatted: BigNumber;
+  moduleFee: BigNumber;
   transaction: Transaction;
 }
 
 export interface Cashed {
   caller: string;
-  nota: string;
   to: string;
-  amount: string;
-  amountFormatted: BigNumber;
+  amount: BigNumber;
   cashBytes: string;
-  moduleFee: string;
-  moduleFeeFormatted: BigNumber;
+  moduleFee: BigNumber;
   transaction: Transaction;
 }
 
@@ -298,13 +280,11 @@ export interface Approval {
   caller: string;
   owner: string;
   approved: string;
-  nota: string;
   transaction: Transaction;
 }
 
 export interface MetadataUpdate {
   caller: string;
-  nota: string;
   transaction: Transaction;
 }
 
@@ -312,9 +292,7 @@ export interface Nota {
   // chainId: number;
   id: string;
   token: string;
-  escrowed: string; // TODO should this be a string to not lose precision?
-  escrowedFormatted: BigNumber;
-  escrowedDisplay: string;  // Formatted with decimals added
+  escrowed: BigNumber;
   module: string;
   moduleData: ModuleData;
 
@@ -322,13 +300,10 @@ export interface Nota {
   approved: string;
   sender: string;
   receiver: string;
-  totalAmountSent: string;  // Total amount that was sent (instant + escrow)  // TODO should this be a string to not lose precision?
-  totalAmountSentFormatted: BigNumber;  // Total amount that was sent (instant + escrow)
-  totalAmountSentDisplay: string;  // Total amount that was sent (instant + escrow)
-  // TODO what is considered formatted? To BigNumber? What about with decimal conversion and still string?
+  totalAmountSent: BigNumber;  // Total amount that was sent (instant + escrow)
+  createdAt: Date;
 
-  // createdAt: string;  // timestamp
-  written: Written;  // TODO should the transaction details (created, txHash, etc) be brought up to the Nota level?
+  written: Written;
   transfers: Transfer[] | null;
   funds: Funded[] | null;
   cashes: Cashed[] | null;
@@ -363,7 +338,7 @@ export interface UnknownModuleData {
 
 export interface WriteProps {
   currency: DenotaCurrency;  // Simplifies DX so they just enter a string instead of address
-  amount: number;
+  amount: number;  // TODO should these be bigNumber? Or union with them?
   instant: number;
   owner: string;
   moduleName: string;  // Simplifies DX so they just enter a string instead of address
