@@ -142,8 +142,6 @@ export function getCashBeforeDateDripData(account: any, nota: Nota, writeBytes: 
       status = account === nota.sender.toLowerCase() ? "releasable" : "awaiting_release";
     } else {  // Claim period is ongoing
       if (account === nota.owner.toLowerCase()) {  // Account is owner
-        console.log(nota.id, lastDrip, dripPeriod, lastDrip + dripPeriod, Date.now(), (lastDrip + dripPeriod) <= Date.now());
-        // outputs: 56 0 1709134254000 1709134254000 1712247285478 true
         status = (lastDrip + dripPeriod) <= Date.now() ? "claimable" : "locked";
       } else {  // Account is someone else
         status = (lastDrip + dripPeriod) <= Date.now() ? "awaiting_claim" : "locked";
