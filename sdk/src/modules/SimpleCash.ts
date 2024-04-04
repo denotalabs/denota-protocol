@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -95,13 +96,13 @@ export function decodeSimpleCashData(data: string) {
   };
 }
 
-export function getSimpleCashData(account: any, nota: any, writeBytes: string): SimpleCashData{
+export function getSimpleCashData(account: any, nota: Nota, writeBytes: string): SimpleCashData{
   const decoded = decodeSimpleCashData(writeBytes);
   
   let status;
-  if (nota.cashes.length > 0) {
+  if (nota.escrowed.isZero()){
     status = "claimed";
-  } else if (nota.owner.id === account.toLowerCase()) {
+  } else if (nota.owner === account.toLowerCase()){
     status = "claimable";
   } else {
     status = "awaiting_claim";

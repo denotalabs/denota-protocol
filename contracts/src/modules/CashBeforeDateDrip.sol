@@ -52,7 +52,7 @@ contract CashBeforeDateDrip is ModuleBase {
         
         if (expirationDate <= block.timestamp) revert ExpirationDatePassed();
         
-        payments[notaId] = Payment(expirationDate, 0, dripAmount, dripPeriod, caller, external_url, imageURI);
+        payments[notaId] = Payment(expirationDate, 0, dripAmount, dripPeriod, caller, external_url, imageURI);  // Should set bool for startReady or not
 
         emit PaymentCreated(notaId, caller, expirationDate, dripAmount, dripPeriod, external_url, imageURI);
         return 0;

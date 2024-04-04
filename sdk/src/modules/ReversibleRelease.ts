@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -132,7 +133,7 @@ export function decodeReversibleReleaseData(data: string) {
   };
 }
 
-export function getReversibleReleaseData(account: any, nota: any, writeBytes: string): ReversibleReleaseData {
+export function getReversibleReleaseData(account: any, nota: Nota, writeBytes: string): ReversibleReleaseData {
   let inspector = "0x";
   let status = "returnable";
   let externalURI = "";
@@ -145,22 +146,21 @@ export function getReversibleReleaseData(account: any, nota: any, writeBytes: st
     externalURI = decoded.externalURI;
     imageURI = decoded.imageURI
     
-    status;
-    if (nota.cashes.length > 0) {
-      // TODO Need to know if the `to` went to the `owner` at the time it was released
-      //// Need to check transfers and if >0 check if the cash timestamp was before it
-      if (nota.cashes[0].to === nota.owner.id) {
+  if (nota.cashes !== null && nota.cashes.length > 0 && nota.cashes.some(cash => cash.amount.gt(0))) {
+    if (nota.cashes[0].to === nota.owner.toLowerCase()) {
+      if (nota.escrowed.isZero()) {
         status = "released";
       } else {
-        status = "returned";
+        status = inspector === account.toLowerCase() ? "releasable" : "awaiting_release";
       }
-    } else {
+    } else {  // It hasn't been cashed yet
       if (inspector === account.toLowerCase()) {
         status = "releasable";
       } else {
         status = "awaiting_release";
       }
     }
+  }
   } catch {
     console.log(nota);
   }

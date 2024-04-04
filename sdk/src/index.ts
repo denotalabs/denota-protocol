@@ -403,8 +403,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         status: "awaiting_claim",
         writeBytes: "",
         inspector: inspector,
-        reversibleByBeforeDate: reversibleByBeforeDate,
-        reversibleByBeforeDateFormatted: new Date(reversibleByBeforeDate),
+        reversibleByBeforeDate: new Date(reversibleByBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -425,8 +424,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         moduleName: "cashBeforeDate",
         status: "awaiting_claim",
         writeBytes: "",
-        cashBeforeDate: cashBeforeDate,
-        cashBeforeDateFormatted: new Date(cashBeforeDate),
+        cashBeforeDate: new Date(cashBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -453,8 +451,8 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         moduleName: "cashBeforeDateDrip",
         status: "claimable",
         writeBytes: "",
-        expirationDate: expirationDate,
-        expirationDateFormatted: new Date(expirationDate),
+        lastDrip: new Date(0),
+        expirationDate: new Date(expirationDate),
         dripAmount: props.dripAmount as number,
         dripPeriod: props.dripPeriod as number,
         externalURI: externalURI,
@@ -551,8 +549,9 @@ export const contractMappingForChainId = contractMappingForChainId_;
 // function query(notaId: string): Nota {
 // }
 
+// TODO is this actually getting moduleData since a Nota needs to be fed into here anyways?
+// TODO need to update the hook moduleDatas without the formatted variables
 export function getModuleData(account: string, chainIdNumber: number, nota: Nota, hookAddress: string): ModuleData {
-  // TODO should `nota` be a Nota object or just the bytes data?
   // TODO should writeBytes be parsed here, beforehand, or in the hook specific one?
   // Note: returns all address variables as lower case for front-end consistency
   account = account.toLowerCase();

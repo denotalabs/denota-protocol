@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -13,8 +14,7 @@ export interface CashBeforeDateData {
   moduleName: "cashBeforeDate";
   status: CashBeforeDateStatus;
   writeBytes: string; // Unformatted writeBytes
-  cashBeforeDate: number;
-  cashBeforeDateFormatted: Date;
+  cashBeforeDate: Date;
   externalURI?: string;
   imageURI?: string;
 }
@@ -100,37 +100,38 @@ export function decodeCashBeforeDateData(data: string) {
   };
 }
 
-export function getCashBeforeDateData(account: any, nota: any, writeBytes: string): CashBeforeDateData{
+export function getCashBeforeDateData(account: any, nota: Nota, writeBytes: string): CashBeforeDateData{
   let decoded = decodeCashBeforeDateData(writeBytes);
 
   let expirationDate = decoded.cashBeforeDate * 1000;
 
   let status;
-  if (nota.cashes.length > 0) {
-    if (nota.cashes[0].to == account.toLowerCase()) {
-      status = "claimed";
+  if (nota.cashes !== null && nota.cashes.length > 0 && nota.cashes.some(cash => cash.amount.gt(0))) {
+    const wentToOwner = nota.cashes.some(cash => cash.to === nota.owner.toLowerCase());
+    if (wentToOwner) {
+      status = "claimed";  // Could be partially claimed
     } else {
       status = "returned";
     }
   } else if (expirationDate >= Date.now()) {
-    if (nota.owner.id === account.toLowerCase()) {
+    if (nota.owner === account.toLowerCase()) {
       status = "claimable";
     } else {
       status = "awaiting_claim";
     }
   } else {
-    if (nota.owner.id === account.toLowerCase()) {
+    if (nota.owner === account.toLowerCase()) {
       status = "expired";
     } else {
       status = "returnable";
     }
   }
+
   return {
     moduleName: "cashBeforeDate",
     status: status as CashBeforeDateStatus,
     writeBytes: writeBytes,
-    cashBeforeDate: expirationDate,
-    cashBeforeDateFormatted: new Date(expirationDate),
+    cashBeforeDate: new Date(expirationDate),
     externalURI: decoded.externalURI,
     imageURI: decoded.imageURI,
   }

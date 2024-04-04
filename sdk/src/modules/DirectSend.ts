@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -71,7 +72,7 @@ export function decodeDirectSendData(data: string) {
   };
 }
 
-export function getDirectSendData(account: any, nota: any, writeBytes: string): DirectSendData{
+export function getDirectSendData(account: any, nota: Nota, writeBytes: string): DirectSendData{
   const decoded = decodeDirectSendData(writeBytes);
 
   return {

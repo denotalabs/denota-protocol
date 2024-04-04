@@ -226,7 +226,5 @@ else
     exit 1
 fi
 
-echo moduleBytes: $moduleBytes
-
 # Execute the transaction
-cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 3500000000000 -j # 350 gwei
+cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
