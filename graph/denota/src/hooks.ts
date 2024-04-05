@@ -6,13 +6,14 @@ import {
   ReversibleReleaseData,
   ReversibleByBeforeDateData,
   CashBeforeDateData,
-  CashBeforeDateDripData
+  CashBeforeDateDripData,
+  UnknownData
 } from "../generated/schema";
 
 // TODO the decoded variables aren't working
 function decodeDirectSendData(notaId: string, hookData: Bytes): void {
   let entity = new DirectSendData(notaId);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   const decoded = ethereum.decode('(string,string)', hookData);
   if (decoded) {
@@ -28,7 +29,7 @@ function decodeDirectSendData(notaId: string, hookData: Bytes): void {
 function decodeSimpleCashData(notaId: string, hookData: Bytes): void {
   let entity = new SimpleCashData(notaId);
   const decoded = ethereum.decode('(string,string)', hookData);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   if (decoded) {
     const argTuple = decoded.toTuple();
@@ -42,7 +43,7 @@ function decodeSimpleCashData(notaId: string, hookData: Bytes): void {
 
 function decodeReversibleReleaseData(notaId: string, hookData: Bytes): void {
   let entity = new ReversibleReleaseData(notaId);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   const decoded = ethereum.decode('(address,string,string)', hookData);
   if (decoded) {
@@ -59,7 +60,7 @@ function decodeReversibleReleaseData(notaId: string, hookData: Bytes): void {
 
 function decodeReversibleByBeforeDateData(notaId: string, hookData: Bytes): void {
   let entity = new ReversibleByBeforeDateData(notaId);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   const decoded = ethereum.decode('(address,uint256,string,string)', hookData);
   if (decoded) {
@@ -78,7 +79,7 @@ function decodeReversibleByBeforeDateData(notaId: string, hookData: Bytes): void
 
 function decodeCashBeforeDateData(notaId: string, hookData: Bytes): void {
   let entity = new CashBeforeDateData(notaId);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   const decoded = ethereum.decode('(address,string,string)', hookData);
   if (decoded) {
@@ -95,7 +96,7 @@ function decodeCashBeforeDateData(notaId: string, hookData: Bytes): void {
 
 function decodeCashBeforeDateDripData(notaId: string, hookData: Bytes): void {
   let entity = new CashBeforeDateDripData(notaId);
-  entity.rawBytes = hookData;
+  entity.writeBytes = hookData;
   entity.nota = notaId;
   const decoded = ethereum.decode('(uint256,uint256,uint256,string,string)', hookData);
   if (decoded) {
@@ -131,6 +132,12 @@ export function handleHookData(notaId: string, hookAddress: string, hookData: By
   } else if (hookAddress == "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase()) {
     decodeCashBeforeDateDripData(notaId, hookData);
   } else {
+    let entity = new UnknownData(notaId);
+    entity.writeBytes = hookData;
+    entity.nota = notaId;
+    entity.externalURI = "";
+    entity.imageURI = "";
+    entity.save();
     log.warning("Unknown hook address: {}", [hookAddress]);
   }
 }

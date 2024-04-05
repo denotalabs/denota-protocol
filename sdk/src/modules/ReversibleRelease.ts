@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -12,7 +13,7 @@ export type ReversibleReleaseStatus = "releasable" | "awaiting_release" | "retur
 export interface ReversibleReleaseData {
   moduleName: "reversibleRelease";
   status: ReversibleReleaseStatus;
-
+  writeBytes: string; // Unformatted writeBytes
   inspector: string;
   externalURI?: string;
   imageURI?: string;
@@ -20,8 +21,8 @@ export interface ReversibleReleaseData {
 
 export interface WriteReversibleReleaseyProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: ReversibleReleaseData;
 }
@@ -65,7 +66,7 @@ export async function writeReversibleRelease({
 }
 
 export interface FundReversibleReleaseyProps {
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
   tokenAddress: string;
 }
@@ -98,7 +99,7 @@ export async function fundReversibleRelease({
 
 export interface CashReversibleReleaseyProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 
@@ -132,41 +133,41 @@ export function decodeReversibleReleaseData(data: string) {
   };
 }
 
-export function getReversibleReleaseData(account: any, nota: any, hookBytes: string): ReversibleReleaseData {
+export function getReversibleReleaseData(account: any, nota: Nota, writeBytes: string): ReversibleReleaseData {
   let inspector = "0x";
   let status = "returnable";
   let externalURI = "";
   let imageURI = "";
 
   try {
-    let decoded = decodeReversibleReleaseData(hookBytes);
+    let decoded = decodeReversibleReleaseData(writeBytes);
 
     inspector = decoded.inspector;
     externalURI = decoded.externalURI;
     imageURI = decoded.imageURI
     
-    status;
-    if (nota.cashes.length > 0) {
-      // TODO Need to know if the `to` went to the `owner` at the time it was released
-      //// Need to check transfers and if >0 check if the cash timestamp was before it
-      if (nota.cashes[0].to === nota.owner.id) {
+  if (nota.cashes !== null && nota.cashes.length > 0 && nota.cashes.some(cash => cash.amount.gt(0))) {
+    if (nota.cashes[0].to === nota.owner.toLowerCase()) {
+      if (nota.escrowed.isZero()) {
         status = "released";
       } else {
-        status = "returned";
+        status = inspector === account.toLowerCase() ? "releasable" : "awaiting_release";
       }
-    } else {
+    } else {  // It hasn't been cashed yet
       if (inspector === account.toLowerCase()) {
         status = "releasable";
       } else {
         status = "awaiting_release";
       }
     }
+  }
   } catch {
     console.log(nota);
   }
   return {
     moduleName: "reversibleRelease",
     status: status as ReversibleReleaseStatus,
+    writeBytes: writeBytes,
     inspector: inspector.toLowerCase(),
     externalURI: externalURI,
     imageURI: imageURI,

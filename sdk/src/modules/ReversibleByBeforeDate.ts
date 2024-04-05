@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -12,18 +13,17 @@ export type ReversibleByBeforeDateStatus = "releasable" | "awaiting_release" | "
 export interface ReversibleByBeforeDateData {
   moduleName: "reversibleByBeforeDate";
   status: ReversibleByBeforeDateStatus;
-
+  writeBytes: string; // Unformatted writeBytes
   inspector: string;
-  reversibleByBeforeDate: number;
-  reversibleByBeforeDateFormatted: Date;
+  reversibleByBeforeDate: Date;
   externalURI?: string;
   imageURI?: string;
 }
 
 export interface WriteReversibleByBeforeDateProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: ReversibleByBeforeDateData;
 }
@@ -68,7 +68,7 @@ export async function writeReversibleByBeforeDate({
 
 export interface CashReversibleByBeforeDateProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 
@@ -103,38 +103,39 @@ export function decodeReversibleByBeforeDateData(data: string) {
   };
 }
 
-export function getReversibleByBeforeDateData(account: any, nota: any, hookBytes: string): ReversibleByBeforeDateData{
-  let status;
-  let decoded = decodeReversibleByBeforeDateData(hookBytes);
-  let inspector = decoded.inspector;
+export function getReversibleByBeforeDateData(account: any, nota: Nota, writeBytes: string): ReversibleByBeforeDateData{
+  let decoded = decodeReversibleByBeforeDateData(writeBytes);
+  let inspector = decoded.inspector.toLowerCase();
   let expirationDate = decoded.reversibleByBeforeDate * 1000;
-
-  if (nota.cashes.length > 0) {
-    if (nota.cashes[0].to == account.toLowerCase()) {
-      status = "claimed";
-    } else {
+  
+  let status;
+  if (nota.cashes !== null && nota.cashes.length > 0 && nota.cashes.some(cash => cash.amount.gt(0))) {  // Has been cashed before
+    const wentToOwner = nota.cashes.some(cash => cash.to === nota.owner.toLowerCase());
+    if (wentToOwner) {
+      if (nota.escrowed.isZero()) {  // Can be any combination of released, returned, or claimed if no escrow
+        status = "released";
+      } else if (expirationDate < Date.now()) { // Inspection has ended for remaining escrow
+        status = account === inspector ? "awaiting_claim" : "claimable";
+      } else {  // Inspection is ongoing for remaining escrow
+        status = account === inspector ? "releasable" : "awaiting_release";
+      }
+    } else {  // Cash went to sender (since inspector can only release to owner or sender)
       status = "returned";
     }
-  } else if (expirationDate < Date.now()) {
-    if (nota.owner.id === account.toLowerCase()) {
-      status = "claimable";
-    } else {
-      status = "awaiting_claim";
-    }
-  } else {
-    if (inspector === account.toLowerCase()) {
-      status = "releasable";
-    } else {
-      status = "awaiting_release";
+  } else {  // No one has cashed yet
+    if (expirationDate < Date.now()) {  // Inspection has ended
+      status = account === inspector ? "awaiting_claim" : "claimable";
+    } else {  // Inspection is ongoing
+      status = account === inspector ? "releasable" : "awaiting_claim";
     }
   }
 
   return {
     moduleName: "reversibleByBeforeDate",
     status: status as ReversibleByBeforeDateStatus,
+    writeBytes: writeBytes,
     inspector: inspector.toLowerCase(),
-    reversibleByBeforeDate: expirationDate,
-    reversibleByBeforeDateFormatted: new Date(expirationDate),
+    reversibleByBeforeDate: new Date(expirationDate),
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,
   }

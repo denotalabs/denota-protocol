@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -12,13 +13,14 @@ export type DirectPayStatus = "paid";
 export interface DirectSendData {
   moduleName: "directSend";
   status: DirectPayStatus;
+  writeBytes: string; // Unformatted writeBytes
   externalURI?: string;
   imageURI?: string;
 }
 
 export interface WriteDirectSendProps {
   currency: DenotaCurrency;
-  amount: number;
+  amount: BigNumber;
   owner: string;
   moduleData: DirectSendData;
 }
@@ -31,7 +33,6 @@ export async function writeDirectSend({
 }: WriteDirectSendProps) {
   const { externalURI, imageURI } = moduleData;
 
-  // TODO: handle other deciamls correctly
   const amountWei = ethers.utils.parseUnits(
     String(amount),
     tokenDecimalsForCurrency(currency)
@@ -71,12 +72,13 @@ export function decodeDirectSendData(data: string) {
   };
 }
 
-export function getDirectSendData(account: any, nota: any, hookBytes: string): DirectSendData{
-  const decoded = decodeDirectSendData(hookBytes);
+export function getDirectSendData(account: any, nota: Nota, writeBytes: string): DirectSendData{
+  const decoded = decodeDirectSendData(writeBytes);
 
   return {
     moduleName: "directSend",
     status: "paid" as DirectPayStatus,
+    writeBytes: writeBytes,
     externalURI: decoded.externalUrl,
     imageURI: decoded.imageUrl,
   }

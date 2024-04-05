@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import {
   DenotaCurrency,
+  Nota,
   notaIdFromLog,
   state,
   tokenAddressForCurrency,
@@ -12,14 +13,15 @@ export type SimpleCashStatus = "claimable" | "awaiting_claim" | "claimed";
 export interface SimpleCashData {
   moduleName: "simpleCash";
   status: SimpleCashStatus;
+  writeBytes: string; // Unformatted writeBytes
   externalURI?: string;
   imageURI?: string;
 }
 
 export interface WriteSimpleCashProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: SimpleCashData;
 }
@@ -62,7 +64,7 @@ export async function writeSimpleCash({
 
 export interface CashSimpleCashProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 
@@ -94,13 +96,13 @@ export function decodeSimpleCashData(data: string) {
   };
 }
 
-export function getSimpleCashData(account: any, nota: any, hookBytes: string): SimpleCashData{
-  const decoded = decodeSimpleCashData(hookBytes);
+export function getSimpleCashData(account: any, nota: Nota, writeBytes: string): SimpleCashData{
+  const decoded = decodeSimpleCashData(writeBytes);
   
   let status;
-  if (nota.cashes.length > 0) {
+  if (nota.escrowed.isZero()){
     status = "claimed";
-  } else if (nota.owner.id === account.toLowerCase()) {
+  } else if (nota.owner === account.toLowerCase()){
     status = "claimable";
   } else {
     status = "awaiting_claim";
@@ -109,6 +111,7 @@ export function getSimpleCashData(account: any, nota: any, hookBytes: string): S
   return {
     moduleName: "simpleCash",
     status: status as SimpleCashStatus,
+    writeBytes: writeBytes,
     externalURI: decoded.externalURI,
     imageURI: decoded.imageURI,
   }

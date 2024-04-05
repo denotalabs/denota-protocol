@@ -143,7 +143,7 @@ read -p "Enter image URL (default ipfs://): " imageURL
 imageURL=${imageURL:-"ipfs://"}
 
 # Module and ABI setup
-writeABI="write(address,uint256,uint256,address,address,bytes)"
+writeSelector="write(address,uint256,uint256,address,address,bytes)"
 case $transactionType in
     0)
         module="0x00000000e8c13602e4d483a90af69e7582a43373"
@@ -154,7 +154,7 @@ case $transactionType in
             echo "Invalid date format."
             exit 1
         else
-            echo "expirationDate (epoch time): $expirationDate"
+            echo "- expirationDate (epoch time): $expirationDate"
         fi
 
         read -p "Enter dripAmount: " dripAmount
@@ -166,7 +166,7 @@ case $transactionType in
             echo "Invalid date format."
             exit 1
         else
-            echo "dripPeriod (in seconds): $dripPeriod"
+            echo "- dripPeriod (in seconds): $dripPeriod"
         fi
         ;;
     1)
@@ -179,7 +179,7 @@ case $transactionType in
             echo "Invalid date format."
             exit 1
         else
-            echo "cashByDate (epoch time): $cashByDate"
+            echo "- cashByDate (epoch time): $cashByDate"
         fi ;;
     2)
         module="0x00000000115e79ea19439db1095327acbd810bf7"
@@ -191,7 +191,7 @@ case $transactionType in
             echo "Invalid date format."
             exit 1
         else
-            echo "reversibleByBeforeDate (epoch time): $cashByDate"
+            echo "- reversibleByBeforeDate (epoch time): $cashByDate"
         fi 
         read -p "Enter inspector address: " inspector 
         ;;
@@ -227,4 +227,4 @@ else
 fi
 
 # Execute the transaction
-cast send ${registrarAddress} ${writeABI} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 3500000000000 # 350 gwei
+cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}

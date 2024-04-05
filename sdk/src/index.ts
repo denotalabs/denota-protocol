@@ -169,6 +169,7 @@ export function tokenAddressForCurrency(currency: string) {
   }
 }
 
+// TODO: handle other decimals correctly
 export function tokenDecimalsForCurrency(currency: string) {
   switch (currency) {
     case "USDC":
@@ -213,28 +214,7 @@ export async function approveToken({
   await tx.wait();
 }
 
-interface RawMetadata {
-  type: "raw";
-  notes?: string;
-  tags?: string;
-  file?: File;
-}
-
-interface UploadedMetadata {
-  type: "uploaded";
-  externalURI: string;
-  imageURI?: string;
-}
-
-export type UnknownModuleStatus = "?";
-
-export interface UnknownModuleData {
-  status: UnknownModuleStatus;
-  moduleName: "unknown";
-  externalURI?: string;
-  imageURI?: string;
-}
-
+// TODO need to deal with Nota variables changing on TFCA or nonregistar initiated hook state change
 export type ModuleData =
   | DirectSendData
   | SimpleCashData
@@ -255,18 +235,122 @@ export type NotaModuleNames =
 export type NotaStatuses = "paid" | "claimable" | "awaiting_claim" | "awaiting_release" | "releasable" | "released" | "claimed" | "expired" | "returnable" | "returned" | "locked" | "?";
 
 
+export interface Transaction {
+  timestamp: Date;
+  blockNumber: string;
+  hash: string;
+}
+
+export interface Written {
+  instant: BigNumber;
+  escrowed: BigNumber;
+  moduleFee: BigNumber;
+  writeBytes: string;
+  transaction: Transaction;
+}
+
+export interface Transfer {
+  caller: string;
+  from: string;
+  to: string;
+  moduleFee: BigNumber;
+  transferBytes: string;
+  transaction: Transaction;
+}
+
+export interface Funded {
+  caller: string;
+  amount: BigNumber;
+  instant: BigNumber;
+  fundBytes: string;
+  moduleFee: BigNumber;
+  transaction: Transaction;
+}
+
+export interface Cashed {
+  caller: string;
+  to: string;
+  amount: BigNumber;
+  cashBytes: string;
+  moduleFee: BigNumber;
+  transaction: Transaction;
+}
+
+export interface Approval {
+  caller: string;
+  owner: string;
+  approved: string;
+  transaction: Transaction;
+}
+
+export interface MetadataUpdate {
+  caller: string;
+  transaction: Transaction;
+}
+
+export interface Nota {
+  // chainId: number;
+  id: string;
+  token: string;
+  escrowed: BigNumber;
+  module: string;
+  moduleData: ModuleData;
+
+  owner: string;
+  approved: string;
+  sender: string;
+  receiver: string;
+  totalAmountSent: BigNumber;  // Total amount that was sent (instant + escrow)
+  createdAt: Date;
+
+  written: Written;
+  transfers: Transfer[] | null;
+  funds: Funded[] | null;
+  cashes: Cashed[] | null;
+  approvals: Approval[] | null;
+  metadataUpdates: MetadataUpdate[] | null;
+}
+
+
+interface RawMetadata {
+  type: "raw";
+  notes?: string;
+  tags?: string;
+  file?: File;
+}
+
+interface UploadedMetadata {
+  type: "uploaded";
+  externalURI: string;
+  imageURI?: string;
+}
+
+export type UnknownModuleStatus = "?";
+
+export interface UnknownModuleData {
+  status: UnknownModuleStatus;
+  moduleName: "unknown";
+  writeBytes: string;
+  externalURI?: string;
+  imageURI?: string;
+}
+
+
 export interface WriteProps {
   currency: DenotaCurrency;  // Simplifies DX so they just enter a string instead of address
-  amount: number;
-  instant: number;
+  amount: string | number | BigNumber;
+  instant: string | number | BigNumber;
   owner: string;
   moduleName: string;  // Simplifies DX so they just enter a string instead of address
   metadata?: RawMetadata | UploadedMetadata;
 }
 
 // TODO: could include the chainId for fetching module and currency addresses
-// TODO could remove the moduleData moduleName and status as an input and return the constructed one instead
+// TODO: could remove the moduleData as an input to each write and just return the constructed one instead
 export async function write({ currency, amount, instant, owner, moduleName, metadata, ...props }: WriteProps) {
+  amount = !(BigNumber.isBigNumber(amount)) ? BigNumber.from(amount) : amount;
+  instant = !(BigNumber.isBigNumber(instant)) ? BigNumber.from(instant) : instant;
+
   let externalURI = "",
     imageURI = "";
 
@@ -282,12 +366,13 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
     externalURI = uploadedHash ?? "";
   }
 
-  let moduleData: ModuleData;
+  let moduleData: ModuleData;  // TODO remove passing moduleData to WTFCA functions?
   switch (moduleName) {
     case "directSend":
       moduleData = {
         moduleName: "directSend",
         status: "paid",
+        writeBytes: "",
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -298,6 +383,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         moduleName: "reversibleRelease",
         status: "awaiting_release",
         inspector: inspector,
+        writeBytes: "",
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -318,9 +404,9 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
       moduleData = {
         moduleName: "reversibleByBeforeDate",
         status: "awaiting_claim",
+        writeBytes: "",
         inspector: inspector,
-        reversibleByBeforeDate: reversibleByBeforeDate,
-        reversibleByBeforeDateFormatted: new Date(reversibleByBeforeDate),
+        reversibleByBeforeDate: new Date(reversibleByBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -340,8 +426,8 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
       moduleData = {
         moduleName: "cashBeforeDate",
         status: "awaiting_claim",
-        cashBeforeDate: cashBeforeDate,
-        cashBeforeDateFormatted: new Date(cashBeforeDate),
+        writeBytes: "",
+        cashBeforeDate: new Date(cashBeforeDate),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -367,10 +453,11 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
       moduleData = {
         moduleName: "cashBeforeDateDrip",
         status: "claimable",
-        expirationDate: expirationDate,
-        expirationDateFormatted: new Date(expirationDate),
-        dripAmount: props.dripAmount as number,
-        dripPeriod: props.dripPeriod as number,
+        writeBytes: "",
+        lastDrip: new Date(0),
+        expirationDate: new Date(expirationDate),
+        dripAmount: BigNumber.from(props.dripAmount),
+        dripPeriod: BigNumber.from(props.dripPeriod),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -386,6 +473,7 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
       moduleData = {
         moduleName: "simpleCash",
         status: "claimable",
+        writeBytes: "",
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -402,24 +490,27 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
 }
 
 interface FundProps {
-  notaId: string;
-  amount: BigNumber;
+  notaId: string | number | BigNumber;
+  amount: string | number | BigNumber;
   moduleName: NotaModuleNames;
 }
 
+// TODO: add an `auto` option to fund, which will automatically select the correct fund parameters based on the Nota's module
 export async function fund({ notaId, amount, moduleName }: FundProps) {
+  notaId = !(notaId instanceof BigNumber) ? BigNumber.from(notaId) : notaId;
+  amount = !(amount instanceof BigNumber) ? BigNumber.from(amount) : amount;
   // Implement in future modules
 }
 
-// Should each module inherit from a shared interface?
 interface CashPaymentProps {
-  notaId: string;
-  amount: BigNumber;
+  notaId: string | number | BigNumber;
+  amount: string | number | BigNumber;
   to: string;
   moduleName: NotaModuleNames;  // Cashing doesn't need the module on the SC side
   type: "reversal" | "release";  // TODO what state does this refer to?
 }
 
+// TODO: add an `auto` option to fund, which will automatically select the correct fund parameters based on the Nota's module
 export async function cash({
   notaId,
   type,  // TODO remove
@@ -427,6 +518,9 @@ export async function cash({
   to,
   moduleName,
 }: CashPaymentProps) {
+  notaId = !(BigNumber.isBigNumber(notaId)) ? BigNumber.from(notaId) : notaId;
+  amount = !(BigNumber.isBigNumber(amount)) ? BigNumber.from(amount) : amount;
+
   switch (moduleName) {
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
@@ -445,6 +539,7 @@ export async function cash({
         amount,
       });
     case "cashBeforeDateDrip":
+
       return await cashCashBeforeDateDrip({
         notaId,
         to,
@@ -457,85 +552,69 @@ export async function cash({
 
 export const contractMappingForChainId = contractMappingForChainId_;
 
-export interface NotaTransaction {
-  date: Date; // timestamp
-  hash: string; // transactionHash
-}
-
-export interface Nota {
-  chainId: number;
-  id: string;
-  token: string;
-  amount: number;
-  amountRaw: BigNumber;
-  moduleData: ModuleData;
-
-  owner: string;
-  approved: string;
-  sender: string;
-  receiver: string;
-  createdTransaction: NotaTransaction;
-  fundedTransaction: NotaTransaction[] | null;  // TODO have list of WTFCA transactions
-  cashedTransaction: NotaTransaction[] | null;
-}
-
-// TODO ModuleData.decode functionality
 // TODO Nota query functionality
-// function query(notaId: string) {
-//// nota.moduleBytes.decode();
+// function query(notaId: string): Nota {
 // }
 
-export function getModuleData(account: string, chainIdNumber: number, nota: any, hookAddress: string): ModuleData {
-  // TODO should `nota` be a Nota object or just the bytes data?
-  // TODO should hookBytes be parsed here, beforehand, or in the hook specific one?
-  // Note: returns all address variables as lower case for front-end consistency
-  account = account.toLowerCase();
+interface GetModuleDataProps {
+  account: string | number | BigNumber;
+  chainIdNumber: string | number | BigNumber;
+  nota: Nota;
+  hookAddress: string;
+}
+
+export function getModuleData({account, chainIdNumber, nota, hookAddress}: GetModuleDataProps): ModuleData {
+  account = account.toString().toLocaleLowerCase();
+  chainIdNumber = Number(chainIdNumber);
+  hookAddress = hookAddress.toLowerCase();
+  
   const mapping = contractMappingForChainId(chainIdNumber);
   
-  let moduleData: ModuleData = { moduleName: "unknown", status: "?", externalURI: "", imageURI: "" };
-
-  let hookBytes;
+  let moduleData: ModuleData = { moduleName: "unknown", status: "?", writeBytes: "", externalURI: "", imageURI: "" };
+  
+  // TODO should writeBytes be parsed here or in the hook specific functions?
+  let writeBytes;
   try {
-    hookBytes = nota.moduleData.raw;
+    writeBytes = nota.moduleData.writeBytes;
   } catch {
-    console.log("No hookBytes found in Nota");
+    console.log("No writeBytes found in Nota");
     return moduleData;
   }
 
   if (mapping) {
     switch (hookAddress) {
       case mapping.simpleCash.toLowerCase():
-        moduleData = getSimpleCashData(account, nota, hookBytes);
+        moduleData = getSimpleCashData(account, nota, writeBytes);
         break;
       case mapping.cashBeforeDate.toLowerCase():
-        moduleData = getCashBeforeDateData(account, nota, hookBytes);
+        moduleData = getCashBeforeDateData(account, nota, writeBytes);
         break;
       case mapping.directSend.toLowerCase():
-        moduleData = getDirectSendData(account, nota, hookBytes);
+        moduleData = getDirectSendData(account, nota, writeBytes);
         break;
       case mapping.reversibleByBeforeDate.toLowerCase():
-        moduleData = getReversibleByBeforeDateData(account, nota, hookBytes);
+        moduleData = getReversibleByBeforeDateData(account, nota, writeBytes);
         break;
       case mapping.reversibleRelease.toLowerCase():
-        moduleData = getReversibleReleaseData(account, nota, hookBytes);
+        moduleData = getReversibleReleaseData(account, nota, writeBytes);
         break;
       case "0x000000005891889951d265d6d7ad3444b68f8887".toLowerCase(): // CashBeforeDateData
-        moduleData = getCashBeforeDateData(account, nota, hookBytes);
+        moduleData = getCashBeforeDateData(account, nota, writeBytes);
         break;
       case "0x00000000e8c13602e4d483a90af69e7582a43373".toLowerCase(): // CashBeforeDateDrip
-        moduleData = getCashBeforeDateDripData(account, nota, hookBytes);
+        moduleData = getCashBeforeDateDripData(account, nota, writeBytes);
         break;
       case "0x00000000cce992072e23cda23a1986f2207f5e80".toLowerCase(): // CashBeforeDateDrip
-        moduleData = getCashBeforeDateDripData(account, nota, hookBytes);
+        moduleData = getCashBeforeDateDripData(account, nota, writeBytes);
         break;
       case "0x00000000123157038206fefeb809823016331ff2".toLowerCase(): // CashBeforeDate
-        moduleData = getCashBeforeDateData(account, nota, hookBytes);
+        moduleData = getCashBeforeDateData(account, nota, writeBytes);
         break;
       case "0x00000000115e79ea19439db1095327acbd810bf7".toLowerCase():  // ReversibleByBeforeDate
-        moduleData = getReversibleReleaseData(account, nota, hookBytes);
+        moduleData = getReversibleReleaseData(account, nota, writeBytes);
         break;
       case "0x00000003672153A114583FA78C3D313D4E3cAE40".toLowerCase(): // DirectSend
-        moduleData = getDirectSendData(account, nota, hookBytes);
+        moduleData = getDirectSendData(account, nota, writeBytes);
         break;
     }
   }
