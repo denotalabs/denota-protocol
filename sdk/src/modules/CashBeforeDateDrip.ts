@@ -16,16 +16,16 @@ export interface CashBeforeDateDripData {
   writeBytes: string; // Unformatted writeBytes
   lastDrip: Date;
   expirationDate: Date;
-  dripAmount: number;
-  dripPeriod: number;
+  dripAmount: BigNumber;
+  dripPeriod: BigNumber;
   externalURI?: string;
   imageURI?: string;
 }
 
 export interface WriteCashBeforeDateDripProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: CashBeforeDateDripData;
 }
@@ -70,7 +70,7 @@ export async function writeCashBeforeDateDrip({
 
 export interface CashCashBeforeDateDripProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 
@@ -110,10 +110,14 @@ export function decodeCashBeforeDateDripData(data: string) {
 export function getCashBeforeDateDripData(account: any, nota: Nota, writeBytes: string): CashBeforeDateDripData {
   let decoded = decodeCashBeforeDateDripData(writeBytes);
   
-  let lastDrip = (nota.cashes != undefined && nota.cashes.length > 0) ? Number(nota.cashes[nota.cashes.length - 1].transaction.timestamp) * 1000 : 0;
-  let dripAmount = decoded.dripAmount;
-  let dripPeriod = Number(decoded.dripPeriod) * 1000;  // In milliseconds
-  let expirationDate = Number(decoded.cashBeforeDate) * 1000;  // In milliseconds
+  let lastCash = nota.cashes !== null && nota.cashes.length > 0 ? nota.cashes[nota.cashes.length - 1] : null;
+  let lastDrip = lastCash !== null && lastCash.amount.isZero() ? BigNumber.from(lastCash.amount).mul(1000) : BigNumber.from(0);
+  let dripAmount = BigNumber.from(decoded.dripAmount);
+  let dripPeriod = BigNumber.from(decoded.dripPeriod).mul(1000);  // In milliseconds
+  let expirationDate = new Date(BigNumber.from(decoded.cashBeforeDate).mul(1000).toNumber());  // Convert to BigNumber first to avoid overflow, then convert to milliseconds
+  
+  let notaExpired = expirationDate.getTime() < Date.now();
+  let dripAvailable = lastDrip.add(dripPeriod).toNumber() <= Date.now();
 
   let status;
   if (nota.cashes !== null && nota.cashes.length > 0 && nota.cashes.some(cash => cash.amount.gt(0))) {  // Has been cashed before
@@ -121,13 +125,13 @@ export function getCashBeforeDateDripData(account: any, nota: Nota, writeBytes: 
     if (wentToOwner) {  // At least some went to the owner
       if (nota.escrowed.isZero()) {  // Can be any combination of released, returned, or claimed if no escrow
         status = nota.cashes[nota.cashes.length-1].to == nota.sender ? "returned" : "claimed";  // TODO partial_claim if last cash was to back sender
-      } else if (expirationDate < Date.now()) {  // Claim period has ended for remaining escrow
+      } else if (notaExpired) {  // Claim period has ended for remaining escrow
         status = account === nota.sender.toLowerCase() ? "releasable" : "awaiting_release";  // If sender they can return
       } else {  // Claim period is ongoing for remaining escrow
         if (account === nota.owner.toLowerCase()) {
-          status = (lastDrip + dripPeriod) <= Date.now() ? "claimable" : "locked";  // If owner then they can claim
+          status = dripAvailable ? "claimable" : "locked";  // If owner then they can claim
         } else {  // Account is someone else
-          status = (lastDrip + dripPeriod) <= Date.now() ? "awaiting_claim" : "locked";
+          status = dripAvailable ? "awaiting_claim" : "locked";
         }
       }
     } else {  // Cash went to sender (since can only release to owner or sender)
@@ -138,13 +142,13 @@ export function getCashBeforeDateDripData(account: any, nota: Nota, writeBytes: 
       }
     }
   } else {  // No one has cashed yet
-    if (expirationDate < Date.now()) {  // Claim period has ended
+    if (notaExpired) {  // Claim period has ended
       status = account === nota.sender.toLowerCase() ? "releasable" : "awaiting_release";
     } else {  // Claim period is ongoing
       if (account === nota.owner.toLowerCase()) {  // Account is owner
-        status = (lastDrip + dripPeriod) <= Date.now() ? "claimable" : "locked";
+        status = dripAvailable ? "claimable" : "locked";
       } else {  // Account is someone else
-        status = (lastDrip + dripPeriod) <= Date.now() ? "awaiting_claim" : "locked";
+        status = dripAvailable ? "awaiting_claim" : "locked";
       }
     }
   }
@@ -153,7 +157,7 @@ export function getCashBeforeDateDripData(account: any, nota: Nota, writeBytes: 
     moduleName: "cashBeforeDateDrip",
     status: status as CashBeforeDateDripStatus,
     writeBytes: writeBytes,
-    lastDrip: new Date(lastDrip),
+    lastDrip: new Date(lastDrip.toNumber()),
     expirationDate: new Date(expirationDate),
     dripAmount: dripAmount,
     dripPeriod: dripPeriod,

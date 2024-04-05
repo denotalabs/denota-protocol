@@ -338,8 +338,8 @@ export interface UnknownModuleData {
 
 export interface WriteProps {
   currency: DenotaCurrency;  // Simplifies DX so they just enter a string instead of address
-  amount: number;  // TODO should these be bigNumber? Or union with them?
-  instant: number;
+  amount: string | number | BigNumber;
+  instant: string | number | BigNumber;
   owner: string;
   moduleName: string;  // Simplifies DX so they just enter a string instead of address
   metadata?: RawMetadata | UploadedMetadata;
@@ -348,6 +348,9 @@ export interface WriteProps {
 // TODO: could include the chainId for fetching module and currency addresses
 // TODO: could remove the moduleData as an input to each write and just return the constructed one instead
 export async function write({ currency, amount, instant, owner, moduleName, metadata, ...props }: WriteProps) {
+  amount = !(BigNumber.isBigNumber(amount)) ? BigNumber.from(amount) : amount;
+  instant = !(BigNumber.isBigNumber(instant)) ? BigNumber.from(instant) : instant;
+
   let externalURI = "",
     imageURI = "";
 
@@ -453,8 +456,8 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
         writeBytes: "",
         lastDrip: new Date(0),
         expirationDate: new Date(expirationDate),
-        dripAmount: props.dripAmount as number,
-        dripPeriod: props.dripPeriod as number,
+        dripAmount: BigNumber.from(props.dripAmount),
+        dripPeriod: BigNumber.from(props.dripPeriod),
         externalURI: externalURI,
         imageURI: imageURI,
       };
@@ -487,20 +490,21 @@ export async function write({ currency, amount, instant, owner, moduleName, meta
 }
 
 interface FundProps {
-  notaId: string;
-  amount: BigNumber;
+  notaId: string | number | BigNumber;
+  amount: string | number | BigNumber;
   moduleName: NotaModuleNames;
 }
 
 // TODO: add an `auto` option to fund, which will automatically select the correct fund parameters based on the Nota's module
 export async function fund({ notaId, amount, moduleName }: FundProps) {
+  notaId = !(notaId instanceof BigNumber) ? BigNumber.from(notaId) : notaId;
+  amount = !(amount instanceof BigNumber) ? BigNumber.from(amount) : amount;
   // Implement in future modules
 }
 
-// Should each module inherit from a shared interface?
 interface CashPaymentProps {
-  notaId: string;
-  amount: BigNumber;
+  notaId: string | number | BigNumber;
+  amount: string | number | BigNumber;
   to: string;
   moduleName: NotaModuleNames;  // Cashing doesn't need the module on the SC side
   type: "reversal" | "release";  // TODO what state does this refer to?
@@ -514,6 +518,9 @@ export async function cash({
   to,
   moduleName,
 }: CashPaymentProps) {
+  notaId = !(BigNumber.isBigNumber(notaId)) ? BigNumber.from(notaId) : notaId;
+  amount = !(BigNumber.isBigNumber(amount)) ? BigNumber.from(amount) : amount;
+
   switch (moduleName) {
     case "simpleCash":
       return await cashSimpleCash({ notaId, to, amount });
@@ -549,16 +556,23 @@ export const contractMappingForChainId = contractMappingForChainId_;
 // function query(notaId: string): Nota {
 // }
 
-// TODO is this actually getting moduleData since a Nota needs to be fed into here anyways?
-// TODO need to update the hook moduleDatas without the formatted variables
-export function getModuleData(account: string, chainIdNumber: number, nota: Nota, hookAddress: string): ModuleData {
-  // TODO should writeBytes be parsed here, beforehand, or in the hook specific one?
-  // Note: returns all address variables as lower case for front-end consistency
-  account = account.toLowerCase();
+interface GetModuleDataProps {
+  account: string | number | BigNumber;
+  chainIdNumber: string | number | BigNumber;
+  nota: Nota;
+  hookAddress: string;
+}
+
+export function getModuleData({account, chainIdNumber, nota, hookAddress}: GetModuleDataProps): ModuleData {
+  account = account.toString().toLocaleLowerCase();
+  chainIdNumber = Number(chainIdNumber);
+  hookAddress = hookAddress.toLowerCase();
+  
   const mapping = contractMappingForChainId(chainIdNumber);
   
   let moduleData: ModuleData = { moduleName: "unknown", status: "?", writeBytes: "", externalURI: "", imageURI: "" };
-
+  
+  // TODO should writeBytes be parsed here or in the hook specific functions?
   let writeBytes;
   try {
     writeBytes = nota.moduleData.writeBytes;

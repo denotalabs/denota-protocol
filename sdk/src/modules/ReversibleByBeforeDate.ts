@@ -22,8 +22,8 @@ export interface ReversibleByBeforeDateData {
 
 export interface WriteReversibleByBeforeDateProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: ReversibleByBeforeDateData;
 }
@@ -68,7 +68,7 @@ export async function writeReversibleByBeforeDate({
 
 export interface CashReversibleByBeforeDateProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 

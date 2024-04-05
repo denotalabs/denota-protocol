@@ -20,7 +20,7 @@ export interface DirectSendData {
 
 export interface WriteDirectSendProps {
   currency: DenotaCurrency;
-  amount: number;
+  amount: BigNumber;
   owner: string;
   moduleData: DirectSendData;
 }

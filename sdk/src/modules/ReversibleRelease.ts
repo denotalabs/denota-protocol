@@ -21,8 +21,8 @@ export interface ReversibleReleaseData {
 
 export interface WriteReversibleReleaseyProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: ReversibleReleaseData;
 }
@@ -66,7 +66,7 @@ export async function writeReversibleRelease({
 }
 
 export interface FundReversibleReleaseyProps {
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
   tokenAddress: string;
 }
@@ -99,7 +99,7 @@ export async function fundReversibleRelease({
 
 export interface CashReversibleReleaseyProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 

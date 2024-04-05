@@ -21,8 +21,8 @@ export interface CashBeforeDateData {
 
 export interface WriteCashBeforeDateProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: CashBeforeDateData;
 }
@@ -67,7 +67,7 @@ export async function writeCashBeforeDate({
 
 export interface CashCashBeforeDateProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 

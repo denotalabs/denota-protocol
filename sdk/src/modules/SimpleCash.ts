@@ -20,8 +20,8 @@ export interface SimpleCashData {
 
 export interface WriteSimpleCashProps {
   currency: DenotaCurrency;
-  amount: number;
-  instant: number;
+  amount: BigNumber;
+  instant: BigNumber;
   owner: string;
   moduleData: SimpleCashData;
 }
@@ -64,7 +64,7 @@ export async function writeSimpleCash({
 
 export interface CashSimpleCashProps {
   to: string;
-  notaId: string;
+  notaId: BigNumber;
   amount: BigNumber;
 }
 
