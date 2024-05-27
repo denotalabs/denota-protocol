@@ -15,7 +15,7 @@ import {Noop} from "../src/modules/Noop.sol";
 contract BalanceOfConditionalCashTest is RegistrarTest {
     BalanceOfConditionalCash public BALANCE_OF_CONDITIONAL_CASH;
     Noop public NOOP;
-    uint256 public constant NOTA_THRESHOLD = 25;
+    uint256 public constant NOTA_THRESHOLD = 2;
     uint256 public constant EXPIRY = 1000;
 
     function setUp() public override {
@@ -60,6 +60,70 @@ contract BalanceOfConditionalCashTest is RegistrarTest {
         address owner
     ) public {
         _setupThenWrite(caller, escrowed, instant, owner);
+    }
+
+
+    function testFund(
+        address caller,
+        uint256 escrowed,
+        uint256 instant,
+        address owner
+    ) public {
+        vm.assume(escrowed > 1);
+        _registrarWriteAssumptions(caller, escrowed, instant, owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed/2, instant, owner);
+
+        _tokenFundAddressApproveAddress(caller, DAI, escrowed/2, address(REGISTRAR));
+        _registrarFundHelper(caller, notaId, escrowed/2, 0, "");
+    }
+
+    function testFailFundSender(
+        address caller,
+        uint256 escrowed,
+        uint256 instant,
+        address owner,
+        address random
+    ) public {
+        vm.assume(random != owner);
+        vm.assume(escrowed > 1);
+        _registrarWriteAssumptions(caller, escrowed, instant, owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed/2, instant, owner);
+
+        _tokenFundAddressApproveAddress(caller, DAI, escrowed/2, caller);
+        _registrarFundHelper(random, notaId, escrowed/2, 0, "");
+    }
+
+    function testFailFundExpired(
+        address caller,
+        uint256 escrowed,
+        uint256 instant,
+        address owner,
+        address random
+    ) public {
+        vm.assume(random != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
+
+        vm.warp(EXPIRY + 1);
+        _registrarFundHelper(random, notaId, escrowed, 0, "");
+    }
+
+    function testFailFundCashed(
+        address caller,
+        uint256 escrowed,
+        uint256 instant,
+        address owner,
+        address random
+    ) public {
+        vm.assume(random != owner);
+        uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner);
+
+        for (uint256 i = 0; i < NOTA_THRESHOLD; i++) {
+            _registrarWriteHelper(caller, address(DAI), 0, 0, owner, NOOP, "");  // Give owner another Nota
+        }
+
+        _registrarCashHelper(owner, notaId, escrowed, owner, "");
+
+        _registrarFundHelper(random, notaId, escrowed, 0, "");
     }
 
     function testCashOwner(

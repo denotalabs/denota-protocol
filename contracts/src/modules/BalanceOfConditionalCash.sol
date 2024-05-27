@@ -31,6 +31,7 @@ contract BalanceOfConditionalCash is ModuleBase {
 
     error ConditionFailed(uint256 threshold, uint256 value);
     error Disallowed();
+    error Expired();
     error TransferBeforeCash();
 
     event ConditionCreated(
@@ -65,6 +66,7 @@ contract BalanceOfConditionalCash is ModuleBase {
                 writeData,
                 (IERC721, ConditionType, uint96, uint256, string, string)
             );
+        if (block.timestamp > uint256(expirationDate)) revert Expired();  // Expired
 
         conditions[notaId] = Condition(NFTAddress, conditionType, caller, expirationDate, threshold, external_url, imageURI);
 
@@ -97,7 +99,6 @@ contract BalanceOfConditionalCash is ModuleBase {
         Nota calldata /*nota*/,
         bytes calldata /*cashData*/
     ) external virtual override onlyRegistrar returns (uint256) {
-
         Condition memory condition = conditions[notaId];
         
         if (block.timestamp > uint256(condition.expirationDate)) { // Expired
@@ -122,15 +123,19 @@ contract BalanceOfConditionalCash is ModuleBase {
     }
 
     function processFund(
-        address /*caller*/,
+        address caller,
         address /*owner*/,
         uint256 /*amount*/,
         uint256 /*instant*/,
-        uint256 /*notaId*/,
+        uint256 notaId,
         Nota calldata nota,
         bytes calldata /*fundData*/
     ) external virtual override onlyRegistrar returns (uint256) {
         if (nota.escrowed == 0) revert Disallowed();
+        
+        Condition memory condition = conditions[notaId];
+        if (caller != condition.sender) revert Disallowed();  // Only sender can add more funds
+        if (block.timestamp > uint256(condition.expirationDate)) revert Expired();  // Expired
         return 0;
     }
 
