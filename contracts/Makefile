@@ -47,7 +47,7 @@ whitelist-tokens:
 	cast send ${testEth} "approve(address,uint256)" $${registrarAddress} 1000000000000000000000000 --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
-moduleFileName=CashBeforeDateDrip
+moduleFileName=BalanceOfConditionalCash
 deploy-module:
 	forge flatten src/modules/$(moduleFileName).sol > src/flat/$(moduleFileName).sol
 	forge compile --optimizer-runs ${optimizer_runs}
@@ -56,9 +56,10 @@ deploy-module:
 	registrarAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
 	constructorArgs=$$(cast abi-encode "constructor(address)" $${registrarAddress}) ; \
 	constructorArgs=$$(echo $${constructorArgs} | sed 's/0x//') ; \
-	echo $${constructorArgs} ; \
+	echo "Constructor Args: "$${constructorArgs} ; \
 	bytecode=$$(jq -r '.bytecode.object' out/flat/$(moduleFileName).sol/$(moduleFileName).json)$${constructorArgs} ; \
 	echo $${bytecode} ; \
+	echo "Bytecode Formatted.." ; \
 	cast create2 --deployer ${FACTORY_ADDRESS} --init-code $${bytecode} --starts-with 00000000 --caller ${ADDRESS} 2>&1 | tee salts/$(moduleFileName).txt ; \
 	echo "\n\n" ; \
 	salt=$$(cat salts/$(moduleFileName).txt | grep "Salt: " | awk '{print $$2}') ; \
