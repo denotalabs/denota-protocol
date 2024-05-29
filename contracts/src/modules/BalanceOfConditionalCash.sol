@@ -6,7 +6,6 @@ import "openzeppelin/token/ERC721/IERC721.sol";
 import {Nota} from "../libraries/DataTypes.sol";
 import {ModuleBase} from "../ModuleBase.sol";
 
-
 // Can be used to incentivize NFT purchases, like a coupon
 contract BalanceOfConditionalCash is ModuleBase {
     enum ConditionType {
@@ -22,7 +21,7 @@ contract BalanceOfConditionalCash is ModuleBase {
         ConditionType conditionType;
         address sender;
         uint96 expirationDate;
-        uint256 threshold;
+        uint256 threshold;  // How many NFTs are needed
         string external_url;
         string imageURI;
     }
@@ -66,7 +65,7 @@ contract BalanceOfConditionalCash is ModuleBase {
                 writeData,
                 (IERC721, ConditionType, uint96, uint256, string, string)
             );
-        if (block.timestamp > uint256(expirationDate)) revert Expired();  // Expired
+        if (block.timestamp > uint256(expirationDate)) revert Expired();  // Check that expiration hasn't passed already
 
         conditions[notaId] = Condition(NFTAddress, conditionType, caller, expirationDate, threshold, external_url, imageURI);
 

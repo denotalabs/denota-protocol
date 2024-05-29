@@ -6,14 +6,11 @@ import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
-// TODO have Owner/OperatorFee inherit ModuleBase (if possible)
-// TODO simplify fee calculation (writeFee(writeParams _writeParams) -> fee) and ensure it doesn't overflowing
-// TODO show display_type as date when it's related to time from module tokenURI
-// TODO add max_value when it's supposed to increase in escrow to a certain value
+// TODO simplify fee calculation (writeFee(writeParams _writeParams) -> fee) and ensure it doesn't overflow
 abstract contract ModuleBase is INotaModule {
     address public immutable REGISTRAR;
 
-    event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);
+    event ModuleBaseConstructed(address indexed registrar, uint256 timestamp);  // TODO is this needed?
 
     error NotRegistrar();
     error InitParamsInvalid();
@@ -26,7 +23,7 @@ abstract contract ModuleBase is INotaModule {
     constructor(address registrar) {
         if (registrar == address(0)) revert InitParamsInvalid();
         REGISTRAR = registrar;
-        emit ModuleBaseConstructed(registrar, block.timestamp);  // Fees
+        emit ModuleBaseConstructed(registrar, block.timestamp);
     }
 
     function processWrite(
@@ -83,11 +80,11 @@ abstract contract ModuleBase is INotaModule {
     }
 
     function processApproval(
-        address caller,
-        address owner,
-        address to,
-        uint256 notaId,
-        Nota calldata nota
+        address /*caller*/,
+        address /*owner*/,
+        address /*to*/,
+        uint256 /*notaId*/,
+        Nota calldata /*nota*/
     ) external virtual override onlyRegistrar {
         // Add module logic here
     }
