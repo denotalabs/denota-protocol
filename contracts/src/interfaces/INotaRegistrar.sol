@@ -6,62 +6,48 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
 
 /**
  * @notice NotaRegistrar handles: Escrowing funds, and Storing nota data
- */
- // NOTE: If Registrar fee storing, Uniswapv4 has this inherit a IFees interface here as well. 
- /**
- * @title  The Nota Payment Registrar
+ * @title  The Nota Registrar
  * @notice The main contract where users can WTFCA notas
  * @author Alejandro Almaraz
  * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
-
 interface INotaRegistrar {
 
-    event Written(
-        address indexed caller,
-        uint256 notaId,
-        address indexed owner, // Question is this needed considering ERC721 _mint() emits owner `from` address(0) `to` owner?
-        uint256 instant,
-        address indexed currency,
+    event Written (
+        address indexed writer,
+        uint256 indexed notaId,
+        address currency,
         uint256 escrowed,
-        uint256 timestamp, // Question Do these events need timestamps?
+        INotaModule indexed module,
+        uint256 instant,
         uint256 moduleFee,
-        INotaModule module,
-        bytes moduleData
+        bytes hookData
     );
-    event Transferred(  // TODO does this need `from` since ERC721 already has it?
-        uint256 indexed tokenId,
-        address indexed from,
-        address indexed to,
+    event Transferred(
+        address indexed transferer,
+        uint256 indexed notaId,
         uint256 moduleFee,
-        bytes transferData,
-        uint256 timestamp
-    ); // TODO needs moduleBytes
+        bytes hookData
+    );
     event Funded(
         address indexed funder,
         uint256 indexed notaId,
         uint256 amount,
         uint256 instant,
-        bytes indexed fundData,
         uint256 moduleFee,
-        uint256 timestamp
+        bytes hookData
     );
     event Cashed(
         address indexed casher,
         uint256 indexed notaId,
-        address to,
+        address indexed to,
         uint256 amount,
-        bytes indexed cashData,
         uint256 moduleFee,
-        uint256 timestamp
+        bytes hookData
     );
 
-    error SendFailed();
-    error SelfApproval();
     error NonExistent();
     error InvalidWrite(INotaModule, address);
-    error InsufficientValue(uint256, uint256);
-    error InsufficientEscrow(uint256, uint256);
 
     function write(
         address currency,
@@ -78,7 +64,7 @@ interface INotaRegistrar {
     //     uint256 instant,
     //     address owner,
     //     address module,
-    //     bytes calldata moduleWriteData
+    //     bytes calldata hookData
     // ) external payable returns (uint256);
 
     function transferFrom(address from, address to, uint256 tokenId) external;
