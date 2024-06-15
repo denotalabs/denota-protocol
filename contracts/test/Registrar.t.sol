@@ -6,10 +6,9 @@ import "forge-std/console.sol";
 import "openzeppelin/utils/Base64.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaModule} from "../src/interfaces/INotaModule.sol";
-import {Nota} from "../src/libraries/DataTypes.sol";
 import "./mock/erc20.sol";
 
-// TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
+// TODO ensure failure on 0 escrow but moduleFee
 // TODO test event emission
 // TODO have WTFCA vm.assumptions in helpers (owner != address(0), from == owner, etc)
 // Add invariant tests for registrar here (token transfers, etc)
@@ -178,7 +177,7 @@ contract RegistrarTest is Test {
         uint256 instant,
         address owner,
         INotaModule module,
-        bytes memory moduleBytes
+        bytes memory hookData
         ) internal returns(uint256 notaId) {
         uint256 initialTotalSupply = REGISTRAR.totalSupply();
         uint256 initialOwnerBalance = REGISTRAR.balanceOf(owner);
@@ -199,7 +198,7 @@ contract RegistrarTest is Test {
             instant,
             owner,
             module,
-            moduleBytes
+            hookData
         ); 
         
         assertEq(REGISTRAR.totalSupply(), initialTotalSupply + 1, "Nota supply didn't increment");
@@ -207,7 +206,7 @@ contract RegistrarTest is Test {
         assertEq(REGISTRAR.ownerOf(notaId), owner, "`owner` isn't owner of nota");
         assertEq(REGISTRAR.moduleRevenue(module, currency), initialModuleRevenue + moduleFee, "Module revenue didn't increase");
 
-        Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
+        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
         assertEq(postNota.currency, currency, "Incorrect token");
         assertEq(postNota.escrowed, escrowed, "Incorrect escrow");
         assertEq(address(postNota.module), address(module), "Incorrect module");
@@ -234,8 +233,8 @@ contract RegistrarTest is Test {
         assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
     }
 
-    function _registrarFundHelper(address caller, uint256 notaId, uint256 amount, uint256 instant, bytes memory moduleBytes) internal {
-        Nota memory preNota = REGISTRAR.notaInfo(notaId);
+    function _registrarFundHelper(address caller, uint256 notaId, uint256 amount, uint256 instant, bytes memory hookData) internal {
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         address notaOwner = REGISTRAR.ownerOf(notaId);
         
         IERC20 currency = IERC20(preNota.currency);
@@ -247,7 +246,7 @@ contract RegistrarTest is Test {
         uint256 moduleFee = totalAmount - (amount + instant);
 
         vm.prank(caller);
-        REGISTRAR.fund(notaId, amount, instant, moduleBytes);
+        REGISTRAR.fund(notaId, amount, instant, hookData);
 
         assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount, "Escrowed amount didn't increment properly");
         assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
@@ -255,8 +254,8 @@ contract RegistrarTest is Test {
         assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
     }
 
-    function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory moduleBytes) internal {
-        Nota memory preNota = REGISTRAR.notaInfo(notaId);
+    function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory hookData) internal {
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         // address notaOwner = REGISTRAR.ownerOf(notaId);
 
         IERC20 currency = IERC20(preNota.currency);
@@ -267,7 +266,7 @@ contract RegistrarTest is Test {
         uint256 moduleFee = totalAmount - amount;
 
         vm.prank(caller);
-        REGISTRAR.cash(notaId, amount, to, moduleBytes);
+        REGISTRAR.cash(notaId, amount, to, hookData);
 
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
          assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");

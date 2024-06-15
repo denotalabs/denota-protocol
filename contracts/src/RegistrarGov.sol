@@ -27,7 +27,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
         _codeHashWhitelist[codeHash] = isWhitelisted;
 
-        emit ModuleWhitelisted(_msgSender(), module, isWhitelisted, block.timestamp);
+        emit ModuleWhitelisted(_msgSender(), module, isWhitelisted);
     }
 
     function whitelistToken(address token, bool isWhitelisted) external onlyOwner {
@@ -38,7 +38,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
 
         _codeHashWhitelist[codeHash] = isWhitelisted;
 
-        emit TokenWhitelisted(_msgSender(), token, isWhitelisted, block.timestamp);
+        emit TokenWhitelisted(_msgSender(), token, isWhitelisted);
     }
 
     function tokenWhitelisted(address token) public view returns (bool) {

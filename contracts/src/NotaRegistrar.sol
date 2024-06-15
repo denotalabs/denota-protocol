@@ -7,7 +7,6 @@ import "openzeppelin/utils/Base64.sol";
 import "openzeppelin/utils/Strings.sol";
 import {INotaModule} from "./interfaces/INotaModule.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
-import {Nota} from "./libraries/DataTypes.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
 
@@ -59,7 +58,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata hookData) public payable returns (uint256) {
         require(validWrite(module, currency), "INVALID_WRITE");
-        uint256 moduleFee = module.processWrite(msg.sender, owner, totalSupply, currency, escrowed, instant, hookData);
+        uint256 moduleFee = module.processWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, moduleFee);
         _mint(owner, totalSupply);
@@ -98,7 +97,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
-        uint256 moduleFee = nota.module.processFund(msg.sender, notaOwner, amount, instant, notaId, nota, hookData);
+        uint256 moduleFee = nota.module.processFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
 
         _transferTokens(nota.currency, notaOwner, amount, instant, moduleFee);
         _notas[notaId].escrowed += amount;
@@ -114,7 +113,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        uint256 moduleFee = nota.module.processCash(msg.sender, ownerOf(notaId), to, amount, notaId, nota, hookData);
+        uint256 moduleFee = nota.module.processCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
 
         _notas[notaId].escrowed -= amount;
         _unescrowTokens(nota.currency, to, amount - moduleFee);  // moduleFee stays in escrow. Should amount include the moduleFee or have it removed on after?
@@ -126,7 +125,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        nota.module.processApproval(msg.sender, ownerOf(notaId), to, notaId, nota);
+        nota.module.processApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit MetadataUpdate(notaId);
@@ -176,7 +175,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         if (hookData.length == 0) hookData = abi.encode("");
         Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 moduleFee = nota.module.processTransfer(msg.sender, getApproved(notaId), owner, from, to, notaId, nota, hookData);
+        uint256 moduleFee = nota.module.processTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
 
         _notas[notaId].escrowed -= moduleFee;
         _moduleRevenue[nota.module][nota.currency] += moduleFee;  // NOTE could do this unchecked

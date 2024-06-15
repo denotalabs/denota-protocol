@@ -1,59 +1,57 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {Nota} from "../libraries/DataTypes.sol";
 
-// Question: Should the require statements be part of the interface? Would allow people to query canWrite(), canCash(), etc
 interface INotaModule {
     function processWrite(
         address caller,
-        address owner,
         uint256 notaId,
         address currency,
         uint256 escrowed,
+        address owner,
         uint256 instant,
-        bytes calldata moduleBytes
+        bytes calldata hookData
     ) external returns (uint256);
 
     function processTransfer(
         address caller,
-        address approved,
-        address owner,
-        address from,
-        address to,
         uint256 notaId,
-        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
-        bytes calldata moduleBytes
+        uint256 escrowed,
+        address owner,
+        // address approved, // TODO should this be passed to hook too?
+        address from,  // TODO doesn't `from` always equal owner?
+        address to,
+        bytes calldata hookData
     ) external returns (uint256);
 
     function processFund(
         address caller,
+        uint256 notaId,
+        uint256 escrowed,
         address owner,
         uint256 amount,
         uint256 instant,
-        uint256 notaId,
-        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
-        bytes calldata moduleBytes
+        bytes calldata hookData
     ) external returns (uint256);
 
     function processCash(
         address caller,
+        uint256 notaId,
+        uint256 escrowed,
         address owner,
         address to,
         uint256 amount,
-        uint256 notaId,
-        Nota calldata nota, // Does this still make sense since it's only currency, escrowed, module?
-        bytes calldata moduleBytes
+        bytes calldata hookData
     ) external returns (uint256);
 
     function processApproval(
         address caller,
-        address owner,
-        address to,
         uint256 notaId,
-        Nota calldata nota // Does this still make sense since it's only currency, escrowed, module?
+        uint256 escrowed,
+        address owner,
+        address to
     ) external;
 
     function processTokenURI(
-        uint256 tokenId
+        uint256 notaId
     ) external view returns (string memory, string memory);
 }

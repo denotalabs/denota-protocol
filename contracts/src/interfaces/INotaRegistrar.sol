@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
-import {Nota} from "../libraries/DataTypes.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {INotaModule} from "../interfaces/INotaModule.sol";
 
@@ -12,6 +11,19 @@ import {INotaModule} from "../interfaces/INotaModule.sol";
  * @dev    Tracks ownership of notas' data + escrow, and collects revenue.
  */
 interface INotaRegistrar {
+    struct Nota {
+        uint256 escrowed; // Slot 1
+        address currency; // Slot2
+        /* 96 bits free */
+        INotaModule module; // Slot3 /// Hook packing: mapping(INotaModule module => uint96 index) and store uint96 here
+        /* 96 bits free */
+
+        // address owner; // Slot4 (160)
+        /* 96 bits free */
+        // address approved; // Slot5 (160)
+        /* 96 bits free */
+        // AssetType assetType; (8 bits)
+    }
 
     event Written (
         address indexed writer,
@@ -92,9 +104,7 @@ interface INotaRegistrar {
 
     function approve(address to, uint256 tokenId) external;
 
-    function notaInfo(
-        uint256 notaId
-    ) external view returns (Nota memory);
+    function notaInfo(uint256 notaId) external view returns (Nota memory);
     
     function notaCurrency(uint256 notaId) external view returns (address);
 
@@ -102,11 +112,7 @@ interface INotaRegistrar {
 
     function notaModule(uint256 notaId) external view returns (INotaModule);
 
-    function moduleWithdraw(
-        address token,
-        uint256 amount,
-        address payoutAccount
-    ) external;
+    function moduleWithdraw(address token, uint256 amount, address payoutAccount) external;
 
     function moduleRevenue(INotaModule module, address currency) external view returns(uint256);
 }
