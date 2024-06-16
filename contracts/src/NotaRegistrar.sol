@@ -57,7 +57,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes calldata hookData) public payable returns (uint256) {
         require(validWrite(hook, currency), "INVALID_WRITE");
-        uint256 hookFee = hook.processWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
+        uint256 hookFee = hook.beforeWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, hookFee);
         _mint(owner, totalSupply);
@@ -96,7 +96,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.processFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
+        uint256 hookFee = nota.hook.beforeFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
 
         _transferTokens(nota.currency, notaOwner, amount, instant, hookFee);
         _notas[notaId].escrowed += amount;
@@ -112,10 +112,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        uint256 hookFee = nota.hook.processCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
+        uint256 hookFee = nota.hook.beforeCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
 
         _notas[notaId].escrowed -= amount;
-        _unescrowTokens(nota.currency, to, amount - hookFee);  // hookFee stays in escrow. Should amount include the hookFee or have it removed on after?
+        _unescrowTokens(nota.currency, to, amount - hookFee);  // hookFee stays in escrow. Should `amount` include the hookFee or have it removed on after?
         _hookRevenue[nota.hook][nota.currency] += hookFee;
 
         emit Cashed(msg.sender, notaId, to, amount, hookFee, hookData);
@@ -124,7 +124,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        nota.hook.processApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
+        nota.hook.beforeApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit MetadataUpdate(notaId);
@@ -132,7 +132,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
         Nota memory nota = notaInfo(notaId);
-        (string memory hookAttributes, string memory hookKeys) = nota.hook.processTokenURI(notaId);
+        (string memory hookAttributes, string memory hookKeys) = nota.hook.beforeTokenURI(notaId);
         
         return string(
                 abi.encodePacked(
@@ -174,7 +174,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         if (hookData.length == 0) hookData = abi.encode("");
         Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.processTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
+        uint256 hookFee = nota.hook.beforeTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
 
         _notas[notaId].escrowed -= hookFee;
         _hookRevenue[nota.hook][nota.currency] += hookFee;  // NOTE could do this unchecked

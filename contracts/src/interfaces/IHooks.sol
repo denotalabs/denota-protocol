@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 interface IHooks {
-    function processWrite(
+    function beforeWrite(
         address caller,
         uint256 notaId,
         address currency,
@@ -12,7 +12,7 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (uint256);
 
-    function processTransfer(
+    function beforeTransfer(
         address caller,
         uint256 notaId,
         uint256 escrowed,
@@ -23,7 +23,7 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (uint256);
 
-    function processFund(
+    function beforeFund(
         address caller,
         uint256 notaId,
         uint256 escrowed,
@@ -33,7 +33,7 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (uint256);
 
-    function processCash(
+    function beforeCash(
         address caller,
         uint256 notaId,
         uint256 escrowed,
@@ -43,7 +43,7 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (uint256);
 
-    function processApproval(
+    function beforeApproval(
         address caller,
         uint256 notaId,
         uint256 escrowed,
@@ -51,7 +51,7 @@ interface IHooks {
         address to
     ) external;
 
-    function processTokenURI(
+    function beforeTokenURI(
         uint256 notaId
     ) external view returns (string memory, string memory);
 }
