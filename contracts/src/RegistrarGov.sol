@@ -4,13 +4,13 @@ import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
-import {INotaModule} from "./interfaces/INotaModule.sol";
+import {IHooks} from "./interfaces/IHooks.sol";
 
 // TODO setting contractURI makes tests hand for some reason
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(bytes32 module => bool isWhitelisted) internal _codeHashWhitelist;  // Could combine the two whitelists into one `address => bool`
+    mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;  // Could combine the two whitelists into one `address => bool`
     string internal _contractURI;
 
     event ContractURIUpdated();
@@ -20,14 +20,14 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         emit ContractURIUpdated();
     }
 
-    function whitelistModule(INotaModule module, bool isWhitelisted) external onlyOwner {
+    function whitelistHook(IHooks hook, bool isWhitelisted) external onlyOwner {
         bytes32 codeHash;
-        assembly { codeHash := extcodehash(module) }
+        assembly { codeHash := extcodehash(hook) }
 
         require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
         _codeHashWhitelist[codeHash] = isWhitelisted;
 
-        emit ModuleWhitelisted(_msgSender(), module, isWhitelisted);
+        emit HookWhitelisted(_msgSender(), hook, isWhitelisted);
     }
 
     function whitelistToken(address token, bool isWhitelisted) external onlyOwner {
@@ -47,17 +47,17 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         return _codeHashWhitelist[codeHash];
     }
 
-    function moduleWhitelisted(INotaModule module) public view returns (bool) {
+    function hookWhitelisted(IHooks hook) public view returns (bool) {
         bytes32 codeHash;
-        assembly { codeHash := extcodehash(module) }
+        assembly { codeHash := extcodehash(hook) }
         return _codeHashWhitelist[codeHash];
     }
 
     function validWrite(
-        INotaModule module,
+        IHooks hook,
         address token
     ) public view returns (bool) {
-        return moduleWhitelisted(module) && tokenWhitelisted(token);
+        return hookWhitelisted(hook) && tokenWhitelisted(token);
     }
 
 }

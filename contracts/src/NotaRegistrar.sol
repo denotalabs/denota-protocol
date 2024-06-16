@@ -4,8 +4,7 @@ pragma solidity ^0.8.16;
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin/utils/Base64.sol";
-import "openzeppelin/utils/Strings.sol";
-import {INotaModule} from "./interfaces/INotaModule.sol";
+import {IHooks} from "./interfaces/IHooks.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
@@ -24,22 +23,22 @@ import  "./ERC4906.sol";
  * @author Almaraz.eth
  * @custom:description Denota Protocol (beta)- a token agreement protocol.
  * The core primitive is the Nota, an NFT that represents the ownership of underlying assets and issued by the NotaRegistrar.
- * Each Nota can escrow ERC20s and references a module which enforces the rules of both the Nota's ownership and it's escrowed funds.
+ * Each Nota can escrow ERC20s and references a hook which enforces the rules of both the Nota's ownership and it's escrowed funds.
  * 
  * HOW TO USE:
  * The main relevant functions for most Notas will be WTFCAT or Write (mint), Transfer, Fund, Cash, Approve, and TokenURI.
- * Writing a Nota requires approval of: your tokens so they can be escrowed, and both module and tokens you wish to use 
- * * NOTE The `moduleBytes` parameter are special arguments needed from the module being referenced. Please refer to the module for what (if any) bytes argument format it is expecting and use an abi.encode website to assist.
- * Whitelisting of modules and tokens is controlled by the deployer (me, for now) but only apply when creating new Notas. It's permissioned for safety purposes and is the only thing the NotaRegistrar's owner controls.
+ * Writing a Nota requires approval of: your tokens so they can be escrowed, and both hook and tokens you wish to use 
+ * * NOTE The `hookData` parameter are special arguments needed from the hook being referenced. Please refer to the hook for what (if any) bytes argument format it is expecting and use an abi.encode website to assist.
+ * Whitelisting of hooks and tokens is controlled by the deployer (me, for now) but only apply when creating new Notas. It's permissioned for safety purposes and is the only thing the NotaRegistrar's owner controls.
  * Notas are compatible with NFT marketplaces, and provide detailed and trustable metadata for display.
  * HOW TO PROFIT:
- * Each module can charge a fee every time a Nota that references it is used. Registering your account to a module allows you to collect the fees the module generates
+ * Each hook can charge a fee every time a Nota that references it is used. Registering your account to a hook allows you to collect the fees the hook generates
  */
 
 contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     using SafeERC20 for IERC20;
     
-    mapping(INotaModule module => mapping(address token => uint256 revenue)) private _moduleRevenue;
+    mapping(IHooks hook => mapping(address token => uint256 revenue)) private _hookRevenue;
     mapping(uint256 notaId => Nota) private _notas;
     uint256 public totalSupply;
 
@@ -54,19 +53,19 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     /**
      * @notice Mints a Nota and transfers tokens
-     * @dev Requires module & currency whitelisted and `owner` != address(0). Transfers instant/escrow tokens from msg.sender, sends instant tokens to `owner`
+     * @dev Requires hook & currency whitelisted and `owner` != address(0). Transfers instant/escrow tokens from msg.sender, sends instant tokens to `owner`
      */
-    function write(address currency, uint256 escrowed, uint256 instant, address owner, INotaModule module, bytes calldata hookData) public payable returns (uint256) {
-        require(validWrite(module, currency), "INVALID_WRITE");
-        uint256 moduleFee = module.processWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
+    function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes calldata hookData) public payable returns (uint256) {
+        require(validWrite(hook, currency), "INVALID_WRITE");
+        uint256 hookFee = hook.processWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
 
-        _transferTokens(currency, owner, escrowed, instant, moduleFee);
+        _transferTokens(currency, owner, escrowed, instant, hookFee);
         _mint(owner, totalSupply);
-        _notas[totalSupply] = Nota(escrowed, currency, module);
+        _notas[totalSupply] = Nota(escrowed, currency, hook);
         
-        _moduleRevenue[module][currency] += moduleFee;
+        _hookRevenue[hook][currency] += hookFee;
 
-        emit Written(msg.sender, totalSupply, currency, escrowed, module, instant, moduleFee, hookData);
+        emit Written(msg.sender, totalSupply, currency, escrowed, hook, instant, hookFee, hookData);
         unchecked { return totalSupply++; }
     }
 
@@ -92,40 +91,40 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     /**
      * @notice Adds to the escrowed amount of a Nota
-     * @dev No requirements except what the module enforces
+     * @dev No requirements except what the hook enforces
      */
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
-        uint256 moduleFee = nota.module.processFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
+        uint256 hookFee = nota.hook.processFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
 
-        _transferTokens(nota.currency, notaOwner, amount, instant, moduleFee);
+        _transferTokens(nota.currency, notaOwner, amount, instant, hookFee);
         _notas[notaId].escrowed += amount;
-        _moduleRevenue[nota.module][nota.currency] += moduleFee;
+        _hookRevenue[nota.hook][nota.currency] += hookFee;
 
-        emit Funded(msg.sender, notaId, amount, instant, moduleFee, hookData);
+        emit Funded(msg.sender, notaId, amount, instant, hookFee, hookData);
         emit MetadataUpdate(notaId);
     }
 
     /**
      * @notice Removes from the escrowed amount of a Nota
-     * @dev No requirements except what the module enforces
+     * @dev No requirements except what the hook enforces
      */
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) public payable exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        uint256 moduleFee = nota.module.processCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
+        uint256 hookFee = nota.hook.processCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
 
         _notas[notaId].escrowed -= amount;
-        _unescrowTokens(nota.currency, to, amount - moduleFee);  // moduleFee stays in escrow. Should amount include the moduleFee or have it removed on after?
-        _moduleRevenue[nota.module][nota.currency] += moduleFee;
+        _unescrowTokens(nota.currency, to, amount - hookFee);  // hookFee stays in escrow. Should amount include the hookFee or have it removed on after?
+        _hookRevenue[nota.hook][nota.currency] += hookFee;
 
-        emit Cashed(msg.sender, notaId, to, amount, moduleFee, hookData);
+        emit Cashed(msg.sender, notaId, to, amount, hookFee, hookData);
         emit MetadataUpdate(notaId);
     }
 
     function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        nota.module.processApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
+        nota.hook.processApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit MetadataUpdate(notaId);
@@ -133,7 +132,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
         Nota memory nota = notaInfo(notaId);
-        (string memory moduleAttributes, string memory moduleKeys) = nota.module.processTokenURI(notaId);
+        (string memory hookAttributes, string memory hookKeys) = nota.hook.processTokenURI(notaId);
         
         return string(
                 abi.encodePacked(
@@ -145,12 +144,12 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
                                 Strings.toHexString(nota.currency),
                                 '"},{"trait_type":"Escrowed","display_type":"number","value":',
                                 Strings.toString(nota.escrowed),
-                                '},{"trait_type":"Module","value":"',
-                                Strings.toHexString(address(nota.module)),
+                                '},{"trait_type":"Hook","value":"',
+                                Strings.toHexString(address(nota.hook)),
                                 '"}',
-                                moduleAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
+                                hookAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
                                 ']',
-                                moduleKeys, // of form: ',{"<key>":"<value>"}
+                                hookKeys, // of form: ',{"<key>":"<value>"}
                                 '}'
                             )
                         )
@@ -175,11 +174,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         if (hookData.length == 0) hookData = abi.encode("");
         Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 moduleFee = nota.module.processTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
+        uint256 hookFee = nota.hook.processTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
 
-        _notas[notaId].escrowed -= moduleFee;
-        _moduleRevenue[nota.module][nota.currency] += moduleFee;  // NOTE could do this unchecked
-        emit Transferred(msg.sender, notaId, moduleFee, hookData);
+        _notas[notaId].escrowed -= hookFee;
+        _hookRevenue[nota.hook][nota.currency] += hookFee;  // NOTE could do this unchecked
+        emit Transferred(msg.sender, notaId, hookFee, hookData);
     }
 
     function _instantTokens(address currency, address to, uint256 instant) private {
@@ -196,28 +195,28 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         address recipient,
         uint256 escrowed,
         uint256 instant,
-        uint256 moduleFee
+        uint256 hookFee
     ) private {
-        uint256 toEscrow = escrowed + moduleFee;
+        uint256 toEscrow = escrowed + hookFee;
         _escrowTokens(currency, toEscrow);
         _instantTokens(currency, recipient, instant);
     }
 
     /**
-     * @notice Updates the metadata of a Nota when module state changes without calling the registrar
+     * @notice Updates the metadata of a Nota when hook state changes without calling the registrar
      */
     function metadataUpdate(uint256 notaId) external {
-        require(msg.sender == address(_notas[notaId].module), "NOT_MODULE");
+        require(msg.sender == address(_notas[notaId].hook), "NOT_MODULE");
         emit MetadataUpdate(notaId);
     }
 
-    function moduleWithdraw(address token, uint256 amount, address to) external {
-        _moduleRevenue[INotaModule(msg.sender)][token] -= amount;  // reverts on underflow
+    function hookWithdraw(address token, uint256 amount, address to) external {
+        _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
         _unescrowTokens(token, to, amount);
     }
 
-    function moduleRevenue(INotaModule module, address currency) external view returns(uint256) {
-        return _moduleRevenue[module][currency];
+    function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
+        return _hookRevenue[hook][currency];
     }
 
     function notaInfo(
@@ -234,7 +233,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         return _notas[notaId].currency;
     }
 
-    function notaModule(uint256 notaId) public view exists(notaId) returns (INotaModule) {
-        return _notas[notaId].module;
+    function notaHook(uint256 notaId) public view exists(notaId) returns (IHooks) {
+        return _notas[notaId].hook;
     }
 }
