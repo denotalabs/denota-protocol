@@ -130,6 +130,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
+    function burn(uint256 notaId) public exists(notaId) {
+        Nota memory nota = notaInfo(notaId);
+        require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
+
+        nota.hook.beforeBurn(msg.sender, notaId, nota.escrowed, ownerOf(notaId));
+        
+        _hookRevenue[nota.hook][nota.currency] += nota.escrowed;
+        delete _notas[notaId];
+        _burn(notaId);
+    }
+
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
         Nota memory nota = notaInfo(notaId);
         (string memory hookAttributes, string memory hookKeys) = nota.hook.beforeTokenURI(notaId);
