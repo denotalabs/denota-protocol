@@ -240,25 +240,25 @@ esac
 
 read -p "These values correct?" userInput
 
-# Generate moduleBytes based on transaction type
+# Generate hookData based on transaction type
 if [[ "$transactionType" == "0" ]]; then
-    moduleBytes=$(cast abi-encode "f(uint256,uint256,uint256,string,string)" "${expirationDate}" "${dripAmount}" "${dripPeriod}" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(uint256,uint256,uint256,string,string)" "${expirationDate}" "${dripAmount}" "${dripPeriod}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "1" ]]; then
-    moduleBytes=$(cast abi-encode "f(uint256,string,string)" "${cashByDate}" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(uint256,string,string)" "${cashByDate}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "2" ]]; then
-    moduleBytes=$(cast abi-encode "f(address,uint256,string,string)" "${inspector}" "${cashByDate}" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(address,uint256,string,string)" "${inspector}" "${cashByDate}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "3" ]]; then
-    moduleBytes=$(cast abi-encode "f(address,string,string)" "${inspector}" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(address,string,string)" "${inspector}" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "4" ]]; then
-    moduleBytes=$(cast abi-encode "f(string,string)" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(string,string)" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "5" ]]; then
-    moduleBytes=$(cast abi-encode "f(string,string)" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(string,string)" "${externalURL}" "${imageURL}")
 elif [[ "$transactionType" == "6" ]]; then
-    moduleBytes=$(cast abi-encode "f(address,uint8,uint96,uint256,string,string)" "${NFTAddress}" "${ConditionType}" "${expirationDate}" "${threshold}" "${externalURL}" "${imageURL}")
+    hookData=$(cast abi-encode "f(address,uint8,uint96,uint256,string,string)" "${NFTAddress}" "${ConditionType}" "${expirationDate}" "${threshold}" "${externalURL}" "${imageURL}")
 else
     echo "Invalid option selected."
     exit 1
 fi
 
 # Execute the transaction
-cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${module} ${moduleBytes} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000
+cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${module} ${hookData} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} --gas-price 90000000000

@@ -5,11 +5,10 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "openzeppelin/utils/Base64.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {INotaModule} from "../src/interfaces/INotaModule.sol";
-import {Nota} from "../src/libraries/DataTypes.sol";
+import {IHooks} from "../src/interfaces/IHooks.sol";
 import "./mock/erc20.sol";
 
-// TODO ensure failure on 0 escrow but moduleFee (or should module handle that??)
+// TODO ensure failure on 0 escrow but hookFee
 // TODO test event emission
 // TODO have WTFCA vm.assumptions in helpers (owner != address(0), from == owner, etc)
 // Add invariant tests for registrar here (token transfers, etc)
@@ -46,16 +45,16 @@ contract RegistrarTest is Test {
     }
 
     function _calcTotalFees(
-        INotaModule module,
+        IHooks hook,
         uint256 escrowed,
         uint256 instant
     ) internal view returns (uint256) {
-        // WTFCFees memory fees = module.getFees(address(0));
+        // WTFCFees memory fees = hook.getFees(address(0));
         uint256 totalTransfer = instant + escrowed;
         
-        uint256 moduleFee = 0; //safeFeeMult(fees.writeBPS, totalTransfer);
-        console.log("Module Fee: ", moduleFee);
-        uint256 totalWithFees = totalTransfer + moduleFee;
+        uint256 hookFee = 0; //safeFeeMult(fees.writeBPS, totalTransfer);
+        console.log("Hook Fee: ", hookFee);
+        uint256 totalWithFees = totalTransfer + hookFee;
         console.log(totalTransfer, "-->", totalWithFees);
         return totalWithFees;
     }
@@ -95,28 +94,28 @@ contract RegistrarTest is Test {
         // Remove from whitelist
         _registrarTokenWhitelistToggleHelper(address(DAI), true); // true -> false
     }
-    function _registrarModuleWhitelistToggleHelper(INotaModule module, bool alreadyWhitelisted) internal {
-        bool isWhitelisted = REGISTRAR.moduleWhitelisted(module);
+    function _registrarHookWhitelistToggleHelper(IHooks hook, bool alreadyWhitelisted) internal {
+        bool isWhitelisted = REGISTRAR.hookWhitelisted(hook);
         if (alreadyWhitelisted){
             assertTrue(isWhitelisted, "Not Whitelisted");
 
-            REGISTRAR.whitelistModule(module, false);
+            REGISTRAR.whitelistHook(hook, false);
 
-            assertFalse(REGISTRAR.moduleWhitelisted(module), "Address Still Whitelisted");
+            assertFalse(REGISTRAR.hookWhitelisted(hook), "Address Still Whitelisted");
         } else {
             assertFalse(isWhitelisted, "Already Whitelisted");
 
-            REGISTRAR.whitelistModule(module, true);
+            REGISTRAR.whitelistHook(hook, true);
 
-            assertTrue(REGISTRAR.moduleWhitelisted(module), "Address Not Whitelisted");
+            assertTrue(REGISTRAR.hookWhitelisted(hook), "Address Not Whitelisted");
         }
     }
 
-    function testWhitelistModule(INotaModule module) public {
+    function testWhitelistHook(IHooks hook) public {
         // Add whitelist
-        _registrarModuleWhitelistToggleHelper(module, false);
+        _registrarHookWhitelistToggleHelper(hook, false);
         // Remove whitelist
-        _registrarModuleWhitelistToggleHelper(module, true);
+        _registrarHookWhitelistToggleHelper(hook, true);
     }
 
     function _URIFormat(string memory _string) internal pure returns (string memory) {
@@ -134,7 +133,7 @@ contract RegistrarTest is Test {
         assertEq(REGISTRAR.contractURI(), _URIFormat(newContractURI), "Contract URI should be updated");
     }
 
-/*---------------------------------- Can't test these without a module ------------------------------------*/
+/*---------------------------------- Can't test these without a hook ------------------------------------*/
 
     function _registrarWriteAssumptions(
         address caller,
@@ -143,7 +142,7 @@ contract RegistrarTest is Test {
         address owner
     ) internal {
         vm.assume(caller != address(0) && caller != owner && owner != address(0));
-        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this));  // TODO
+        vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this) && owner != address(this));  // TODO
         vm.assume((escrow/2 + instant/2) < TOKENS_CREATED / 2);
 
         vm.label(caller, "Writer");
@@ -177,16 +176,16 @@ contract RegistrarTest is Test {
         uint256 escrowed,
         uint256 instant,
         address owner,
-        INotaModule module,
-        bytes memory moduleBytes
+        IHooks hook,
+        bytes memory hookData
         ) internal returns(uint256 notaId) {
         uint256 initialTotalSupply = REGISTRAR.totalSupply();
         uint256 initialOwnerBalance = REGISTRAR.balanceOf(owner);
         uint256 initialCallerTokenBalance = IERC20(currency).balanceOf(caller);
         uint256 initialOwnerTokenBalance = IERC20(currency).balanceOf(owner);
-        uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(module, currency);
-        uint256 totalAmount = _calcTotalFees(module, escrowed, instant);
-        uint256 moduleFee = totalAmount - (escrowed + instant);
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(hook, currency);
+        uint256 totalAmount = _calcTotalFees(hook, escrowed, instant);
+        uint256 hookFee = totalAmount - (escrowed + instant);
         
         // bytes4 selector = bytes4(keccak256("NotMinted()"));
         // vm.expectRevert(abi.encodeWithSelector(selector, 1, 2) ); // TODO not working (0x4d5e5fb3 != ), nor hardcoding (0x4d5e5fb3 != 0x4d5e5fb3)
@@ -198,19 +197,19 @@ contract RegistrarTest is Test {
             escrowed,
             instant,
             owner,
-            module,
-            moduleBytes
+            hook,
+            hookData
         ); 
         
         assertEq(REGISTRAR.totalSupply(), initialTotalSupply + 1, "Nota supply didn't increment");
         assertEq(REGISTRAR.balanceOf(owner), initialOwnerBalance + 1, "Owner balance didn't increment");
         assertEq(REGISTRAR.ownerOf(notaId), owner, "`owner` isn't owner of nota");
-        assertEq(REGISTRAR.moduleRevenue(module, currency), initialModuleRevenue + moduleFee, "Module revenue didn't increase");
+        assertEq(REGISTRAR.hookRevenue(hook, currency), initialHookRevenue + hookFee, "Hook revenue didn't increase");
 
-        Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
+        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
         assertEq(postNota.currency, currency, "Incorrect token");
         assertEq(postNota.escrowed, escrowed, "Incorrect escrow");
-        assertEq(address(postNota.module), address(module), "Incorrect module");
+        assertEq(address(postNota.hook), address(hook), "Incorrect hook");
 
         assertEq(IERC20(currency).balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
         assertEq(IERC20(currency).balanceOf(owner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
@@ -234,43 +233,43 @@ contract RegistrarTest is Test {
         assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
     }
 
-    function _registrarFundHelper(address caller, uint256 notaId, uint256 amount, uint256 instant, bytes memory moduleBytes) internal {
-        Nota memory preNota = REGISTRAR.notaInfo(notaId);
+    function _registrarFundHelper(address caller, uint256 notaId, uint256 amount, uint256 instant, bytes memory hookData) internal {
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         address notaOwner = REGISTRAR.ownerOf(notaId);
         
         IERC20 currency = IERC20(preNota.currency);
         uint256 initialCallerTokenBalance = currency.balanceOf(caller);
         uint256 initialOwnerTokenBalance = currency.balanceOf(notaOwner);
-        uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(preNota.module, address(currency));
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hook, address(currency));
         
-        uint256 totalAmount = _calcTotalFees(preNota.module, amount, instant);
-        uint256 moduleFee = totalAmount - (amount + instant);
+        uint256 totalAmount = _calcTotalFees(preNota.hook, amount, instant);
+        uint256 hookFee = totalAmount - (amount + instant);
 
         vm.prank(caller);
-        REGISTRAR.fund(notaId, amount, instant, moduleBytes);
+        REGISTRAR.fund(notaId, amount, instant, hookData);
 
         assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount, "Escrowed amount didn't increment properly");
         assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
-        assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
+        assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
     }
 
-    function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory moduleBytes) internal {
-        Nota memory preNota = REGISTRAR.notaInfo(notaId);
+    function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory hookData) internal {
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         // address notaOwner = REGISTRAR.ownerOf(notaId);
 
         IERC20 currency = IERC20(preNota.currency);
         uint256 initialToTokenBalance = currency.balanceOf(to);
-        uint256 initialModuleRevenue = REGISTRAR.moduleRevenue(preNota.module, address(currency));
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hook, address(currency));
         
-        uint256 totalAmount = _calcTotalFees(preNota.module, amount, 0);
-        uint256 moduleFee = totalAmount - amount;
+        uint256 totalAmount = _calcTotalFees(preNota.hook, amount, 0);
+        uint256 hookFee = totalAmount - amount;
 
         vm.prank(caller);
-        REGISTRAR.cash(notaId, amount, to, moduleBytes);
+        REGISTRAR.cash(notaId, amount, to, hookData);
 
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
          assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
-         assertEq(initialModuleRevenue, REGISTRAR.moduleRevenue(preNota.module, address(currency)) + moduleFee, "Owner currency balance didn't decrease");
+         assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
     }
 }
