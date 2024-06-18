@@ -43,13 +43,13 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (uint256);
 
-    function beforeApproval(
+    function beforeApprove(
         address caller,
         uint256 notaId,
         uint256 escrowed,
         address owner,
         address to
-    ) external;
+    ) external returns (uint256);
 
     function beforeBurn(
         address caller,

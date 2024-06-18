@@ -124,9 +124,13 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
     function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
         Nota memory nota = notaInfo(notaId);
-        nota.hook.beforeApproval(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
+        uint256 hookFee = nota.hook.beforeApprove(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
+
+        _notas[notaId].escrowed -= hookFee;
+        _hookRevenue[nota.hook][nota.currency] += hookFee;
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
+        emit Approved(msg.sender, notaId, hookFee);
         emit MetadataUpdate(notaId);
     }
 

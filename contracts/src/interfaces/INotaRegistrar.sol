@@ -57,6 +57,11 @@ interface INotaRegistrar {
         uint256 hookFee,
         bytes hookData
     );
+    event Approved(
+        address indexed approver,
+        uint256 indexed notaId,
+        uint256 hookFee
+    );
 
     error NonExistent();
     error InvalidWrite(IHooks, address);
