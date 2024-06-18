@@ -51,6 +51,13 @@ interface IHooks {
         address to
     ) external;
 
+    function beforeBurn(
+        address caller,
+        uint256 notaId,
+        uint256 escrowed,
+        address owner
+    ) external;
+
     function beforeTokenURI(
         uint256 notaId
     ) external view returns (string memory, string memory);

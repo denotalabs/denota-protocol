@@ -179,7 +179,7 @@ contract RegistrarTest is Test {
         IHooks hook,
         bytes memory hookData
         ) internal returns(uint256 notaId) {
-        uint256 initialTotalSupply = REGISTRAR.totalSupply();
+        uint256 initialId = REGISTRAR.nextId();
         uint256 initialOwnerBalance = REGISTRAR.balanceOf(owner);
         uint256 initialCallerTokenBalance = IERC20(currency).balanceOf(caller);
         uint256 initialOwnerTokenBalance = IERC20(currency).balanceOf(owner);
@@ -189,7 +189,7 @@ contract RegistrarTest is Test {
         
         // bytes4 selector = bytes4(keccak256("NotMinted()"));
         // vm.expectRevert(abi.encodeWithSelector(selector, 1, 2) ); // TODO not working (0x4d5e5fb3 != ), nor hardcoding (0x4d5e5fb3 != 0x4d5e5fb3)
-        // REGISTRAR.notaInfo(initialTotalSupply);
+        // REGISTRAR.notaInfo(initialId);
 
         vm.prank(caller);
         notaId = REGISTRAR.write(
@@ -201,12 +201,12 @@ contract RegistrarTest is Test {
             hookData
         ); 
         
-        assertEq(REGISTRAR.totalSupply(), initialTotalSupply + 1, "Nota supply didn't increment");
+        assertEq(REGISTRAR.nextId(), initialId + 1, "NextId didn't increment");
         assertEq(REGISTRAR.balanceOf(owner), initialOwnerBalance + 1, "Owner balance didn't increment");
         assertEq(REGISTRAR.ownerOf(notaId), owner, "`owner` isn't owner of nota");
         assertEq(REGISTRAR.hookRevenue(hook, currency), initialHookRevenue + hookFee, "Hook revenue didn't increase");
 
-        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(initialTotalSupply);
+        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(initialId);
         assertEq(postNota.currency, currency, "Incorrect token");
         assertEq(postNota.escrowed, escrowed, "Incorrect escrow");
         assertEq(address(postNota.hook), address(hook), "Incorrect hook");
@@ -218,7 +218,7 @@ contract RegistrarTest is Test {
 
     function _registrarTransferHelper(address caller, address from, address to, uint256 notaId) internal {
         // Initial state
-        uint256 initialTotalSupply = REGISTRAR.totalSupply();
+        uint256 initialId = REGISTRAR.nextId();
         uint256 initialFromBalance = REGISTRAR.balanceOf(from);
         uint256 initialToBalance = REGISTRAR.balanceOf(to);
         assertEq(REGISTRAR.ownerOf(notaId), from, "Recipient should be the new owner of the token");
@@ -227,7 +227,7 @@ contract RegistrarTest is Test {
         REGISTRAR.transferFrom(from, to, notaId);
 
         // Verify state transition
-        assertEq(REGISTRAR.totalSupply(), initialTotalSupply, "Total supply should remain unchanged");
+        assertEq(REGISTRAR.nextId(), initialId, "NextId should remain unchanged");
         assertEq(REGISTRAR.balanceOf(from), initialFromBalance - 1, "Sender's balance should decrease by 1");
         assertEq(REGISTRAR.balanceOf(to), initialToBalance + 1, "Recipient's balance should increase by 1");
         assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
@@ -271,5 +271,31 @@ contract RegistrarTest is Test {
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
          assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
          assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
+    }
+
+    function _registrarBurnHelper(address caller, uint256 notaId) internal {
+        // Initial state
+        address owner = REGISTRAR.ownerOf(notaId);
+        address approved = REGISTRAR.getApproved(notaId);
+        vm.assume(caller == owner || caller == approved);
+
+        uint256 ownerBalance = REGISTRAR.balanceOf(owner);
+        uint256 initialId = REGISTRAR.nextId();
+        REGISTRAR.notaInfo(notaId);
+
+        vm.prank(caller);
+        REGISTRAR.burn(notaId);
+
+        // Verify state transition
+        assertEq(REGISTRAR.balanceOf(owner), ownerBalance - 1, "Sender's balance should decrease by 1");
+
+        vm.expectRevert();
+        assertEq(REGISTRAR.getApproved(notaId), address(0), "Approved address should be 0");
+        vm.expectRevert();
+        REGISTRAR.ownerOf(notaId);
+        vm.expectRevert();
+        REGISTRAR.notaInfo(notaId);
+
+        assertEq(REGISTRAR.nextId(), initialId, "Next ID should remain unchanged");
     }
 }

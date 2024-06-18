@@ -40,7 +40,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     
     mapping(IHooks hook => mapping(address token => uint256 revenue)) private _hookRevenue;
     mapping(uint256 notaId => Nota) private _notas;
-    uint256 public totalSupply;
+    uint256 public nextId;
 
     modifier exists(uint256 notaId) {
         if (_ownerOf(notaId) == address(0)) revert NonExistent();
@@ -57,16 +57,16 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
      */
     function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes calldata hookData) public payable returns (uint256) {
         require(validWrite(hook, currency), "INVALID_WRITE");
-        uint256 hookFee = hook.beforeWrite(msg.sender, totalSupply, currency, escrowed, owner, instant, hookData);
+        uint256 hookFee = hook.beforeWrite(msg.sender, nextId, currency, escrowed, owner, instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, hookFee);
-        _mint(owner, totalSupply);
-        _notas[totalSupply] = Nota(escrowed, currency, hook);
+        _mint(owner, nextId);
+        _notas[nextId] = Nota(escrowed, currency, hook);
         
         _hookRevenue[hook][currency] += hookFee;
 
-        emit Written(msg.sender, totalSupply, currency, escrowed, hook, instant, hookFee, hookData);
-        unchecked { return totalSupply++; }
+        emit Written(msg.sender, nextId, currency, escrowed, hook, instant, hookFee, hookData);
+        unchecked { return nextId++; }
     }
 
     /**
@@ -128,6 +128,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit MetadataUpdate(notaId);
+    }
+
+    function burn(uint256 notaId) public exists(notaId) {
+        Nota memory nota = notaInfo(notaId);
+        require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
+
+        nota.hook.beforeBurn(msg.sender, notaId, nota.escrowed, ownerOf(notaId));
+        
+        _hookRevenue[nota.hook][nota.currency] += nota.escrowed;
+        delete _notas[notaId];
+        _burn(notaId);
     }
 
     function tokenURI(uint256 notaId) public view override exists(notaId) returns (string memory) {
