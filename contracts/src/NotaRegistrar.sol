@@ -155,11 +155,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
-                                '{"attributes":[{"trait_type":"Currency","value":"',
+                                '{"attributes":[{"trait_type":"ERC20","value":"',
                                 Strings.toHexString(nota.currency),
-                                '"},{"trait_type":"Escrowed","display_type":"number","value":',
+                                '"},{"trait_type":"Amount","display_type":"number","value":',
                                 Strings.toString(nota.escrowed),
-                                '},{"trait_type":"Hook","value":"',
+                                '},{"trait_type":"Wrapper","value":"',
                                 Strings.toHexString(address(nota.hook)),
                                 '"}',
                                 hookAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
