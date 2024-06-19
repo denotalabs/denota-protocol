@@ -66,6 +66,11 @@ interface INotaRegistrar {
     error NonExistent();
     error InvalidWrite(IHooks, address);
 
+    /**
+     * @notice Mints a Nota and transfers tokens
+     * @dev Requires hook & currency whitelisted and `owner` != address(0). Transfers instant/escrow tokens from msg.sender, sends instant tokens to `owner`
+     */
+
     function write(
         address currency,
         uint256 escrowed,
@@ -84,8 +89,14 @@ interface INotaRegistrar {
     //     bytes calldata hookData
     // ) external payable returns (uint256);
 
+    /**
+     * @dev Enforces the transfer requirements (isApprovedOrOwner) before transferHook is called
+     */
     function transferFrom(address from, address to, uint256 tokenId) external;
 
+    /**
+     * @dev Enforces the transfer requirements (isApprovedOrOwner) before transferHook is called
+     */
     function safeTransferFrom(
         address from,
         address to,
@@ -93,6 +104,10 @@ interface INotaRegistrar {
         bytes memory hookData
     ) external;
 
+    /**
+     * @notice Adds to the escrowed amount of a Nota
+     * @dev No requirements except what the hook enforces
+     */
     function fund(
         uint256 notaId,
         uint256 amount,
@@ -100,6 +115,10 @@ interface INotaRegistrar {
         bytes calldata hookData
     ) external payable;
 
+    /**
+     * @notice Removes from the escrowed amount of a Nota
+     * @dev No requirements except what the hook enforces
+     */
     function cash(
         uint256 notaId,
         uint256 amount,
