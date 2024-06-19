@@ -159,7 +159,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
                                 Strings.toHexString(nota.currency),
                                 '"},{"trait_type":"Amount","display_type":"number","value":',
                                 Strings.toString(nota.escrowed),
-                                '},{"trait_type":"Wrapper","value":"',
+                                '},{"trait_type":"Escrow Conditions","value":"', // Wrapper vs Hook vs Conditions vs Conditions Contract
                                 Strings.toHexString(address(nota.hook)),
                                 '"}',
                                 hookAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
