@@ -67,7 +67,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     /// @inheritdoc INotaRegistrar
-    function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
+    function transferFrom(address from, address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) {
         _transferHookTakeFee(from, to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
         emit MetadataUpdate(notaId);
@@ -86,7 +86,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     /// @inheritdoc INotaRegistrar
-    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) public payable exists(notaId) {
+    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) public payable {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
         uint256 hookFee = nota.hook.beforeFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
@@ -100,7 +100,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     /// @inheritdoc INotaRegistrar
-    function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) public payable exists(notaId) {
+    function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) public payable {
         Nota memory nota = notaInfo(notaId);
         uint256 hookFee = nota.hook.beforeCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
 
@@ -113,7 +113,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
     }
 
     /// @inheritdoc INotaRegistrar
-    function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) exists(notaId) {
+    function approve(address to, uint256 notaId) public override(ERC721, IERC721, INotaRegistrar) {
         Nota memory nota = notaInfo(notaId);
         uint256 hookFee = nota.hook.beforeApprove(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
 
