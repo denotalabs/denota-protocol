@@ -6,6 +6,7 @@ import "forge-std/console.sol";
 import "openzeppelin/utils/Base64.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {IHooks} from "../src/interfaces/IHooks.sol";
+import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
 import "./mock/erc20.sol";
 
 // TODO ensure failure on 0 escrow but hookFee
@@ -289,11 +290,13 @@ contract RegistrarTest is Test {
         // Verify state transition
         assertEq(REGISTRAR.balanceOf(owner), ownerBalance - 1, "Sender's balance should decrease by 1");
 
-        vm.expectRevert();
+        vm.expectRevert("ERC721: invalid token ID");
         assertEq(REGISTRAR.getApproved(notaId), address(0), "Approved address should be 0");
-        vm.expectRevert();
+
+        vm.expectRevert("ERC721: invalid token ID");
         REGISTRAR.ownerOf(notaId);
-        vm.expectRevert();
+
+        vm.expectRevert(INotaRegistrar.NonExistent.selector);
         REGISTRAR.notaInfo(notaId);
 
         assertEq(REGISTRAR.nextId(), initialId, "Next ID should remain unchanged");
