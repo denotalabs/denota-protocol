@@ -217,15 +217,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov {
         emit MetadataUpdate(notaId);
     }
 
-    function hookWithdraw(address token, uint256 amount, address to) external {
-        _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
-        _unescrowTokens(token, to, amount);
-    }
-
-    function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
-        return _hookRevenue[hook][currency];
-    }
-
     function notaInfo(uint256 notaId) public view exists(notaId) returns (Nota memory) {
         return _notas[notaId];
     }
