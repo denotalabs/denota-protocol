@@ -12,17 +12,11 @@ import {IHooks} from "../interfaces/IHooks.sol";
  */
 interface INotaRegistrar {
     struct Nota {
-        uint256 escrowed; // Slot 1
+        uint256 escrowed; // Slot1
         address currency; // Slot2
         /* 96 bits free */
-        IHooks hook; // Slot3 /// Hook packing: mapping(IHooks hook => uint96 index) and store uint96 here
+        IHooks hook; // Slot3
         /* 96 bits free */
-
-        // address owner; // Slot4 (160)
-        /* 96 bits free */
-        // address approved; // Slot5 (160)
-        /* 96 bits free */
-        // AssetType assetType; (8 bits)
     }
 
     event Written (
@@ -66,6 +60,10 @@ interface INotaRegistrar {
     error NonExistent();
     error InvalidWrite(IHooks, address);
 
+    /**
+     * @notice Mints a Nota and transfers tokens
+     * @dev Requires hook & currency whitelisted and `owner` != address(0). Transfers instant/escrow tokens from msg.sender, sends instant tokens to `owner`
+     */
     function write(
         address currency,
         uint256 escrowed,
@@ -75,17 +73,15 @@ interface INotaRegistrar {
         bytes calldata hookData
     ) external payable returns (uint256);
 
-    // function safeWrite(
-    //     address currency,
-    //     uint256 escrowed,
-    //     uint256 instant,
-    //     address owner,
-    //     address hook,
-    //     bytes calldata hookData
-    // ) external payable returns (uint256);
-
+    /**
+     * @notice Transfers a Nota
+     * @dev Enforces the transfer requirements (isApprovedOrOwner) before transferHook is called
+     */
     function transferFrom(address from, address to, uint256 tokenId) external;
 
+    /**
+     * @dev Enforces the transfer requirements (isApprovedOrOwner) before transferHook is called
+     */
     function safeTransferFrom(
         address from,
         address to,
@@ -93,6 +89,10 @@ interface INotaRegistrar {
         bytes memory hookData
     ) external;
 
+    /**
+     * @notice Adds to the escrowed amount of a Nota
+     * @dev No requirements except what the hook enforces
+     */
     function fund(
         uint256 notaId,
         uint256 amount,
@@ -100,6 +100,10 @@ interface INotaRegistrar {
         bytes calldata hookData
     ) external payable;
 
+    /**
+     * @notice Removes from the escrowed amount of a Nota
+     * @dev No requirements except what the hook enforces
+     */
     function cash(
         uint256 notaId,
         uint256 amount,
@@ -107,7 +111,17 @@ interface INotaRegistrar {
         bytes calldata hookData
     ) external payable;
 
+    /**
+     * @notice Approves a Nota for transfer
+     * @dev Caller must be the owner of the Nota or operator for the owner
+     */
     function approve(address to, uint256 tokenId) external;
+
+    /**
+     * @notice Burns the Nota's ownership, deletes notaInfo, and moves remaining escrowed funds to the hook's revenue
+     * @dev Caller must be approved or the owner of the Nota
+     */
+    function burn(uint256 notaId) external;
 
     function notaInfo(uint256 notaId) external view returns (Nota memory);
     
@@ -116,8 +130,4 @@ interface INotaRegistrar {
     function notaEscrowed(uint256 notaId) external view returns (uint256);
 
     function notaHook(uint256 notaId) external view returns (IHooks);
-
-    function hookWithdraw(address token, uint256 amount, address payoutAccount) external;
-
-    function hookRevenue(IHooks hook, address currency) external view returns(uint256);
 }

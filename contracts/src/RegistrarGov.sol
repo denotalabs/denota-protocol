@@ -10,6 +10,7 @@ import {IHooks} from "./interfaces/IHooks.sol";
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
+    mapping(IHooks hook => mapping(address token => uint256 revenue)) private _hookRevenue;
     mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;  // Could combine the two whitelists into one `address => bool`
     string internal _contractURI;
 
@@ -58,6 +59,15 @@ contract RegistrarGov is Ownable, IRegistrarGov {
         address token
     ) public view returns (bool) {
         return hookWhitelisted(hook) && tokenWhitelisted(token);
+    }
+
+    function hookWithdraw(address token, uint256 amount, address to) external {
+        _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
+        if (amount > 0) IERC20(token).safeTransfer(to, amount);
+    }
+
+    function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
+        return _hookRevenue[hook][currency];
     }
 
 }
