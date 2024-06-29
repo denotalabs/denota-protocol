@@ -5,8 +5,8 @@ import "openzeppelin/security/ReentrancyGuard.sol";
 import "openzeppelin/token/ERC721/ERC721.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin/utils/Base64.sol";
-import {IHooks} from "./interfaces/IHooks.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
+import {IHooks} from "./interfaces/IHooks.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
 
@@ -22,24 +22,11 @@ import  "./ERC4906.sol";
  * =======================
  * @title Denota Protocol
  * @author Almaraz.eth
- * @custom:description Denota Protocol (beta)- a token agreement protocol.
- * The core primitive is the Nota, an NFT that represents the ownership of underlying assets and issued by the NotaRegistrar.
- * Each Nota can escrow ERC20s and references a hook which enforces the rules of both the Nota's ownership and it's escrowed funds.
- * 
- * HOW TO USE:
- * The main relevant functions for most Notas will be WTFCAT or Write (mint), Transfer, Fund, Cash, Approve, and TokenURI.
- * Writing a Nota requires approval of: your tokens so they can be escrowed, and both hook and tokens you wish to use 
- * * NOTE The `hookData` parameter are special arguments needed from the hook being referenced. Please refer to the hook for what (if any) bytes argument format it is expecting and use an abi.encode website to assist.
- * Whitelisting of hooks and tokens is controlled by the deployer (me, for now) but only apply when creating new Notas. It's permissioned for safety purposes and is the only thing the NotaRegistrar's owner controls.
- * Notas are compatible with NFT marketplaces, and provide detailed and trustable metadata for display.
- * HOW TO PROFIT:
- * Each hook can charge a fee every time a Nota that references it is used. Registering your account to a hook allows you to collect the fees the hook generates
  */
 
 contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard {
     using SafeERC20 for IERC20;
-    
-    mapping(IHooks hook => mapping(address token => uint256 revenue)) private _hookRevenue;
+
     mapping(uint256 notaId => Nota) private _notas;
     uint256 public nextId;
 
@@ -174,18 +161,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         emit MetadataUpdate(notaId);
     }
 
-    function contractURI() external view returns (string memory) {
-        return string.concat("data:application/json;utf8,", _contractURI);
-    }
-
-    /*//////////////////////// HELPERS ///////////////////////////*/
+    /*//////////////////////// HELPERS ///////////////////////////*/ // TODO move these to a library??
     function _transferHookTakeFee(
         address from,
         address to,
         uint256 notaId,
         bytes memory hookData
     ) private {
-        require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
+        require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");  // Can't use builtin transfer since check and _transfer is atomic
 
         if (hookData.length == 0) hookData = abi.encode("");
         Nota memory nota = notaInfo(notaId);
@@ -218,6 +201,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         _instantTokens(currency, recipient, instant);
     }
 
+    /*//////////////////////// VIEW FUNCTIONS ///////////////////////////*/
     function notaInfo(uint256 notaId) public view exists(notaId) returns (Nota memory) {
         return _notas[notaId];
     }

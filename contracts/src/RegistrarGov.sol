@@ -1,24 +1,28 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.16;
 import "openzeppelin/access/Ownable.sol";
-import "openzeppelin/token/ERC20/IERC20.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 import {IHooks} from "./interfaces/IHooks.sol";
 
-// TODO setting contractURI makes tests hand for some reason
+// TODO setting contractURI makes tests hang for some reason
 contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
-    mapping(IHooks hook => mapping(address token => uint256 revenue)) private _hookRevenue;
-    mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;  // Could combine the two whitelists into one `address => bool`
+    mapping(IHooks hook => mapping(address token => uint256 revenue)) internal _hookRevenue;
+    mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;
     string internal _contractURI;
 
     event ContractURIUpdated();
+    event HookWithdraw(address indexed hook, address indexed token, uint256 amount, address indexed to);
 
     function setContractURI(string calldata uri) external onlyOwner {
         _contractURI = uri;
         emit ContractURIUpdated();
+    }
+
+    function contractURI() external view returns (string memory) {
+        return string.concat("data:application/json;utf8,", _contractURI);
     }
 
     function whitelistHook(IHooks hook, bool isWhitelisted) external onlyOwner {
@@ -64,6 +68,7 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     function hookWithdraw(address token, uint256 amount, address to) external {
         _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
         if (amount > 0) IERC20(token).safeTransfer(to, amount);
+        emit HookWithdraw(msg.sender, token, amount, to);
     }
 
     function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
