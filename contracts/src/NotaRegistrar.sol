@@ -42,7 +42,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     /// @inheritdoc INotaRegistrar
     function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes calldata hookData) external payable nonReentrant returns (uint256) {
         require(validWrite(hook, currency), "INVALID_WRITE");
-        uint256 hookFee = hook.beforeWrite(msg.sender, nextId, currency, escrowed, owner, instant, hookData);
+        uint256 hookFee = hook.beforeWrite(msg.sender, IHooks.NotaState(nextId, currency, escrowed, owner, address(0)), instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, hookFee);
         _mint(owner, nextId);
@@ -77,7 +77,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) external payable nonReentrant {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.beforeFund(msg.sender, notaId, nota.escrowed, notaOwner, amount, instant, hookData);
+        uint256 hookFee = nota.hook.beforeFund(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, notaOwner, getApproved(notaId)), amount, instant, hookData);
 
         _transferTokens(nota.currency, notaOwner, amount, instant, hookFee);
         _notas[notaId].escrowed += amount;
@@ -90,7 +90,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     /// @inheritdoc INotaRegistrar
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) external payable nonReentrant {
         Nota memory nota = notaInfo(notaId);
-        uint256 hookFee = nota.hook.beforeCash(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to, amount, hookData);
+        uint256 hookFee = nota.hook.beforeCash(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to, amount, hookData);
 
         _notas[notaId].escrowed -= amount;
         _unescrowTokens(nota.currency, to, amount - hookFee);  // hookFee stays in escrow. Should `amount` include the hookFee or have it removed on after?
@@ -103,7 +103,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     /// @inheritdoc INotaRegistrar
     function approve(address to, uint256 notaId) public nonReentrant override(ERC721, IERC721, INotaRegistrar) {
         Nota memory nota = notaInfo(notaId);
-        uint256 hookFee = nota.hook.beforeApprove(msg.sender, notaId, nota.escrowed, ownerOf(notaId), to);
+        uint256 hookFee = nota.hook.beforeApprove(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to);
 
         _notas[notaId].escrowed -= hookFee;
         _hookRevenue[nota.hook][nota.currency] += hookFee;
@@ -118,7 +118,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         Nota memory nota = notaInfo(notaId);
         require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
 
-        nota.hook.beforeBurn(msg.sender, notaId, nota.escrowed, ownerOf(notaId));
+        nota.hook.beforeBurn(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)));
         
         _hookRevenue[nota.hook][nota.currency] += nota.escrowed;
         delete _notas[notaId];
@@ -173,7 +173,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         if (hookData.length == 0) hookData = abi.encode("");
         Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.beforeTransfer(msg.sender, notaId, nota.escrowed, owner, from, to, hookData);
+        uint256 hookFee = nota.hook.beforeTransfer(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, owner, getApproved(notaId)), to, hookData);
 
         _notas[notaId].escrowed -= hookFee;
         _hookRevenue[nota.hook][nota.currency] += hookFee;  // NOTE could do this unchecked
