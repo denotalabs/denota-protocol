@@ -2,32 +2,31 @@
 pragma solidity ^0.8.16;
 
 interface IHooks {
+    struct NotaState {
+        uint256 id;
+        address currency;
+        uint256 escrowed;
+        address owner;
+        address approved;
+    }
+
     function beforeWrite(
         address caller,
-        uint256 notaId,
-        address currency,
-        uint256 escrowed,
-        address owner,
+        NotaState calldata nota,
         uint256 instant,
         bytes calldata hookData
     ) external returns (uint256);
 
     function beforeTransfer(
         address caller,
-        uint256 notaId,
-        uint256 escrowed,
-        address owner,
-        // address approved, // TODO should this be passed to hook too?
-        address from,  // TODO doesn't `from` always equal owner?
+        NotaState calldata nota,
         address to,
         bytes calldata hookData
     ) external returns (uint256);
 
     function beforeFund(
         address caller,
-        uint256 notaId,
-        uint256 escrowed,
-        address owner,
+        NotaState calldata nota,
         uint256 amount,
         uint256 instant,
         bytes calldata hookData
@@ -35,9 +34,7 @@ interface IHooks {
 
     function beforeCash(
         address caller,
-        uint256 notaId,
-        uint256 escrowed,
-        address owner,
+        NotaState calldata nota,
         address to,
         uint256 amount,
         bytes calldata hookData
@@ -45,17 +42,13 @@ interface IHooks {
 
     function beforeApprove(
         address caller,
-        uint256 notaId,
-        uint256 escrowed,
-        address owner,
+        NotaState calldata nota,
         address to
     ) external returns (uint256);
 
     function beforeBurn(
         address caller,
-        uint256 notaId,
-        uint256 escrowed,
-        address owner
+        NotaState calldata nota
     ) external;
 
     function beforeTokenURI(

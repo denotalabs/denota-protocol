@@ -3,11 +3,10 @@ pragma solidity ^0.8.16;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "openzeppelin/utils/Base64.sol";
-import {NotaRegistrar} from "../src/NotaRegistrar.sol";
-import {IHooks} from "../src/interfaces/IHooks.sol";
-import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
 import "./mock/erc20.sol";
+import {NotaRegistrar} from "../src/NotaRegistrar.sol";
+import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
+import {IHooks} from "../src/interfaces/IHooks.sol";
 
 // TODO ensure failure on 0 escrow but hookFee
 // TODO test event emission
@@ -133,6 +132,58 @@ contract RegistrarTest is Test {
         REGISTRAR.setContractURI(newContractURI);
         assertEq(REGISTRAR.contractURI(), _URIFormat(newContractURI), "Contract URI should be updated");
     }
+
+    // function testSetApprovalForAll() public {
+    //     address owner = address(0x123);
+    //     address operator = address(0x456);
+
+    //     vm.prank(owner);
+    //     REGISTRAR.setApprovalForAll(operator, true);
+
+    //     assertTrue(REGISTRAR.isApprovedForAll(owner, operator));
+
+    //     vm.prank(owner);
+    //     REGISTRAR.setApprovalForAll(operator, false);
+
+    //     assertFalse(REGISTRAR.isApprovedForAll(owner, operator));
+    // }
+
+    // function testRevokeApproval() public {
+    //     address caller = address(0x123);
+    //     uint256 escrowed = 1000;
+    //     uint256 instant = 500;
+    //     address owner = address(0x456);
+    //     address approved = address(0x789);
+
+    //     // uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
+
+    //     vm.prank(owner);
+    //     REGISTRAR.approve(approved, notaId);
+    //     assertEq(REGISTRAR.getApproved(notaId), approved);
+
+    //     vm.prank(owner);
+    //     REGISTRAR.approve(address(0), notaId);
+    //     assertEq(REGISTRAR.getApproved(notaId), address(0));
+    // }
+
+    // function testTransferFromApprovedOperator() public {
+    //     address caller = address(0x123);
+    //     uint256 escrowed = 1000;
+    //     uint256 instant = 500;
+    //     address owner = address(0x456);
+    //     address operator = address(0x789);
+    //     address recipient = address(0xabc);
+
+    //     uint256 notaId = _setupThenWrite(caller, escrowed, instant, owner, "");
+
+    //     vm.prank(owner);
+    //     REGISTRAR.setApprovalForAll(operator, true);
+
+    //     vm.prank(operator);
+    //     REGISTRAR.transferFrom(owner, recipient, notaId);
+
+    //     assertEq(REGISTRAR.ownerOf(notaId), recipient);
+    // }
 
 /*---------------------------------- Can't test these without a hook ------------------------------------*/
 
@@ -273,6 +324,17 @@ contract RegistrarTest is Test {
          assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
          assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
     }
+
+    // function _registrarApproveHelper(address caller, address to, uint256 notaId) internal {
+    //     address initialApproval = REGISTRAR.getApproved(notaId);
+
+    //     vm.prank(caller);
+    //     REGISTRAR.approve(to, notaId);
+
+    //     // Verify state transition
+    //     assertNotEq(REGISTRAR.getApproved(notaId), initialApproval);
+    //     assertEq(REGISTRAR.getApproved(notaId), to, "Approval should change");
+    // }
 
     function _registrarBurnHelper(address caller, uint256 notaId) internal {
         // Initial state
