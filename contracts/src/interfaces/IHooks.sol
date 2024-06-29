@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 interface IHooks {
     struct NotaState {
-        uint256 notaId;
+        uint256 id;
         address currency;
         uint256 escrowed;
         address owner;
