@@ -15,7 +15,7 @@ interface INotaRegistrar {
         uint256 escrowed; // Slot1
         address currency; // Slot2
         /* 96 bits free */
-        IHooks hook; // Slot3
+        IHooks hooks; // Slot3
         /* 96 bits free */
     }
 
