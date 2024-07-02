@@ -7,6 +7,7 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin/utils/Base64.sol";
 import {INotaRegistrar} from "./interfaces/INotaRegistrar.sol";
 import {IHooks} from "./interfaces/IHooks.sol";
+import {Hooks} from "./libraries/Hooks.sol";
 import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
 
@@ -23,9 +24,9 @@ import  "./ERC4906.sol";
  * @title Denota Protocol
  * @author Almaraz.eth
  */
-
 contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard {
     using SafeERC20 for IERC20;
+    using Hooks for IHooks;
 
     mapping(uint256 notaId => Nota) private _notas;
     uint256 public nextId;
@@ -40,17 +41,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     }
 
     /// @inheritdoc INotaRegistrar
-    function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes calldata hookData) external payable nonReentrant returns (uint256) {
-        require(validWrite(hook, currency), "INVALID_WRITE");
-        uint256 hookFee = hook.beforeWrite(msg.sender, IHooks.NotaState(nextId, currency, escrowed, owner, address(0)), instant, hookData);
+    function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hooks, bytes calldata hookData) external payable nonReentrant returns (uint256) {
+        require(validWrite(hooks, currency), "INVALID_WRITE");
+        uint256 hookFee = hooks.beforeWrite(IHooks.NotaState(nextId, currency, escrowed, owner, address(0)), instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, hookFee);
         _mint(owner, nextId);
-        _notas[nextId] = Nota(escrowed, currency, hook);
+        _notas[nextId] = Nota(escrowed, currency, hooks);
         
-        _hookRevenue[hook][currency] += hookFee;
+        _hookRevenue[hooks][currency] += hookFee;
 
-        emit Written(msg.sender, nextId, currency, escrowed, hook, instant, hookFee, hookData);
+        emit Written(msg.sender, nextId, currency, escrowed, hooks, instant, hookFee, hookData);
         unchecked { return nextId++; }
     }
 
@@ -77,11 +78,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) external payable nonReentrant {
         Nota memory nota = notaInfo(notaId);
         address notaOwner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.beforeFund(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, notaOwner, getApproved(notaId)), amount, instant, hookData);
+        uint256 hookFee = nota.hooks.beforeFund(IHooks.NotaState(notaId, nota.currency, nota.escrowed, notaOwner, getApproved(notaId)), amount, instant, hookData);
 
         _transferTokens(nota.currency, notaOwner, amount, instant, hookFee);
         _notas[notaId].escrowed += amount;
-        _hookRevenue[nota.hook][nota.currency] += hookFee;
+        _hookRevenue[nota.hooks][nota.currency] += hookFee;
 
         emit Funded(msg.sender, notaId, amount, instant, hookFee, hookData);
         emit MetadataUpdate(notaId);
@@ -90,11 +91,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     /// @inheritdoc INotaRegistrar
     function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) external payable nonReentrant {
         Nota memory nota = notaInfo(notaId);
-        uint256 hookFee = nota.hook.beforeCash(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to, amount, hookData);
+        uint256 hookFee = nota.hooks.beforeCash(IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to, amount, hookData);
 
         _notas[notaId].escrowed -= amount;
         _unescrowTokens(nota.currency, to, amount - hookFee);  // hookFee stays in escrow. Should `amount` include the hookFee or have it removed on after?
-        _hookRevenue[nota.hook][nota.currency] += hookFee;
+        _hookRevenue[nota.hooks][nota.currency] += hookFee;
 
         emit Cashed(msg.sender, notaId, to, amount, hookFee, hookData);
         emit MetadataUpdate(notaId);
@@ -103,10 +104,10 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     /// @inheritdoc INotaRegistrar
     function approve(address to, uint256 notaId) public nonReentrant override(ERC721, IERC721, INotaRegistrar) {
         Nota memory nota = notaInfo(notaId);
-        uint256 hookFee = nota.hook.beforeApprove(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to);
+        uint256 hookFee = nota.hooks.beforeApprove(IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)), to);
 
         _notas[notaId].escrowed -= hookFee;
-        _hookRevenue[nota.hook][nota.currency] += hookFee;
+        _hookRevenue[nota.hooks][nota.currency] += hookFee;
 
         ERC721.approve(to, notaId);  // Keeps checks is owner or operator && to != owner
         emit Approved(msg.sender, notaId, hookFee);
@@ -118,17 +119,17 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         Nota memory nota = notaInfo(notaId);
         require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
 
-        nota.hook.beforeBurn(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)));
+        nota.hooks.beforeBurn(IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)));
         
-        _hookRevenue[nota.hook][nota.currency] += nota.escrowed;
+        _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
         delete _notas[notaId];
         _burn(notaId);
     }
 
     function tokenURI(uint256 notaId) public view override returns (string memory) {
         Nota memory nota = notaInfo(notaId);
-        (string memory hookAttributes, string memory hookKeys) = nota.hook.beforeTokenURI(notaId);
-        
+        (string memory hookAttributes, string memory hookKeys) = nota.hooks.beforeTokenURI(IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)));
+
         return string(
                 abi.encodePacked(
                     "data:application/json;base64,", 
@@ -140,7 +141,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
                                 '"},{"trait_type":"Amount","display_type":"number","value":',
                                 Strings.toString(nota.escrowed),
                                 '},{"trait_type":"Escrow Conditions","value":"', // Wrapper vs Hook vs Conditions vs Conditions Contract
-                                Strings.toHexString(address(nota.hook)),
+                                Strings.toHexString(address(nota.hooks)),
                                 '"}',
                                 hookAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
                                 ']',
@@ -157,7 +158,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
      * @notice Updates the metadata of a Nota when hook state changes without calling the registrar
      */
     function metadataUpdate(uint256 notaId) external nonReentrant {
-        require(msg.sender == address(_notas[notaId].hook), "NOT_MODULE");
+        require(msg.sender == address(_notas[notaId].hooks), "NOT_HOOK");
         emit MetadataUpdate(notaId);
     }
 
@@ -170,13 +171,13 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     ) private {
         require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");  // Can't use builtin transfer since check and _transfer is atomic
 
-        if (hookData.length == 0) hookData = abi.encode("");
+        if (hookData.length == 0) hookData = abi.encode(""); // TODO is this necessary?
         Nota memory nota = notaInfo(notaId);
         address owner = ownerOf(notaId);
-        uint256 hookFee = nota.hook.beforeTransfer(msg.sender, IHooks.NotaState(notaId, nota.currency, nota.escrowed, owner, getApproved(notaId)), to, hookData);
+        uint256 hookFee = nota.hooks.beforeTransfer(IHooks.NotaState(notaId, nota.currency, nota.escrowed, owner, getApproved(notaId)), to, hookData);
 
         _notas[notaId].escrowed -= hookFee;
-        _hookRevenue[nota.hook][nota.currency] += hookFee;  // NOTE could do this unchecked
+        _hookRevenue[nota.hooks][nota.currency] += hookFee;  // NOTE could do this unchecked
         emit Transferred(msg.sender, notaId, hookFee, hookData);
     }
 
@@ -215,6 +216,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     }
 
     function notaHook(uint256 notaId) public view exists(notaId) returns (IHooks) {
-        return _notas[notaId].hook;
+        return _notas[notaId].hooks;
     }
 }

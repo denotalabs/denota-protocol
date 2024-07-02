@@ -261,7 +261,7 @@ contract RegistrarTest is Test {
         NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(initialId);
         assertEq(postNota.currency, currency, "Incorrect token");
         assertEq(postNota.escrowed, escrowed, "Incorrect escrow");
-        assertEq(address(postNota.hook), address(hook), "Incorrect hook");
+        assertEq(address(postNota.hooks), address(hook), "Incorrect hook");
 
         assertEq(IERC20(currency).balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
         assertEq(IERC20(currency).balanceOf(owner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
@@ -292,9 +292,9 @@ contract RegistrarTest is Test {
         IERC20 currency = IERC20(preNota.currency);
         uint256 initialCallerTokenBalance = currency.balanceOf(caller);
         uint256 initialOwnerTokenBalance = currency.balanceOf(notaOwner);
-        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hook, address(currency));
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(currency));
         
-        uint256 totalAmount = _calcTotalFees(preNota.hook, amount, instant);
+        uint256 totalAmount = _calcTotalFees(preNota.hooks, amount, instant);
         uint256 hookFee = totalAmount - (amount + instant);
 
         vm.prank(caller);
@@ -303,7 +303,7 @@ contract RegistrarTest is Test {
         assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) - amount, "Escrowed amount didn't increment properly");
         assertEq(currency.balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease");
         assertEq(currency.balanceOf(notaOwner), initialOwnerTokenBalance + instant, "Owner currency balance didn't decrease");
-        assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
+        assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hooks, address(currency)) + hookFee, "Owner currency balance didn't decrease");
     }
 
     function _registrarCashHelper(address caller, uint256 notaId, uint256 amount, address to, bytes memory hookData) internal {
@@ -312,9 +312,9 @@ contract RegistrarTest is Test {
 
         IERC20 currency = IERC20(preNota.currency);
         uint256 initialToTokenBalance = currency.balanceOf(to);
-        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hook, address(currency));
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(currency));
         
-        uint256 totalAmount = _calcTotalFees(preNota.hook, amount, 0);
+        uint256 totalAmount = _calcTotalFees(preNota.hooks, amount, 0);
         uint256 hookFee = totalAmount - amount;
 
         vm.prank(caller);
@@ -322,7 +322,7 @@ contract RegistrarTest is Test {
 
          assertEq(preNota.escrowed, REGISTRAR.notaEscrowed(notaId) + totalAmount, "Total amount didnt decrement properly");
          assertEq(currency.balanceOf(to), initialToTokenBalance + amount, "Owner currency balance didn't increase");
-         assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hook, address(currency)) + hookFee, "Owner currency balance didn't decrease");
+         assertEq(initialHookRevenue, REGISTRAR.hookRevenue(preNota.hooks, address(currency)) + hookFee, "Owner currency balance didn't decrease");
     }
 
     // function _registrarApproveHelper(address caller, address to, uint256 notaId) internal {

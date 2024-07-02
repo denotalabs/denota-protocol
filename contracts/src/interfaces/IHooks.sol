@@ -15,14 +15,14 @@ interface IHooks {
         NotaState calldata nota,
         uint256 instant,
         bytes calldata hookData
-    ) external returns (uint256);
+    ) external returns (bytes4, uint256);
 
     function beforeTransfer(
         address caller,
         NotaState calldata nota,
         address to,
         bytes calldata hookData
-    ) external returns (uint256);
+    ) external returns (bytes4, uint256);
 
     function beforeFund(
         address caller,
@@ -30,7 +30,7 @@ interface IHooks {
         uint256 amount,
         uint256 instant,
         bytes calldata hookData
-    ) external returns (uint256);
+    ) external returns (bytes4, uint256);
 
     function beforeCash(
         address caller,
@@ -38,20 +38,21 @@ interface IHooks {
         address to,
         uint256 amount,
         bytes calldata hookData
-    ) external returns (uint256);
+    ) external returns (bytes4, uint256);
 
     function beforeApprove(
         address caller,
         NotaState calldata nota,
         address to
-    ) external returns (uint256);
+    ) external returns (bytes4, uint256);
 
     function beforeBurn(
         address caller,
         NotaState calldata nota
-    ) external;
+    ) external returns (bytes4);
 
     function beforeTokenURI(
-        uint256 notaId
-    ) external view returns (string memory, string memory);
+        address caller,
+        NotaState calldata nota
+    ) external view returns (bytes4, string memory, string memory);
 }
