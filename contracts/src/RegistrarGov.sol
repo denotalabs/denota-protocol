@@ -10,11 +10,24 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
     mapping(IHooks hook => mapping(address token => uint256 revenue)) internal _hookRevenue;
+    mapping(IHooks hook => mapping(address token => uint256 totalRevenue)) internal _hookTotalRevenue;
+    mapping(address token => uint256 revenue) internal _protocolRevenue;
+    mapping(address token => uint256 totalRevenue) internal _protocolTotalRevenue;
     mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;
+    uint256 public constant MAX_PROTOCOL_FEE = 1000; // 10% in basis points
+    uint256 public protocolFee; // In basis points (1/100 of a percent)
     string internal _contractURI;
 
     event ContractURIUpdated();
-    event HookWithdraw(address indexed hook, address indexed token, uint256 amount, address indexed to);
+    event ProtocolFeeSet(uint256 newFee);
+    event HookWithdraw(address indexed hook, address indexed token, uint256 amount, address indexed to, uint256 fee);
+    event ProtocolRevenueCollected(address indexed token, uint256 amount, address indexed to);
+
+    function setProtocolFee(uint256 newFee) external onlyOwner {
+        require(newFee <= MAX_PROTOCOL_FEE, "Fee exceeds maximum");
+        protocolFee = newFee;
+        emit ProtocolFeeSet(newFee);
+    }
 
     function setContractURI(string calldata uri) external onlyOwner {
         _contractURI = uri;
@@ -67,12 +80,35 @@ contract RegistrarGov is Ownable, IRegistrarGov {
 
     function hookWithdraw(address token, uint256 amount, address to) external {
         _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
-        if (amount > 0) IERC20(token).safeTransfer(to, amount);
-        emit HookWithdraw(msg.sender, token, amount, to);
+        uint256 fee = (amount * protocolFee) / 10000;
+        uint256 amountAfterFee = amount - fee;
+        _protocolRevenue[token] += fee;
+        _protocolTotalRevenue[token] += fee;
+        _hookTotalRevenue[IHooks(msg.sender)][token] += amount;
+        IERC20(token).safeTransfer(to, amountAfterFee);
+        emit HookWithdraw(msg.sender, token, amount, to, fee);
+    }
+
+    function collectProtocolRevenue(address token, uint256 amount, address to) external onlyOwner {
+        require(amount <= _protocolRevenue[token], "Insufficient protocol revenue");
+        _protocolRevenue[token] -= amount;
+        IERC20(token).safeTransfer(to, amount);
+        emit ProtocolRevenueCollected(token, amount, to);
     }
 
     function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
         return _hookRevenue[hook][currency];
     }
 
+    function hookTotalRevenue(IHooks hook, address currency) external view returns(uint256) {
+        return _hookTotalRevenue[hook][currency];
+    }
+
+    function protocolRevenue(address currency) external view returns(uint256) {
+        return _protocolRevenue[currency];
+    }
+
+    function protocolTotalRevenue(address currency) external view returns(uint256) {
+        return _protocolTotalRevenue[currency];
+    }
 }
