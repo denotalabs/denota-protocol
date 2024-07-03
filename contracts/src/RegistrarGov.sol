@@ -6,7 +6,7 @@ import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 import {IHooks} from "./interfaces/IHooks.sol";
 
 // TODO setting contractURI makes tests hang for some reason
-contract RegistrarGov is Ownable, IRegistrarGov {
+abstract contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
     mapping(IHooks hook => mapping(address token => uint256 revenue)) internal _hookRevenue;
@@ -15,18 +15,17 @@ contract RegistrarGov is Ownable, IRegistrarGov {
     mapping(address token => uint256 totalRevenue) internal _protocolTotalRevenue;
     mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;
     uint256 public constant MAX_PROTOCOL_FEE = 1000; // 10% in basis points
-    uint256 public protocolFee; // In basis points (1/100 of a percent)
+    uint256 internal _protocolFee; // In basis points (1/100 of a percent)
     string internal _contractURI;
-
-    event ContractURIUpdated();
-    event ProtocolFeeSet(uint256 newFee);
-    event HookWithdraw(address indexed hook, address indexed token, uint256 amount, address indexed to, uint256 fee);
-    event ProtocolRevenueCollected(address indexed token, uint256 amount, address indexed to);
 
     function setProtocolFee(uint256 newFee) external onlyOwner {
         require(newFee <= MAX_PROTOCOL_FEE, "Fee exceeds maximum");
-        protocolFee = newFee;
+        _protocolFee = newFee;
         emit ProtocolFeeSet(newFee);
+    }
+
+    function protocolFee() external view returns (uint256) {
+        return _protocolFee;
     }
 
     function setContractURI(string calldata uri) external onlyOwner {
@@ -80,13 +79,13 @@ contract RegistrarGov is Ownable, IRegistrarGov {
 
     function hookWithdraw(address token, uint256 amount, address to) external {
         _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
-        uint256 fee = (amount * protocolFee) / 10000;
+        uint256 fee = (amount * _protocolFee) / 10000;
         uint256 amountAfterFee = amount - fee;
         _protocolRevenue[token] += fee;
         _protocolTotalRevenue[token] += fee;
         _hookTotalRevenue[IHooks(msg.sender)][token] += amount;
         IERC20(token).safeTransfer(to, amountAfterFee);
-        emit HookWithdraw(msg.sender, token, amount, to, fee);
+        emit HookRevenueCollected(msg.sender, token, amount, to, fee);
     }
 
     function collectProtocolRevenue(address token, uint256 amount, address to) external onlyOwner {
