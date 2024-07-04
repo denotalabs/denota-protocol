@@ -57,19 +57,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
 
     /// @inheritdoc INotaRegistrar
     function transferFrom(address from, address to, uint256 notaId) public nonReentrant override(ERC721, IERC721, INotaRegistrar) {
-        _transferHookTakeFee(from, to, notaId, abi.encode(""));
+        _transferHookTakeFee(to, notaId, abi.encode(""));
         _transfer(from, to, notaId);
         emit MetadataUpdate(notaId);
     }
 
     /// @inheritdoc INotaRegistrar
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 notaId,
-        bytes memory hookData
-    ) public override(ERC721, IERC721, INotaRegistrar) nonReentrant {
-        _transferHookTakeFee(from, to, notaId, hookData);
+    function safeTransferFrom( address from, address to, uint256 notaId, bytes memory hookData) public override(ERC721, IERC721, INotaRegistrar) nonReentrant {
+        _transferHookTakeFee(to, notaId, hookData);
         _safeTransfer(from, to, notaId, abi.encode(""));
         emit MetadataUpdate(notaId);
     }
@@ -140,7 +135,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
                                 Strings.toHexString(nota.currency),
                                 '"},{"trait_type":"Amount","display_type":"number","value":',
                                 Strings.toString(nota.escrowed),
-                                '},{"trait_type":"Escrow Conditions","value":"', // Wrapper vs Hook vs Conditions vs Conditions Contract
+                                '},{"trait_type":"Wrapper Contract","value":"',
                                 Strings.toHexString(address(nota.hooks)),
                                 '"}',
                                 hookAttributes,  // of form: ',{"trait_type":"<trait>","value":"<value>"}'
@@ -162,9 +157,8 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         emit MetadataUpdate(notaId);
     }
 
-    /*//////////////////////// HELPERS ///////////////////////////*/ // TODO move these to a library??
+    /*//////////////////////// HELPERS ///////////////////////////*/
     function _transferHookTakeFee(
-        address from,
         address to,
         uint256 notaId,
         bytes memory hookData
