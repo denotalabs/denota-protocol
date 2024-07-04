@@ -3,10 +3,11 @@ pragma solidity ^0.8.16;
 
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
-import "./mock/erc20.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
+import {IRegistrarGov} from "../src/interfaces/IRegistrarGov.sol";
 import {IHooks} from "../src/interfaces/IHooks.sol";
+import "./mock/erc20.sol";
 
 // TODO ensure failure on 0 escrow but hookFee
 // TODO test event emission
@@ -19,13 +20,12 @@ contract RegistrarTest is Test {
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this)); 
-
         DAI = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); 
 
-        vm.label(msg.sender, "Alice");
         vm.label(address(this), "TestingContract");
-        vm.label(address(DAI), "TestDai");
         vm.label(address(REGISTRAR), "NotaRegistrarContract");
+        vm.label(address(DAI), "TestDai");
+        vm.label(msg.sender, "Alice");
     }
 
     function isContract(address _addr) internal view returns (bool) {
@@ -131,6 +131,20 @@ contract RegistrarTest is Test {
         vm.prank(address(this));
         REGISTRAR.setContractURI(newContractURI);
         assertEq(REGISTRAR.contractURI(), _URIFormat(newContractURI), "Contract URI should be updated");
+    }
+
+    function testSetProtocolFee() public {
+        uint256 newFee = 500; // 5%
+        vm.expectEmit(true, true, true, true);
+        emit IRegistrarGov.ProtocolFeeSet(newFee);
+        IRegistrarGov(REGISTRAR).setProtocolFee(newFee);
+        assertEq(IRegistrarGov(REGISTRAR).protocolFee(), newFee);
+    }
+
+    function testSetProtocolFeeFailure() public {
+        uint256 invalidFee = 1001; // 10.01%
+        vm.expectRevert("Fee exceeds maximum");
+        IRegistrarGov(REGISTRAR).setProtocolFee(invalidFee);
     }
 
     // function testSetApprovalForAll() public {
