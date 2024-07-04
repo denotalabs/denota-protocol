@@ -31,7 +31,7 @@ interface IRegistrarGov {
 
     function protocolFee() external returns(uint256);
 
-    function collectProtocolRevenue(address token, uint256 amount, address to) external;
+    function protocolWithdraw(address token, uint256 amount, address to) external;
 
     function hookTotalRevenue(IHooks hook, address currency) external view returns(uint256);
 
