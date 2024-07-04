@@ -80,15 +80,14 @@ abstract contract RegistrarGov is Ownable, IRegistrarGov {
     function hookWithdraw(address token, uint256 amount, address to) external {
         _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
         uint256 fee = (amount * _protocolFee) / 10000;
-        uint256 amountAfterFee = amount - fee;
         _protocolRevenue[token] += fee;
         _protocolTotalRevenue[token] += fee;
         _hookTotalRevenue[IHooks(msg.sender)][token] += amount;
-        IERC20(token).safeTransfer(to, amountAfterFee);
+        IERC20(token).safeTransfer(to, amount - fee);
         emit HookRevenueCollected(msg.sender, token, amount, to, fee);
     }
 
-    function collectProtocolRevenue(address token, uint256 amount, address to) external onlyOwner {
+    function protocolWithdraw(address token, uint256 amount, address to) external onlyOwner {
         require(amount <= _protocolRevenue[token], "Insufficient protocol revenue");
         _protocolRevenue[token] -= amount;
         IERC20(token).safeTransfer(to, amount);
