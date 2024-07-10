@@ -8,6 +8,7 @@ import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
 import {IRegistrarGov} from "../src/interfaces/IRegistrarGov.sol";
 import {IHooks} from "../src/interfaces/IHooks.sol";
 import "./mock/erc20.sol";
+import "./mock/hook.sol";
 
 // TODO ensure failure on 0 escrow but hookFee
 // TODO test event emission
@@ -16,15 +17,18 @@ import "./mock/erc20.sol";
 contract RegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     TestERC20 public DAI;
+    TestHook public HOOK;
     uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this)); 
+        HOOK = new TestHook();
         DAI = new TestERC20(TOKENS_CREATED, "DAI", "DAI"); 
 
         vm.label(address(this), "TestingContract");
         vm.label(address(REGISTRAR), "NotaRegistrarContract");
         vm.label(address(DAI), "TestDai");
+        vm.label(address(HOOK), "TestHook");
         vm.label(msg.sender, "Alice");
     }
 
@@ -89,11 +93,12 @@ contract RegistrarTest is Test {
     }
 
     function testWhitelistToken() public {
-        // Add to whitelist
-         _registrarTokenWhitelistToggleHelper(address(DAI), false); // false -> true
-        // Remove from whitelist
-        _registrarTokenWhitelistToggleHelper(address(DAI), true); // true -> false
+        vm.expectEmit(true, true, true, true, address(this));
+        emit IRegistrarGov.TokenWhitelisted(address(this), address(DAI), true);
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+        assertTrue(IRegistrarGov(REGISTRAR).tokenWhitelisted(address(DAI)));
     }
+
     function _registrarHookWhitelistToggleHelper(IHooks hook, bool alreadyWhitelisted) internal {
         bool isWhitelisted = REGISTRAR.hookWhitelisted(hook);
         if (alreadyWhitelisted){
@@ -128,6 +133,8 @@ contract RegistrarTest is Test {
         
         string memory newContractURI = '"{"name":"Denota Protocol","description:"A token agreement protocol","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmRcLdCxQ8qwKhzWtZrxKt1oAyKvCMJLZV7vV5jUnBNzoq","external_link":"https://denota.xyz/","collaborators":["almaraz.eth","0xrafi.eth","pengu1689.eth"]}"';
         
+        vm.expectEmit(true, true, true, true);
+        emit IRegistrarGov.ContractURIUpdated();
         vm.prank(address(this));
         REGISTRAR.setContractURI(newContractURI);
         assertEq(REGISTRAR.contractURI(), _URIFormat(newContractURI), "Contract URI should be updated");
@@ -145,6 +152,124 @@ contract RegistrarTest is Test {
         uint256 invalidFee = 1001; // 10.01%
         vm.expectRevert("Fee exceeds maximum");
         IRegistrarGov(REGISTRAR).setProtocolFee(invalidFee);
+    }
+
+    function testWhitelistHook() public {
+        vm.expectEmit(true, true, true, true, address(address(this)));
+        emit IRegistrarGov.HookWhitelisted(address(this), IHooks(HOOK), true);
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+        assertTrue(IRegistrarGov(REGISTRAR).hookWhitelisted(IHooks(HOOK)));
+    }
+
+    function testValidWrite() public {
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+        assertTrue(IRegistrarGov(REGISTRAR).validWrite(IHooks(address(HOOK)), address(DAI)));
+    }
+
+    function testHookWithdraw() public {
+        uint256 amount = 1000;
+        uint256 fee = 50; // Assuming 5% protocol fee
+        IRegistrarGov(REGISTRAR).setProtocolFee(500); // 5%
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        // Simulate revenue accrual
+        vm.store(
+            address(address(this)),
+            keccak256(abi.encode(address(HOOK), keccak256(abi.encode(address(DAI), uint256(2))))),
+            bytes32(uint256(amount))
+        );
+
+        vm.prank(address(HOOK));
+        vm.expectEmit(true, true, true, true, address(address(this)));
+        emit IRegistrarGov.HookRevenueCollected(address(HOOK), address(DAI), amount, address(this), fee);
+        IRegistrarGov(REGISTRAR).hookWithdraw(address(DAI), amount, address(this));
+
+        assertEq(DAI.balanceOf(address(this)), amount - fee);
+        assertEq(IRegistrarGov(REGISTRAR).protocolRevenue(address(DAI)), fee);
+    }
+
+    function testCollectProtocolRevenue() public {
+        uint256 amount = 1000;
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        // Simulate protocol revenue accrual
+        vm.store(
+            address(address(this)),
+            keccak256(abi.encode(address(DAI), uint256(3))),
+            bytes32(uint256(amount))
+        );
+
+        vm.expectEmit(true, true, true, true, address(address(this)));
+        emit IRegistrarGov.ProtocolRevenueCollected(address(DAI), amount, address(this));
+        IRegistrarGov(REGISTRAR).collectProtocolRevenue(address(DAI), amount, address(this));
+
+        assertEq(DAI.balanceOf(address(this)), amount);
+        assertEq(IRegistrarGov(REGISTRAR).protocolRevenue(address(DAI)), 0);
+    }
+
+    function testHookRevenue() public {
+        uint256 amount = 1000;
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        // Simulate revenue accrual
+        vm.store(
+            address(address(this)),
+            keccak256(abi.encode(address(HOOK), keccak256(abi.encode(address(DAI), uint256(2))))),
+            bytes32(uint256(amount))
+        );
+
+        assertEq(IRegistrarGov(REGISTRAR).hookRevenue(IHooks(address(HOOK)), address(DAI)), amount);
+    }
+
+    function testHookTotalRevenue() public {
+        uint256 amount = 1000;
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        // Simulate total revenue accrual
+        vm.store(
+            address(address(this)),
+            keccak256(abi.encode(address(HOOK), keccak256(abi.encode(address(DAI), uint256(3))))),
+            bytes32(uint256(amount))
+        );
+
+        assertEq(IRegistrarGov(REGISTRAR).hookTotalRevenue(IHooks(address(HOOK)), address(DAI)), amount);
+    }
+
+    function testProtocolTotalRevenue() public {
+        uint256 amount = 1000;
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        // Simulate total protocol revenue accrual
+        vm.store(
+            address(address(this)),
+            keccak256(abi.encode(address(DAI), uint256(4))),
+            bytes32(uint256(amount))
+        );
+
+        assertEq(IRegistrarGov(REGISTRAR).protocolTotalRevenue(address(DAI)), amount);
+    }
+
+    function testOnlyOwnerFunctions() public {
+        vm.startPrank(address(this));
+        vm.expectRevert("Ownable: caller is not the owner");
+        IRegistrarGov(REGISTRAR).setProtocolFee(100);
+
+        vm.expectRevert("Ownable: caller is not the owner");
+        IRegistrarGov(REGISTRAR).setContractURI("newURI");
+
+        vm.expectRevert("Ownable: caller is not the owner");
+        IRegistrarGov(REGISTRAR).whitelistHook(IHooks(address(HOOK)), true);
+
+        vm.expectRevert("Ownable: caller is not the owner");
+        IRegistrarGov(REGISTRAR).whitelistToken(address(DAI), true);
+
+        vm.expectRevert("Ownable: caller is not the owner");
+        IRegistrarGov(REGISTRAR).collectProtocolRevenue(address(DAI), 100, address(this));
+        vm.stopPrank();
     }
 
     // function testSetApprovalForAll() public {
