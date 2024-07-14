@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 import {IHooks} from "../../src/interfaces/IHooks.sol";
 
-contract TestHook is IHooks {
+contract MockHook is IHooks {
     uint256 public fee;
 
     function setFee(uint256 _fee) external {
