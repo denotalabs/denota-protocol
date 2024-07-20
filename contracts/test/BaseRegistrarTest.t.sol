@@ -16,13 +16,13 @@ abstract contract BaseRegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     MockHook public HOOK;
     MockERC20 public DAI;
-    uint256 public immutable TOKENS_CREATED = 1_000_000_000_000e18;
+    uint256 public immutable TOKEN_SUPPLY = 1_000_000_000_000e18;
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this)); 
         HOOK = new MockHook();
         DAI = new MockERC20("DAI", "DAI"); 
-        DAI.mint(address(this), TOKENS_CREATED);
+        DAI.mint(address(this), TOKEN_SUPPLY);
 
         vm.label(address(this), "TestingContract");
         vm.label(address(REGISTRAR), "NotaRegistrar");
@@ -97,7 +97,7 @@ abstract contract BaseRegistrarTest is Test {
     function _registrarWriteAssumptions(address caller, uint256 escrow, uint256 instant, address owner) internal view {
         vm.assume(caller != address(0) && caller != owner && owner != address(0));
         vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this) && owner != address(this));
-        vm.assume((escrow + instant) <= TOKENS_CREATED);
+        vm.assume((escrow + instant) <= TOKEN_SUPPLY);
     }
 
     function _registrarTransferAssumptions(address caller, address from, address to, uint256 notaId) internal view {

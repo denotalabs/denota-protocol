@@ -11,13 +11,9 @@ interface IRegistrarGov {
     event ProtocolRevenueCollected(address indexed token, uint256 amount, address indexed to);
     event HookRevenueCollected(address indexed hook, address indexed token, uint256 amount, address indexed to, uint256 fee);
     
-    function contractURI() external view returns (string memory);
-
     function setContractURI(string calldata uri) external;
-    
-    function hookWhitelisted(IHooks hook) external view returns (bool);
 
-    function tokenWhitelisted(address token) external view returns (bool);
+    function setProtocolFee(uint256 newFee) external;
 
     function whitelistHook(IHooks hook, bool isAccepted) external;
 
@@ -25,19 +21,24 @@ interface IRegistrarGov {
 
     function hookWithdraw(address token, uint256 amount, address payoutAccount) external;
 
-    function hookRevenue(IHooks hook, address currency) external view returns(uint256);
+    function protocolWithdraw(address token, uint256 amount, address to) external;
 
-    function setProtocolFee(uint256 newFee) external;
+
+    function contractURI() external view returns (string memory);
 
     function protocolFee() external returns(uint256);
 
-    function protocolWithdraw(address token, uint256 amount, address to) external;
+    function hookWhitelisted(IHooks hook) external view returns (bool);
+
+    function tokenWhitelisted(address token) external view returns (bool);
+
+    function validWrite(IHooks hook, address token) external view returns (bool);
+
+    function hookRevenue(IHooks hook, address currency) external view returns(uint256);
 
     function hookTotalRevenue(IHooks hook, address currency) external view returns(uint256);
 
     function protocolRevenue(address currency) external view returns(uint256);
 
     function protocolTotalRevenue(address currency) external view returns(uint256);
-
-    function validWrite(IHooks hook, address token) external view returns (bool);
 }
