@@ -5,7 +5,6 @@ import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
 import {IHooks} from "./interfaces/IHooks.sol";
 
-// TODO setting contractURI makes tests hang for some reason
 abstract contract RegistrarGov is Ownable, IRegistrarGov {
     using SafeERC20 for IERC20;
 
