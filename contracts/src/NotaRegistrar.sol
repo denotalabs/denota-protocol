@@ -109,7 +109,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
         delete _notas[notaId];
         _burn(notaId);
-        // emit Burned(msg.sender, notaId);
+        emit Burned(msg.sender, notaId);
     }
 
     function tokenURI(uint256 notaId) public view override returns (string memory) {
