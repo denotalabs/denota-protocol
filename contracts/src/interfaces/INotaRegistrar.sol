@@ -140,5 +140,5 @@ interface INotaRegistrar {
 
     function notaEscrowed(uint256 notaId) external view returns (uint256);
 
-    function notaHook(uint256 notaId) external view returns (IHooks);
+    function notaHooks(uint256 notaId) external view returns (IHooks);
 }

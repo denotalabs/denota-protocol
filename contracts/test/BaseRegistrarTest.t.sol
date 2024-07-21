@@ -151,7 +151,7 @@ abstract contract BaseRegistrarTest is Test {
 
         assertEq(REGISTRAR.notaCurrency(notaId), currency, "Incorrect currency");
         assertEq(REGISTRAR.notaEscrowed(notaId), escrowed, "Incorrect escrowed amount");
-        assertEq(address(REGISTRAR.notaHook(notaId)), address(hook), "Incorrect hook");
+        assertEq(address(REGISTRAR.notaHooks(notaId)), address(hook), "Incorrect hook");
 
         assertEq(IERC20(currency).balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease correctly");
         assertEq(IERC20(currency).balanceOf(owner), initialOwnerTokenBalance + instant, "Owner currency balance didn't increase correctly");
