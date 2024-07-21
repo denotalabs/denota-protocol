@@ -123,6 +123,12 @@ interface INotaRegistrar {
      */
     function burn(uint256 notaId) external;
 
+    /**
+     * @notice Updates the metadata of a Nota
+     * @dev Caller must be the Nota's hook
+     */
+    function metadataUpdate(uint256 notaId) external;
+
     function notaInfo(uint256 notaId) external view returns (Nota memory);
     
     function notaCurrency(uint256 notaId) external view returns (address);

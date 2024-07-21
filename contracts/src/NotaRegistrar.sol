@@ -12,15 +12,6 @@ import  "./RegistrarGov.sol";
 import  "./ERC4906.sol";
 
 /**
- * DISCLAIMER OF LIABILITY
- * =======================
- * Denota Protocol is provided "as is", without warranty of any kind. Use at your own risk.
- * The author(s) of this smart contract and Denota Protocol shall not be liable for any damages or losses caused by the use or inability to use this protocol.
- * This protocol has NOT undergone a formal security audit. As such, there may be risks of vulnerabilities or bugs that could lead to financial loss. 
- * Users are advised to carefully assess their risk tolerance and only interact with this protocol if they understand and accept these risks.
- * This protocol is experimental and should not be considered as a fully secure or reliable financial service. 
- * We strongly recommend reviewing the source code and conducting thorough testing before committing any value or conducting transactions through this protocol.
- * =======================
  * @title Denota Protocol
  * @author Almaraz.eth
  */
@@ -42,7 +33,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
 
     /// @inheritdoc INotaRegistrar
     function write(address currency, uint256 escrowed, uint256 instant, address owner, IHooks hooks, bytes calldata hookData) external payable nonReentrant returns (uint256) {
-        require(validWrite(hooks, currency), "INVALID_WRITE");
         uint256 hookFee = hooks.beforeWrite(IHooks.NotaState(nextId, currency, escrowed, owner, address(0)), instant, hookData);
 
         _transferTokens(currency, owner, escrowed, instant, hookFee);
@@ -119,6 +109,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
         delete _notas[notaId];
         _burn(notaId);
+        // emit Burned(msg.sender, notaId);
     }
 
     function tokenURI(uint256 notaId) public view override returns (string memory) {
@@ -149,20 +140,14 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
             );
     }
 
-    /**
-     * @notice Updates the metadata of a Nota when hook state changes without calling the registrar
-     */
+    /// @inheritdoc INotaRegistrar
     function metadataUpdate(uint256 notaId) external nonReentrant {
         require(msg.sender == address(_notas[notaId].hooks), "NOT_HOOK");
         emit MetadataUpdate(notaId);
     }
 
     /*//////////////////////// HELPERS ///////////////////////////*/
-    function _transferHookTakeFee(
-        address to,
-        uint256 notaId,
-        bytes memory hookData
-    ) private {
+    function _transferHookTakeFee(address to, uint256 notaId, bytes memory hookData) private {
         require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");  // Can't use builtin transfer since check and _transfer is atomic
 
         if (hookData.length == 0) hookData = abi.encode(""); // TODO is this necessary?
@@ -184,16 +169,11 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     function _unescrowTokens(address currency, address to, uint256 amount) private {
         if (amount > 0) IERC20(currency).safeTransfer(to, amount);
     }
-    function _transferTokens(
-        address currency,
-        address recipient,
-        uint256 escrowed,
-        uint256 instant,
-        uint256 hookFee
-    ) private {
+    function _transferTokens( address currency, address recipient, uint256 escrowed, uint256 instant, uint256 hookFee) private {
         uint256 toEscrow = escrowed + hookFee;
         _escrowTokens(currency, toEscrow);
-        _instantTokens(currency, recipient, instant);
+        _instantTokens(currency, recipient, instant);  // TODO pull out the function here?
+        // if (instant > 0) IERC20(currency).safeTransferFrom(msg.sender, to, instant);
     }
 
     /*//////////////////////// VIEW FUNCTIONS ///////////////////////////*/
