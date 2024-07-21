@@ -9,6 +9,10 @@ contract MockHook is IHooks {
         fee = _fee;
     }
 
+    function getFee() external view returns (uint256) {
+        return fee;
+    }
+
     function beforeWrite(
         address, IHooks.NotaState memory, uint256, bytes calldata
     ) external view returns (bytes4, uint256) {
