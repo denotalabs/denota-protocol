@@ -6,6 +6,7 @@ import "forge-std/console.sol";
 import {NotaRegistrar} from "../src/NotaRegistrar.sol";
 import {IERC4906} from "../src/ERC4906.sol";
 import {IERC721} from "openzeppelin/token/ERC721/IERC721.sol";
+import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 import {INotaRegistrar} from "../src/interfaces/INotaRegistrar.sol";
 import {IRegistrarGov} from "../src/interfaces/IRegistrarGov.sol";
 import {IHooks} from "../src/interfaces/IHooks.sol";
@@ -22,7 +23,6 @@ abstract contract BaseRegistrarTest is Test {
         REGISTRAR = new NotaRegistrar(address(this)); 
         HOOK = new MockHook();
         DAI = new MockERC20("DAI", "DAI"); 
-        DAI.mint(address(this), TOKEN_SUPPLY);
 
         vm.label(address(this), "TestingContract");
         vm.label(address(REGISTRAR), "NotaRegistrar");
@@ -52,13 +52,12 @@ abstract contract BaseRegistrarTest is Test {
         uint256 escrowed,
         uint256 instant
     ) internal view returns (uint256) {
-        // WTFCFees memory fees = hook.getFees(address(0));
         uint256 totalTransfer = instant + escrowed;
         
-        uint256 hookFee = 0; // safeFeeMult(fees.writeBPS, totalTransfer);
-        console.log("Hook Fee: ", hookFee);
+        bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFee()")));
+        (, bytes memory result) = address(hook).staticcall(data);
+        uint256 hookFee = abi.decode(result, (uint256));
         uint256 totalWithFees = totalTransfer + hookFee;
-        console.log(totalTransfer, "-->", totalWithFees);
         return totalWithFees;
     }
 
@@ -66,7 +65,7 @@ abstract contract BaseRegistrarTest is Test {
         uint256 initialBalance = token.balanceOf(caller);
         uint256 initialAllowance = token.allowance(caller, toApprove);
 
-        token.transfer(caller, total);
+        token.mint(caller, total);
         assertEq(token.balanceOf(caller), initialBalance + total, "Token Transfer Failed");
 
         vm.prank(caller);
@@ -81,7 +80,10 @@ abstract contract BaseRegistrarTest is Test {
     function _registrarWriteAssumptions(address caller, uint256 escrow, uint256 instant, address owner) internal view {
         vm.assume(caller != address(0) && caller != owner && owner != address(0));
         vm.assume(owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this) && owner != address(this));
-        vm.assume((escrow + instant) <= TOKEN_SUPPLY);
+        vm.assume(
+            ((escrow >> 2) + (instant >> 2))
+            <= (TOKEN_SUPPLY >> 2)
+        );
     }
 
     function _registrarTransferAssumptions(address caller, address from, address to, uint256 notaId) internal view {
@@ -92,6 +94,44 @@ abstract contract BaseRegistrarTest is Test {
     }
 
     // ---------------------- Main Operation Helpers ---------------------- //
+    function _executeWrite(address caller, address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes memory hookData, uint256 initialId, uint256 hookFee) private returns(uint256) {
+        if (escrowed + hookFee > 0) {
+            vm.expectEmit(true, true, true, true, address(DAI));
+            emit IERC20.Approval(
+                caller, 
+                address(REGISTRAR), 
+                IERC20(currency).allowance(caller, address(REGISTRAR)) - (escrowed + hookFee)
+            );
+
+            vm.expectEmit(true, true, true, true, address(DAI));
+            emit IERC20.Transfer(caller, address(REGISTRAR), escrowed + hookFee);
+        }
+        if (instant > 0) {
+            vm.expectEmit(true, true, true, true, address(DAI));
+            emit IERC20.Approval(
+                caller, 
+                address(REGISTRAR), 
+                (IERC20(currency).allowance(caller, address(REGISTRAR)) - (escrowed + hookFee + instant))
+            );
+            vm.expectEmit(true, true, true, true, address(DAI));
+            emit IERC20.Transfer(caller, owner, instant);
+        }
+        vm.expectEmit(true, true, true, true, address(REGISTRAR));
+        emit IERC721.Transfer(address(0), owner, initialId);
+        vm.expectEmit(true, true, true, true, address(REGISTRAR));
+        emit INotaRegistrar.Written(caller, initialId, currency, escrowed, hook, instant, hookFee, hookData);
+        
+        vm.prank(caller);
+        return REGISTRAR.write(
+            address(currency),
+            escrowed,
+            instant,
+            owner,
+            hook,
+            hookData
+        );
+    }
+
     function _registrarWriteHelper(address caller, address currency, uint256 escrowed, uint256 instant, address owner, IHooks hook, bytes memory hookData) internal returns(uint256 notaId) {
         uint256 initialId = REGISTRAR.nextId();
         uint256 initialOwnerBalance = REGISTRAR.balanceOf(owner);
@@ -101,35 +141,20 @@ abstract contract BaseRegistrarTest is Test {
         uint256 totalAmount = _calcTotalFees(hook, escrowed, instant);
         uint256 hookFee = totalAmount - (escrowed + instant);
         
-        vm.expectEmit(true, true, true, true);
-        emit INotaRegistrar.Written(caller, initialId, currency, escrowed, hook, instant, hookFee, hookData);
-        
-        vm.prank(caller);
-        notaId = REGISTRAR.write(
-            address(currency),
-            escrowed,
-            instant,
-            owner,
-            hook,
-            hookData
-        );
-        
+        notaId = _executeWrite(caller, currency, escrowed, instant, owner, hook, hookData, initialId, hookFee);
+
         assertEq(notaId, initialId, "Incorrect notaId returned");
         assertEq(REGISTRAR.nextId(), initialId + 1, "NextId didn't increment");
         assertEq(REGISTRAR.balanceOf(owner), initialOwnerBalance + 1, "Owner balance didn't increment");
         assertEq(REGISTRAR.ownerOf(notaId), owner, "`owner` isn't owner of nota");
         assertEq(REGISTRAR.hookRevenue(hook, currency), initialHookRevenue + hookFee, "Hook revenue didn't increase correctly");
 
-        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(notaId);
-        assertEq(postNota.currency, currency, "Incorrect currency");
-        assertEq(postNota.escrowed, escrowed, "Incorrect escrowed amount");
-        assertEq(address(postNota.hooks), address(hook), "Incorrect hook");
+        assertEq(REGISTRAR.notaCurrency(notaId), currency, "Incorrect currency");
+        assertEq(REGISTRAR.notaEscrowed(notaId), escrowed, "Incorrect escrowed amount");
+        assertEq(address(REGISTRAR.notaHook(notaId)), address(hook), "Incorrect hook");
 
         assertEq(IERC20(currency).balanceOf(caller), initialCallerTokenBalance - totalAmount, "Caller currency balance didn't decrease correctly");
         assertEq(IERC20(currency).balanceOf(owner), initialOwnerTokenBalance + instant, "Owner currency balance didn't increase correctly");
-
-        vm.expectEmit(true, true, true, true);
-        emit IERC4906.MetadataUpdate(notaId);
     }
 
     function _registrarTransferHelper(address caller, address from, address to, uint256 notaId) internal {
