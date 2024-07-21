@@ -74,22 +74,6 @@ abstract contract BaseRegistrarTest is Test {
         assertEq(token.allowance(caller, toApprove), initialAllowance + total, "Approval Failed");
     }
 
-    function _tokenWhitelistToggle(address token, bool expectedState) internal {
-        bool initialState = REGISTRAR.tokenWhitelisted(token);
-        assertTrue(initialState != expectedState, "Redundant whitelist operation");
-
-        REGISTRAR.whitelistToken(token, expectedState);
-        assertEq(REGISTRAR.tokenWhitelisted(token), expectedState, "Whitelist state not updated correctly");
-    }
-
-    function _hookWhitelistToggle(IHooks hook, bool expectedState) internal {
-        bool initialState = REGISTRAR.hookWhitelisted(hook);
-        assertTrue(initialState != expectedState, "Redundant whitelist operation");
-
-        REGISTRAR.whitelistHook(hook, expectedState);
-        assertEq(REGISTRAR.hookWhitelisted(hook), expectedState, "Whitelist state not updated correctly");
-    }
-
     function _URIFormat(string memory _string) internal pure returns (string memory) {
         return string(abi.encodePacked("data:application/json;utf8,", _string));
     }

@@ -12,7 +12,6 @@ abstract contract RegistrarGov is Ownable, IRegistrarGov {
     mapping(IHooks hook => mapping(address token => uint256 totalRevenue)) internal _hookTotalRevenue;
     mapping(address token => uint256 revenue) internal _protocolRevenue;
     mapping(address token => uint256 totalRevenue) internal _protocolTotalRevenue;
-    mapping(bytes32 hook => bool isWhitelisted) internal _codeHashWhitelist;
     uint256 public constant MAX_PROTOCOL_FEE = 1000; // 10% in basis points
     uint256 internal _protocolFee; // In basis points (1/100 of a percent)
     string internal _contractURI;
@@ -34,46 +33,6 @@ abstract contract RegistrarGov is Ownable, IRegistrarGov {
 
     function contractURI() external view returns (string memory) {
         return string.concat("data:application/json;utf8,", _contractURI);
-    }
-
-    function whitelistHook(IHooks hook, bool isWhitelisted) external onlyOwner {
-        bytes32 codeHash;
-        assembly { codeHash := extcodehash(hook) }
-
-        require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
-        _codeHashWhitelist[codeHash] = isWhitelisted;
-
-        emit HookWhitelisted(_msgSender(), hook, isWhitelisted);
-    }
-
-    function whitelistToken(address token, bool isWhitelisted) external onlyOwner {
-        bytes32 codeHash;
-        assembly { codeHash := extcodehash(token) }
-
-        require(_codeHashWhitelist[codeHash] != isWhitelisted, "REDUNDANT_WHITELIST");
-
-        _codeHashWhitelist[codeHash] = isWhitelisted;
-
-        emit TokenWhitelisted(_msgSender(), token, isWhitelisted);
-    }
-
-    function tokenWhitelisted(address token) public view returns (bool) {
-        bytes32 codeHash;
-        assembly { codeHash := extcodehash(token) }
-        return _codeHashWhitelist[codeHash];
-    }
-
-    function hookWhitelisted(IHooks hook) public view returns (bool) {
-        bytes32 codeHash;
-        assembly { codeHash := extcodehash(hook) }
-        return _codeHashWhitelist[codeHash];
-    }
-
-    function validWrite(
-        IHooks hook,
-        address token
-    ) public view returns (bool) {
-        return hookWhitelisted(hook) && tokenWhitelisted(token);
     }
 
     function hookWithdraw(address token, uint256 amount, address to) external {
