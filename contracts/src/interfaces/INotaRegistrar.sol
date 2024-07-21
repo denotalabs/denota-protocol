@@ -57,6 +57,11 @@ interface INotaRegistrar {
         uint256 hookFee
     );
 
+    event Burned(
+        address indexed burner,
+        uint256 indexed notaId
+    );
+
     error NonExistent();
     error InvalidWrite(IHooks, address);
 
