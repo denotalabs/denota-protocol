@@ -4,3 +4,18 @@
 sdk/dist
 graph/graph-node/data/
 graph/denota/node_modules
+
+# Compiler files
+cache/
+out/
+src/flat
+
+# Ignores development broadcast logs
+broadcast/
+# Docs
+docs/
+
+# Dotenv file
+.env
+
+salts/
