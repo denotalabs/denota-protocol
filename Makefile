@@ -27,28 +27,35 @@ WETH=0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619
 ENS=0xbD7A5Cf51d22930B8B3Df6d834F9BCEf90EE7c4f
 DAI=0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
 GET=0xdb725f82818De83e99F1dAc22A9b5B51d3d04DD4
-DEPLOY_RPC_URL=${POLYGON_RPC_URL}
-VERIFIER_URL=https://api.polygonscan.com/api/
+DEPLOY_RPC_URL=${SEPOLIA_RPC_URL}
+VERIFIER_URL=https://api-sepolia.etherscan.io/api  # https://api.polygonscan.com/api/
 
 # 0.5hrs for 9 zeros
-deploy-all:
-	make deploy-registrar-salt
-
-deploy-registrar:
+# Note: sometimes verification is skipped if block times are slow (testnets)
+deploy:
 	# "brew install jq" if needed
 	forge compile --optimizer-runs ${optimizer_runs}
 
 	constructorArgs=$$(cast abi-encode "constructor(address)" ${ADDRESS}) ; \
 	constructorArgs=$$(echo $${constructorArgs} | sed 's/0x//') ; \
 	bytecode=$$(jq -r '.bytecode.object' out/NotaRegistrar.sol/NotaRegistrar.json)$${constructorArgs} ; \
-	cast create2 --deployer ${FACTORY_ADDRESS} --init-code $${bytecode} --starts-with 00000000 --caller ${ADDRESS} 2>&1 | tee salts/registrarSalt.txt ; \
-	salt=$$(cat salts/registrarSalt.txt | grep "Salt: " | awk '{print $$2}') ; \
-	contractAddress=$$(cat salts/registrarSalt.txt | grep "Address: " | awk '{print $$2}') ; \
+	cast create2 --deployer ${FACTORY_ADDRESS} --init-code $${bytecode} --starts-with 00000000 --caller ${ADDRESS} 2>&1 | tee NotaRegistrar.salt.txt ; \
+	salt=$$(cat src/NotaRegistrar.salt.txt | grep "Salt: " | awk '{print $$2}') ; \
+	contractAddress=$$(cat src/NotaRegistrar.salt.txt | grep "Address: " | awk '{print $$2}') ; \
 	cast send ${FACTORY_ADDRESS} "safeCreate2(bytes32,bytes calldata)" $${salt} $${bytecode} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}; \
 	forge verify-contract --num-of-optimizations ${optimizer_runs} --compiler-version v0.8.24 --watch \
 	--constructor-args $${constructorArgs} \
-	--chain-id 137 --verifier-url ${VERIFIER_URL} --etherscan-api-key ${POLYGON_SCAN_API_KEY} \
+	--chain-id 11155111 --verifier-url ${VERIFIER_URL} --etherscan-api-key ${ETHER_SCAN_API_KEY} \
 	$${contractAddress} \
+	src/NotaRegistrar.sol:NotaRegistrar
+
+verify:
+	constructorArgs=$$(cast abi-encode "constructor(address)" ${ADDRESS}) ; \
+	constructorArgs=$$(echo $${constructorArgs} | sed 's/0x//') ; \
+	forge verify-contract --num-of-optimizations ${optimizer_runs} --compiler-version v0.8.24 --watch \
+	--constructor-args $${constructorArgs} \
+	--chain-id 11155111 --verifier-url ${VERIFIER_URL} --etherscan-api-key ${ETHER_SCAN_API_KEY} \
+	0x00002bCC9B3e92a59207C43631f3b407AE5bBd0B \
 	src/NotaRegistrar.sol:NotaRegistrar
 
 setURI:
