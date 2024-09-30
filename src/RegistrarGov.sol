@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
+
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import {IRegistrarGov} from "./interfaces/IRegistrarGov.sol";
@@ -36,7 +37,7 @@ abstract contract RegistrarGov is Ownable, IRegistrarGov {
     }
 
     function hookWithdraw(address token, uint256 amount, address to) external {
-        _hookRevenue[IHooks(msg.sender)][token] -= amount;  // reverts on underflow
+        _hookRevenue[IHooks(msg.sender)][token] -= amount; // reverts on underflow
         uint256 fee = (amount * _protocolFee) / 10000;
         _protocolRevenue[token] += fee;
         _protocolTotalRevenue[token] += fee;
@@ -52,19 +53,19 @@ abstract contract RegistrarGov is Ownable, IRegistrarGov {
         emit ProtocolRevenueCollected(token, amount, to);
     }
 
-    function hookRevenue(IHooks hook, address currency) external view returns(uint256) {
+    function hookRevenue(IHooks hook, address currency) external view returns (uint256) {
         return _hookRevenue[hook][currency];
     }
 
-    function hookTotalRevenue(IHooks hook, address currency) external view returns(uint256) {
+    function hookTotalRevenue(IHooks hook, address currency) external view returns (uint256) {
         return _hookTotalRevenue[hook][currency];
     }
 
-    function protocolRevenue(address currency) external view returns(uint256) {
+    function protocolRevenue(address currency) external view returns (uint256) {
         return _protocolRevenue[currency];
     }
 
-    function protocolTotalRevenue(address currency) external view returns(uint256) {
+    function protocolTotalRevenue(address currency) external view returns (uint256) {
         return _protocolTotalRevenue[currency];
     }
 }

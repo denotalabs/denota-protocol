@@ -10,19 +10,13 @@ interface IHooks {
         address approved;
     }
 
-    function beforeWrite(
-        address caller,
-        NotaState calldata nota,
-        uint256 instant,
-        bytes calldata hookData
-    ) external returns (bytes4, uint256);
+    function beforeWrite(address caller, NotaState calldata nota, uint256 instant, bytes calldata hookData)
+        external
+        returns (bytes4, uint256);
 
-    function beforeTransfer(
-        address caller,
-        NotaState calldata nota,
-        address to,
-        bytes calldata hookData
-    ) external returns (bytes4, uint256);
+    function beforeTransfer(address caller, NotaState calldata nota, address to, bytes calldata hookData)
+        external
+        returns (bytes4, uint256);
 
     function beforeFund(
         address caller,
@@ -32,27 +26,16 @@ interface IHooks {
         bytes calldata hookData
     ) external returns (bytes4, uint256);
 
-    function beforeCash(
-        address caller,
-        NotaState calldata nota,
-        address to,
-        uint256 amount,
-        bytes calldata hookData
-    ) external returns (bytes4, uint256);
+    function beforeCash(address caller, NotaState calldata nota, address to, uint256 amount, bytes calldata hookData)
+        external
+        returns (bytes4, uint256);
 
-    function beforeApprove(
-        address caller,
-        NotaState calldata nota,
-        address to
-    ) external returns (bytes4, uint256);
+    function beforeApprove(address caller, NotaState calldata nota, address to) external returns (bytes4, uint256);
 
-    function beforeBurn(
-        address caller,
-        NotaState calldata nota
-    ) external returns (bytes4);
+    function beforeBurn(address caller, NotaState calldata nota) external returns (bytes4);
 
-    function beforeTokenURI(
-        address caller,
-        NotaState calldata nota
-    ) external view returns (bytes4, string memory, string memory);
+    function beforeTokenURI(address caller, NotaState calldata nota)
+        external
+        view
+        returns (bytes4, string memory, string memory);
 }

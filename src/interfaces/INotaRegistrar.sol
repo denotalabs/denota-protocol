@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
+
 import "openzeppelin/token/ERC20/IERC20.sol";
 import {IHooks} from "../interfaces/IHooks.sol";
 
@@ -16,10 +17,10 @@ interface INotaRegistrar {
         address currency; // Slot2
         /* 96 bits free */
         IHooks hooks; // Slot3
-        /* 96 bits free */
+            /* 96 bits free */
     }
 
-    event Written (
+    event Written(
         address indexed writer,
         uint256 indexed notaId,
         address currency,
@@ -29,19 +30,9 @@ interface INotaRegistrar {
         uint256 hookFee,
         bytes hookData
     );
-    event Transferred(
-        address indexed transferer,
-        uint256 indexed notaId,
-        uint256 hookFee,
-        bytes hookData
-    );
+    event Transferred(address indexed transferer, uint256 indexed notaId, uint256 hookFee, bytes hookData);
     event Funded(
-        address indexed funder,
-        uint256 indexed notaId,
-        uint256 amount,
-        uint256 instant,
-        uint256 hookFee,
-        bytes hookData
+        address indexed funder, uint256 indexed notaId, uint256 amount, uint256 instant, uint256 hookFee, bytes hookData
     );
     event Cashed(
         address indexed casher,
@@ -51,15 +42,8 @@ interface INotaRegistrar {
         uint256 hookFee,
         bytes hookData
     );
-    event Approved(
-        address indexed approver,
-        uint256 indexed notaId,
-        uint256 hookFee
-    );
-    event Burned(
-        address indexed burner,
-        uint256 indexed notaId
-    );
+    event Approved(address indexed approver, uint256 indexed notaId, uint256 hookFee);
+    event Burned(address indexed burner, uint256 indexed notaId);
 
     error NonExistent();
 
@@ -86,34 +70,19 @@ interface INotaRegistrar {
      * @notice Transfers a Nota to a new owner and checks if the new owner can receive it
      * @dev Enforces the transfer requirements (isApprovedOrOwner) and whatever the transferHook enforces
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory hookData
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory hookData) external;
 
     /**
      * @notice Adds to the escrowed amount of a Nota
      * @dev No requirements except what the fundHook enforces
      */
-    function fund(
-        uint256 notaId,
-        uint256 amount,
-        uint256 instant,
-        bytes calldata hookData
-    ) external payable;
+    function fund(uint256 notaId, uint256 amount, uint256 instant, bytes calldata hookData) external payable;
 
     /**
      * @notice Removes from the escrowed amount of a Nota
      * @dev No requirements except what the hook enforces
      */
-    function cash(
-        uint256 notaId,
-        uint256 amount,
-        address to,
-        bytes calldata hookData
-    ) external payable;
+    function cash(uint256 notaId, uint256 amount, address to, bytes calldata hookData) external payable;
 
     /**
      * @notice Approves a Nota for transfer
@@ -134,7 +103,7 @@ interface INotaRegistrar {
     function metadataUpdate(uint256 notaId) external;
 
     function notaInfo(uint256 notaId) external view returns (Nota memory);
-    
+
     function notaCurrency(uint256 notaId) external view returns (address);
 
     function notaEscrowed(uint256 notaId) external view returns (uint256);
