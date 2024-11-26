@@ -34,6 +34,8 @@ interface IHooks {
 
     function beforeBurn(address caller, NotaState calldata nota) external returns (bytes4);
 
+    function beforeUpdate(address caller, NotaState calldata nota, bytes calldata hookData) external returns (bytes4, uint256);
+
     function beforeTokenURI(address caller, NotaState calldata nota)
         external
         view

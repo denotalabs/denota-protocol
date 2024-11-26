@@ -76,6 +76,13 @@ library Hooks {
         if (returnedSelector != IHooks.beforeBurn.selector) revert InvalidHookResponse();
     }
 
+    function beforeUpdate(IHooks self, IHooks.NotaState memory nota, bytes calldata hookData)
+        internal
+        returns (uint256)
+    {
+        return callHook(self, IHooks.beforeUpdate.selector, abi.encode(msg.sender, nota, hookData));
+    }
+
     function beforeTokenURI(IHooks self, IHooks.NotaState memory nota)
         internal
         view
