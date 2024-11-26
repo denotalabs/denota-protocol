@@ -15,6 +15,7 @@ import "./ERC4906.sol";
  * @title Denota Protocol
  * @author Almaraz.eth
  */
+ // TODO use OZ version 5.1.0
 contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Hooks for IHooks;
@@ -148,6 +149,21 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         emit Burned(msg.sender, notaId);
     }
 
+    /// @inheritdoc INotaRegistrar
+    function update(uint256 notaId, bytes calldata hookData) external nonReentrant {
+        Nota memory nota = notaInfo(notaId);
+
+        uint256 hookFee = nota.hooks.beforeUpdate(
+            IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)),
+            hookData
+        );
+
+        _notas[notaId].escrowed -= hookFee;
+        _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
+
+        emit MetadataUpdate(notaId);
+    }
+
     function tokenURI(uint256 notaId) public view override returns (string memory) {
         Nota memory nota = notaInfo(notaId);
         (string memory hookAttributes, string memory hookKeys) = nota.hooks.beforeTokenURI(
@@ -176,12 +192,6 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
                 )
             )
         );
-    }
-
-    /// @inheritdoc INotaRegistrar
-    function metadataUpdate(uint256 notaId) external nonReentrant {
-        require(msg.sender == address(_notas[notaId].hooks), "NOT_HOOK");
-        emit MetadataUpdate(notaId);
     }
 
     /*//////////////////////// HELPERS ///////////////////////////*/
