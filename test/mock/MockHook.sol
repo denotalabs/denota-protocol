@@ -55,7 +55,7 @@ contract MockHook is IHooks {
     }
 
     function beforeUpdate(address, IHooks.NotaState memory, bytes calldata) external view returns (bytes4, uint256) {
-        return (IHooks.beforeApprove.selector, fee);
+        return (IHooks.beforeUpdate.selector, fee);
     }
 
     function beforeTokenURI(address, IHooks.NotaState memory)
