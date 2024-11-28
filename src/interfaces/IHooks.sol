@@ -40,4 +40,6 @@ interface IHooks {
         external
         view
         returns (bytes4, string memory, string memory);
+
+    function notaBytes(uint256 notaId) external view returns (bytes memory);
 }
