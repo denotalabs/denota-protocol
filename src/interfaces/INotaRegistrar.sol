@@ -97,10 +97,10 @@ interface INotaRegistrar {
     function burn(uint256 notaId) external;
 
     /**
-     * @notice Updates the metadata of a Nota
-     * @dev Caller must be the Nota's hook
+     * @notice Updates the state of a Nota within it's hook
+     * @dev No requirements except what the hook enforces
      */
-    function metadataUpdate(uint256 notaId) external;
+    function update(uint256 notaId, bytes calldata hookData) external;
 
     function notaInfo(uint256 notaId) external view returns (Nota memory);
 
