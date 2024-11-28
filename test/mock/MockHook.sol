@@ -65,4 +65,8 @@ contract MockHook is IHooks {
     {
         return (IHooks.beforeTokenURI.selector, "", "");
     }
+
+    function notaBytes(uint256) external pure override returns (bytes memory) {
+        return "";
+    }
 }

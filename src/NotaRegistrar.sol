@@ -247,4 +247,19 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     function notaHooks(uint256 notaId) public view exists(notaId) returns (IHooks) {
         return _notas[notaId].hooks;
     }
+
+    function notaData(uint256 notaId) public view exists(notaId) returns (Nota memory, bytes memory) {
+        Nota memory nota = _notas[notaId];
+        bytes memory data = nota.hooks.notaBytes(notaId);
+        return (nota, data);
+    }
+
+    function notaStateData(uint256 notaId) public view exists(notaId) returns (IHooks.NotaState memory, bytes memory) {
+        Nota memory nota = _notas[notaId];
+        bytes memory data = nota.hooks.notaBytes(notaId);
+        return (
+                IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)),
+                data
+            );
+    }
 }
