@@ -2,16 +2,23 @@
 pragma solidity ^0.8.24;
 
 import {IHooks} from "../interfaces/IHooks.sol";
+import {CustomRevert} from "./CustomRevert.sol";
 
 // TODO look at univ4 library, callHook is implemented differently. Uses assembly to make the call AND bubbles it up.
 library Hooks {
     using Hooks for IHooks;
+    using CustomRevert for bytes4;
 
     error HookFailure();
+
+    /// @notice Hook did not return its selector
     error InvalidHookResponse();
+    /// @notice Additional context for ERC-7751 wrapped error when a hook call fails
+    error HookCallFailed();
 
     function callHook(IHooks self, bytes4 selector, bytes memory data) internal returns (uint256) {
-        (, bytes memory result) = address(self).call(abi.encodePacked(selector, data));
+        (bool success, bytes memory result) = address(self).call(abi.encodePacked(selector, data));
+        if (!success) CustomRevert.bubbleUpAndRevertWith(address(self), bytes4(data), HookCallFailed.selector);
         
         if (result.length < 36) {
             // If the result length is less than 36 bytes, it is an invalid return value
@@ -38,33 +45,6 @@ library Hooks {
         return hookFee;
     }
 
-/**
-    function callHook(IHooks self, bytes memory data) internal returns (bytes memory result) {
-        bool success;
-        assembly ("memory-safe") {
-            success := call(gas(), self, 0, add(data, 0x20), mload(data), 0, 0)
-        }
-        // Revert with FailedHookCall, containing any error message to bubble up
-        // if (!success) Wrap__FailedHookCall.selector.bubbleUpAndRevertWith(address(self));
-
-        // The call was successful, fetch the returned data
-        assembly ("memory-safe") {
-            // allocate result byte array from the free memory pointer
-            result := mload(0x40)
-            // store new free memory pointer at the end of the array padded to 32 bytes
-            mstore(0x40, add(result, and(add(returndatasize(), 0x3f), not(0x1f))))
-            // store length in memory
-            mstore(result, returndatasize())
-            // copy return data to result
-            returndatacopy(add(result, 0x20), 0, returndatasize())
-        }
-
-        // Length must be at least 32 to contain the selector. Check expected selector and returned selector match.
-        if (result.length < 32) { //  || result.parseSelector() != data.parseSelector()
-            // InvalidHookResponse.selector.revertWith();
-        }
-    }
- */
     function beforeWrite(IHooks self, IHooks.NotaState memory nota, uint256 instant, bytes calldata hookData)
         internal
         returns (uint256)

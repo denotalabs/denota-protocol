@@ -124,4 +124,10 @@ contract WriteTest is BaseRegistrarTest {
 
         _registrarWriteHelper(caller, address(DAI), escrowed, instant, owner, HOOK, "");
     }
+
+    function testFailWriteShouldLog() public {
+        HOOK.setFail(true);
+        vm.expectRevert("WrappedError(0x2e234DAe75C793f67A35089C9d99245E1C58470b, 0x00000000, 0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000e4d6f636b486f6f6b3a204641494c000000000000000000000000000000000000, 0xa9e35b2f)");
+        REGISTRAR.write(address(DAI), 100, 0, owner, HOOK, "");
+    }
 }
