@@ -71,8 +71,8 @@ abstract contract BaseRegistrarTest is Test {
     }
 
     function _registrarWriteAssumptions(address caller, uint256 escrow, uint256 instant, address owner) internal view {
-        vm.assume(caller != address(0) && caller != owner && owner != address(0));
-        vm.assume(
+        vm.assume(caller != address(0) && caller != owner && owner != address(0));   // TODO not sure if caller != owner is necessary
+        vm.assume(  // TODO could just change to check if owner is a contract
             owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this)
                 && owner != address(this)
         );

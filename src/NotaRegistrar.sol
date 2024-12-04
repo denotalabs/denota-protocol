@@ -15,7 +15,6 @@ import "./ERC4906.sol";
  * @title Denota Protocol
  * @author Almaraz.eth
  */
- // TODO use OZ version 5.1.0
 contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Hooks for IHooks;
@@ -28,8 +27,9 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         _;
     }
 
-    constructor(address newOwner) ERC4906("Denota Protocol (beta)", "NOTA") {
+    constructor(address newOwner) ERC4906("Denota-Protocol-beta-NFT", "NOTA") {
         transferOwnership(newOwner); // Needed when using create2
+        nextId = 1;
     }
 
     /// @inheritdoc INotaRegistrar
@@ -180,7 +180,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
                             Strings.toHexString(nota.currency),
                             '"},{"trait_type":"Amount","display_type":"number","value":',
                             Strings.toString(nota.escrowed),
-                            '},{"trait_type":"Wrapper Contract","value":"',
+                            '},{"trait_type":"Hook Contract","value":"',
                             Strings.toHexString(address(nota.hooks)),
                             '"}',
                             hookAttributes, // of form: ',{"trait_type":"<trait>","value":"<value>"}'
