@@ -1,18 +1,17 @@
 -include ../.env
 
 FACTORY_ADDRESS=0x0000000000FFe8B47B3e2130213B802212439497
-DEPLOY_RPC_URL=${SEPOLIA_RPC_URL}
-VERIFIER_URL=https://api-sepolia.etherscan.io/api  # https://api.polygonscan.com/api/
+DEPLOY_RPC_URL=${POLYGON_RPC_URL}
+VERIFIER_URL=https://api.polygonscan.com/api/  # https://api-sepolia.etherscan.io/api
+optimizer_runs=1000000
 
 ADDRESS_LOCAL=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 PRIVATE_KEY_LOCAL=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 FACTORY_ADDRESS_LOCAL=0x5FbDB2315678afecb367f032d93F642f64180aa3
 DEPLOY_RPC_URL_LOCAL=127.0.0.1:8545
 
-optimizer_runs=1000000
-# 0.5hrs for 9 zeros base M1 air
-
 # "brew install jq" if needed
+# `anvil` in a separate terminal to run the local chain
 deploy-all-local: deploy-factory-local deploy-token-local deploy-registrar-local deploy-hook-local write-local tokenURI-local
 
 deploy-factory-local:
@@ -21,6 +20,7 @@ deploy-factory-local:
 deploy-token-local:
 	forge create --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL} test/mock/MockERC20.sol:MockERC20 --constructor-args "Dai" "DAI" 18 --optimizer-runs ${optimizer_runs}
 
+# 0.5hrs for 9 zeros base M1 air
 mine-registrar-local:
 	constructorArgs=$$(cast abi-encode "constructor(address)" ${ADDRESS_LOCAL}) ; \
 	constructorArgs=$$(echo $${constructorArgs} | sed 's/0x//') ; \
@@ -31,7 +31,7 @@ mine-registrar-local:
 # Paste this in from the output of the above command if registrar code changes
 salt=0xf39fd6e51aad88f6f4ce6ab8827279cfffb922669edd78cd0fa5eb199a9625d6
 deploy-registrar-local:
-	forge compile --optimizer-runs ${optimizer_runs}
+	forge build --optimizer-runs ${optimizer_runs}
 
 	constructorArgs=$$(cast abi-encode "constructor(address)" ${ADDRESS_LOCAL}) ; \
 	constructorArgs=$$(echo $${constructorArgs} | sed 's/0x//') ; \
@@ -39,18 +39,7 @@ deploy-registrar-local:
 	cast send ${FACTORY_ADDRESS_LOCAL} "safeCreate2(bytes32,bytes calldata)" ${salt} $${bytecode} --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL};
 
 # Paste from salt file if registrar code changes
-registrarAddress=0x000df28b0e7d3583ffdf32c1a7e09264c86c7e5d
-# Welcome to the future of programmable crypto payments! Imagine a world where your payments arent just transactions, but smart, programmable assets. From trustless betting to reversibility and multi-step payments, Denotas Nota NFTs revolutionize how you send funds. With Denota, each payment is an NFT, capable of carrying custom rules and data for your unique needs. Theyre not just payments; theyre fully onchain, extensible, composable, and transferable payment agreements. Explore our simple yet powerful payment hooks to deploy your own and start generating revenue!
-# denotaContractURI="{'name':'Denota Protocol (beta)','description':'The Programmable Escrow Protocol','image':'ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v','banner_image':'ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ','external_link':'denota.xyz','collaborators':'['almaraz.eth']'}"; 
-# TODO need to add spaces to the string such that it doesn't end at the first space when converted
-setURI-local:
-	denotaContractURI="{'name':'Denota\u0020Protocol'}"; \
-	cast send ${registrarAddress} "setContractURI(string)" $${denotaContractURI} --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL}
-
-getURI-local:
-	cast call ${registrarAddress} "contractURI()" --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL}
-
-
+registrarAddress=0xf403c90302365f14a0e536875d908001cedf1ef5
 deploy-hook-local:
 	forge create --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL} test/mock/MockHook.sol:MockHook --constructor-args ${registrarAddress} --optimizer-runs ${optimizer_runs}
 
@@ -69,7 +58,15 @@ write-local:
 tokenURI-local:
 	cast call ${registrarAddress} "tokenURI(uint256)" 1 --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL}
 
+# Welcome to the future of programmable crypto payments! Imagine a world where your payments arent just transactions, but smart, programmable assets. From trustless betting to reversibility and multi-step payments, Denotas Nota NFTs revolutionize how you send funds. With Denota, each payment is an NFT, capable of carrying custom rules and data for your unique needs. Theyre not just payments; theyre fully onchain, extensible, composable, and transferable payment agreements. Explore our simple yet powerful payment hooks to deploy your own and start generating revenue!
+# Fully programmable payments with rich metadata for users and a development platform with hooks for developers.
+setURI-local:
+	denotaContractURI="{'name':'Denota Protocol (beta)','description':'The Programmable Escrow Protocol','image':'ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v','banner_image':'ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ','external_link':'denota.xyz','collaborators':['almaraz.eth']}"; \
+	cast send ${registrarAddress} "setContractURI(string)" "$${denotaContractURI}" --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL}
 
+getURI-local:
+		URI=$$(cast call ${registrarAddress} "contractURI()" --private-key ${PRIVATE_KEY_LOCAL} --rpc-url ${DEPLOY_RPC_URL_LOCAL}) ; \
+		cast abi-decode "f(bytes)(string)" $${URI}
 
 ######################################################################################################################################################
 #    																	Mainnet																		 #	
@@ -107,13 +104,14 @@ deploy-verify:
 	cast send ${FACTORY_ADDRESS} "safeCreate2(bytes32,bytes calldata)" $${salt} $${bytecode} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}; \
 	forge verify-contract --num-of-optimizations ${optimizer_runs} --compiler-version v0.8.24 --watch \
 	--constructor-args $${constructorArgs} \
-	--chain-id 11155111 --verifier-url ${VERIFIER_URL} --etherscan-api-key ${ETHER_SCAN_API_KEY} \
+	--chain-id 137 --verifier-url ${VERIFIER_URL} --etherscan-api-key ${ETHER_SCAN_API_KEY} \
 	$${contractAddress} \
 	src/NotaRegistrar.sol:NotaRegistrar
 
 setURI:
-	denotaContractURI='{"name":"Denota Protocol (beta)","description":"Welcome to the future of programmable crypto payments! Imagine a world where your payments arent just transactions, but smart, programmable assets. From trustless betting to reversibility and multi-step payments, Denotas Nota NFTs revolutionize how you send funds. With Denota, each payment is an NFT, capable of carrying custom rules and data for your unique needs. Theyre not just payments; theyre fully onchain, extensible, composable, and transferable payment agreements. Explore our simple yet powerful payment hooks to deploy your own and start generating revenue!","image":"ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v","banner_image":"ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ","external_link":"denota.xyz","collaborators":["almaraz.eth"]}'#; \
-	cast send $${contractAddress} "setContractURI(string)" ${denotaContractURI} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+	contractAddress=$$(cat src/NotaRegistrar.salt.txt | grep "Address: " | awk '{print $$2}') ; \
+	denotaContractURI="{'name':'Denota Protocol (beta)','description':'The Programmable Escrow Protocol','image':'ipfs://QmZfdTBo6Pnr7qbWg4FSeSiGNHuhhmzPbHgY7n8XrZbQ2v','banner_image':'ipfs://QmVT5v2TGLuvNDcyTv9hjdga2KAnv37yFjJDYsEhGAM2zQ','external_link':'denota.xyz','collaborators':['almaraz.eth']}"; \
+	cast send $${contractAddress} "setContractURI(string)" "${denotaContractURI}"" --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
 
 
 # Polygon addresses
@@ -134,4 +132,7 @@ hookData=0x
 write:
 	cast send ${currency} "mint(address,uint256)" ${owner} ${escrow} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
 	cast send ${currency} "approve(address,uint256)" ${registrarAddress} ${escrow} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
-	cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${hook} ${hookData} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL}
+	cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${hook} ${hookData} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ;
+
+test-registrar:
+	forge test --gas-report --optimizer-runs ${optimizer_runs} | grep -A 1000 "src/NotaRegistrar.sol:NotaRegistrar contract" | grep -v "Ran [0-9]* test suites" | tee NotaRegistrar.gas.txt | tr -d '\r';
