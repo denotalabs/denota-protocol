@@ -134,5 +134,17 @@ write:
 	cast send ${currency} "approve(address,uint256)" ${registrarAddress} ${escrow} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ; \
 	cast send ${registrarAddress} ${writeSelector} ${currency} ${escrow} ${instant} ${owner} ${hook} ${hookData} --private-key ${PRIVATE_KEY} --rpc-url ${DEPLOY_RPC_URL} ;
 
-test-registrar:
-	forge test --gas-report --optimizer-runs ${optimizer_runs} | grep -A 1000 "src/NotaRegistrar.sol:NotaRegistrar contract" | grep -v "Ran [0-9]* test suites" | tee NotaRegistrar.gas.txt | tr -d '\r';
+gas-registrar:
+	forge test --gas-report --optimizer-runs ${optimizer_runs} | \
+	grep -A 100 "src/NotaRegistrar.sol:NotaRegistrar contract" | \
+	grep -v "Ran [0-9]* test suites" | \
+	grep -v "FAIL" | \
+	grep -E "src|-|Function|approve|burn|cash|fund|safeTransferFrom|transferFrom|update|write" | \
+	tee NotaRegistrar.gas.txt
+
+gas-registrar-full:
+	forge test --gas-report --optimizer-runs ${optimizer_runs} | \
+	grep -A 100 "src/NotaRegistrar.sol:NotaRegistrar contract" | \
+	grep -v "Ran [0-9]* test suites" | \
+	grep -v "FAIL" | \
+	tee NotaRegistrar.gas.txt
