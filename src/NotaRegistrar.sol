@@ -164,6 +164,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         emit MetadataUpdate(notaId);
     }
 
+    /// @inheritdoc IERC721Metadata
     function tokenURI(uint256 notaId) public view override returns (string memory) {
         Nota memory nota = notaInfo(notaId);
         (string memory hookAttributes, string memory hookKeys) = nota.hooks.beforeTokenURI(
@@ -232,28 +233,34 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     }
 
     /*//////////////////////// VIEW FUNCTIONS ///////////////////////////*/
+    /// @inheritdoc INotaRegistrar
     function notaInfo(uint256 notaId) public view exists(notaId) returns (Nota memory) {
         return _notas[notaId];
     }
 
+    /// @inheritdoc INotaRegistrar
     function notaEscrowed(uint256 notaId) public view exists(notaId) returns (uint256) {
         return _notas[notaId].escrowed;
     }
 
+    /// @inheritdoc INotaRegistrar
     function notaCurrency(uint256 notaId) public view exists(notaId) returns (address) {
         return _notas[notaId].currency;
     }
 
+    /// @inheritdoc INotaRegistrar
     function notaHooks(uint256 notaId) public view exists(notaId) returns (IHooks) {
         return _notas[notaId].hooks;
     }
 
+    /// @inheritdoc INotaRegistrar
     function notaData(uint256 notaId) public view exists(notaId) returns (Nota memory, bytes memory) {
         Nota memory nota = _notas[notaId];
         bytes memory data = nota.hooks.notaBytes(notaId);
         return (nota, data);
     }
 
+    /// @inheritdoc INotaRegistrar
     function notaStateData(uint256 notaId) public view exists(notaId) returns (IHooks.NotaState memory, bytes memory) {
         Nota memory nota = _notas[notaId];
         bytes memory data = nota.hooks.notaBytes(notaId);
