@@ -18,18 +18,18 @@ contract SafeTransferTest is BaseRegistrarTest {
 
     function testSafeTransfer() public {
         _registrarTransferAssumptions(owner, owner, recipient, notaId);
-        _registrarSafeTransferHelper(owner, owner, recipient, notaId);
+        _registrarSafeTransferHelper(owner, owner, recipient, notaId, abi.encode(""));
     }
 
     function testSafeTransferWithData() public {
         bytes memory data = "test data";
         _registrarTransferAssumptions(owner, owner, recipient, notaId);
-        _registrarSafeTransferWithDataHelper(owner, owner, recipient, notaId, data);
+        _registrarSafeTransferHelper(owner, owner, recipient, notaId, data);
     }
 
     function testSafeTransferApproved() public {
         _registrarApproveHelper(owner, caller, notaId);
-        _registrarSafeTransferHelper(caller, owner, recipient, notaId);
+        _registrarSafeTransferHelper(caller, owner, recipient, notaId, abi.encode(""));
     }
 
     function testSafeTransferOperator() public {
@@ -38,7 +38,7 @@ contract SafeTransferTest is BaseRegistrarTest {
         
         vm.prank(owner);
         REGISTRAR.setApprovalForAll(caller, true);
-        _registrarSafeTransferHelper(caller, owner, recipient, notaId);
+        _registrarSafeTransferHelper(caller, owner, recipient, notaId, abi.encode(""));
     }
 
     function testSafeTransferFailUnauthorized(address unauthorized) public {
@@ -59,14 +59,7 @@ contract SafeTransferTest is BaseRegistrarTest {
         REGISTRAR.safeTransferFrom(owner, address(contractAddr), notaId);
     }
 
-    function testFuzzSafeTransfer(address to) public {
-        vm.assume(to != address(0));
-        vm.assume(!_isContract(to));
-        _registrarTransferAssumptions(owner, owner, to, notaId);
-        _registrarSafeTransferHelper(owner, owner, to, notaId);
-    }
-
-    function testFuzzSafeTransferWithData(address to, bytes calldata testData) public {
+    function testFuzzSafeTransfer(address to, bytes calldata testData) public {
         bytes memory data;
         if (testData.length == 0){
             data = abi.encode("");
@@ -77,6 +70,6 @@ contract SafeTransferTest is BaseRegistrarTest {
         vm.assume(to != address(0));
         vm.assume(!_isContract(to));
         _registrarTransferAssumptions(owner, owner, to, notaId);
-        _registrarSafeTransferWithDataHelper(owner, owner, to, notaId, data);
+        _registrarSafeTransferHelper(owner, owner, to, notaId, data);
     }
 }

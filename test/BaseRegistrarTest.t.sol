@@ -212,43 +212,7 @@ abstract contract BaseRegistrarTest is Test {
         );
     }
 
-    function _registrarSafeTransferHelper(address caller, address from, address to, uint256 notaId) internal {
-        uint256 initialId = REGISTRAR.nextId();
-        uint256 initialFromBalance = REGISTRAR.balanceOf(from);
-        uint256 initialToBalance = REGISTRAR.balanceOf(to);
-        assertEq(REGISTRAR.ownerOf(notaId), from, "From address should be the current owner");
-        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
-
-        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
-        uint256 hookFee;
-
-        vm.expectEmit(true, true, true, true);
-        emit INotaRegistrar.Transferred(caller, notaId, hookFee, abi.encode(""));
-        vm.expectEmit(true, true, true, true);
-        emit IERC721.Transfer(from, to, notaId);
-        vm.expectEmit(true, true, true, true);
-        emit IERC4906.MetadataUpdate(notaId);
-
-        vm.prank(caller);
-        REGISTRAR.safeTransferFrom(from, to, notaId);
-
-        assertEq(REGISTRAR.nextId(), initialId, "NextId should remain unchanged");
-        assertEq(REGISTRAR.balanceOf(from), initialFromBalance - 1, "Sender's balance should decrease by 1");
-        assertEq(REGISTRAR.balanceOf(to), initialToBalance + 1, "Recipient's balance should increase by 1");
-        assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
-
-        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(notaId);
-        assertEq(postNota.escrowed, preNota.escrowed, "Escrowed amount should not change");
-        assertEq(postNota.currency, preNota.currency, "Currency should not change");
-        assertEq(address(postNota.hooks), address(preNota.hooks), "Hook should not change");
-        assertEq(
-            initialHookRevenue,
-            REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency)) + hookFee,
-            "Hook revenue should be updated correctly"
-        );
-    }
-
-    function _registrarSafeTransferWithDataHelper(
+    function _registrarSafeTransferHelper(
         address caller, 
         address from, 
         address to, 
@@ -273,7 +237,6 @@ abstract contract BaseRegistrarTest is Test {
 
         vm.prank(caller);
         REGISTRAR.safeTransferFrom(from, to, notaId, data);
-
         assertEq(REGISTRAR.nextId(), initialId, "NextId should remain unchanged");
         assertEq(REGISTRAR.balanceOf(from), initialFromBalance - 1, "Sender's balance should decrease by 1");
         assertEq(REGISTRAR.balanceOf(to), initialToBalance + 1, "Recipient's balance should increase by 1");
