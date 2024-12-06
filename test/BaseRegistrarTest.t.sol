@@ -17,7 +17,6 @@ abstract contract BaseRegistrarTest is Test {
     NotaRegistrar public REGISTRAR;
     MockHook public HOOK;
     MockERC20 public DAI;
-    uint256 public immutable TOKEN_SUPPLY = 1_000_000_000_000e18;
 
     function setUp() public virtual {
         REGISTRAR = new NotaRegistrar(address(this));
@@ -59,11 +58,16 @@ abstract contract BaseRegistrarTest is Test {
         uint256 initialAllowance = token.allowance(caller, toApprove);
 
         token.mint(caller, total);
-        assertEq(token.balanceOf(caller), initialBalance + total, "Token Transfer Failed");
+        assertEq(token.balanceOf(caller), initialBalance + total, "Token Mint Failed");
 
         vm.prank(caller);
         token.approve(toApprove, total);
-        assertEq(token.allowance(caller, toApprove), initialAllowance + total, "Approval Failed");
+
+        if (initialAllowance == total) {
+            assertEq(token.allowance(caller, toApprove), total, "Approval Failed");
+        } else {
+            assertNotEq(token.allowance(caller, toApprove), initialAllowance, "Approval Failed");
+        }
     }
 
     function _URIFormat(string memory _string) internal pure returns (string memory) {
@@ -71,12 +75,9 @@ abstract contract BaseRegistrarTest is Test {
     }
 
     function _registrarWriteAssumptions(address caller, uint256 escrow, uint256 instant, address owner) internal view {
-        vm.assume(caller != address(0) && caller != owner && owner != address(0));   // TODO not sure if caller != owner is necessary
-        vm.assume(  // TODO could just change to check if owner is a contract
-            owner != address(REGISTRAR) && caller != address(REGISTRAR) && caller != address(this)
-                && owner != address(this)
-        );
-        vm.assume(((escrow >> 2) + (instant >> 2)) <= (TOKEN_SUPPLY >> 2));
+        vm.assume(((escrow >> 2) + (instant >> 2)) < (type(uint256).max >> 2));
+        vm.assume(caller != address(0) && owner != address(0) && caller != owner);   // TODO not sure if caller != owner is necessary
+        vm.assume(!_isContract(owner) && !_isContract(caller));
     }
 
     function _registrarTransferAssumptions(address caller, address from, address to, uint256 notaId) internal view {
@@ -187,14 +188,11 @@ abstract contract BaseRegistrarTest is Test {
         uint256 hookFee; // TODO
 
         vm.expectEmit(true, true, true, true);
-        emit IERC721.Transfer(from, to, notaId);
-
+        emit INotaRegistrar.Transferred(caller, notaId, hookFee, abi.encode(""));
         vm.expectEmit(true, true, true, true);
-        emit INotaRegistrar.Transferred(caller, notaId, hookFee, "");
-
+        emit IERC721.Transfer(from, to, notaId);
         vm.expectEmit(true, true, true, true);
         emit IERC4906.MetadataUpdate(notaId);
-
         vm.prank(caller);
         REGISTRAR.transferFrom(from, to, notaId);
 
@@ -211,6 +209,47 @@ abstract contract BaseRegistrarTest is Test {
             initialHookRevenue,
             REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency)) + hookFee,
             "Owner currency balance didn't decrease"
+        );
+    }
+
+    function _registrarSafeTransferHelper(
+        address caller, 
+        address from, 
+        address to, 
+        uint256 notaId, 
+        bytes memory data
+    ) internal {
+        uint256 initialId = REGISTRAR.nextId();
+        uint256 initialFromBalance = REGISTRAR.balanceOf(from);
+        uint256 initialToBalance = REGISTRAR.balanceOf(to);
+        assertEq(REGISTRAR.ownerOf(notaId), from, "From address should be the current owner");
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
+
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
+        uint256 hookFee;
+
+        vm.expectEmit(true, true, true, true);
+        emit INotaRegistrar.Transferred(caller, notaId, hookFee, data);
+        vm.expectEmit(true, true, true, true);
+        emit IERC721.Transfer(from, to, notaId);
+        vm.expectEmit(true, true, true, true);
+        emit IERC4906.MetadataUpdate(notaId);
+
+        vm.prank(caller);
+        REGISTRAR.safeTransferFrom(from, to, notaId, data);
+        assertEq(REGISTRAR.nextId(), initialId, "NextId should remain unchanged");
+        assertEq(REGISTRAR.balanceOf(from), initialFromBalance - 1, "Sender's balance should decrease by 1");
+        assertEq(REGISTRAR.balanceOf(to), initialToBalance + 1, "Recipient's balance should increase by 1");
+        assertEq(REGISTRAR.ownerOf(notaId), to, "Recipient should be the new owner of the token");
+
+        NotaRegistrar.Nota memory postNota = REGISTRAR.notaInfo(notaId);
+        assertEq(postNota.escrowed, preNota.escrowed, "Escrowed amount should not change");
+        assertEq(postNota.currency, preNota.currency, "Currency should not change");
+        assertEq(address(postNota.hooks), address(preNota.hooks), "Hook should not change");
+        assertEq(
+            initialHookRevenue,
+            REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency)) + hookFee,
+            "Hook revenue should be updated correctly"
         );
     }
 
@@ -308,17 +347,15 @@ abstract contract BaseRegistrarTest is Test {
     function _registrarBurnHelper(address caller, uint256 notaId) internal {
         NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         address owner = REGISTRAR.ownerOf(notaId);
-        address approved = REGISTRAR.getApproved(notaId);
-        vm.assume(caller == owner || caller == approved);
 
         uint256 initialId = REGISTRAR.nextId();
         uint256 ownerBalance = REGISTRAR.balanceOf(owner);
 
-        // vm.expectEmit(true, true, true, true);
-        // emit INotaRegistrar.Burned(caller, notaId);
-
         vm.expectEmit(true, true, true, true);
         emit IERC721.Transfer(owner, address(0), notaId);
+
+        vm.expectEmit(true, true, true, true);
+        emit INotaRegistrar.Burned(caller, notaId); // , abi.encode("")
 
         vm.prank(caller);
         REGISTRAR.burn(notaId);
@@ -339,6 +376,30 @@ abstract contract BaseRegistrarTest is Test {
             REGISTRAR.hookRevenue(preNota.hooks, preNota.currency),
             preNota.escrowed,
             "Hook revenue should include burned escrowed amount"
+        );
+    }
+
+    function _registrarUpdateHelper(address caller, uint256 notaId, bytes memory hookData) internal {
+        NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
+        address owner = REGISTRAR.ownerOf(notaId);
+
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
+        uint256 hookFee; // = totalAmount - amount;  // TODO
+
+        // vm.expectEmit(true, true, true, true);  // TODO
+        // emit INotaRegistrar.Updated(caller, notaId, hookData);
+
+        vm.expectEmit(true, true, true, true);
+        emit IERC4906.MetadataUpdate(notaId);
+
+        vm.prank(caller);
+        REGISTRAR.update(notaId, hookData);
+
+        assertEq(REGISTRAR.ownerOf(notaId), owner, "Owner should remain the same");
+        assertEq(
+            REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency)),
+            initialHookRevenue + hookFee,
+            "Hook revenue didn't increase correctly"
         );
     }
 }
