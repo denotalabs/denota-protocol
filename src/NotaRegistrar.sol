@@ -159,7 +159,7 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
         );
 
         _notas[notaId].escrowed -= hookFee;
-        _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
+        _hookRevenue[nota.hooks][nota.currency] += hookFee;
 
         emit MetadataUpdate(notaId);
     }
