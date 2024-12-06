@@ -139,7 +139,7 @@ gas-registrar:
 	grep -A 100 "src/NotaRegistrar.sol:NotaRegistrar contract" | \
 	grep -v "Ran [0-9]* test suites" | \
 	grep -v "FAIL" | \
-	grep -E "src|-|Function|approve|burn|cash|fund|safeTransferFrom|transferFrom|update|write" | \
+	grep -E "src|-|Function|approve|burn|cash|fund|safeTransferFrom|transferFrom|tokenURI|update|write" | \
 	tee NotaRegistrar.gas.txt
 
 gas-registrar-full:
