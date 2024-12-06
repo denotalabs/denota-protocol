@@ -87,6 +87,13 @@ interface INotaRegistrar {
     /// @param hookData Additional data for the hook
     event Burned(address indexed burner, uint256 indexed notaId, bytes hookData);
 
+    /// @notice Emitted when a Nota is updated
+    /// @param updater The address of the updater
+    /// @param notaId The ID of the Nota
+    /// @param hookFee The fee taken by the hook
+    /// @param hookData Additional data for the hook
+    event Updated(address indexed updater, uint256 indexed notaId, uint256 hookFee, bytes hookData);
+
     /// @notice Error indicating that the Nota does not exist
     error NonExistent();
 
