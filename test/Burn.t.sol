@@ -16,14 +16,18 @@ contract BurnTest is BaseRegistrarTest {
     }
 
     function testBurn() public {
-        _registrarBurnHelper(owner, notaId);
+        _registrarBurnHelper(owner, notaId, "");
+    }
+
+    function testFuzzBurn(bytes calldata hookData) public {
+        _registrarBurnHelper(owner, notaId, hookData);
     }
 
     function testBurnByApproved() public {
         address approved = address(0x1234);
 
         _registrarApproveHelper(owner, approved, notaId);
-        _registrarBurnHelper(approved, notaId);
+        _registrarBurnHelper(approved, notaId, "");
     }
 
     function testBurnByOperator() public {
@@ -32,7 +36,7 @@ contract BurnTest is BaseRegistrarTest {
         vm.prank(owner);
         REGISTRAR.setApprovalForAll(operator, true);
         
-        _registrarBurnHelper(operator, notaId);
+        _registrarBurnHelper(operator, notaId, "");
     }
 
     function testBurnNotOwnerOrApproved() public {
@@ -40,6 +44,6 @@ contract BurnTest is BaseRegistrarTest {
 
         vm.expectRevert("NOT_APPROVED_OR_OWNER");
         vm.prank(notApproved);
-        REGISTRAR.burn(notaId);
+        REGISTRAR.burn(notaId, "");
     }
 }

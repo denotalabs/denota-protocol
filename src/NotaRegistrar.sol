@@ -135,18 +135,19 @@ contract NotaRegistrar is ERC4906, INotaRegistrar, RegistrarGov, ReentrancyGuard
     }
 
     /// @inheritdoc INotaRegistrar
-    function burn(uint256 notaId) external nonReentrant {
+    function burn(uint256 notaId, bytes calldata data) external nonReentrant {
         Nota memory nota = notaInfo(notaId);
         require(_isApprovedOrOwner(msg.sender, notaId), "NOT_APPROVED_OR_OWNER");
 
         nota.hooks.beforeBurn(
-            IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId))
+            IHooks.NotaState(notaId, nota.currency, nota.escrowed, ownerOf(notaId), getApproved(notaId)),
+            data
         );
 
         _hookRevenue[nota.hooks][nota.currency] += nota.escrowed;
         delete _notas[notaId];
         _burn(notaId);
-        emit Burned(msg.sender, notaId);
+        emit Burned(msg.sender, notaId, data);
     }
 
     /// @inheritdoc INotaRegistrar

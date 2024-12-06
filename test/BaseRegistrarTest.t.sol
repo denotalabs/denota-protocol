@@ -43,14 +43,15 @@ abstract contract BaseRegistrarTest is Test {
         return (amount * fee) / 10_000;
     }
 
-    function _calcTotalFees(IHooks hook, uint256 escrowed, uint256 instant) internal view returns (uint256) {
-        uint256 totalTransfer = instant + escrowed;
-
+    function _fetchHookFee(IHooks hook) internal view returns (uint256) {
         bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFee()")));
         (, bytes memory result) = address(hook).staticcall(data);
-        uint256 hookFee = abi.decode(result, (uint256));
-        uint256 totalWithFees = totalTransfer + hookFee;
-        return totalWithFees;
+        return abi.decode(result, (uint256));
+    }
+
+    function _calcTotalFees(IHooks hook, uint256 escrowed, uint256 instant) internal view returns (uint256) {
+        uint256 hookFee = _fetchHookFee(hook);
+        return instant + escrowed + hookFee;
     }
 
     function _fundCallerApproveAddress(address caller, MockERC20 token, uint256 total, address toApprove) internal {
@@ -185,7 +186,7 @@ abstract contract BaseRegistrarTest is Test {
         NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
 
         uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
-        uint256 hookFee; // TODO
+        uint256 hookFee = _fetchHookFee(preNota.hooks);
 
         vm.expectEmit(true, true, true, true);
         emit INotaRegistrar.Transferred(caller, notaId, hookFee, abi.encode(""));
@@ -226,7 +227,7 @@ abstract contract BaseRegistrarTest is Test {
         NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
 
         uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
-        uint256 hookFee;
+        uint256 hookFee = _fetchHookFee(preNota.hooks);
 
         vm.expectEmit(true, true, true, true);
         emit INotaRegistrar.Transferred(caller, notaId, hookFee, data);
@@ -344,9 +345,10 @@ abstract contract BaseRegistrarTest is Test {
         assertEq(REGISTRAR.getApproved(notaId), to, "Approval should change");
     }
 
-    function _registrarBurnHelper(address caller, uint256 notaId) internal {
+    function _registrarBurnHelper(address caller, uint256 notaId, bytes memory hookData) internal {
         NotaRegistrar.Nota memory preNota = REGISTRAR.notaInfo(notaId);
         address owner = REGISTRAR.ownerOf(notaId);
+        uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, preNota.currency);
 
         uint256 initialId = REGISTRAR.nextId();
         uint256 ownerBalance = REGISTRAR.balanceOf(owner);
@@ -355,10 +357,10 @@ abstract contract BaseRegistrarTest is Test {
         emit IERC721.Transfer(owner, address(0), notaId);
 
         vm.expectEmit(true, true, true, true);
-        emit INotaRegistrar.Burned(caller, notaId); // , abi.encode("")
+        emit INotaRegistrar.Burned(caller, notaId, hookData);
 
         vm.prank(caller);
-        REGISTRAR.burn(notaId);
+        REGISTRAR.burn(notaId, hookData);
 
         assertEq(REGISTRAR.balanceOf(owner), ownerBalance - 1, "Sender's balance should decrease by 1");
 
@@ -374,7 +376,7 @@ abstract contract BaseRegistrarTest is Test {
         assertEq(REGISTRAR.nextId(), initialId, "Next ID should remain unchanged");
         assertEq(
             REGISTRAR.hookRevenue(preNota.hooks, preNota.currency),
-            preNota.escrowed,
+            initialHookRevenue + preNota.escrowed,
             "Hook revenue should include burned escrowed amount"
         );
     }
@@ -384,10 +386,10 @@ abstract contract BaseRegistrarTest is Test {
         address owner = REGISTRAR.ownerOf(notaId);
 
         uint256 initialHookRevenue = REGISTRAR.hookRevenue(preNota.hooks, address(preNota.currency));
-        uint256 hookFee; // = totalAmount - amount;  // TODO
+        uint256 hookFee = _fetchHookFee(preNota.hooks);
 
-        // vm.expectEmit(true, true, true, true);  // TODO
-        // emit INotaRegistrar.Updated(caller, notaId, hookData);
+        vm.expectEmit(true, true, true, true);
+        emit INotaRegistrar.Updated(caller, notaId, hookFee, hookData);
 
         vm.expectEmit(true, true, true, true);
         emit IERC4906.MetadataUpdate(notaId);
