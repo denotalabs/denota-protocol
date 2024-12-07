@@ -135,9 +135,9 @@ library Hooks {
      * @param self The IHooks contract
      * @param nota The NotaState struct
      */
-    function beforeBurn(IHooks self, IHooks.NotaState memory nota) internal {
+    function beforeBurn(IHooks self, IHooks.NotaState memory nota, bytes calldata hookData) internal {
         (, bytes memory result) =
-            address(self).call(abi.encodePacked(IHooks.beforeBurn.selector, abi.encode(msg.sender, nota)));
+            address(self).call(abi.encodePacked(IHooks.beforeBurn.selector, abi.encode(msg.sender, nota, hookData)));
         if (result.length < 4) revert HookFailure(); // 4 bytes for selector
 
         bytes4 returnedSelector;

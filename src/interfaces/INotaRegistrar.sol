@@ -84,7 +84,15 @@ interface INotaRegistrar {
     /// @notice Emitted when a Nota is burned
     /// @param burner The address of the burner
     /// @param notaId The ID of the Nota
-    event Burned(address indexed burner, uint256 indexed notaId);
+    /// @param hookData Additional data for the hook
+    event Burned(address indexed burner, uint256 indexed notaId, bytes hookData);
+
+    /// @notice Emitted when a Nota is updated
+    /// @param updater The address of the updater
+    /// @param notaId The ID of the Nota
+    /// @param hookFee The fee taken by the hook
+    /// @param hookData Additional data for the hook
+    event Updated(address indexed updater, uint256 indexed notaId, uint256 hookFee, bytes hookData);
 
     /// @notice Error indicating that the Nota does not exist
     error NonExistent();
@@ -160,8 +168,9 @@ interface INotaRegistrar {
     * @notice Burns the Nota's ownership, deletes notaInfo, and moves remaining escrowed funds to the hook's revenue
     * @dev Caller must be the owner or approved the Nota or an operator for the owner. Remaining nota funds are credited to the hook's revenue
     * @param notaId The ID of the Nota to burn
+    * @param hookData Additional data for the hook
     */
-    function burn(uint256 notaId) external;
+    function burn(uint256 notaId, bytes calldata hookData) external;
 
     /**
     * @notice Updates the state of a Nota within its hook

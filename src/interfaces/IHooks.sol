@@ -32,7 +32,7 @@ interface IHooks {
 
     function beforeApprove(address caller, NotaState calldata nota, address to) external returns (bytes4, uint256);
 
-    function beforeBurn(address caller, NotaState calldata nota) external returns (bytes4);
+    function beforeBurn(address caller, NotaState calldata nota, bytes calldata hookData) external returns (bytes4);
 
     function beforeUpdate(address caller, NotaState calldata nota, bytes calldata hookData) external returns (bytes4, uint256);
 

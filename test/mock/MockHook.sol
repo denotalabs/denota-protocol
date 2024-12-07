@@ -60,7 +60,7 @@ contract MockHook is IHooks {
         return (IHooks.beforeApprove.selector, fee);
     }
 
-    function beforeBurn(address, IHooks.NotaState memory) external view returns (bytes4) {
+    function beforeBurn(address, IHooks.NotaState memory, bytes calldata) external view returns (bytes4) {
         if (fail) revert("MockHook: FAIL");
         return IHooks.beforeBurn.selector;
     }

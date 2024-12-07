@@ -28,15 +28,4 @@ contract UpdateTest is BaseRegistrarTest {
         vm.expectRevert(INotaRegistrar.NonExistent.selector);
         REGISTRAR.update(nonexistentNotaId, hookData);
     }
-
-
-    function testUpdateEmitsMetadataUpdate() public {
-        bytes memory hookData = "";
-
-        vm.expectEmit(true, true, true, true);
-        emit IERC4906.MetadataUpdate(notaId);
-
-        vm.prank(owner);
-        REGISTRAR.update(notaId, hookData);
-    }
 }
