@@ -8,6 +8,7 @@ pragma solidity ^0.8.0;
 /// @dev The functions may tamper with the free memory pointer but it is fine since the call context is exited immediately
 library CustomRevert {
     /// @dev ERC-7751 error for wrapping bubbled up reverts
+    /// @dev Error selector: 0x90bfb865
     error WrappedError(address target, bytes4 selector, bytes reason, bytes details);
 
     /// @dev Reverts with the selector of a custom error in the scratch space

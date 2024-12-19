@@ -10,12 +10,15 @@ library Hooks {
     using CustomRevert for bytes4;
 
     /// @notice Hook didn't exist or returned an empty return value
+    /// @dev Error selector: 0xe71bbd87
     error HookFailure();
 
     /// @notice Hook did not return its selector
+    /// @dev Error selector: 0x1e048e1d
     error InvalidHookResponse();
 
     /// @notice Additional context for ERC-7751 wrapped error when a hook call fails
+    /// @dev Error selector: 0xa9e35b2f
     error HookCallFailed();
 
     /**

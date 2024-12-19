@@ -95,6 +95,7 @@ interface INotaRegistrar {
     event Updated(address indexed updater, uint256 indexed notaId, uint256 hookFee, bytes hookData);
 
     /// @notice Error indicating that the Nota does not exist
+    /// @dev Error selector: 0x2f9d01c5
     error NonExistent();
 
     /**
