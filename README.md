@@ -1,5 +1,5 @@
 # Denota Protocol V1
-An asset wrapping protocol that upgrades tokens with custom logic
+Denota is a token agreement protocol designed for the EVM. It enables users to mint and interact with token agreement NFTs (Notas for short) which can store a token balance, arbitrary metadata, and the address of it's hook logic. Hooks act as both a validation and additional storage layer for Notas and can be deployed permisionlessly. Any action that modifies the Nota's state (token balance, ownership, or metadata) calls into the hook which determines what fee to charge and what action (if any) to call next. By treating agreements as first-class assets, Denota provides a foundation for developers to build modular financial, contractual, and governance mechanisms onchain.
 
 ## Quickstart
 Run the command below to install from scratch:
